@@ -193,9 +193,9 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
         case '4': //-- Pull
             $image              = $container['inspect'][0]['Config']['Image'];
             $pull               = dockerPullContainer($image);
-            $inspectContainer   = dockerInspect($container['Names']);
+            $inspectContainer   = dockerInspect($container['Names'], false);
             $inspectContainer   = json_decode($inspectContainer, true);
-            $inspectImage       = dockerInspect($image);
+            $inspectImage       = dockerInspect($image, false);
             $inspectImage       = json_decode($inspectImage, true);
 
             $pulls[md5($container['Names'])]    = [
@@ -210,7 +210,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
     }
 
-    $processList        = dockerProcessList();
+    $processList        = dockerProcessList(false);
     $processList        = json_decode($processList, true);
     $containerProcess   = [];
     foreach ($processList as $process) {
@@ -220,7 +220,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
         }
     }
 
-    $dockerStats    = dockerStats();
+    $dockerStats    = dockerStats(false);
     $dockerStats    = json_decode($dockerStats, true);
     $containerStats = [];
     foreach ($dockerStats as $dockerStat) {
@@ -262,7 +262,7 @@ if ($_POST['m'] == 'controlContainer') {
         dockerStartContainer($container['Names']);
     }
 
-    $processList        = dockerProcessList();
+    $processList        = dockerProcessList(false);
     $processList        = json_decode($processList, true);
     $containerProcess   = [];
     foreach ($processList as $process) {
@@ -272,7 +272,7 @@ if ($_POST['m'] == 'controlContainer') {
         }
     }
 
-    $dockerStats    = dockerStats();
+    $dockerStats    = dockerStats(false);
     $dockerStats    = json_decode($dockerStats, true);
     $containerStats = [];
     foreach ($dockerStats as $dockerStat) {

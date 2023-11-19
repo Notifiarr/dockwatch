@@ -38,16 +38,46 @@ function dockerPermissionCheck()
     return empty(json_decode($response, true)) ? false : true;
 }
 
-function dockerStats()
+function dockerProcessList($useCache = true)
 {
-    $cmd = '/usr/bin/docker stats --all --no-trunc --no-stream --format="{{json . }}" | jq -s --tab .';
-    return shell_exec($cmd . ' 2>&1');
+    $cacheKey   = 'dockerProcessList';
+    $cache      = memcacheGet($cacheKey);
+    if ($cache && $useCache) {
+        return $cache;
+    } else {
+        $cmd    = '/usr/bin/docker ps --all --no-trunc --format="{{json . }}" | jq -s --tab .';
+        $shell  = shell_exec($cmd . ' 2>&1');
+        memcacheSet($cacheKey, $shell, MEMCACHE_DOCKER_PROCESS);
+        return $shell;
+    }
 }
 
-function dockerInspect($containerName)
+function dockerStats($useCache = true)
 {
-    $cmd = '/usr/bin/docker inspect ' . $containerName . ' --format="{{json . }}" | jq -s --tab .';
-    return shell_exec($cmd . ' 2>&1');
+    $cacheKey   = 'dockerStats';
+    $cache      = memcacheGet($cacheKey);
+    if ($cache && $useCache) {
+        return $cache;
+    } else {
+        $cmd    = '/usr/bin/docker stats --all --no-trunc --no-stream --format="{{json . }}" | jq -s --tab .';
+        $shell  = shell_exec($cmd . ' 2>&1');
+        memcacheSet($cacheKey, $shell, MEMCACHE_DOCKER_STATS);
+        return $shell;
+    }
+}
+
+function dockerInspect($containerName, $useCache = true)
+{
+    $cacheKey   = 'dockerInspect.' . md5($containerName);
+    $cache      = memcacheGet($cacheKey);
+    if ($cache && $useCache) {
+        return $cache;
+    } else {
+        $cmd    = '/usr/bin/docker inspect ' . $containerName . ' --format="{{json . }}" | jq -s --tab .';
+        $shell  = shell_exec($cmd . ' 2>&1');
+        memcacheSet($cacheKey, $shell, MEMCACHE_DOCKER_INSPECT);
+        return $shell;
+    }
 }
 
 function dockerContainerLogs($containerName, $log)
@@ -61,22 +91,11 @@ function dockerContainerLogs($containerName, $log)
         }
         return $return;
     }
+
     if ($log == 'docker') {
         $cmd = '/usr/bin/docker logs ' . $containerName;
         return shell_exec($cmd . ' 2>&1');
     }
-}
-
-function dockerProcessList()
-{
-    $cmd = '/usr/bin/docker ps --all --no-trunc --format="{{json . }}" | jq -s --tab .';
-    return shell_exec($cmd . ' 2>&1');
-}
-
-function dockerCopyFile($from, $to)
-{
-    $cmd = '/usr/bin/docker cp ' . $from . ' ' . $to;
-    return shell_exec($cmd . ' 2>&1');
 }
 
 function dockerStartContainer($containerName)

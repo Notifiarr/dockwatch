@@ -31,7 +31,7 @@ foreach ($autoloads as $autoload) {
 }
 
 //-- CREATE DIRECTORIES
-createDirectoryTree(ABSOLUTE_PATH . LOGS_PATH);
+createDirectoryTree(LOGS_PATH . 'crons');
 
 //-- INITIALIZE THE NOTIFY CLASS
 $notifications = new Notifications();
@@ -44,3 +44,9 @@ $state = getFile(STATE_FILE);
 
 //-- PULLS
 $pulls = getFile(PULL_FILE);
+
+//-- INITIALIZE MEMCACHE
+if ($settings['global']['memcachedServer'] && $settings['global']['memcachedPort']) {
+    $memcache = new Memcached();
+    $memcache->addServer($settings['global']['memcachedServer'], $settings['global']['memcachedPort']);
+}

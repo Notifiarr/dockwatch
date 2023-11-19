@@ -67,7 +67,46 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
-            <div align="center"><button type="button" class="btn btn-info m-2" onclick="saveGlobalSettings()">Save</button></div>
+            <h4 class="mt-3">Memcached</h4>
+            Optionally memcached can be used to speed things up in the UI while navigating
+            <div class="table-responsive mt-2">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Setting</th>
+                            <th scope="col">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Enabled</th>
+                            <td><?= ($memcache ? 'Yes' : 'No') ?></td>
+                            <td>Is memcached connected and being used</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Prefix</th>
+                            <td><?= MEMCACHE_PREFIX ?></td>
+                            <td>Everything in memcached will be prefixed with this key to ensure no collisions</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Server</th>
+                            <td>
+                                <input class="form-control" type="text" id="globalSetting-memcachedServer" value="<?= $globalSettings['memcachedServer'] ?>">
+                            </td>
+                            <td>The container, ip, hostname of where memcached is installed</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Port</th>
+                            <td>
+                                <input class="form-control" type="number" id="globalSetting-memcachedPort" value="<?= $globalSettings['memcachedPort'] ?>">
+                            </td>
+                            <td>The memcached port (default is 11211)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div align="center"><button type="button" class="btn btn-info m-2" onclick="saveGlobalSettings()">Save Changes</button></div>
             <sup>1</sup> Checked every 5 minutes
         </div>
     </div>

@@ -81,7 +81,7 @@ if ($_POST['m'] == 'init') {
                     <tfoot>
                         <tr>
                             <td colspan="9" align="center">
-                                <button type="button" class="btn btn-info" onclick="saveNotificationSettings()">Save</button>
+                                <button type="button" class="btn btn-info" onclick="saveNotificationSettings()">Save Changes</button>
                             </td>
                         </tr>
                     </tfoot>
