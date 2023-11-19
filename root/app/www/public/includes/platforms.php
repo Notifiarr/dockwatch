@@ -8,15 +8,16 @@
 */
 
 $platforms  = [
-                [
-                    'id'        => 1,
+                1 => [
                     'name'      => 'Notifiarr',
                     'fields'    => [
                                     [
-                                        'name'      => 'apikey',
-                                        'type'      => 'password',
-                                        'required'  => true
+                                        'name'          => 'apikey',
+                                        'type'          => 'text',
+                                        'required'      => false,
+                                        'label'         => 'API Key',
+                                        'description'   => 'Your apikey from notifiarr.com (integration specific or global)'
                                     ]
-                    ]
+                                ]
                 ]
             ];

@@ -45,6 +45,7 @@ if ($_POST['m'] == 'init') {
     ?>
     <div class="container-fluid pt-4 px-4">
         <div class="bg-secondary rounded h-100 p-4">
+            <h4 class="mt-3">Triggers</h4>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -58,7 +59,7 @@ if ($_POST['m'] == 'init') {
                     <tbody>
                         <?php
                         foreach ($triggers as $trigger) {
-                            $notificationSetting = $settings['notifications'][$trigger['name']];
+                            $notificationSetting = $settings['notifications']['triggers'][$trigger['name']];
                             ?>
                             <tr>
                                 <th scope="row"><input type="checkbox" <?= ($notificationSetting['active'] ? 'checked' : '') ?> class="form-check-input notification-check" id="notifications-name-<?= $trigger['name'] ?>"></th>
@@ -67,8 +68,8 @@ if ($_POST['m'] == 'init') {
                                 <td>
                                     <select class="form-control" id="notifications-platform-<?= $trigger['name'] ?>">
                                         <?php
-                                        foreach ($platforms as $platform) {
-                                            ?><option <?= ($notificationSetting['platform'] == $platform['id'] ? 'selected' : '') ?> value="<?= $platform['id'] ?>"><?= $platform['name'] ?></option><?php
+                                        foreach ($platforms as $platformId => $platform) {
+                                            ?><option <?= ($notificationSetting['platform'] == $platformId ? 'selected' : '') ?> value="<?= $platformId ?>"><?= $platform['name'] ?></option><?php
                                         }
                                         ?>
                                     </select>
@@ -78,23 +79,45 @@ if ($_POST['m'] == 'init') {
                         }
                         ?>
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="9" align="center">
-                                <button type="button" class="btn btn-info" onclick="saveNotificationSettings()">Save Changes</button>
-                            </td>
-                        </tr>
-                    </tfoot>
                 </table>
             </div>
+        </div>
+        <div class="bg-secondary rounded h-100 p-4 mt-3">
+            <h4 class="mt-3">Platforms</h4>
+            <?php foreach ($platforms as $platformId => $platform) { ?>
+            <h6><?= $platform['name'] ?></h6>
+            <div class="table-responsive mt-2">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Setting</th>
+                            <th scope="col">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($platform['fields'] as $field) { ?>
+                        <tr>
+                            <th scope="row"><?= $field['label'] ?><?= ($field['required'] ? '<span class="text-danger">*</span>' : '') ?></th>
+                            <td><?= notificationPlatformField($platformId, $field) ?></td>
+                            <td><?= $field['description'] ?></td>
+                        </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php } ?>
+        </div>
+        <div class="bg-secondary rounded h-100 p-4 mt-3 text-center">
+            <button type="button" class="btn btn-info" onclick="saveNotificationSettings()">Save Changes</button>
         </div>
     </div>
     <?php
 }
 
 if ($_POST['m'] == 'saveNotificationSettings') {
+    //-- TRIGGER SETTINGS
     $newSettings = [];
-
     foreach ($_POST as $key => $val) {
         if (strpos($key, '-name-') === false) {
             continue;
@@ -106,7 +129,20 @@ if ($_POST['m'] == 'saveNotificationSettings') {
                                     'platform'  => $_POST['notifications-platform-' . $type]
                                 ];
     }
+    $settings['notifications']['triggers'] = $newSettings;
 
-    $settings['notifications'] = $newSettings;
+    //-- PLATFORM SETTINGS
+    $newSettings = [];
+    foreach ($_POST as $key => $val) {
+        if (strpos($key, '-platform-') === false) {
+            continue;
+        }
+
+        $strip = str_replace('notifications-platform-', '', $key);
+        list($platformId, $platformField) = explode('-', $strip);
+        $newSettings[$platformId][$platformField] = $val;
+    }
+    $settings['notifications']['platforms'] = $newSettings;
+
     setFile(SETTINGS_FILE, $settings);
 }

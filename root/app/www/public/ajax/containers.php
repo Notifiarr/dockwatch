@@ -26,7 +26,6 @@ if ($_POST['m'] == 'init') {
                             <th scope="col">Update</th>
                             <th scope="col">State</th>
                             <th scope="col">Added</th>
-                            <th scope="col">Running</th>
                             <th scope="col">CPU</th>
                             <th scope="col">Memory</th>
                             <th scope="col">
@@ -82,12 +81,11 @@ if ($_POST['m'] == 'init') {
                             <tr id="<?= $nameHash ?>">
                                 <th scope="row"><input id="massTrigger-<?= $nameHash ?>" type="checkbox" class="form-check-input containers-check"></th>
                                 <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32">' : '') ?></td>
-                                <td><?= $process['Names'] ?></td>
+                                <td><?= $process['Names'] ?><br><span class="text-muted small-text"><?= truncateMiddle($process['inspect'][0]['Config']['Image'], 35) ?></span></td>
                                 <td id="<?= $nameHash ?>-control"><?= $control ?></td>
                                 <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>"><?= $updateStatus ?></td>
                                 <td id="<?= $nameHash ?>-state"><?= $process['State'] ?></td>
-                                <td id="<?= $nameHash ?>-running"><?= $process['RunningFor'] ?></td>
-                                <td id="<?= $nameHash ?>-status"><?= $process['Status'] ?></td>
+                                <td><span id="<?= $nameHash ?>-running"><?= $process['RunningFor'] ?></span><br><span id="<?= $nameHash ?>-status"><?= $process['Status'] ?></span></td>
                                 <td id="<?= $nameHash ?>-cpu"><?= $process['stats']['CPUPerc'] ?></td>
                                 <td id="<?= $nameHash ?>-mem"><?= $process['stats']['MemPerc'] ?></td>
                                 <td>

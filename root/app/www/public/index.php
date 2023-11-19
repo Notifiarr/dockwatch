@@ -68,6 +68,9 @@ $dockerPerms = dockerPermissionCheck();
                     <a id="menu-logs" onclick="initPage('logs')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-file-code me-2"></i>Logs</a>
                 </div>
             </nav>
+            <div class="w-100 text-center" style="position: absolute; bottom: 0;">
+                Theme By <a href="https://htmlcodex.com">HTML Codex</a>
+            </div>
         </div>
         <!-- Sidebar End -->
 
@@ -93,21 +96,6 @@ $dockerPerms = dockerPermissionCheck();
                 </div>
             </div>
             <!-- App End -->
-
-            <!-- Footer Start -->
-            <div class="container-fluid pt-4 px-4">
-                <div class="bg-secondary rounded-top p-4" style="position: absolute; bottom: 0; width: 80%;">
-                    <div class="row">
-                        <div class="col-12 col-sm-6 text-center text-sm-start">
-                            &copy; DockWatch <?= date('Y') ?>, All Right Reserved. 
-                        </div>
-                        <div class="col-12 col-sm-6 text-center text-sm-end">
-                            Theme By <a href="https://htmlcodex.com">HTML Codex</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Footer End -->
         </div>
         <!-- Content End -->
 

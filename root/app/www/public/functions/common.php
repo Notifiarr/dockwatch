@@ -95,3 +95,35 @@ function byteConversion($bytes, $measurement = false, $dec = 2)
             return round($bytes / pow(1024, 4), $dec);
     }
 }
+
+function truncateEnd($str, $max, $minLength = false)
+{
+    if (!is_string($str)) {
+        return $str;
+    }
+
+    if (!$minLength && strlen($str) <= $max) {
+        return $str;
+    }
+
+    if (strlen($str) > $max) {
+        $str = substr($str, 0, $max - 3) . '...';
+    }
+
+    if ($minLength && strlen($str) < $max) {
+        $str = str_pad($str, $max, ' ', STR_PAD_RIGHT);
+    }
+
+    return $str;
+}
+
+function truncateMiddle($str, $max)
+{
+    if (strlen($str) <= $max) {
+        return $str;
+    }
+
+    $padMax = $max - 5;
+
+    return substr($str, 0, floor($padMax / 2)) . '.....' . substr($str, (floor($padMax / 2) * -1));
+}

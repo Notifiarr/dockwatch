@@ -293,3 +293,7 @@ pre {
     color: #FFF;
     padding: 1em;
 }
+
+.small-text {
+    font-size: small;
+}
