@@ -1,2 +1,4 @@
-*/5 * * * * /usr/bin/php /config/www/crons/state.php
-*/60 * * * * /usr/bin/php /config/www/crons/pulls.php
+# min   hour    day     month   weekday command
+*/5     *       *       *       *       /usr/bin/php /app/www/crons/state.php
+*/10    *       *       *       *       /usr/bin/php /app/www/crons/housekeeper.php
+*/60    *       *       *       *       /usr/bin/php /app/www/crons/pulls.php

@@ -7,6 +7,11 @@
 ----------------------------------
 */
 
+function createDirectoryTree($tree)
+{
+    system('mkdir -p ' . $tree);
+}
+
 function findContainerFromHash($hash)
 {
     $state = getFile(STATE_FILE);

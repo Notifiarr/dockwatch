@@ -65,6 +65,7 @@ $dockerPerms = dockerPermissionCheck();
                     <a id="menu-containers" onclick="initPage('containers')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Containers</a>
                     <a id="menu-notification" onclick="initPage('notification')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-comment-dots me-2"></i>Notifications</a>
                     <a id="menu-settings" onclick="initPage('settings')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tools me-2"></i>Settings</a>
+                    <a id="menu-logs" onclick="initPage('logs')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-file-code me-2"></i>Logs</a>
                 </div>
             </nav>
         </div>
@@ -86,6 +87,7 @@ $dockerPerms = dockerPermissionCheck();
                 <div id="content-containers" style="display: none;"></div>
                 <div id="content-notification" style="display: none;"></div>
                 <div id="content-settings" style="display: none;"></div>
+                <div id="content-logs" style="display: none;"></div>
                 <div id="content-dockerPermissions" style="display: <?= ($dockerPerms ? 'none' : 'block') ?>;">
                     If you are seeing this, it means the user running this container does not have permission to run docker commands. Please fix that, restart the container and try again.
                 </div>

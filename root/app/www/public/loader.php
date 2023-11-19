@@ -30,6 +30,9 @@ foreach ($autoloads as $autoload) {
     }
 }
 
+//-- CREATE DIRECTORIES
+createDirectoryTree(ABSOLUTE_PATH . LOGS_PATH);
+
 //-- INITIALIZE THE NOTIFY CLASS
 $notifications = new Notifications();
 
