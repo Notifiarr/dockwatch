@@ -10,6 +10,7 @@
 define('APP_NAME', 'DockWatch');
 
 //-- PATHS
+define('LOGIN_FILE', '/config/logins');
 define('SETTINGS_FILE', '/config/settings.json');
 define('STATE_FILE', '/config/state.json');
 define('PULL_FILE', '/config/pull.json');

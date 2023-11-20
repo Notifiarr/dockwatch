@@ -1,8 +1,16 @@
 $(document).ready(function () {
-    initPage('overview');
+    if ($('#menu-overview').length) {
+        initPage('overview');
+    }
+}).keyup(function (e) {
+    if ($('#username').length) {
+        const key = window.event ? e.keyCode : event.which;
+        if (key === 13) {
+            login();
+        }
+    }
 });
 // -------------------------------------------------------------------------------------------
-
 function initPage(page)
 {
     const dockerPermissionsError = $('#content-dockerPermissions').is(':visible');
@@ -28,7 +36,44 @@ function initPage(page)
 
 }
 // ---------------------------------------------------------------------------------------------
+function login()
+{
+    if (!$('#username').val() || !$('#password').val()) {
+        toast('Login', 'Username and password is required', 'error');
+        return;
+    }
 
+    loadingStart();
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/login.php',
+        data: '&m=login&user=' + $('#username').val() + '&pass=' + $('#password').val(),
+        success: function (resultData) {
+            reload();
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
+function logout()
+{
+    loadingStart();
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/login.php',
+        data: '&m=logout',
+        success: function (resultData) {
+            reload();
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
+function reload()
+{
+    window.location.href='/';
+}
+// ---------------------------------------------------------------------------------------------
 function toast(title, message, type)
 {
     const uniqueId = Date.now() + Math.floor(Math.random() * 1000);

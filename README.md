@@ -84,6 +84,13 @@ Variables
 | PGID | PGID | 100 |
 | UMASK | UMASK | 022 |
 
+### Login
+There is support for a simple login mechanism but i would recomment using something like a reverse proxy with authentication
+- Add a file `logins` to `/config`
+- Add `admin:password` to the file and save it
+- Reload
+- Multiple logins, drop a line and add another `admin:password`
+
 ### Screenshots
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/bac13748-fffd-4624-bc94-6631e054d536)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/d76842e2-d362-4e3b-9c01-168f0497e464)
