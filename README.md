@@ -91,6 +91,15 @@ There is support for a simple login mechanism but i would recomment using someth
 - Reload
 - Multiple logins, drop a line and add another `admin:password`
 
+### Development
+Firstly i **am not** a docker expert so there are likely other/better ways to do this. What i list below is just how i work on it without having to rebuilt the container for every change and a reminder for me on what i did
+- Fork the repo
+- Open the `Dockerfile` and comment out the `COPY root/ /` line at the bottom
+- Copy the files from `root/app/www/public/*` to `/config/www/*`
+- Copy the cron feom `root/etc/crontabs/abc` to `/config/crontabs/abc` (You'll need to add an ENV variable for `DOCKER_MODS=linuxserver/mods:universal-cron`)
+- Copy the ini from `root/etc/php82/conf.d/dockwatch.ini` to `/config/php/php-local.ini`
+- This should allow you to run the container while making changes to the files in `/config` and when done, just copy the files back into the `root/` directories and push your fork so it builds a new container
+
 ### Screenshots
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/bac13748-fffd-4624-bc94-6631e054d536)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/d76842e2-d362-4e3b-9c01-168f0497e464)

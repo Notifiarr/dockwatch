@@ -11,8 +11,13 @@ function viewLog(name, hash)
         data: '&m=viewLog&name=' + name,
         dataType: 'json',
         success: function (resultData) {
-            $('#logHeader').html(resultData.header);
-            $('#logViewer').html(resultData.log);
+            if (resultData.error) {
+                $('#logHeader').html('');
+                $('#logViewer').html(resultData.error);
+            } else {
+                $('#logHeader').html(resultData.header);
+                $('#logViewer').html(resultData.log);
+            }
             loadingStop();
         }
     });

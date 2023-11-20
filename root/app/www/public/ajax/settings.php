@@ -106,6 +106,34 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
+            <h4 class="mt-3">Logging</h4>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Setting</th>
+                            <th scope="col">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Crons</th>
+                            <td>
+                                <input class="form-control" type="number" id="globalSetting-cronLogLength" value="<?= ($globalSettings['cronLogLength'] <= 1 ? 1 : $globalSettings['cronLogLength']) ?>">
+                            </td>
+                            <td>How long to store cron run log files (min 1 day)</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Notifications</th>
+                            <td>
+                                <input class="form-control" type="number" id="globalSetting-notificationLogLength" value="<?= ($globalSettings['notificationLogLength'] <= 1 ? 1 : $globalSettings['notificationLogLength']) ?>">
+                            </td>
+                            <td>How long to store logs generated when notifications are sent (min 1 day)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <div align="center"><button type="button" class="btn btn-info m-2" onclick="saveGlobalSettings()">Save Changes</button></div>
             <sup>1</sup> Checked every 5 minutes
         </div>

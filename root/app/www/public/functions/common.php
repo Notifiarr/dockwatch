@@ -127,3 +127,12 @@ function truncateMiddle($str, $max)
 
     return substr($str, 0, floor($padMax / 2)) . '.....' . substr($str, (floor($padMax / 2) * -1));
 }
+
+function daysBetweenDates($ymdStart, $ymdEnd)
+{
+    $start  = new DateTime($ymdStart . ' 00:00:01');
+    $end    = new DateTime($ymdEnd . '23:59:59');
+    $diff   = $end->diff($start)->format('%a');
+
+    return $diff;
+}

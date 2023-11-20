@@ -25,6 +25,10 @@ if ($_POST['m'] == 'init') {
                 }
                 closedir($groupDir);
             }
+
+            if (is_array($logFiles[$group])) {
+                sort($logFiles[$group]);
+            }
         }
         closedir($dir);
     }
@@ -40,7 +44,8 @@ if ($_POST['m'] == 'init') {
                         <ul>
                             <?php 
                             foreach ($logFiles as $group => $groupLogs) { 
-                                echo '<h4 class="mt-3">' . $group . '</h4>';
+                                echo '<h4 class="mt-3 mb-0">' . $group . '</h4>';
+                                echo '<span class="small-text text-muted">' . LOGS_PATH . $group . '/</span>';
 
                                 if (!$groupLogs) {
                                     continue;
@@ -65,12 +70,16 @@ if ($_POST['m'] == 'init') {
 }
 
 if ($_POST['m'] == 'viewLog') {
-    $log        = file(LOGS_PATH . $_POST['name']);
-    $header     = 'Lines: ' . count($log);
-    
-    foreach ($log as $index => $line) {
-        $content .= str_pad(($index + 1), strlen(count($log)), ' ', STR_PAD_RIGHT) .' | '. $line;
+    $error = $header = $content = '';
+    if (file_exists(LOGS_PATH . $_POST['name'])) {
+        $log        = file(LOGS_PATH . $_POST['name']);
+        $header     = 'Lines: ' . count($log);
+        
+        foreach ($log as $index => $line) {
+            $content .= str_pad(($index + 1), strlen(count($log)), ' ', STR_PAD_RIGHT) .' | '. $line;
+        }
+    } else {
+        $error = 'Selected log file not found';
     }
-
-    echo json_encode(['header' => $header, 'log' => $content]);
+    echo json_encode(['header' => $header, 'log' => $content, 'error' => $error]);
 }

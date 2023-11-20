@@ -14,14 +14,36 @@ $logfile = LOGS_PATH . 'crons/cron-housekeeper-' . date('Ymd') . '.log';
 logger($logfile, 'Cron run started');
 echo 'Cron run started: housekeeper' . "\n";
 
+$settings = getFile(SETTINGS_FILE);
+
 //-- LOG FILE CLEANUP (DAILY @ MIDNIGHT)
-logger($logfile, 'Checking time: Log file cleanup (daily @ midnight)');
 if (date('H') == 0) {
-    $logDir = ABSOLUTE_PATH . LOGS_PATH;
+    logger($logfile, 'Cron log file cleanup (daily @ midnight)');
+    $cronLength = $settings['global']['cronLogLength'] <= 1 ? 1 : $settings['global']['cronLogLength'];
+    logger($logfile, 'Allowed cron log age: ' . $cronLength);
     $dir = opendir($logDir);
     while ($log = readdir($dir)) {
         if ($log[0] != '.' && !is_dir($log)) {
-            if (date('Ymd', filemtime($logDir . $log)) != date('Ymd')) {
+            $daysBetween = daysBetweenDates(date('Ymd', filemtime($logDir . $log)), date('Ymd'));
+
+            if ($daysBetween > $cronLength) {
+                logger($logfile, 'Removing logfile: ' . $logDir . $log);
+                unlink($logDir . $log);
+            }
+        }
+    }
+    closedir($dir);
+
+    logger($logfile, 'Notification log file cleanup (daily @ midnight)');
+    $notificationLength = $settings['global']['notificationLogLength'] <= 1 ? 1 : $settings['global']['notificationLogLength'];
+    logger($logfile, 'Allowed notification log age: ' . $notificationLength);
+    $logDir = LOGS_PATH . 'notifications/';
+    $dir = opendir($logDir);
+    while ($log = readdir($dir)) {
+        if ($log[0] != '.' && !is_dir($log)) {
+            $daysBetween = daysBetweenDates(date('Ymd', filemtime($logDir . $log)), date('Ymd'));
+
+            if ($daysBetween > $notificationLength) {
                 logger($logfile, 'Removing logfile: ' . $logDir . $log);
                 unlink($logDir . $log);
             }
