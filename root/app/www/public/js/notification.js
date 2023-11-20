@@ -37,3 +37,23 @@ function saveNotificationSettings()
 
 }
 // ---------------------------------------------------------------------------------------------
+function testNotify(platform)
+{
+    loadingStart();
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/notification.php',
+        data: '&m=testNotify&platform=' + platform,
+        success: function (resultData) {
+            loadingStop();
+            if (resultData) {
+                toast('Notifications', 'Test notification failed: ' + resultData, 'error');
+                return;
+            }
+
+            toast('Notifications', 'Test notification sent', 'success');
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------

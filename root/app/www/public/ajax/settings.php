@@ -121,7 +121,7 @@ if ($_POST['m'] == 'saveGlobalSettings') {
             continue;
         }
 
-        $newSettings[$key] = $val;
+        $newSettings[$key] = trim($val);
     }
 
     $settings['global'] = $newSettings;

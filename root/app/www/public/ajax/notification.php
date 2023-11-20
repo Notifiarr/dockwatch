@@ -42,6 +42,8 @@ $triggers   = [
             ];
 
 if ($_POST['m'] == 'init') {
+    $notificationPlatforms = $notifications->getPlatforms();
+
     ?>
     <div class="container-fluid pt-4 px-4">
         <div class="bg-secondary rounded h-100 p-4">
@@ -84,8 +86,8 @@ if ($_POST['m'] == 'init') {
         </div>
         <div class="bg-secondary rounded h-100 p-4 mt-3">
             <h4 class="mt-3">Platforms</h4>
-            <?php foreach ($platforms as $platformId => $platform) { ?>
-            <h6><?= $platform['name'] ?></h6>
+            <?php foreach ($notificationPlatforms as $platformId => $platform) { ?>
+            <h6><?= $platform['name'] ?> <i style="cursor: pointer;" class="fas fa-bell text-info" title="test" onclick="testNotify('<?= $platformId ?>')"></i></h6>
             <div class="table-responsive mt-2">
                 <table class="table">
                     <thead>
@@ -125,7 +127,7 @@ if ($_POST['m'] == 'saveNotificationSettings') {
 
         $type = str_replace('notifications-name-', '', $key);
         $newSettings[$type]     = [
-                                    'active'    => $val, 
+                                    'active'    => trim($val),
                                     'platform'  => $_POST['notifications-platform-' . $type]
                                 ];
     }
@@ -140,9 +142,23 @@ if ($_POST['m'] == 'saveNotificationSettings') {
 
         $strip = str_replace('notifications-platform-', '', $key);
         list($platformId, $platformField) = explode('-', $strip);
-        $newSettings[$platformId][$platformField] = $val;
+        $newSettings[$platformId][$platformField] = trim($val);
     }
     $settings['notifications']['platforms'] = $newSettings;
 
     setFile(SETTINGS_FILE, $settings);
+}
+
+if ($_POST['m'] == 'testNotify') {
+    $payload    = [
+                    'event'     => 'test', 
+                    'title'     => 'DockWatch Test', 
+                    'message'   => 'This is a test message sent from DockWatch'
+                ];
+
+    $result = $notifications->notify($_POST['platform'], $payload);
+
+    if ($result['code'] != 200) {
+        echo 'Code ' . $result['code'] . ', ' . $result['error'];
+    }
 }

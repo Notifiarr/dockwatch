@@ -22,11 +22,19 @@ class Notifications
 {
     use Notifiarr;
 
-    public $platforms = ['Notifiarr'];
-
+    protected $platforms;
+    protected $platformSettings;
+    private $headers;
+    private $logfile;
     public function __construct()
     {
+        global $platforms;
 
+        $settings = getFile(SETTINGS_FILE);
+
+        $this->platforms        = $platforms; //-- includes/platforms.php
+        $this->platformSettings = $settings['notifications']['platforms'];
+        $this->logfile          = LOGS_PATH . 'notifications/';
     }
 
     public function __toString()
@@ -36,8 +44,17 @@ class Notifications
 
     public function notify($platform, $payload)
     {
+        $platformData = $this->getNotificationPlatformFromId($platform);
+        $this->logfile = $this->logfile . $platformData['name'] . '-'. date('Ymd') .'.log';
+
+        logger($this->logfile, 'notification request to ' . $platformData['name'], 'info');
+        logger($this->logfile, 'notification payload: ' . json_encode($payload), 'info');
+
+        /*
+            Everything should return an array with code => ..., error => ... (if no error, just code is fine)
+        */
         switch ($platform) {
-            case 'notifiarr':
+            case 1: //-- Notifiarr
                 return $this->notifiarr($payload);
         }
     }
@@ -45,5 +62,10 @@ class Notifications
     public function getPlatforms()
     {
         return $this->platforms;
+    }
+
+    public function getNotificationPlatformFromId($platform)
+    {
+        return $this->platforms[$platform];
     }
 }

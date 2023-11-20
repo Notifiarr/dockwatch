@@ -7,6 +7,8 @@
 ----------------------------------
 */
 
+define('APP_NAME', 'DockWatch');
+
 //-- PATHS
 define('SETTINGS_FILE', '/config/settings.json');
 define('STATE_FILE', '/config/state.json');

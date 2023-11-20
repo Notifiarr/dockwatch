@@ -32,6 +32,7 @@ foreach ($autoloads as $autoload) {
 
 //-- CREATE DIRECTORIES
 createDirectoryTree(LOGS_PATH . 'crons');
+createDirectoryTree(LOGS_PATH . 'notifications');
 
 //-- INITIALIZE THE NOTIFY CLASS
 $notifications = new Notifications();

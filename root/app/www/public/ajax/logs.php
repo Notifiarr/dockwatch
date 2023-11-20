@@ -10,21 +10,23 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $logFiles = $cronLogs = [];
+    $logFiles = [];
 
-    $logDir = LOGS_PATH . 'crons';
+    $logDir = LOGS_PATH;
     if (is_dir($logDir)) {
         $dir = opendir($logDir);
-        while ($log = readdir($dir)) {
-            if ($log[0] != '.' && !is_dir($log)) {
-                $cronLogs[] = ['name' => $log, 'size' => filesize($logDir . $log)];
+        while ($group = readdir($dir)) {
+            if ($group[0] != '.' && is_dir($logDir . $group)) {
+                $groupDir = opendir($logDir . $group . '/');
+                while ($log = readdir($groupDir)) {
+                    if ($log[0] != '.' && !is_dir($log)) {
+                        $logFiles[$group][] = ['name' => $log, 'size' => filesize($logDir . $group . '/' . $log)];
+                    }
+                }
+                closedir($groupDir);
             }
         }
         closedir($dir);
-
-        if ($cronLogs) {
-            $logFiles['crons'] = $cronLogs;
-        }
     }
 
     if (!$logFiles) {
@@ -38,7 +40,7 @@ if ($_POST['m'] == 'init') {
                         <ul>
                             <?php 
                             foreach ($logFiles as $group => $groupLogs) { 
-                                echo '<h4>' . $group . '</h4>';
+                                echo '<h4 class="mt-3">' . $group . '</h4>';
 
                                 if (!$groupLogs) {
                                     continue;
