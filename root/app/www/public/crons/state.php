@@ -39,6 +39,7 @@ foreach ($previousStates as $previousIndex => $previousState) {
 if ($added) {
     $notify['state']['added'] = $added;
 }
+logger($logfile, 'Added containers: ' . json_encode($notify['state']['added']));
 
 //-- CHECK FOR REMOVED CONTAINERS
 foreach ($currentStates as $currentIndex => $currentState) {
@@ -59,8 +60,9 @@ foreach ($currentStates as $currentIndex => $currentState) {
 if ($removed) {
     $notify['state']['removed'] = $added;
 }
+logger($logfile, 'Removed containers: ' . json_encode($notify['state']['removed']));
 
-//-- CHECK FOR STOPPED CONTAINERS
+//-- CHECK FOR STATE CHANGED CONTAINERS
 foreach ($currentStates as $currentState) {
     foreach ($previousStates as $previousState) {
         if ($settings['notifications']['triggers']['stateChange']['active'] && $currentState['Names'] == $previousState['Names']) {
@@ -70,6 +72,7 @@ foreach ($currentStates as $currentState) {
         }
     }
 }
+logger($logfile, 'State changed containers: ' . json_encode($notify['state']['changed']));
 
 foreach ($currentStates as $currentState) {
     //-- CHECK FOR HIGH CPU USAGE CONTAINERS
@@ -92,25 +95,31 @@ foreach ($currentStates as $currentState) {
         }
     }
 }
+logger($logfile, 'CPU issue containers: ' . json_encode($notify['usage']['cpu']));
+logger($logfile, 'Mem issue containers: ' . json_encode($notify['usage']['mem']));
 
 if ($notify['state']) {
     //-- IF THEY USE THE SAME PLATFORM, COMBINE THEM
     if ($settings['notifications']['triggers']['stateChange']['platform'] == $settings['notifications']['triggers']['added']['platform'] && $settings['notifications']['triggers']['stateChange']['platform'] == $settings['notifications']['triggers']['removed']['platform']) {
         $payload = ['event' => 'state', 'changes' => $notify['state']['changed'], 'added' => $notify['state']['added'], 'removed' => $notify['state']['removed']];
+        logger($logfile, 'Notification payload: ' . json_encode($payload));
         $notifications->notify($settings['notifications']['triggers']['stateChange']['platform'], $payload);
     } else {
         if ($notify['state']['changed']) {
             $payload = ['event' => 'state', 'changes' => $notify['state']['changed']];
+            logger($logfile, 'Notification payload: ' . json_encode($payload));
             $notifications->notify($settings['notifications']['triggers']['stateChange']['platform'], $payload);
         }
 
         if ($notify['state']['added']) {
             $payload = ['event' => 'state', 'added' => $notify['state']['added']];
+            logger($logfile, 'Notification payload: ' . json_encode($payload));
             $notifications->notify($settings['notifications']['triggers']['added']['platform'], $payload);
         }
 
         if ($notify['state']['removed']) {
             $payload = ['event' => 'state', 'removed' => $notify['state']['removed']];
+            logger($logfile, 'Notification payload: ' . json_encode($payload));
             $notifications->notify($settings['notifications']['triggers']['removed']['platform'], $payload);
         }
     }
@@ -120,15 +129,18 @@ if ($notify['usage']) {
     //-- IF THEY USE THE SAME PLATFORM, COMBINE THEM
     if ($settings['notifications']['triggers']['cpuHigh']['platform'] == $settings['notifications']['triggers']['memHigh']['platform']) {
         $payload = ['event' => 'usage', 'cpu' => $notify['usage']['cpu'], 'cpuThreshold' => $settings['global']['cpuThreshold'], 'mem' => $notify['usage']['mem'], 'memThreshold' => $settings['global']['memThreshold']];
+        logger($logfile, 'Notification payload: ' . json_encode($payload));
         $notifications->notify($settings['notifications']['triggers']['cpuHigh']['platform'], $payload);
     } else {
         if ($notify['usage']['cpu']) {
             $payload = ['event' => 'usage', 'cpu' => $notify['usage']['cpu'], 'cpuThreshold' => $settings['global']['cpuThreshold']];
+            logger($logfile, 'Notification payload: ' . json_encode($payload));
             $notifications->notify($settings['notifications']['triggers']['cpuHigh']['platform'], $payload);
         }
 
         if ($notify['usage']['mem']) {
             $payload = ['event' => 'usage', 'mem' => $notify['usage']['mem'], 'memThreshold' => $settings['global']['memThreshold']];
+            logger($logfile, 'Notification payload: ' . json_encode($payload));
             $notifications->notify($settings['notifications']['triggers']['memHigh']['platform'], $payload);
         }
     }

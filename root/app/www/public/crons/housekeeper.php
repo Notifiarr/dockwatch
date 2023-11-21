@@ -17,17 +17,19 @@ echo 'Cron run started: housekeeper' . "\n";
 $settings = getFile(SETTINGS_FILE);
 
 //-- LOG FILE CLEANUP (DAILY @ MIDNIGHT)
-if (date('H') == 0) {
+if (date('H') == 0 && date('i') <= 5) {
     logger($logfile, 'Cron log file cleanup (daily @ midnight)');
     $cronLength = $settings['global']['cronLogLength'] <= 1 ? 1 : $settings['global']['cronLogLength'];
     logger($logfile, 'Allowed cron log age: ' . $cronLength);
+    $logDir = LOGS_PATH . 'crons/';
     $dir = opendir($logDir);
     while ($log = readdir($dir)) {
         if ($log[0] != '.' && !is_dir($log)) {
             $daysBetween = daysBetweenDates(date('Ymd', filemtime($logDir . $log)), date('Ymd'));
+            logger($logfile, 'logfile: ' . $logDir . $log . ', age: ' . $daysBetween);
 
             if ($daysBetween > $cronLength) {
-                logger($logfile, 'Removing logfile: ' . $logDir . $log);
+                logger($logfile, 'removing logfile');
                 unlink($logDir . $log);
             }
         }
@@ -42,9 +44,10 @@ if (date('H') == 0) {
     while ($log = readdir($dir)) {
         if ($log[0] != '.' && !is_dir($log)) {
             $daysBetween = daysBetweenDates(date('Ymd', filemtime($logDir . $log)), date('Ymd'));
+            logger($logfile, 'logfile: ' . $logDir . $log . ', age: ' . $daysBetween);
 
             if ($daysBetween > $notificationLength) {
-                logger($logfile, 'Removing logfile: ' . $logDir . $log);
+                logger($logfile, 'removing logfile');
                 unlink($logDir . $log);
             }
         }

@@ -24,8 +24,8 @@ class Notifications
 
     protected $platforms;
     protected $platformSettings;
-    private $headers;
-    private $logfile;
+    protected $headers;
+    protected $logpath;
     public function __construct()
     {
         global $platforms;
@@ -34,7 +34,7 @@ class Notifications
 
         $this->platforms        = $platforms; //-- includes/platforms.php
         $this->platformSettings = $settings['notifications']['platforms'];
-        $this->logfile          = LOGS_PATH . 'notifications/';
+        $this->logpath          = LOGS_PATH . 'notifications/';
     }
 
     public function __toString()
@@ -44,18 +44,18 @@ class Notifications
 
     public function notify($platform, $payload)
     {
-        $platformData = $this->getNotificationPlatformFromId($platform);
-        $this->logfile = $this->logfile . $platformData['name'] . '-'. date('Ymd') .'.log';
+        $platformData   = $this->getNotificationPlatformFromId($platform);
+        $logfile        = $this->logpath . $platformData['name'] . '-'. date('Ymd') .'.log';
 
-        logger($this->logfile, 'notification request to ' . $platformData['name'], 'info');
-        logger($this->logfile, 'notification payload: ' . json_encode($payload), 'info');
+        logger($logfile, 'notification request to ' . $platformData['name'], 'info');
+        logger($logfile, 'notification payload: ' . json_encode($payload), 'info');
 
         /*
             Everything should return an array with code => ..., error => ... (if no error, just code is fine)
         */
         switch ($platform) {
             case 1: //-- Notifiarr
-                return $this->notifiarr($payload);
+                return $this->notifiarr($logfile, $payload);
         }
     }
 
