@@ -29,37 +29,59 @@ if ($updateSettings) {
         $containerState = findContainerFromHash($containerHash);
 
         if ($containerState) {
+            $pullHistory = $pulls[$containerHash];
+            //-- CHECK AGAINST HOUR
             if (date('H') == $settings['hour']) {
-                $image = $containerState['inspect'][0]['Config']['Image'];
+                $pullAllowed = false;
 
-                $msg = 'Pulling: ' . $image;
-                logger($logfile, $msg);
-                echo $msg. "\n";
-                $pull = dockerPullContainer($image);
+                //-- CHECK AGAINST FREQUENCY
+                if ($settings['frequency'] == '12h') {
+                    $pullAllowed = true;
+                } else {
+                    $pullDays   = calculateDaysFromString($settings['frequency']);
+                    $daysSince  = daysBetweenDates(date('Ymd', $pullHistory['checked']), date('Ymd'));
 
-                $msg = 'Inspecting container: ' . $containerState['Names'];
-                logger($logfile, $msg);
-                echo $msg. "\n";
-                $inspectContainer = dockerInspect($containerState['Names'], false);
-                $inspectContainer = json_decode($inspectContainer, true);
+                    if ($daysSince >= $pullDays) {
+                        $pullAllowed = true;
+                    }
+                }
 
-                $msg = 'Inspecting image: ' . $image;
-                logger($logfile, $msg);
-                echo $msg. "\n";
-                $inspectImage = dockerInspect($image, false);
-                $inspectImage = json_decode($inspectImage, true);
+                if ($pullAllowed) {
+                    $image = $containerState['inspect'][0]['Config']['Image'];
 
-                $msg = 'Updating pull data: ' . $containerState['Names'];
-                logger($logfile, $msg);
-                echo $msg. "\n";
-                $pulls[md5($containerState['Names'])]   = [
-                                                            'checked'   => time(),
-                                                            'name'      => $containerState['Names'],
-                                                            'image'     => $inspectImage[0]['Id'],
-                                                            'container' => $inspectContainer[0]['Image']
-                                                        ];
+                    $msg = 'Pulling: ' . $image;
+                    logger($logfile, $msg);
+                    echo $msg. "\n";
+                    $pull = dockerPullContainer($image);
+
+                    $msg = 'Inspecting container: ' . $containerState['Names'];
+                    logger($logfile, $msg);
+                    echo $msg. "\n";
+                    $inspectContainer = dockerInspect($containerState['Names'], false);
+                    $inspectContainer = json_decode($inspectContainer, true);
+
+                    $msg = 'Inspecting image: ' . $image;
+                    logger($logfile, $msg);
+                    echo $msg. "\n";
+                    $inspectImage = dockerInspect($image, false);
+                    $inspectImage = json_decode($inspectImage, true);
+
+                    $msg = 'Updating pull data: ' . $containerState['Names'];
+                    logger($logfile, $msg);
+                    echo $msg. "\n";
+                    $pulls[$containerHash]  = [
+                                                'checked'   => time(),
+                                                'name'      => $containerState['Names'],
+                                                'image'     => $inspectImage[0]['Id'],
+                                                'container' => $inspectContainer[0]['Image']
+                                            ];
+                } else {
+                    $msg = 'Skipping: ' . $containerState['Names'] . ' (\'' . $settings['frequency'] . '\' frequency not met)';
+                    logger($logfile, $msg);
+                    echo $msg. "\n";                    
+                }
             } else {
-                $msg = 'Skipping: ' . $containerState['Names'];
+                $msg = 'Skipping: ' . $containerState['Names'] . ' (\'' . $settings['hour'] . '\' hour not met)';
                 logger($logfile, $msg);
                 echo $msg. "\n";
             }

@@ -136,3 +136,14 @@ function daysBetweenDates($ymdStart, $ymdEnd)
 
     return $diff;
 }
+
+function calculateDaysFromString($str)
+{
+    if (strpos($str, 'd') !== false) { //-- [1-29]d
+        return intval(str_replace('d', '', $str));
+    } elseif (strpos($str, 'w') !== false) { //-- [1-3]w
+        return intval(str_replace('w', '', $str)) * 7;
+    } elseif (strpos($str, 'm') !== false) { //-- [1-12]m
+        return intval(str_replace('m', '', $str)) * 30;
+    }
+}
