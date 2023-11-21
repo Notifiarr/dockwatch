@@ -20,37 +20,9 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Auto update
 - Check for update
 
-### Image
-`ghcr.io/notifiarr/dockwatch:main`
-
-### Install
-`docker pull ghcr.io/notifiarr/dockwatch:main`
-
-### Run
-This is an example from an Unraid install
-
-```
-docker run
-  -d
-  --name='dockwatch'
-  --net='custom-bridge'
-  -e TZ="America/New_York"
-  -e HOST_OS="Unraid"
-  -e 'PUID'='1001'
-  -e 'PGID'='100'
-  -e 'UMASK'='022'
-  -l net.unraid.docker.managed=dockerman
-  -l net.unraid.docker.webui='http://[IP]:[PORT:9999]'
-  -l net.unraid.docker.icon='https://golift.io/crontabs.png'
-  -p '9999:80/tcp'
-  -v '/mnt/disk1/appdata/dockwatch/config':'/config':'rw'
-  -v '/mnt/disk1/appdata/dockwatch/logs':'/logs':'rw'
-  -v '/var/run/docker.sock':'/var/run/docker.sock':'rw' 'ghcr.io/notifiarr/dockwatch:main'
-```
-
 ### Permissions
-No matter how docker is installed (native, unraid, etc), it is required that the user running the container has permission to use the docker commands
-
+No matter how docker is installed (native, unraid, etc), it is required that the user running the container has permission to use the docker commands. View `root/app/www/public/functions/docker.php` to see what is used
+	
 Unraid: This is built into the container with
 ```
 addgroup -g 281 unraiddocker && \
@@ -61,6 +33,49 @@ Ubuntu: This is an example
 ```
 usermod -aG ping abc
 ```
+
+### Run
+This is an unraid example, adjust paths and settings for your setup
+
+```
+docker run \
+  -d \
+  --name='dockwatch' \
+  --net='custom-bridge' \
+  -e TZ="America/New_York" \
+  -e HOST_OS="Unraid" \
+  -e 'PUID'='1001' \
+  -e 'PGID'='100' \
+  -e 'UMASK'='022' \
+  -l net.unraid.docker.managed=dockerman \
+  -l net.unraid.docker.webui='http://[IP]:[PORT:9999]' \
+  -l net.unraid.docker.icon='https://golift.io/crontabs.png' \
+  -p '9999:80/tcp' \
+  -v '/mnt/disk1/appdata/dockwatch/config':'/config':'rw' \
+  -v '/var/run/docker.sock':'/var/run/docker.sock':'rw' 'ghcr.io/notifiarr/dockwatch:main'
+```
+
+### Compose
+This is an example, adjust paths and settings for your setup
+
+```
+dockwatch:
+container_name: dockwatch
+image: ghcr.io/notifiarr/dockwatch:main
+ports:
+  - 9999:80/tcp
+environment:
+  - PUID=1001
+  - PGID=100
+  - UMASK=022
+  - TZ=Etc/UTC
+volumes:
+  - /appdata/dockwatch/config:/config
+  - /var/run/docker.sock:/var/run/docker.sock
+```
+
+### Manual
+`docker pull ghcr.io/notifiarr/dockwatch:main`
 
 ### ENV
 These are my settings, adjust them to fit your setup!!
@@ -102,6 +117,8 @@ Firstly i **am not** a docker expert so there are likely other/better ways to do
 
 ### Screenshots
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/bac13748-fffd-4624-bc94-6631e054d536)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/d76842e2-d362-4e3b-9c01-168f0497e464)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/3df6c25c-5329-4289-bb92-23220ebac9be)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/271e4b7d-cc72-4d4f-ae24-a7e2f91a8141)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/835e095a-ca5f-4671-852e-588276787c37)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/57b57a2a-808b-4ac9-85fe-60c71bbb57e5)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/6b89da1a-975a-4757-a4b2-2db02635330d)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/93e66d78-ce87-4fbc-b8b3-de3ec547e9ac)
+

@@ -136,12 +136,13 @@ if ($_POST['m'] == 'saveNotificationSettings') {
     //-- PLATFORM SETTINGS
     $newSettings = [];
     foreach ($_POST as $key => $val) {
-        if (strpos($key, '-platform-') === false) {
+        $strip = str_replace('notifications-platform-', '', $key);
+        list($platformId, $platformField) = explode('-', $strip);
+
+        if (!is_numeric($platformId)) {
             continue;
         }
 
-        $strip = str_replace('notifications-platform-', '', $key);
-        list($platformId, $platformField) = explode('-', $strip);
         $newSettings[$platformId][$platformField] = trim($val);
     }
     $settings['notifications']['platforms'] = $newSettings;
