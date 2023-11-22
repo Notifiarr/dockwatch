@@ -69,6 +69,7 @@ if ($_POST['m'] == 'init') {
                                 <td><?= $trigger['desc'] ?></td>
                                 <td>
                                     <select class="form-control" id="notifications-platform-<?= $trigger['name'] ?>">
+                                        <option value="0">-- Select one --</option>
                                         <?php
                                         foreach ($platforms as $platformId => $platform) {
                                             ?><option <?= ($notificationSetting['platform'] == $platformId ? 'selected' : '') ?> value="<?= $platformId ?>"><?= $platform['name'] ?></option><?php

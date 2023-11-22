@@ -41,14 +41,14 @@
 
     <!-- Mass trigger modal -->
     <div class="modal fade" id="massTrigger-modal" style="z-index: 9999 !important;" data-bs-backdrop="static">
-        <div class="modal-dialog">
+        <div class="modal-dialog" style="max-width: 1000px">
             <div class="modal-content bg-dark" style="border: grey solid 1px;">
                 <div class="modal-header" style="border: grey solid 1px;">
                     <h5 class="modal-title text-primary"><div id="massTrigger-spinner" class="spinner-border text-primary" style="margin-right: 1em;"></div> Mass Trigger</h5>
                 </div>
                 <div class="modal-body" style="border: grey solid 1px;">
                     <div id="massTrigger-header"></div>
-                    <div id="massTrigger-results" style="max-height: 200px; overflow: auto;"></div>
+                    <div id="massTrigger-results" style="max-height: 400px; overflow: auto;"></div>
                 </div>
                 <div class="modal-footer" align="center">
                     <button id="massTrigger-close-btn" style="display: none;" type="button" class="btn btn-outline-success" data-bs-dismiss="modal">Close</button>

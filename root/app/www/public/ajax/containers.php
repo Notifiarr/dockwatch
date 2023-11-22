@@ -175,6 +175,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     $pulls      = getFile(PULL_FILE);
     $pulls      = is_array($pulls) ? $pulls : json_decode($pulls, true); 
     $container  = findContainerFromHash($_POST['hash']);
+    $version    = '';
 
     switch ($_POST['trigger']) {
         case '1': //-- Start
@@ -213,8 +214,11 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $result = 'docker run ' . $container['Names'] . '<br><pre>' . $run . '</pre>';
             break;
         case '6': //-- GENERATE COMPOSE
-            $run = dockerAutoCompose($container['Names']);
-            $result = 'compose ' . $container['Names'] . '<br><pre>' . $run . '</pre>';
+            $run        = dockerAutoCompose($container['Names']);
+            $lines      = explode("\n", $run);
+            $version    = $lines[count($lines) - 1];
+            $run        = str_replace($version, '', $run);
+            $result     = trim($run);
             break;
     }
 
@@ -254,7 +258,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     'status'    => $containerProcess['Status'],
                     'cpu'       => $containerStats['CPUPerc'],
                     'mem'       => $containerStats['MemPerc'],
-                    'result'    => $result
+                    'result'    => $result,
+                    'version'   => $version
                 ];
 
     echo json_encode($return);

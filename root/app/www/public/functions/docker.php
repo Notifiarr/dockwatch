@@ -130,7 +130,7 @@ function dockerAutoCompose($containerName)
     $skip       = true;
     $command    = [];
     foreach ($lines as $line) {
-        if (strpos($line, 'networks') !== false) {
+        if (strpos($line, 'networks:') !== false || strpos($line, 'services:') !== false) {
             $skip = false;
         }
 
@@ -138,7 +138,9 @@ function dockerAutoCompose($containerName)
             continue;
         }
 
-        $command[] = $line;
+        if (trim($line)) {
+            $command[] = $line;
+        }
     }
 
     return implode("\n", $command);
