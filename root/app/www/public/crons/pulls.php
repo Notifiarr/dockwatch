@@ -18,6 +18,7 @@ echo 'Cron run started: pulls' . "\n";
 $updateSettings = $settings['containers'];
 $states         = is_array($state) ? $state : json_decode($state, true);
 $pulls          = getFile(PULL_FILE);
+$notify         = [];
 
 if ($updateSettings) {
     foreach ($updateSettings as $containerHash => $settings) {
@@ -75,6 +76,28 @@ if ($updateSettings) {
                                                 'image'     => $inspectImage[0]['Id'],
                                                 'container' => $inspectContainer[0]['Image']
                                             ];
+
+                    switch ($settings['updates']) {
+                        case 1: //-- Auto update
+                            if ($settings['notifications']['triggers']['updated']['active'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
+                                logger($logfile, 'Building run command for ' . $containerState['Names']);
+                                //$runCommand = dockerAutoRun($containerState['Names']);
+                                logger($logfile, 'Stopping container ' . $containerState['Names']);
+                                //dockerStopContainer($containerState['Names']);
+                                logger($logfile, 'Removing container ' . $containerState['Names']);
+                                //dockerRemoveContainer($containerState['Id']);
+                                logger($logfile, 'Updating container ' . $containerState['Names']);
+                                //dockerUpdateContainer($runCommand);
+
+                                $notify['updated'][] = ['container' => $containerState['Names']];
+                            }
+                            break;
+                        case 2: //-- Check for updates
+                            if ($settings['notifications']['triggers']['updates']['active'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
+                                $notify['available'][] = ['container' => $containerState['Names']];
+                            }
+                            break;
+                    }
                 } else {
                     $msg = 'Skipping: ' . $containerState['Names'] . ' (\'' . $settings['frequency'] . '\' frequency not met)';
                     logger($logfile, $msg);
@@ -89,5 +112,26 @@ if ($updateSettings) {
     }
 
     setFile(PULL_FILE, $pulls);
+
+    if ($notify) {
+        //-- IF THEY USE THE SAME PLATFORM, COMBINE THEM
+        if ($settings['notifications']['triggers']['updated']['platform'] == $settings['notifications']['triggers']['updates']['platform']) {
+            $payload = ['event' => 'updates', 'available' => $notify['available'], 'updated' => $notify['updated']];
+            logger($logfile, 'Notification payload: ' . json_encode($payload));
+            $notifications->notify($settings['notifications']['triggers']['updated']['platform'], $payload);
+        } else {
+            if ($notify['available']) {
+                $payload = ['event' => 'updates', 'available' => $notify['available']];
+                logger($logfile, 'Notification payload: ' . json_encode($payload));
+                $notifications->notify($settings['notifications']['triggers']['updated']['platform'], $payload);
+            }
+
+            if ($notify['usage']['mem']) {
+                $payload = ['event' => 'updates', 'updated' => $notify['updated']];
+                logger($logfile, 'Notification payload: ' . json_encode($payload));
+                $notifications->notify($settings['notifications']['triggers']['updates']['platform'], $payload);
+            }
+        }
+    }
 }
 logger($logfile, 'Cron run finished');

@@ -13,6 +13,7 @@ $dockerPerms = dockerPermissionCheck();
 ?>
     <div id="content-overview" style="display: none;"></div>
     <div id="content-containers" style="display: none;"></div>
+    <div id="content-orphans" style="display: none;"></div>
     <div id="content-notification" style="display: none;"></div>
     <div id="content-settings" style="display: none;"></div>
     <div id="content-logs" style="display: none;"></div>

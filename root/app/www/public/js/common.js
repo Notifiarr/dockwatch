@@ -30,7 +30,7 @@ function initPage(page)
         data: '&m=init&page=' + page,
         success: function (resultData) {
             $('#content-' + page).html(resultData);
-            loadingStop();
+            setTimeout(loadingStop, 1000);
         }
     });
 

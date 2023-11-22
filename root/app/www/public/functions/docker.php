@@ -121,3 +121,50 @@ function dockerPullContainer($image)
     $cmd = '/usr/bin/docker pull ' . $image;
     return shell_exec($cmd . ' 2>&1');
 }
+
+function dockerAutoCompose($containerName)
+{
+    $cmd        = '/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $containerName;
+    $run        = shell_exec($cmd . ' 2>&1');
+    $lines      = explode("\n", $run);
+    $skip       = true;
+    $command    = [];
+    foreach ($lines as $line) {
+        if (strpos($line, 'networks') !== false) {
+            $skip = false;
+        }
+
+        if ($skip) {
+            continue;
+        }
+
+        $command[] = $line;
+    }
+
+    return implode("\n", $command);
+}
+
+function dockerAutoRun($containerName)
+{
+    // Smarter people than me... https://gist.github.com/efrecon/8ce9c75d518b6eb863f667442d7bc679
+    $cmd = '/usr/bin/docker inspect --format "$(cat ' . ABSOLUTE_PATH . 'run.tpl)" ' . $containerName;
+    return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerUpdateContainer($command)
+{
+    $cmd = '/usr/bin/' . $command;
+    return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerGetOrphans()
+{
+    $cmd = '/usr/bin/docker images -f dangling=true --format="{{json . }}" | jq -s --tab .';
+    return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerRemoveImage($id)
+{
+    $cmd = '/usr/bin/docker rmi ' . $id;
+    return shell_exec($cmd . ' 2>&1');
+}

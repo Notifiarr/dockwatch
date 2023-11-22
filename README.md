@@ -60,18 +60,18 @@ This is an example, adjust paths and settings for your setup
 
 ```
 dockwatch:
-container_name: dockwatch
-image: ghcr.io/notifiarr/dockwatch:main
-ports:
-  - 9999:80/tcp
-environment:
-  - PUID=1001
-  - PGID=100
-  - UMASK=022
-  - TZ=Etc/UTC
-volumes:
-  - /appdata/dockwatch/config:/config
-  - /var/run/docker.sock:/var/run/docker.sock
+	container_name: dockwatch
+	image: ghcr.io/notifiarr/dockwatch:main
+	ports:
+	  - 9999:80/tcp
+	environment:
+	  - PUID=1001
+	  - PGID=100
+	  - UMASK=022
+	  - TZ=Etc/UTC
+	volumes:
+	  - /appdata/dockwatch/config:/config
+	  - /var/run/docker.sock:/var/run/docker.sock
 ```
 
 ### Manual

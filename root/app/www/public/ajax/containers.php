@@ -134,6 +134,8 @@ if ($_POST['m'] == 'init') {
                                     <option value="2">Restart</option>
                                     <option value="3">Stop</option>
                                     <option value="4">Pull</option>
+                                    <option value="5">Inspect -> Run</option>
+                                    <option value="6">Inspect -> Compose</option>
                                 </select>
                                 <button type="button" class="btn btn-outline-info" onclick="massApplyContainerTrigger()">Apply</button>
                             </td>
@@ -205,6 +207,14 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
             setFile(PULL_FILE, $pulls);
             $result = 'Pulled ' . $container['Names'] . '<br>';
+            break;
+        case '5': //-- GERNERATE RUN
+            $run = dockerAutoRun($container['Names']);
+            $result = 'docker run ' . $container['Names'] . '<br><pre>' . $run . '</pre>';
+            break;
+        case '6': //-- GENERATE COMPOSE
+            $run = dockerAutoCompose($container['Names']);
+            $result = 'compose ' . $container['Names'] . '<br><pre>' . $run . '</pre>';
             break;
     }
 
@@ -299,12 +309,4 @@ if ($_POST['m'] == 'controlContainer') {
                 ];
 
     echo json_encode($return);
-}
-
-if ($_POST['m'] == 'startContainer') {
-
-}
-
-if ($_POST['m'] == 'restartContainer') {
-
 }

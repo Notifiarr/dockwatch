@@ -81,5 +81,5 @@ if ($_POST['m'] == 'viewLog') {
     } else {
         $error = 'Selected log file not found';
     }
-    echo json_encode(['header' => $header, 'log' => $content, 'error' => $error]);
+    echo json_encode(['header' => $header, 'log' => str_replace('[ERROR]', '<span class="text-danger">[ERROR]</span>', $content), 'error' => $error]);
 }
