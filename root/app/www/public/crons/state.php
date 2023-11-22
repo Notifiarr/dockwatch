@@ -67,7 +67,7 @@ foreach ($currentStates as $currentState) {
     foreach ($previousStates as $previousState) {
         if ($settings['notifications']['triggers']['stateChange']['active'] && $currentState['Names'] == $previousState['Names']) {
             if ($previousState['State'] != $currentState['State']) {
-                $notify['state']['changed'] = ['container' => $currentState['Names'], 'previous' => $previousState['State'], 'current' => $currentState['State']];
+                $notify['state']['changed'][] = ['container' => $currentState['Names'], 'previous' => $previousState['State'], 'current' => $currentState['State']];
             }
         }
     }
@@ -80,7 +80,7 @@ foreach ($currentStates as $currentState) {
         if ($currentState['stats']['CPUPerc']) {
             $cpu = floatval(str_replace('%', '', $currentState['stats']['CPUPerc']));
             if ($cpu > floatval($settings['global']['cpuThreshold'])) {
-                $notify['usage']['cpu'] = ['container' => $currentState['Names'], 'usage' => $cpu];
+                $notify['usage']['cpu'][] = ['container' => $currentState['Names'], 'usage' => $cpu];
             }
         }
     }
@@ -90,7 +90,7 @@ foreach ($currentStates as $currentState) {
         if ($currentState['stats']['MemPerc']) {
             $mem = floatval(str_replace('%', '', $currentState['stats']['MemPerc']));
             if ($mem > floatval($settings['global']['memThreshold'])) {
-                $notify['usage']['mem'] = ['container' => $currentState['Names'], 'usage' => $mem];
+                $notify['usage']['mem'][] = ['container' => $currentState['Names'], 'usage' => $mem];
             }
         }
     }
