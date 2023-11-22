@@ -175,7 +175,6 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     $pulls      = getFile(PULL_FILE);
     $pulls      = is_array($pulls) ? $pulls : json_decode($pulls, true); 
     $container  = findContainerFromHash($_POST['hash']);
-    $version    = '';
 
     switch ($_POST['trigger']) {
         case '1': //-- Start
@@ -214,31 +213,41 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $result = 'docker run ' . $container['Names'] . '<br><pre>' . $run . '</pre>';
             break;
         case '6': //-- GENERATE COMPOSE
-            $run        = dockerAutoCompose($container['Names']);
-            $lines      = explode("\n", $run);
-            $version    = $lines[count($lines) - 1];
-            $run        = str_replace($version, '', $run);
-            $result     = trim($run);
+            $containerList  = '';
+            $containers     = explode(',', $_POST['hash']);
+
+            foreach ($containers as $selectedContainer) {
+                $thisContainer  = findContainerFromHash($selectedContainer);
+                $containerList .= $thisContainer['Names'] . ' ';
+            }
+
+            $result = '<pre>' . dockerAutoCompose(trim($containerList)) . '</pre>';
             break;
     }
 
-    $processList        = dockerProcessList(false);
-    $processList        = json_decode($processList, true);
-    $containerProcess   = [];
-    foreach ($processList as $process) {
-        if ($process['Names'] == $container['Names']) {
-            $containerProcess = $process;
-            break;
-        }
-    }
-
+    $processList    = dockerProcessList(false);
+    $processList    = json_decode($processList, true);
     $dockerStats    = dockerStats(false);
     $dockerStats    = json_decode($dockerStats, true);
-    $containerStats = [];
-    foreach ($dockerStats as $dockerStat) {
-        if ($dockerStat['Name'] == $container['Names']) {
-            $containerStats = $dockerStat;
-            break;
+    $containerProcess = $containerStats = [];
+
+    if (is_array($container)) {
+        foreach ($processList as $process) {
+            if (!is_array($process)) {
+                continue;
+            }
+
+            if ($process['Names'] == $container['Names']) {
+                $containerProcess = $process;
+                break;
+            }
+        }
+
+        foreach ($dockerStats as $dockerStat) {
+            if ($dockerStat['Name'] == $container['Names']) {
+                $containerStats = $dockerStat;
+                break;
+            }
         }
     }
 
@@ -258,8 +267,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     'status'    => $containerProcess['Status'],
                     'cpu'       => $containerStats['CPUPerc'],
                     'mem'       => $containerStats['MemPerc'],
-                    'result'    => $result,
-                    'version'   => $version
+                    'result'    => $result
                 ];
 
     echo json_encode($return);
