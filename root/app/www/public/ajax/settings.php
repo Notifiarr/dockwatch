@@ -14,6 +14,27 @@ if ($_POST['m'] == 'init') {
     ?>
     <div class="container-fluid pt-4 px-4">
         <div class="bg-secondary rounded h-100 p-4">
+            <h4>General</h4>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Setting</th>
+                            <th scope="col">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Server name</th>
+                            <td>
+                                <input class="form-control" type="text" id="globalSetting-serverName" value="<?= $globalSettings['serverName'] ?>">
+                            </td>
+                            <td>The name of this server, also passed in the notification payload</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <h4>New Containers</h4>
             <div class="table-responsive">
                 <table class="table">

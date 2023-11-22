@@ -26,6 +26,7 @@ class Notifications
     protected $platformSettings;
     protected $headers;
     protected $logpath;
+    protected $serverName;
     public function __construct()
     {
         global $platforms;
@@ -35,6 +36,7 @@ class Notifications
         $this->platforms        = $platforms; //-- includes/platforms.php
         $this->platformSettings = $settings['notifications']['platforms'];
         $this->logpath          = LOGS_PATH . 'notifications/';
+        $this->serverName       = $settings['global']['serverName'];
     }
 
     public function __toString()
@@ -44,6 +46,10 @@ class Notifications
 
     public function notify($platform, $payload)
     {
+        if ($this->serverName) {
+            $payload['server']['name'] = $this->serverName;
+        }
+
         $platformData   = $this->getNotificationPlatformFromId($platform);
         $logfile        = $this->logpath . $platformData['name'] . '-'. date('Ymd') .'.log';
 

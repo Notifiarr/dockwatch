@@ -87,7 +87,7 @@ if ($_POST['m'] == 'init') {
         <div class="bg-secondary rounded h-100 p-4 mt-3">
             <h4 class="mt-3">Platforms</h4>
             <?php foreach ($notificationPlatforms as $platformId => $platform) { ?>
-            <h6><?= $platform['name'] ?> <i style="cursor: pointer;" class="fas fa-bell text-info" title="test" onclick="testNotify('<?= $platformId ?>')"></i></h6>
+            <h6><?= $platform['name'] ?> <i style="cursor: pointer;" class="fas fa-bell text-info" title="Test notification" onclick="testNotify('<?= $platformId ?>')"></i></h6>
             <div class="table-responsive mt-2">
                 <table class="table">
                     <thead>
