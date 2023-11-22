@@ -21,18 +21,18 @@ setFile(STATE_FILE, $currentStates);
 $notify = $added = $removed = [];
 
 //-- CHECK FOR ADDED CONTAINERS
+$matches = [];
 foreach ($previousStates as $previousIndex => $previousState) {
     $found = false;
     foreach ($currentStates as $currentIndex => $currentState) {
-        if ($settings['notifications']['triggers']['added']['active']) {
-            if ($previousState['Names'] == $currentState['Names']) {
-                $found = true;
-                break;
-            }
+        if ($previousState['Names'] == $currentState['Names']) {
+            $found = true;
+            break;
         }
     }
-    if (!$found) {
-        $added[] = ['container' => $currentState['Names']];
+    if ($settings['notifications']['triggers']['added']['active'] && !in_array($currentState['Names'], $matches) && !$found) {
+        $added[]    = ['container' => $currentState['Names']];
+        $matches[]  = $currentState['Names'];
     }
 }
 
@@ -42,18 +42,18 @@ if ($added) {
 logger($logfile, 'Added containers: ' . json_encode($notify['state']['added']));
 
 //-- CHECK FOR REMOVED CONTAINERS
+$matches = [];
 foreach ($currentStates as $currentIndex => $currentState) {
     $found = false;
     foreach ($previousStates as $previousIndex => $previousState) {
-        if ($settings['notifications']['triggers']['removed']['active']) {
-            if ($previousState['Names'] == $currentState['Names']) {
-                $found = true;
-                break;
-            }
+        if ($previousState['Names'] == $currentState['Names']) {
+            $found = true;
+            break;
         }
     }
-    if (!$found) {
-        $removed[] = ['container' => $currentState['Names']];
+    if ($settings['notifications']['triggers']['removed']['active'] && !in_array($currentState['Names'], $matches) && !$found) {
+        $removed[]  = ['container' => $currentState['Names']];
+        $matches[]  = $currentState['Names'];
     }
 }
 

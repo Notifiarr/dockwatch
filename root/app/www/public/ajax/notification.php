@@ -13,31 +13,31 @@ $triggers   = [
                 [
                     'name'  => 'updated', 
                     'label' => 'Updated', 
-                    'desc'  => 'Send a notification when a container has had an update applied'
+                    'desc'  => 'Send a notification when a container has had an update applied, updates event'
                 ],[
                     'name'  => 'updates', 
                     'label' => 'Updates', 
-                    'desc'  => 'Send a notification when a container has an update available'
+                    'desc'  => 'Send a notification when a container has an update available, updates event'
                 ],[
                     'name'  => 'stateChange', 
                     'label' => 'State Change', 
-                    'desc'  => 'Send a notification when a container has a state change (running -> down)' 
+                    'desc'  => 'Send a notification when a container has a state change (running -> down), state event' 
                 ],[
                     'name'  => 'added', 
                     'label' => 'Added', 
-                    'desc'  => 'Send a notification when a container is added' 
+                    'desc'  => 'Send a notification when a container is added, state event' 
                 ],[
                     'name'  => 'removed', 
                     'label' => 'Removed', 
-                    'desc'  => 'Send a notification when a container is removed' 
+                    'desc'  => 'Send a notification when a container is removed, state event' 
                 ],[
                     'name'  => 'cpuHigh', 
                     'label' => 'CPU Usage', 
-                    'desc'  => 'Send a notification when container CPU usage exceeds threshold (set in Settings)' 
+                    'desc'  => 'Send a notification when container CPU usage exceeds threshold (set in Settings), usage event' 
                 ],[
                     'name'  => 'memHigh', 
                     'label' => 'Memory Usage', 
-                    'desc'  => 'Send a notification when container memory usage exceeds threshold (set in Settings)' 
+                    'desc'  => 'Send a notification when container memory usage exceeds threshold (set in Settings), usage event' 
                 ]
             ];
 
