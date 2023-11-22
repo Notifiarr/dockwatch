@@ -84,7 +84,6 @@ Volumes
 | Name | Host | Container |
 | ----- | ----- | ----- |
 | App Config | /mnt/disk1/appdata/dockwatch/config | /config |
-| Logs | /mnt/disk1/appdata/dockwatch/logs | /logs |
 | Docker sock | /var/run/docker.sock | /var/run/docker.sock |
 
 Ports

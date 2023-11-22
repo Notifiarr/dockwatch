@@ -58,7 +58,7 @@ foreach ($currentStates as $currentIndex => $currentState) {
 }
 
 if ($removed) {
-    $notify['state']['removed'] = $added;
+    $notify['state']['removed'] = $removed;
 }
 logger($logfile, 'Removed containers: ' . json_encode($notify['state']['removed']));
 
