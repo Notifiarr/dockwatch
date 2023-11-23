@@ -12,29 +12,36 @@ require ABSOLUTE_PATH . 'loader.php';
 
 logger($systemLog, 'Cron: running housekeeper', 'info');
 
-$logfile = LOGS_PATH . 'crons/cron-state-' . date('Ymd') . '.log';
+$logfile = LOGS_PATH . 'crons/cron-state-' . date('YmdHi') . '.log';
 logger($logfile, 'Cron run started');
 echo 'Cron run started: state' . "\n";
 
+$notify = $added = $removed = [];
 $settings       = getFile(SETTINGS_FILE);
 $previousStates = getFile(STATE_FILE);
 $currentStates  = dockerState();
-setFile(STATE_FILE, $currentStates);
-$notify = $added = $removed = [];
+if ($currentStates) {
+    setFile(STATE_FILE, $currentStates);
+} else {
+    logger($logfile, 'STATE_FILE update skipped, $currentStates empty');
+}
+
+logger($logfile, 'previousStates: ' . json_encode($previousStates));
+logger($logfile, 'currentStates: ' . json_encode($currentStates));
 
 //-- CHECK FOR ADDED CONTAINERS
 $matches = [];
 foreach ($previousStates as $previousIndex => $previousState) {
-    $found = false;
+    $found = '';
     foreach ($currentStates as $currentIndex => $currentState) {
         if ($previousState['Names'] == $currentState['Names']) {
-            $found = true;
+            $found = $currentState;
             break;
         }
     }
-    if ($settings['notifications']['triggers']['added']['active'] && !in_array($currentState['Names'], $matches) && !$found) {
-        $added[]    = ['container' => $currentState['Names']];
-        $matches[]  = $currentState['Names'];
+    if ($settings['notifications']['triggers']['added']['active'] && !in_array($previousState['Names'], $matches) && !$found) {
+        $added[]    = ['container' => $previousState['Names']];
+        $matches[]  = $previousState['Names'];
     }
 }
 
@@ -46,10 +53,10 @@ logger($logfile, 'Added containers: ' . json_encode($notify['state']['added']));
 //-- CHECK FOR REMOVED CONTAINERS
 $matches = [];
 foreach ($currentStates as $currentIndex => $currentState) {
-    $found = false;
+    $found = '';
     foreach ($previousStates as $previousIndex => $previousState) {
         if ($previousState['Names'] == $currentState['Names']) {
-            $found = true;
+            $found = $previousState;
             break;
         }
     }
@@ -99,6 +106,16 @@ foreach ($currentStates as $currentState) {
 }
 logger($logfile, 'CPU issue containers: ' . json_encode($notify['usage']['cpu']));
 logger($logfile, 'Mem issue containers: ' . json_encode($notify['usage']['mem']));
+
+if (!$previousStates) {
+    $notify = [];
+    logger($logfile, 'Notification skipped, $previousStates empty');
+}
+
+if (!$currentStates) {
+    $notify = [];
+    logger($logfile, 'Notification skipped, $currentStates empty');
+}
 
 if ($notify['state']) {
     //-- IF THEY USE THE SAME PLATFORM, COMBINE THEM
