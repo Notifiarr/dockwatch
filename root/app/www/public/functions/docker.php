@@ -125,10 +125,11 @@ function dockerPullContainer($image)
 function dockerAutoCompose($containerName)
 {
     $cmd        = '/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $containerName;
-    $run        = shell_exec($cmd . ' 2>&1');
-    $lines      = explode("\n", $run);
+    $compose    = shell_exec($cmd . ' 2>&1');
+    $lines      = explode("\n", $compose);
     $skip       = true;
     $command    = [];
+    //-- LOOP THIS SO IT REMOVES ALL THE ADD CONTAINER OVERHEAD
     foreach ($lines as $line) {
         if (strpos($line, 'networks:') !== false || strpos($line, 'services:') !== false) {
             $skip = false;

@@ -66,7 +66,7 @@ if ($_POST['m'] == 'init') {
     ?>
     <div class="container-fluid pt-4 px-4">
         <div class="row">
-            <div class="col-sm-12 col-xl-4 mt-3">
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
                 <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
                     <h3>Status</h3>
                     Running: <?= $running ?><br>
@@ -74,7 +74,7 @@ if ($_POST['m'] == 'init') {
                     Total: <?= ($running + $stopped) ?><br><br>
                 </div>
             </div>
-            <div class="col-sm-12 col-xl-4 mt-3">
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
                 <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
                     <h3>Updates</h3>
                     Updated: <?= $updated ?><br>
@@ -82,7 +82,7 @@ if ($_POST['m'] == 'init') {
                     Unchecked: <?= (($running + $stopped) - ($updated + $outdated)) ?><br><br>
                 </div>
             </div>
-            <div class="col-sm-12 col-xl-4 mt-3">
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
                 <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
                     <h3>Usage</h3>
                     Disk:  <?= byteConversion($size) ?><br>
@@ -91,17 +91,19 @@ if ($_POST['m'] == 'init') {
                     Network I/O: <?= byteConversion($network) ?>
                 </div>
             </div>
-            <div class="col-sm-12 col-xl-4 mt-3">
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
                 <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
                     <h3>Networks</h3>
                     <?php
+                    $networkList = '';
                     foreach ($networks as $networkName => $networkCount) {
-                        echo $networkName . ': ' .  $networkCount . '<br>';
+                        $networkList .= ($networkList ? '<br>' : '') . $networkName . ': ' . $networkCount;
                     }
+                    echo '<div style="max-height: 250px; overflow: auto;">' . $networkList . '</div>';
                     ?>
                 </div>
             </div>
-            <div class="col-sm-12 col-xl-4 mt-3">
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
                 <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
                     <h3>Ports</h3>
                     <?php
@@ -119,7 +121,7 @@ if ($_POST['m'] == 'init') {
                             foreach ($portArray as $port => $container) {
                                 $portList .= ($portList ? '<br>' : '') . $port . ' :: ' . $container;
                             }
-                            $portList = '<div style="max-height: 100px; overflow: auto;">'. $portList .'</div>';
+                            $portList = '<div style="max-height: 250px; overflow: auto;">' . $portList . '</div>';
                         }
                     }
                     echo $portList;

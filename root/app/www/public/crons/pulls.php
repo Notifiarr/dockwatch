@@ -15,15 +15,15 @@ $logfile = LOGS_PATH . 'crons/cron-pulls-' . date('Ymd') . '.log';
 logger($logfile, 'Cron run started');
 echo 'Cron run started: pulls' . "\n";
 
+$pulls          = getFile(PULL_FILE);
 $updateSettings = $settings['containers'];
 $states         = is_array($state) ? $state : json_decode($state, true);
-$pulls          = getFile(PULL_FILE);
 $notify         = [];
 
 if ($updateSettings) {
-    foreach ($updateSettings as $containerHash => $settings) {
+    foreach ($updateSettings as $containerHash => $containerSettings) {
         //-- SET TO IGNORE
-        if (!$settings['updates']) {
+        if (!$containerSettings['updates']) {
             continue;
         }
 
@@ -32,14 +32,14 @@ if ($updateSettings) {
         if ($containerState) {
             $pullHistory = $pulls[$containerHash];
             //-- CHECK AGAINST HOUR
-            if (date('H') == $settings['hour']) {
+            if (date('H') == $containerSettings['hour']) {
                 $pullAllowed = false;
 
                 //-- CHECK AGAINST FREQUENCY
-                if ($settings['frequency'] == '12h') {
+                if ($containerSettings['frequency'] == '12h') {
                     $pullAllowed = true;
                 } else {
-                    $pullDays   = calculateDaysFromString($settings['frequency']);
+                    $pullDays   = calculateDaysFromString($containerSettings['frequency']);
                     $daysSince  = daysBetweenDates(date('Ymd', $pullHistory['checked']), date('Ymd'));
 
                     if ($daysSince >= $pullDays) {
@@ -52,24 +52,24 @@ if ($updateSettings) {
 
                     $msg = 'Pulling: ' . $image;
                     logger($logfile, $msg);
-                    echo $msg. "\n";
+                    echo $msg . "\n";
                     $pull = dockerPullContainer($image);
 
                     $msg = 'Inspecting container: ' . $containerState['Names'];
                     logger($logfile, $msg);
-                    echo $msg. "\n";
+                    echo $msg . "\n";
                     $inspectContainer = dockerInspect($containerState['Names'], false);
                     $inspectContainer = json_decode($inspectContainer, true);
 
                     $msg = 'Inspecting image: ' . $image;
                     logger($logfile, $msg);
-                    echo $msg. "\n";
+                    echo $msg . "\n";
                     $inspectImage = dockerInspect($image, false);
                     $inspectImage = json_decode($inspectImage, true);
 
                     $msg = 'Updating pull data: ' . $containerState['Names'];
                     logger($logfile, $msg);
-                    echo $msg. "\n";
+                    echo $msg . "\n";
                     $pulls[$containerHash]  = [
                                                 'checked'   => time(),
                                                 'name'      => $containerState['Names'],
@@ -77,19 +77,53 @@ if ($updateSettings) {
                                                 'container' => $inspectContainer[0]['Image']
                                             ];
 
-                    switch ($settings['updates']) {
+                    switch ($containerSettings['updates']) {
                         case 1: //-- Auto update
-                            if ($settings['notifications']['triggers']['updated']['active'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
-                                logger($logfile, 'Building run command for ' . $containerState['Names']);
-                                //$runCommand = dockerAutoRun($containerState['Names']);
-                                logger($logfile, 'Stopping container ' . $containerState['Names']);
-                                //dockerStopContainer($containerState['Names']);
-                                logger($logfile, 'Removing container ' . $containerState['Names']);
-                                //dockerRemoveContainer($containerState['Id']);
-                                logger($logfile, 'Updating container ' . $containerState['Names']);
-                                //dockerUpdateContainer($runCommand);
+                            if ($inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
+                                $msg = 'Building run command: ' . $containerState['Names'];
+                                logger($logfile, $msg);
+                                echo $msg . "\n";
+                                $runCommand = dockerAutoRun($containerState['Names']);
+                                $lines = explode("\n", $runCommand);
+                                foreach ($lines as $line) {
+                                    $newRun .= trim(str_replace('\\', '', $line)) . ' ';
+                                }
+                                $runCommand = $newRun;
 
-                                $notify['updated'][] = ['container' => $containerState['Names']];
+                                $msg = 'Stopping container: ' . $containerState['Names'];
+                                logger($logfile, $msg);
+                                echo $msg . "\n";
+                                dockerStopContainer($containerState['Names']);
+
+                                $msg = 'Removing container: ' . $containerState['Names'];
+                                logger($logfile, $msg);
+                                echo $msg . "\n";
+                                $remove = dockerRemoveContainer($containerState['ID']);
+
+                                $msg = 'Updating container: ' . $containerState['Names'];
+                                logger($logfile, $msg);
+                                echo $msg . "\n";
+                                $update = trim(dockerUpdateContainer($runCommand));
+
+                                if (strlen($update) == 64) {
+                                    $msg = 'Updating pull data: ' . $containerState['Names'];
+                                    logger($logfile, $msg);
+                                    echo $msg . "\n";
+                                    $pulls[$containerHash]  = [
+                                                                'checked'   => time(),
+                                                                'name'      => $containerState['Names'],
+                                                                'image'     => $update,
+                                                                'container' => $update
+                                                            ];
+                                } else {
+                                    $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update);
+                                    logger($logfile, $msg);
+                                    echo $msg . "\n";
+                                }
+
+                                if ($settings['notifications']['triggers']['updated']['active']) {
+                                    $notify['updated'][] = ['container' => $containerState['Names']];
+                                }
                             }
                             break;
                         case 2: //-- Check for updates
@@ -99,14 +133,14 @@ if ($updateSettings) {
                             break;
                     }
                 } else {
-                    $msg = 'Skipping: ' . $containerState['Names'] . ' (\'' . $settings['frequency'] . '\' frequency not met)';
+                    $msg = 'Skipping: ' . $containerState['Names'] . ' (\'' . $containerSettings['frequency'] . '\' frequency not met, last check \'' . $daysSince . '\')';
                     logger($logfile, $msg);
-                    echo $msg. "\n";                    
+                    echo $msg . "\n";                    
                 }
             } else {
-                $msg = 'Skipping: ' . $containerState['Names'] . ' (\'' . $settings['hour'] . '\' hour not met)';
+                $msg = 'Skipping: ' . $containerState['Names'] . ' (\'' . $containerSettings['hour'] . '\' hour not met)';
                 logger($logfile, $msg);
-                echo $msg. "\n";
+                echo $msg . "\n";
             }
         }
     }
