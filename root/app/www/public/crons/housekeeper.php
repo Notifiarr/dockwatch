@@ -12,7 +12,7 @@ require ABSOLUTE_PATH . 'loader.php';
 
 logger($systemLog, 'Cron: running housekeeper', 'info');
 
-$logfile = LOGS_PATH . 'crons/cron-housekeeper-' . date('Ymd') . '.log';
+$logfile = LOGS_PATH . 'crons/housekeeper-' . date('Ymd_Hi') . '.log';
 logger($logfile, 'Cron run started');
 echo 'Cron run started: housekeeper' . "\n";
 

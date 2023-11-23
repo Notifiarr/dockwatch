@@ -12,11 +12,11 @@ require ABSOLUTE_PATH . 'loader.php';
 
 logger($systemLog, 'Cron: running housekeeper', 'info');
 
-$logfile = LOGS_PATH . 'crons/cron-state-' . date('YmdHi') . '.log';
+$logfile = LOGS_PATH . 'crons/state-' . date('Ymd_Hi') . '.log';
 logger($logfile, 'Cron run started');
 echo 'Cron run started: state' . "\n";
 
-$notify = $added = $removed = [];
+$notify = $added = $removed = $previousStates = $currentStates = $previousContainers = $currentContainers = [];
 $settings       = getFile(SETTINGS_FILE);
 $previousStates = getFile(STATE_FILE);
 $currentStates  = dockerState();
@@ -29,47 +29,50 @@ if ($currentStates) {
 logger($logfile, 'previousStates: ' . json_encode($previousStates));
 logger($logfile, 'currentStates: ' . json_encode($currentStates));
 
-//-- CHECK FOR ADDED CONTAINERS
-$matches = [];
-foreach ($previousStates as $previousIndex => $previousState) {
-    $found = '';
-    foreach ($currentStates as $currentIndex => $currentState) {
-        if ($previousState['Names'] == $currentState['Names']) {
-            $found = $currentState;
-            break;
-        }
-    }
-    if ($settings['notifications']['triggers']['added']['active'] && !in_array($previousState['Names'], $matches) && !$found) {
-        $added[]    = ['container' => $previousState['Names']];
-        $matches[]  = $previousState['Names'];
-    }
+foreach ($previousStates as $previousState) {
+    $previousContainers[] = $previousState['Names'];
 }
 
+foreach ($currentStates as $currentState) {
+    $currentContainers[] = $currentState['Names'];
+}
+
+logger($logfile, 'previousContainers: ' . json_encode($previousContainers));
+logger($logfile, 'currentContainers: ' . json_encode($currentContainers));
+
+//-- CHECK FOR ADDED CONTAINERS
+foreach ($currentContainers as $currentContainer) {
+    if (!in_array($currentContainer, $previousContainers)) {
+        if ($settings['notifications']['triggers']['added']['active']) {
+            $added[] = ['container' => $currentContainer];
+        }
+
+        $updates    = array_key_exists('updates', $settings['global']) ? $settings['global']['updates'] : 3; //-- CHECK ONLY FALLBACK
+        $frequency  = array_key_exists('updatesFrequency', $settings['global']) ? $settings['global']['updatesFrequency'] : '1d'; //-- DAILY FALLBACK
+        $hour       = array_key_exists('updatesHour', $settings['global']) ? $settings['global']['updatesHour'] : 3; //-- 3AM FALLBACK
+        $settings['containers'][md5($currentContainer)] = ['updates' => $updates, 'frequency' => $frequency, 'hour' => $hour];
+    }
+}
 if ($added) {
     $notify['state']['added'] = $added;
 }
 logger($logfile, 'Added containers: ' . json_encode($notify['state']['added']));
 
 //-- CHECK FOR REMOVED CONTAINERS
-$matches = [];
-foreach ($currentStates as $currentIndex => $currentState) {
-    $found = '';
-    foreach ($previousStates as $previousIndex => $previousState) {
-        if ($previousState['Names'] == $currentState['Names']) {
-            $found = $previousState;
-            break;
+foreach ($previousContainers as $previousContainer) {
+    if (!in_array($previousContainer, $currentContainers)) {
+        if ($settings['notifications']['triggers']['removed']['active']) {
+            $removed[] = ['container' => $previousContainer];
         }
-    }
-    if ($settings['notifications']['triggers']['removed']['active'] && !in_array($currentState['Names'], $matches) && !$found) {
-        $removed[]  = ['container' => $currentState['Names']];
-        $matches[]  = $currentState['Names'];
+        unset($settings['containers'][md5($currentContainer)]);
     }
 }
-
 if ($removed) {
     $notify['state']['removed'] = $removed;
 }
 logger($logfile, 'Removed containers: ' . json_encode($notify['state']['removed']));
+
+setFile(SETTINGS_FILE, $settings);
 
 //-- CHECK FOR STATE CHANGED CONTAINERS
 foreach ($currentStates as $currentState) {

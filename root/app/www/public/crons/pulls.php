@@ -14,7 +14,7 @@ logger($systemLog, 'Cron: running pulls', 'info');
 
 set_time_limit(0);
 
-$logfile = LOGS_PATH . 'crons/cron-pulls-' . date('Ymd') . '.log';
+$logfile = LOGS_PATH . 'crons/pulls-' . date('Ymd_Hi') . '.log';
 logger($logfile, 'Cron run started');
 echo 'Cron run started: pulls' . "\n";
 

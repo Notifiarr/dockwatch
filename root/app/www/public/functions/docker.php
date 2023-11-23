@@ -9,15 +9,15 @@
 
 function dockerState()
 {
-    $state = dockerProcessList();
+    $state = dockerProcessList(false);
     $state = json_decode($state, true);
 
-    $dockerStats = dockerStats();
+    $dockerStats = dockerStats(false);
     $dockerStats = json_decode($dockerStats, true);
     
     if (!empty($state)) {
         foreach ($state as $index => $process) {
-            $inspect = dockerInspect($process['Names']);
+            $inspect = dockerInspect($process['Names'], false);
             $state[$index]['inspect'] = json_decode($inspect, true);
 
             foreach ($dockerStats as $dockerStat) {
@@ -40,7 +40,7 @@ function dockerPermissionCheck()
 
 function dockerProcessList($useCache = true)
 {
-    $cacheKey   = 'dockerProcessList';
+    $cacheKey   = MEMCACHE_PREFIX . 'dockerProcessList';
     $cache      = memcacheGet($cacheKey);
     if ($cache && $useCache) {
         return $cache;
@@ -54,7 +54,7 @@ function dockerProcessList($useCache = true)
 
 function dockerStats($useCache = true)
 {
-    $cacheKey   = 'dockerStats';
+    $cacheKey   = MEMCACHE_PREFIX . 'dockerStats';
     $cache      = memcacheGet($cacheKey);
     if ($cache && $useCache) {
         return $cache;
@@ -68,7 +68,7 @@ function dockerStats($useCache = true)
 
 function dockerInspect($containerName, $useCache = true)
 {
-    $cacheKey   = 'dockerInspect.' . md5($containerName);
+    $cacheKey   = MEMCACHE_PREFIX . 'dockerInspect.' . md5($containerName);
     $cache      = memcacheGet($cacheKey);
     if ($cache && $useCache) {
         return $cache;

@@ -15,7 +15,7 @@ function memcacheBust($key)
         return;
     }
 
-    $memcache->set(MEMCACHE_PREFIX . $key, null, 0);
+    $memcache->set($key, null, 0);
 }
 
 function memcacheGet($key)
@@ -26,7 +26,7 @@ function memcacheGet($key)
         return;
     }
 
-    return $memcache->get(MEMCACHE_PREFIX . $key);
+    return $memcache->get($key);
 }
 
 function memcacheSet($key, $data, $seconds)
@@ -37,7 +37,7 @@ function memcacheSet($key, $data, $seconds)
         return;
     }
 
-    $memcache->set(MEMCACHE_PREFIX . $key, $data, $seconds);
+    $memcache->set($key, $data, $seconds);
 }
 
 function memcacheStats()

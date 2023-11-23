@@ -44,8 +44,11 @@ if ($_POST['m'] == 'init') {
                         <ul>
                             <?php 
                             foreach ($logFiles as $group => $groupLogs) { 
-                                echo '<h4 class="mt-3 mb-0">' . $group . '</h4>';
-                                echo '<span class="small-text text-muted">' . LOGS_PATH . $group . '/</span>';
+                                ?>
+                                <h4 class="mt-3 mb-0"><?= $group ?></h4>
+                                <span class="small-text text-muted"><?= LOGS_PATH . $group ?>/</span>
+                                <div style="max-height: 300px; overflow: auto;">
+                                <?php
 
                                 if (!$groupLogs) {
                                     continue;
@@ -57,6 +60,10 @@ if ($_POST['m'] == 'init') {
                                     <li id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?> (<?= byteConversion($log['size']) ?>)</li>
                                     <?php
                                 }
+
+                                ?>
+                                </div>
+                                <?php
                             }
                             ?>
                         </ul>
