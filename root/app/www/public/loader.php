@@ -35,7 +35,7 @@ if (!$_SESSION) {
     session_start();
 }
 
-if (file_exists(LOGIN_FILE) && $_SERVER['SHELL'] != '/bin/bash') {
+if (file_exists(LOGIN_FILE) && strpos($_SERVER['PHP_SELF'], '/crons/') === false) {
     define('USE_AUTH', true);
     $loginsFile = file(LOGIN_FILE);
 

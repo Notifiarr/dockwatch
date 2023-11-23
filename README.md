@@ -20,6 +20,15 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Auto update
 - Check for update
 
+### Features
+- Setup update schedules on a container by container basis
+- Setup notify only or update on a container by container basis
+- Mass cleanup orphan containers
+- Mass select containers and generate `docker run` commands
+- Mass select containers and generate a docker compose for them
+- Mass select containers and start/restart/stop/pull
+- Memcached support (optional)
+
 ### Permissions
 No matter how docker is installed (native, unraid, etc), it is required that the user running the container has permission to use the docker commands. View `root/app/www/public/functions/docker.php` to see what is used
 	
