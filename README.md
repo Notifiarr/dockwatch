@@ -61,6 +61,7 @@ docker run \
   -l net.unraid.docker.icon='https://golift.io/crontabs.png' \
   -p '9999:80/tcp' \
   -v '/mnt/disk1/appdata/dockwatch/config':'/config':'rw' \
+  -v '/proc':'/proc':'rw' \
   -v '/var/run/docker.sock':'/var/run/docker.sock':'rw' 'ghcr.io/notifiarr/dockwatch:main'
 ```
 
@@ -81,6 +82,7 @@ dockwatch:
 	volumes:
 	  - /appdata/dockwatch/config:/config
 	  - /var/run/docker.sock:/var/run/docker.sock
+	  - /proc:/proc
 ```
 
 ### Manual
@@ -93,6 +95,7 @@ Volumes
 | Name | Host | Container |
 | ----- | ----- | ----- |
 | App Config | /mnt/disk1/appdata/dockwatch/config | /config |
+| Proc | /proc | /proc |
 | Docker sock | /var/run/docker.sock | /var/run/docker.sock |
 
 Ports

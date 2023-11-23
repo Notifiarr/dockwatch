@@ -155,3 +155,19 @@ function calculateDaysFromString($str)
         return intval(str_replace('m', '', $str)) * 30;
     }
 }
+
+function cpuTotal()
+{
+    $cpus       = 0;
+    $cmd        = 'cat /proc/cpuinfo';
+    $cpuinfo    = shell_exec($cmd . ' 2>&1');
+    $lines      = explode("\n", $cpuinfo);
+
+    foreach ($lines as $line) {
+        if (strpos($line, 'processor') !== false) {
+            $cpus++;
+        }
+    }
+
+    return $cpus;
+}

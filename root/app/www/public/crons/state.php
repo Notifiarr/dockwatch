@@ -90,7 +90,13 @@ foreach ($currentStates as $currentState) {
     //-- CHECK FOR HIGH CPU USAGE CONTAINERS
     if ($settings['notifications']['triggers']['cpuHigh']['active'] && floatval($settings['global']['cpuThreshold']) > 0) {
         if ($currentState['stats']['CPUPerc']) {
-            $cpu = floatval(str_replace('%', '', $currentState['stats']['CPUPerc']));
+            $cpu        = floatval(str_replace('%', '', $currentState['stats']['CPUPerc']));
+            $cpuAmount  = intval($settings['global']['cpuAmount']);
+
+            if ($cpuAmount > 0) {
+                $cpu = number_format(($cpu / $cpuAmount), 2);
+            }
+
             if ($cpu > floatval($settings['global']['cpuThreshold'])) {
                 $notify['usage']['cpu'][] = ['container' => $currentState['Names'], 'usage' => $cpu];
             }

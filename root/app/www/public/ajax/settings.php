@@ -11,6 +11,10 @@ require 'shared.php';
 
 if ($_POST['m'] == 'init') {
     $globalSettings = $settings['global'];
+    $cpus = cpuTotal();
+    if ($cpus == 0) {
+        $cpus = '0 (Could not get cpu count from /proc/cpuinfo)';
+    }
     ?>
     <div class="container-fluid pt-4 px-4">
         <div class="bg-secondary rounded h-100 p-4">
@@ -97,6 +101,13 @@ if ($_POST['m'] == 'init') {
                                 <input class="form-control" type="number" id="globalSetting-cpuThreshold" value="<?= $globalSettings['cpuThreshold'] ?>">
                             </td>
                             <td>If a container usage is above this number, send a notification (if notification is enabled)</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">CPUs</th>
+                            <td>
+                                <input class="form-control" type="number" id="globalSetting-cpuAmount" value="<?= $globalSettings['cpuAmount'] ?>">
+                            </td>
+                            <td>Detected count: <?= $cpus ?></td>
                         </tr>
                         <tr>
                             <th scope="row">Memory<sup>1</sup></th>
