@@ -35,7 +35,7 @@ if (!$_SESSION) {
     session_start();
 }
 
-if (file_exists(LOGIN_FILE)) {
+if (file_exists(LOGIN_FILE) && $_SERVER['SHELL'] != '/bin/bash') {
     define('USE_AUTH', true);
     $loginsFile = file(LOGIN_FILE);
 

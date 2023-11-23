@@ -17,7 +17,7 @@ define('PULL_FILE', '/config/pull.json');
 define('LOGS_PATH', '/config/logs/');
 
 //-- MEMCACHE
-define('MEMCACHE_PREFIX', 'dockwatch-');
+define('MEMCACHE_PREFIX', 'dockwatch-' . substr(md5($_SERVER['SERVER_NAME']), 0, 10) . '-');
 define('MEMCACHE_DOCKER_STATS', 10);
 define('MEMCACHE_DOCKER_PROCESS', 10);
 define('MEMCACHE_DOCKER_INSPECT', 10);
