@@ -36,6 +36,10 @@ function loadJS()
 
 function getFile($file) 
 {
+    global $systemLog;
+
+    logger($systemLog, 'getFile() ' . $file, 'info');
+
     if (!file_exists($file)) {
         file_put_contents($file, '[]');
     }
@@ -44,6 +48,10 @@ function getFile($file)
 
 function setFile($file, $contents)
 {
+    global $systemLog;
+
+    logger($systemLog, 'setFile() ' . $file, 'info');
+
     $contents = is_array($contents) ? json_encode($contents) : $contents;
     file_put_contents($file, $contents);
 }

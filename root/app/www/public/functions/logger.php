@@ -19,7 +19,7 @@ function logger($logfile, $msg, $type = 'info')
     $fileParts  = explode('/', $file);
     $fileName   = $fileParts[count($fileParts) - 1];
     $fileFolder = $fileParts[count($fileParts) - 2];
-    $file       = $fileFolder . '/' . $fileName;
+    $file       = ($fileFolder != 'www' ? $fileFolder . '/' : '') . $fileName;
     $log        = date('g:i:s') . ' ' . ($type ? '[' . strtoupper($type) . '] ' : '') . $file . ' LN: ' . $line . ' :: ' . (is_array($msg) || is_object($msg) ? loggerLoopArray($msg, 0) : $msg) . "\n";
 
     file_put_contents($logfile, $log, FILE_APPEND);

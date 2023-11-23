@@ -9,6 +9,9 @@
 
 define('ABSOLUTE_PATH', str_replace('crons', '', __DIR__));
 require ABSOLUTE_PATH . 'loader.php';
+
+logger($systemLog, 'Cron: running pulls', 'info');
+
 set_time_limit(0);
 
 $logfile = LOGS_PATH . 'crons/cron-pulls-' . date('Ymd') . '.log';

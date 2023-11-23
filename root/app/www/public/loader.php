@@ -57,9 +57,14 @@ if (!$_SESSION['authenticated']) {
     //-- CREATE DIRECTORIES
     createDirectoryTree(LOGS_PATH . 'crons');
     createDirectoryTree(LOGS_PATH . 'notifications');
+    createDirectoryTree(LOGS_PATH . 'system');
+
+    $systemLog = LOGS_PATH . 'system/' . date('Ymd') . '.log';
+    logger($systemLog, 'Starting', 'info');
 
     //-- INITIALIZE THE NOTIFY CLASS
     $notifications = new Notifications();
+    logger($systemLog, 'Init class: Notifications()', 'info');
 
     //-- SETTINGS
     $settings = getFile(SETTINGS_FILE);
@@ -74,5 +79,6 @@ if (!$_SESSION['authenticated']) {
     if ($settings['global']['memcachedServer'] && $settings['global']['memcachedPort']) {
         $memcache = new Memcached();
         $memcache->addServer($settings['global']['memcachedServer'], $settings['global']['memcachedPort']);
+        logger($systemLog, 'Init class: Memcached()', 'info');
     }
 }

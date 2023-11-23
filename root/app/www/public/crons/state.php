@@ -10,6 +10,8 @@
 define('ABSOLUTE_PATH', str_replace('crons', '', __DIR__));
 require ABSOLUTE_PATH . 'loader.php';
 
+logger($systemLog, 'Cron: running housekeeper', 'info');
+
 $logfile = LOGS_PATH . 'crons/cron-state-' . date('Ymd') . '.log';
 logger($logfile, 'Cron run started');
 echo 'Cron run started: state' . "\n";
