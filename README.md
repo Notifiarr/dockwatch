@@ -118,7 +118,7 @@ There is support for a simple login mechanism but i would recomment using someth
 - Multiple logins, drop a line and add another `admin:password`
 
 ### Development
-Firstly i **am not** a docker expert so there are likely other/better ways to do this. What i list below is just how i work on it without having to rebuilt the container for every change and a reminder for me on what i did
+Firstly i **am not** a docker expert so there are likely other/better ways to do this. What i list below is just how i work on it without having to rebuilt the container for every change and a reminder for me on what i did. Since this involves messing with the contents of the container, if an update is applied these steps will need re-applied
 
 Option 1:
 - Fork the repo

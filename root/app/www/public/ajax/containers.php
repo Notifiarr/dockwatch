@@ -69,7 +69,7 @@ if ($_POST['m'] == 'init') {
                         foreach ($processList as $process) {
                             $nameHash           = md5($process['Names']);
                             $containerSettings  = $settings['containers'][$nameHash];
-                            $logo               = $process['inspect'][0]['Config']['Labels']['net.unraid.docker.icon'];
+                            $logo               = getIcon($process['inspect']);
                             $control            = $process['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $nameHash . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $nameHash . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $nameHash . '\', \'start\')">Start</button>';
 
                             $pullData = $pulls[$nameHash];

@@ -15,6 +15,7 @@ define('SETTINGS_FILE', '/config/settings.json');
 define('STATE_FILE', '/config/state.json');
 define('PULL_FILE', '/config/pull.json');
 define('LOGS_PATH', '/config/logs/');
+define('LOGO_FILE', '/config/logos.json');
 
 //-- MEMCACHE
 define('MEMCACHE_PREFIX', 'dockwatch-' . substr(md5($_SERVER['SERVER_NAME']), 0, 10) . '-');

@@ -193,3 +193,49 @@ function linkWebroot($location)
             break;
     }
 }
+
+function getIcons()
+{
+    $update = false;
+    if (file_exists(LOGO_FILE)) {
+        $age = filemtime(LOGO_FILE);
+        if ($age + 86400 <= time()) {
+            $update = true;
+        }
+    } else {
+        $update = true;
+    }
+
+    if ($update) {
+        $icons = file_get_contents('https://github.com/walkxcode/dashboard-icons/blob/main/ICONS.md?raw=true');
+        preg_match_all('/< *img[^>]*src *= *["\']?([^"\']*)/i', $icons, $matches);
+        
+        foreach ($matches[1] as $match) {
+            if (strpos($match, '.png') !== false) {
+                preg_match('/(.*)\/(.*)\.png/', $match, $imageName);
+                $iconList[$imageName[2]] = $match;
+            }
+        }
+
+        setFile(LOGO_FILE, $iconList);
+    } else {
+        $iconList = getFile(LOGO_FILE);
+    }
+
+    return $iconList;
+}
+
+function getIcon($inspect)
+{
+    if ($inspect[0]['Config']['Labels']['net.unraid.docker.icon']) {
+        return $inspect[0]['Config']['Labels']['net.unraid.docker.icon'];
+    } else {
+        $icons = getIcons();
+        $image = explode('/', $inspect[0]['Config']['Image']);
+        $image = $image[count($image) - 1];
+        $image = explode(':', $image);
+        $image = $image[0];
+
+        return $icons[$image];
+    }
+}
