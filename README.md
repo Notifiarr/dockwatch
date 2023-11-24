@@ -31,16 +31,16 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 
 ### Permissions
 No matter how docker is installed (native, unraid, etc), it is required that the user running the container has permission to use the docker commands. View `root/app/www/public/functions/docker.php` to see what is used
-	
+
 Unraid: This is built into the container with
 ```
 addgroup -g 281 unraiddocker && \
 usermod -aG unraiddocker abc
 ```
 
-Ubuntu: This is an example
+Ubuntu: This is an example to get the group id to use
 ```
-usermod -aG ping abc
+grep docker /etc/group
 ```
 
 ### Run
@@ -54,7 +54,7 @@ docker run \
   -e TZ="America/New_York" \
   -e HOST_OS="Unraid" \
   -e 'PUID'='1001' \
-  -e 'PGID'='100' \
+  -e 'PGID'='999' \
   -e 'UMASK'='022' \
   -l net.unraid.docker.managed=dockerman \
   -l net.unraid.docker.webui='http://[IP]:[PORT:9999]' \
@@ -75,8 +75,8 @@ dockwatch:
 	ports:
 	  - 9999:80/tcp
 	environment:
-	  - PUID=1001
-	  - PGID=100
+	  - PUID=1000
+	  - PGID=999
 	  - UMASK=022
 	  - TZ=Etc/UTC
 	volumes:

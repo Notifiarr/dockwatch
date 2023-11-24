@@ -166,14 +166,32 @@ function dockerGetOrphanContainers()
     return shell_exec($cmd . ' 2>&1');
 }
 
+function dockerGetOrphanVolumes()
+{
+    $cmd = '/usr/bin/docker volume ls -qf dangling=true --format="{{json . }}" | jq -s --tab .';
+    return shell_exec($cmd . ' 2>&1');
+}
+
 function dockerRemoveImage($id)
 {
     $cmd = '/usr/bin/docker rmi ' . $id;
     return shell_exec($cmd . ' 2>&1');
 }
 
-function dockerPruneVolumes()
+function dockerPruneImage($id)
 {
-    $cmd = '/usr/bin/docker volume prune -af';
+    $cmd = '/usr/bin/docker image prune -af ' . $id;
+    return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerRemoveVolume($name)
+{
+    $cmd = '/usr/bin/docker volume rm ' . $name;
+    return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerPruneVolume($name)
+{
+    $cmd = '/usr/bin/docker volume prune -af ' . $name;
     return shell_exec($cmd . ' 2>&1');
 }
