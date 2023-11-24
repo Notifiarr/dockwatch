@@ -171,3 +171,25 @@ function cpuTotal()
 
     return $cpus;
 }
+
+function linkWebroot($location)
+{
+    switch ($location) {
+        case 'internal':
+            if (!is_dir('/app/www/internal')) {
+                $cmd = 'mv /app/www/public /app/www/internal && ln -s /app/www/internal /app/www/public';
+            } else {
+                $cmd = 'rm -f /app/www/public && ln -s /app/www/internal /app/www/public';
+            }
+            shell_exec($cmd . ' 2>&1');
+            break;
+        case 'external':
+            if (!is_dir('/app/www/internal')) {
+                $cmd = 'mv /app/www/public /app/www/internal && ln -s /config/www /app/www/public';
+            } else {
+                $cmd = 'rm -f /app/www/public && ln -s /config/www /app/www/public';
+            }
+            shell_exec($cmd . ' 2>&1');
+            break;
+    }
+}

@@ -186,6 +186,30 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
+            <h4 class="mt-3">Development</h4>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col" width="15%">Name</th>
+                            <th scope="col" width="30%">Setting</th>
+                            <th scope="col" width="55%">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Environment</th>
+                            <td>
+                                <select class="form-control" id="globalSetting-environment">
+                                    <option <?= ($globalSettings['environment'] == 0 ? 'selected' : '') ?> value="0">Internal</option>
+                                    <option <?= ($globalSettings['environment'] == 1 ? 'selected' : '') ?> value="1">External</option>
+                                </select>
+                            </td>
+                            <td>Location of webroot, requires a container restart after changing. Do not change this without working files externally!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <div align="center"><button type="button" class="btn btn-info m-2" onclick="saveGlobalSettings()">Save Changes</button></div>
             <sup>1</sup> Checked every 5 minutes
         </div>
@@ -194,6 +218,7 @@ if ($_POST['m'] == 'init') {
 }
 
 if ($_POST['m'] == 'saveGlobalSettings') {
+    $currentSettings = getFile(SETTINGS_FILE);
     $newSettings = [];
 
     foreach ($_POST as $key => $val) {
@@ -202,6 +227,14 @@ if ($_POST['m'] == 'saveGlobalSettings') {
         }
 
         $newSettings[$key] = trim($val);
+    }
+
+    if ($currentSettings['global']['environment'] != $_POST['environment']) {
+        if ($_POST['environment'] == 0) { //-- USE INTERNAL
+            linkWebroot('internal');
+        } else { //-- USE EXTERNAL
+            linkWebroot('external');
+        }
     }
 
     $settings['global'] = $newSettings;

@@ -119,6 +119,8 @@ There is support for a simple login mechanism but i would recomment using someth
 
 ### Development
 Firstly i **am not** a docker expert so there are likely other/better ways to do this. What i list below is just how i work on it without having to rebuilt the container for every change and a reminder for me on what i did
+
+Option 1:
 - Fork the repo
 - Open the `Dockerfile` and comment out the `COPY root/ /` line at the bottom
 - Copy the files from `root/app/www/public/*` to `/config/www/*`
@@ -126,6 +128,11 @@ Firstly i **am not** a docker expert so there are likely other/better ways to do
 - Copy the ini from `root/etc/php82/conf.d/dockwatch.ini` to `/config/php/php-local.ini`
 - This should allow you to run the container while making changes to the files in `/config` and when done, just copy the files back into the `root/` directories and push your fork so it builds a new container
 
+Option 2:
+- SSH into the container as root
+- Run `chown -R abc:abc /app/www`
+- Open the UI to Settings -> Development and change the environment from Internal to External & save
+- Restart the container and it is now looking at `/config/www` for the working files so make sure you copy the files to there!
 ### Screenshots
 UI
 
