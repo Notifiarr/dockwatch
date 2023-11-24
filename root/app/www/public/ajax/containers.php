@@ -136,6 +136,7 @@ if ($_POST['m'] == 'init') {
                                     <option value="2">Restart</option>
                                     <option value="3">Stop</option>
                                     <option value="4">Pull</option>
+                                    <option value="7">Update</option>
                                     <option value="5">Generate docker run</option>
                                     <option value="6">Generate docker-compose</option>
                                 </select>
@@ -224,6 +225,36 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             }
 
             $result = '<pre>' . dockerAutoCompose(trim($containerList)) . '</pre>';
+            break;
+        case '7': //-- UPDATE
+            if (strpos($image, 'dockwatch') !== false) {
+                $updateResult = 'skipped';
+            } else {
+                $runCommand     = dockerAutoRun($container['Names']);
+                $lines = explode("\n", $runCommand);
+                foreach ($lines as $line) {
+                    $newRun .= trim(str_replace('\\', '', $line)) . ' ';
+                }
+                $runCommand = $newRun;
+                $stop           = dockerStopContainer($container['Names']);
+                $remove         = dockerRemoveContainer($container['ID']);
+                $update         = trim(dockerUpdateContainer($runCommand));
+                $updateResult   = 'failed';
+
+                if (strlen($update) == 64) {
+                    $updateResult = 'complete';
+                    $pulls[$_POST['hash']]  = [
+                                                'checked'   => time(),
+                                                'name'      => $container['Names'],
+                                                'image'     => $update,
+                                                'container' => $update
+                                            ];
+
+                    setFile(PULL_FILE, $pulls);
+                }
+            }
+
+            $result = 'Container ' . $container['Names'] . ' update: '. $updateResult;
             break;
     }
 
