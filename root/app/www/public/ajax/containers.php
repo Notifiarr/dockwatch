@@ -136,8 +136,8 @@ if ($_POST['m'] == 'init') {
                                     <option value="2">Restart</option>
                                     <option value="3">Stop</option>
                                     <option value="4">Pull</option>
-                                    <option value="5">Inspect -> Run</option>
-                                    <option value="6">Inspect -> Compose</option>
+                                    <option value="5">Generate docker run</option>
+                                    <option value="6">Generate docker-compose</option>
                                 </select>
                                 <button type="button" class="btn btn-outline-info" onclick="massApplyContainerTrigger()">Apply</button>
                             </td>
