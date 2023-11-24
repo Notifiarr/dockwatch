@@ -160,7 +160,7 @@ function dockerUpdateContainer($command)
     return shell_exec($cmd . ' 2>&1');
 }
 
-function dockerGetOrphans()
+function dockerGetOrphanContainers()
 {
     $cmd = '/usr/bin/docker images -f dangling=true --format="{{json . }}" | jq -s --tab .';
     return shell_exec($cmd . ' 2>&1');
@@ -169,5 +169,11 @@ function dockerGetOrphans()
 function dockerRemoveImage($id)
 {
     $cmd = '/usr/bin/docker rmi ' . $id;
+    return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerPruneVolumes()
+{
+    $cmd = '/usr/bin/docker volume prune -af';
     return shell_exec($cmd . ' 2>&1');
 }

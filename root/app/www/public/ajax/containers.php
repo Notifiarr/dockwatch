@@ -91,7 +91,9 @@ if ($_POST['m'] == 'init') {
                                 <td>
                                     <select id="containers-update-<?= $nameHash ?>" class="form-control container-updates">
                                         <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
+                                        <?php if (strpos($process['inspect'][0]['Config']['Image'], 'dockwatch') === false) { ?>
                                         <option <?= ($containerSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
+                                        <?php } ?>
                                         <option <?= ($containerSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
                                     </select>
                                 </td>

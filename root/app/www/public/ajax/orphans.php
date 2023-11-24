@@ -10,7 +10,7 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $orphans = json_decode(dockerGetOrphans(), true);
+    $orphans = json_decode(dockerGetOrphanContainers(), true);
 
     ?>
     <div class="container-fluid pt-4 px-4 mb-5">

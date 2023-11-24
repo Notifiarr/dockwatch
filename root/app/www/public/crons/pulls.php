@@ -80,6 +80,13 @@ if ($updateSettings) {
                                                 'container' => $inspectContainer[0]['Image']
                                             ];
 
+                    //-- DONT AUTO UPDATE THIS CONTAINER, CHECK ONLY
+                    if (strpos($image, 'dockwatch') !== false) {
+                        if ($containerSettings['updates'] == 1) {
+                            $containerSettings['updates'] = 2;
+                        }
+                    }
+
                     switch ($containerSettings['updates']) {
                         case 1: //-- Auto update
                             if ($inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
