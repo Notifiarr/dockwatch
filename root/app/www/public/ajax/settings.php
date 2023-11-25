@@ -238,7 +238,7 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
-            <div align="center"><button type="button" class="btn btn-info m-2" onclick="saveGlobalSettings()">Save Changes</button></div>
+            <div align="center"><button type="button" class="btn btn-success m-2" onclick="saveGlobalSettings()">Save Changes</button></div>
             <sup>1</sup> Checked every 5 minutes
         </div>
     </div>

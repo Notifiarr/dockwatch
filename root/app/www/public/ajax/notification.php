@@ -116,7 +116,7 @@ if ($_POST['m'] == 'init') {
             <?php } ?>
         </div>
         <div class="bg-secondary rounded h-100 p-4 mt-3 text-center">
-            <button type="button" class="btn btn-info" onclick="saveNotificationSettings()">Save Changes</button>
+            <button type="button" class="btn btn-success" onclick="saveNotificationSettings()">Save Changes</button>
         </div>
     </div>
     <?php

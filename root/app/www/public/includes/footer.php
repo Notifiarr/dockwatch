@@ -18,10 +18,10 @@
     </div>
 
     <!-- Toast container -->
-    <div class="toast-container bottom-0 end-0 p-3" style="z-index: 10000 !important; position: fixed;"></div>
+    <div class="toast-container bottom-0 end-0 p-3" style="z-index: 10001 !important; position: fixed;"></div>
 
     <!-- Loading modal -->
-    <div class="modal fade" id="loading-modal" style="z-index: 9999 !important;" data-bs-backdrop="static">
+    <div class="modal fade" id="loading-modal" style="z-index: 10000 !important;" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content bg-dark" style="border: grey solid 1px;">
                 <div class="modal-header" style="border: grey solid 1px;">
@@ -51,7 +51,25 @@
                     <div id="massTrigger-results" style="max-height: 400px; overflow: auto;"></div>
                 </div>
                 <div class="modal-footer" align="center">
-                    <button id="massTrigger-close-btn" style="display: none;" type="button" class="btn btn-outline-success" data-bs-dismiss="modal">Close</button>
+                    <button id="massTrigger-close-btn" style="display: none;" type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container group modal -->
+    <div class="modal fade" id="containerGroup-modal" style="z-index: 9999 !important;" data-bs-backdrop="static">
+        <div class="modal-dialog" style="max-width: 1000px">
+            <div class="modal-content bg-dark" style="border: grey solid 1px;">
+                <div class="modal-header" style="border: grey solid 1px;">
+                    <h5 class="modal-title text-primary">Group Management</h5>
+                </div>
+                <div class="modal-body" style="border: grey solid 1px;">
+                    <div id="containerGroup-containers" style="max-height: 600px; overflow: auto;"></div>
+                </div>
+                <div class="modal-footer" align="center">
+                    <button type="button" class="btn btn-outline-success" onclick="saveContainerGroup()">Save</button>
+                    <button id="groupCloseBtn" type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

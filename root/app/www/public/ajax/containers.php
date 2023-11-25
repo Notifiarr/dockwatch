@@ -67,8 +67,123 @@ if ($_POST['m'] == 'init') {
                     </thead>
                     <tbody>
                         <?php
+                        //-- GROUPS
+                        if ($settings['containerGroups']) {
+                            foreach ($settings['containerGroups'] as $groupHash => $containerGroup) {
+                                $groupCPU = $groupMemory = 0;
+                                foreach ($processList as $process) {
+                                    $nameHash = md5($process['Names']);
+
+                                    if (in_array($nameHash, $containerGroup['containers'])) {
+                                        $memUsage = floatval(str_replace('%', '', $process['stats']['MemPerc']));
+                                        $groupMemory += $memUsage;
+
+                                        $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
+                                        if (intval($settings['global']['cpuAmount']) > 0) {
+                                            $cpuUsage = number_format(($cpuUsage / intval($settings['global']['cpuAmount'])), 2);
+                                        }
+                                        $groupCPU += $cpuUsage;
+                                    }
+                                }
+                                ?>
+                                <tr id="<?= $groupHash ?>">
+                                    <th scope="row"><input type="checkbox" class="form-check-input containers-check" onclick="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></th>
+                                    <td><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
+                                    <td><span class="text-info" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br><span class="text-muted small-text">Containers: <?= count($containerGroup['containers']) ?></span></td>
+                                    <td colspan="4"></td>
+                                    <td><?= $groupCPU ?>%</td>
+                                    <td><?= $groupMemory ?>%</td>
+                                    <td colspan="3"></td>
+                                </tr>
+                                <?php
+
+                                foreach ($containerGroup['containers'] as $containerHash) {
+                                    foreach ($processList as $process) {
+                                        $nameHash = md5($process['Names']);
+    
+                                        if ($nameHash == $containerHash) {
+                                            $containerSettings  = $settings['containers'][$nameHash];
+                                            $logo               = getIcon($process['inspect']);
+                                            $control            = $process['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $nameHash . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $nameHash . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $nameHash . '\', \'start\')">Start</button>';
+                
+                                            $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
+                                            if (intval($settings['global']['cpuAmount']) > 0) {
+                                                $cpuUsage = number_format(($cpuUsage / intval($settings['global']['cpuAmount'])), 2) . '%';
+                                            }
+                                            $pullData = $pulls[$nameHash];
+                                            $updateStatus = '<span class="text-danger">Unknown</span>';
+                                            if ($pullData) {
+                                                $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
+                                            }
+                                            ?>
+                                            <tr id="<?= $nameHash ?>" class="<?= $groupHash ?>" style="display: none;">
+                                                <th scope="row"><input id="massTrigger-<?= $nameHash ?>" type="checkbox" class="form-check-input containers-check group-<?= $groupHash ?>-check"></th>
+                                                <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32">' : '') ?></td>
+                                                <td><?= $process['Names'] ?><br><span class="text-muted small-text"><?= truncateMiddle($process['inspect'][0]['Config']['Image'], 35) ?></span></td>
+                                                <td id="<?= $nameHash ?>-control"><?= $control ?></td>
+                                                <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>"><?= $updateStatus ?></td>
+                                                <td id="<?= $nameHash ?>-state"><?= $process['State'] ?></td>
+                                                <td><span id="<?= $nameHash ?>-running"><?= $process['RunningFor'] ?></span><br><span id="<?= $nameHash ?>-status"><?= $process['Status'] ?></span></td>
+                                                <td id="<?= $nameHash ?>-cpu" title="<?= $process['stats']['CPUPerc'] ?>"><?= $cpuUsage ?></td>
+                                                <td id="<?= $nameHash ?>-mem"><?= $process['stats']['MemPerc'] ?></td>
+                                                <td>
+                                                    <select id="containers-update-<?= $nameHash ?>" class="form-control container-updates">
+                                                        <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
+                                                        <?php if (strpos($process['inspect'][0]['Config']['Image'], 'dockwatch') === false) { ?>
+                                                        <option <?= ($containerSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
+                                                        <?php } ?>
+                                                        <option <?= ($containerSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select id="containers-frequency-<?= $nameHash ?>" class="form-control container-frequency">
+                                                        <option <?= ($containerSettings['frequency'] == '12h' ? 'selected' : '') ?> value="12h">12h</option>
+                                                        <option <?= ($containerSettings['frequency'] == '1d' ? 'selected' : '') ?> value="1d">1d</option>
+                                                        <option <?= ($containerSettings['frequency'] == '2d' ? 'selected' : '') ?> value="2d">2d</option>
+                                                        <option <?= ($containerSettings['frequency'] == '3d' ? 'selected' : '') ?> value="3d">3d</option>
+                                                        <option <?= ($containerSettings['frequency'] == '4d' ? 'selected' : '') ?> value="4d">4d</option>
+                                                        <option <?= ($containerSettings['frequency'] == '5d' ? 'selected' : '') ?> value="5d">5d</option>
+                                                        <option <?= ($containerSettings['frequency'] == '6d' ? 'selected' : '') ?> value="6d">6d</option>
+                                                        <option <?= ($containerSettings['frequency'] == '1w' ? 'selected' : '') ?> value="1w">1w</option>
+                                                        <option <?= ($containerSettings['frequency'] == '2w' ? 'selected' : '') ?> value="2w">2w</option>
+                                                        <option <?= ($containerSettings['frequency'] == '3w' ? 'selected' : '') ?> value="3w">3w</option>
+                                                        <option <?= ($containerSettings['frequency'] == '1m' ? 'selected' : '') ?> value="1m">1m</option>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select id="containers-hour-<?= $nameHash ?>" class="form-control container-hour">
+                                                    <?php
+                                                    for ($h = 0; $h <= 23; $h++) {
+                                                        ?><option <?= ($containerSettings['hour'] == $h ? 'selected' : '') ?> value="<?= $h ?>"><?= $h ?></option><?php
+                                                    }
+                                                    ?>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                            <?php
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        //-- NON GROUPS
                         foreach ($processList as $process) {
-                            $nameHash           = md5($process['Names']);
+                            $inGroup    = false;
+                            $nameHash   = md5($process['Names']);
+                            if ($settings['containerGroups']) {
+                                foreach ($settings['containerGroups'] as $containerGroup) {
+                                    if (in_array($nameHash, $containerGroup['containers'])) {
+                                        $inGroup = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if ($inGroup) {
+                                continue;
+                            }
+
                             $containerSettings  = $settings['containers'][$nameHash];
                             $logo               = getIcon($process['inspect']);
                             $control            = $process['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $nameHash . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $nameHash . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $nameHash . '\', \'start\')">Start</button>';
@@ -137,19 +252,24 @@ if ($_POST['m'] == 'init') {
                                 With selected: 
                                 <select id="massContainerTrigger" class="form-control d-inline-block w-50">
                                     <option value="0">-- Select option --</option>
-                                    <option value="1">Start</option>
-                                    <option value="2">Restart</option>
-                                    <option value="3">Stop</option>
-                                    <option value="4">Pull</option>
-                                    <option value="7">Update</option>
-                                    <option value="5">Generate docker run</option>
-                                    <option value="6">Generate docker-compose</option>
-                                    <option value="8">Mount Compare</option>
+                                    <optgroup label="Control">
+                                        <option value="1">Start</option>
+                                        <option value="2">Restart</option>
+                                        <option value="3">Stop</option>
+                                        <option value="4">Pull</option>
+                                        <option value="7">Update</option>
+                                    </optgroup>
+                                    <optgroup label="Information">
+                                        <option value="8">Mount compare</option>
+                                        <option value="5">Generate docker run</option>
+                                        <option value="6">Generate docker-compose</option>
+                                    </optgroup>
                                 </select>
                                 <button type="button" class="btn btn-outline-info" onclick="massApplyContainerTrigger()">Apply</button>
                             </td>
                             <td colspan="7" align="right">
-                                <button type="button" class="btn btn-info" onclick="saveContainerSettings()">Save Changes</button>
+                                <button type="button" class="btn btn-info" onclick="openContainerGroups()">Groups</button>
+                                <button type="button" class="btn btn-success" onclick="saveContainerSettings()">Save Changes</button>
                             </td>
                         </tr>
                     </tfoot>
@@ -262,7 +382,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
             $result = 'Container ' . $container['Names'] . ' update: '. $updateResult;
             break;
-        case '8': // MOUNT COMPARE
+        case '8': //-- MOUNT COMPARE
             $result = $container['Names'] . '<br>';
             $result .= '<div class="ms-4">' . implode('<br>', $container['inspect'][0]['HostConfig']['Binds']) . '</div><br>';
             break;
@@ -371,4 +491,141 @@ if ($_POST['m'] == 'controlContainer') {
                 ];
 
     echo json_encode($return);
+}
+
+if ($_POST['m'] == 'openContainerGroups') {
+    $settings       = getFile(SETTINGS_FILE);
+    $processList    = dockerProcessList();
+    $processList    = json_decode($processList, true);
+    array_sort_by_key($processList, 'Names');
+
+    ?>
+    <div class="bg-secondary rounded h-100 p-4">
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <td>Group</td>
+                    <td>
+                        <select class="form-select" id="groupSelection" onchange="loadContainerGroup()">
+                            <option value="1">New Group</option>
+                            <?php 
+                            if ($settings['containerGroups']) {
+                                foreach ($settings['containerGroups'] as $groupHash => $groupDetails) {
+                                    ?><option value="<?= $groupHash ?>"><?= $groupDetails['name'] ?></option><?php
+                                }
+                            } 
+                            ?>
+                        </select>
+                    </td>
+                    <td>Name: <input id="groupName" type="text" class="form-control w-75 d-inline-block" placeholder="Group Name Here"></td>
+                    <td style="display: none;" id="deleteGroupContainer">Delete: <input id="groupDelete" type="checkbox" class="form-check-input"></td>
+                </tr>
+            </table>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.group-check').prop('checked', $(this).prop('checked'));"></th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Existing Group</th>
+                    </tr>
+                </thead>
+                <tbody id="containerGroupRows">
+                <?php
+                foreach ($processList as $process) {
+                    $nameHash   = md5($process['Names']);
+                    $inGroup    = '';
+                    if ($settings['containerGroups']) {
+                        foreach ($settings['containerGroups'] as $groupContainers) {
+                            if (in_array($nameHash, $groupContainers['containers'])) {
+                                $inGroup = $groupContainers['name'];
+                                break;
+                            }
+                        }
+                    }
+                    ?>
+                    <tr>
+                        <th scope="row"><?= ($inGroup ? '' : '<input id="groupContainer-' . $nameHash . '" type="checkbox" class="form-check-input group-check">') ?></th>
+                        <td><?= $process['Names'] ?></td>
+                        <td><?= ($inGroup ? $inGroup : 'Not assigned') ?></td>
+                    </tr>
+                    <?php
+                }
+                ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php
+}
+
+if ($_POST['m'] == 'loadContainerGroup') {
+    $settings       = getFile(SETTINGS_FILE);
+    $processList    = dockerProcessList();
+    $processList    = json_decode($processList, true);
+    array_sort_by_key($processList, 'Names');
+
+    foreach ($processList as $process) {
+        $nameHash       = md5($process['Names']);
+        $inGroup        = '';
+        $inThisGroup    = false;
+        if ($settings['containerGroups']) {
+            foreach ($settings['containerGroups'] as $groupHash => $groupContainers) {
+                if (in_array($nameHash, $groupContainers['containers'])) {
+                    $inGroup = $groupContainers['name'];
+
+                    if ($groupHash == $_POST['groupHash']) {
+                        $inThisGroup = true;
+                    }
+                }
+            }
+        }
+        ?>
+        <tr>
+            <th scope="row"><?= ($inGroup ? ($inThisGroup ? '<input id="groupContainer-' . $nameHash . '" type="checkbox" checked class="form-check-input group-check">' : '') : '<input id="groupContainer-' . $nameHash . '" type="checkbox" class="form-check-input group-check">') ?></th>
+            <td><?= $process['Names'] ?></td>
+            <td><?= ($inGroup ? $inGroup : 'Not assigned') ?></td>
+        </tr>
+        <?php
+    }
+}
+
+if ($_POST['m'] == 'saveContainerGroup') {
+    $settings   = getFile(SETTINGS_FILE);
+    $groupName  = trim($_POST['name']);
+    $groupHash  = $_POST['selection'] == '1' ? md5($groupName) : $_POST['selection'];
+    $error      = '';
+
+    if ($_POST['delete']) {
+        unset($settings['containerGroups'][$groupHash]);
+    } else {
+        if ($_POST['selection'] == '1' && is_array($settings['containerGroups'])) {
+            foreach ($settings['containerGroups'] as $groupDetails) {
+                if (strtolower($groupDetails['name']) == strtolower($groupName)) {
+                    $error = 'A group with that name already exists';
+                    break;
+                }
+            }
+        }
+
+        if (!$error) {
+            $containers = [];
+    
+            foreach ($_POST as $key => $val) {
+                if (strpos($key, 'groupContainer') === false) {
+                    continue;
+                }
+        
+                list($junk, $containerHash) = explode('-', $key);
+                $containers[] = $containerHash;
+            }
+        
+            $settings['containerGroups'][$groupHash] = ['name' => $groupName, 'containers' => $containers];
+        }
+    }
+
+    if (!$error) {
+        setFile(SETTINGS_FILE, $settings);
+    }
+
+    echo $error;
 }

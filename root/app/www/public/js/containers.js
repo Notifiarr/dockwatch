@@ -143,3 +143,85 @@ function massApplyContainerTrigger()
     }
 }
 // ---------------------------------------------------------------------------------------------
+function openContainerGroups()
+{
+    $('#containerGroup-modal').modal({
+        keyboard: false,
+        backdrop: 'static'
+    });
+
+    $('#containerGroup-modal').hide();
+    $('#containerGroup-modal').modal('show');
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/containers.php',
+        data: '&m=openContainerGroups',
+        success: function (resultData) {
+            $('#containerGroup-containers').html(resultData);
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
+function loadContainerGroup()
+{
+    $('#deleteGroupContainer').hide();
+    if ($('#groupSelection').val() != 1) {
+        $('#deleteGroupContainer').show();
+        $('#groupName').val($('#groupSelection option:selected').text());
+    } else {
+        $('#groupName').val('');
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/containers.php',
+        data: '&m=loadContainerGroup&groupHash=' + $('#groupSelection').val(),
+        success: function (resultData) {
+            $('#containerGroupRows').html(resultData);
+        }
+    });
+
+}
+// ---------------------------------------------------------------------------------------------
+function saveContainerGroup()
+{
+    if (!$('#groupName').val()) {
+        toast('Group Management', 'A group name is require to save a group', 'error');
+        return;
+    }
+
+    let groupItemCount = 0;
+    let params = '';
+    $.each($('[id^=groupContainer-]'), function() {
+        if ($(this).prop('checked')) {
+            groupItemCount++;
+            params += '&' + $(this).attr('id') + '=1';
+        }
+    });
+
+    if (groupItemCount === 0 && !$('#groupDelete').prop('checked')) {
+        toast('Group Management', 'At least one container needs to be assigned to a group', 'error');
+        return;
+    }
+
+    loadingStart();
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/containers.php',
+        data: '&m=saveContainerGroup&selection=' + $('#groupSelection').val() + '&name=' + $('#groupName').val() + '&delete=' + ($('#groupDelete').prop('checked') ? 1 : 0) + params,
+        success: function (resultData) {
+            if (resultData) {
+                toast('Group Management', 'Error saving group: ' + resultData, 'error');
+                loadingStop();
+                return;
+            }
+
+            toast('Group Management', 'Group changes saved', 'success');
+            $('#groupCloseBtn').click();
+            initPage('containers');
+        }
+    });
+
+}
+// ---------------------------------------------------------------------------------------------
