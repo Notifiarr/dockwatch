@@ -9,6 +9,7 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Notify when a container changes state (running -> stopped)
 - Nofity when an update is available
 - Notify when an update is applied
+- Notify when images/volumes have been pruned
 - Notify if memory is > n%
 - Notify if CPU is > n%
 
@@ -23,10 +24,10 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 ### Features
 - Setup update schedules on a container by container basis
 - Setup notify only or update on a container by container basis
-- Mass cleanup orphan containers
+- Mass prune/remove orphan images and volumes
 - Mass select containers and generate `docker run` commands
-- Mass select containers and generate a docker compose for them
-- Mass select containers and start/restart/stop/pull
+- Mass select containers and generate a `docker-compose` for them
+- Mass select containers and start/restart/stop/pull/update
 - Memcached support (optional)
 
 ### Permissions
@@ -118,7 +119,7 @@ There is support for a simple login mechanism but i would recomment using someth
 - Multiple logins, drop a line and add another `admin:password`
 
 ### Development
-Firstly i **am not** a docker expert so there are likely other/better ways to do this. What i list below is just how i work on it without having to rebuilt the container for every change and a reminder for me on what i did. Since this involves messing with the contents of the container, if an update is applied these steps will need re-applied
+Firstly i **am not** a docker expert so there are likely other/better ways to do this. What i list below is just how i work on it without having to rebuild the container for every change and a reminder for me on what i did. Since this involves messing with the contents of the container, if an update is applied these steps will need re-applied
 
 Option 1:
 - Fork the repo

@@ -72,6 +72,10 @@ if ($_POST['m'] == 'init') {
                             $logo               = getIcon($process['inspect']);
                             $control            = $process['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $nameHash . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $nameHash . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $nameHash . '\', \'start\')">Start</button>';
 
+                            $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
+                            if (intval($settings['global']['cpuAmount']) > 0) {
+                                $cpuUsage = number_format(($cpuUsage / intval($settings['global']['cpuAmount'])), 2) . '%';
+                            }
                             $pullData = $pulls[$nameHash];
                             $updateStatus = '<span class="text-danger">Unknown</span>';
                             if ($pullData) {
@@ -86,7 +90,7 @@ if ($_POST['m'] == 'init') {
                                 <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>"><?= $updateStatus ?></td>
                                 <td id="<?= $nameHash ?>-state"><?= $process['State'] ?></td>
                                 <td><span id="<?= $nameHash ?>-running"><?= $process['RunningFor'] ?></span><br><span id="<?= $nameHash ?>-status"><?= $process['Status'] ?></span></td>
-                                <td id="<?= $nameHash ?>-cpu"><?= $process['stats']['CPUPerc'] ?></td>
+                                <td id="<?= $nameHash ?>-cpu" title="<?= $process['stats']['CPUPerc'] ?>"><?= $cpuUsage ?></td>
                                 <td id="<?= $nameHash ?>-mem"><?= $process['stats']['MemPerc'] ?></td>
                                 <td>
                                     <select id="containers-update-<?= $nameHash ?>" class="form-control container-updates">
@@ -292,13 +296,19 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
         $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
     }
 
+    $cpuUsage = floatval(str_replace('%', '', $containerStats['CPUPerc']));
+    if (intval($settings['global']['cpuAmount']) > 0) {
+        $cpuUsage = number_format(($cpuUsage / intval($settings['global']['cpuAmount'])), 2) . '%';
+    }
+
     $return     = [
                     'control'   => $control,
                     'update'    => $updateStatus,
                     'state'     => $containerProcess['State'],
                     'running'   => $containerProcess['RunningFor'],
                     'status'    => $containerProcess['Status'],
-                    'cpu'       => $containerStats['CPUPerc'],
+                    'cpu'       => $cpuUsage,
+                    'cpuTitle'  => $containerStats['CPUPerc'],
                     'mem'       => $containerStats['MemPerc'],
                     'result'    => $result
                 ];

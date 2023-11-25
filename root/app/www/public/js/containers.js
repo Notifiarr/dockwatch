@@ -42,6 +42,7 @@ function controlContainer(containerHash, action)
             $('#' + containerHash + '-running').html(resultData.running);
             $('#' + containerHash + '-status').html(resultData.status);
             $('#' + containerHash + '-cpu').html(resultData.cpu);
+            $('#' + containerHash + '-cpu').prop('title', resultData.cpuTitle);
             $('#' + containerHash + '-mem').html(resultData.mem);
 
             loadingStop();

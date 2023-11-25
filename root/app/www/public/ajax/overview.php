@@ -63,6 +63,12 @@ if ($_POST['m'] == 'init') {
         list($netUsed, $netAllowed) = explode(' / ', $process['stats']['NetIO']);
         $network += bytesFromString($netUsed);
     }
+
+    $cpu = number_format((($running + $stopped) * 100) / $cpu, 2);
+    if (intval($settings['global']['cpuAmount']) > 0) {
+        $cpuActual = number_format(($cpu / intval($settings['global']['cpuAmount'])), 2);
+    }
+
     ?>
     <div class="container-fluid pt-4 px-4">
         <div class="row">
@@ -86,7 +92,7 @@ if ($_POST['m'] == 'init') {
                 <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
                     <h3>Usage</h3>
                     Disk:  <?= byteConversion($size) ?><br>
-                    CPU: <?= number_format((($running + $stopped) * 100) / $cpu, 2) ?>%<br>
+                    CPU: <?= $cpu ?>%<?= ($cpuActual ? ' (' . $cpuActual . '%)' : '') ?><br>
                     Memory: <?= $memory ?>%<br>
                     Network I/O: <?= byteConversion($network) ?>
                 </div>
