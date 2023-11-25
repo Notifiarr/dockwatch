@@ -84,6 +84,34 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
+            <h4>Auto Prune</h4>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col" width="15%">Name</th>
+                            <th scope="col" width="30%">Setting</th>
+                            <th scope="col" width="55%">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Orphan images</th>
+                            <td>
+                                <input class="form-check-input" type="checkbox" id="globalSetting-autoPruneImages" <?= ($globalSettings['autoPruneImages'] ? 'checked' : '') ?>>
+                            </td>
+                            <td>Automatically try to prune all orphan images daily</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Orphan volumes</th>
+                            <td>
+                                <input class="form-check-input" type="checkbox" id="globalSetting-autoPruneVolumes" <?= ($globalSettings['autoPruneVolumes'] ? 'checked' : '') ?>>
+                            </td>
+                            <td>Automatically try to prune all orphan volumes daily</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <h4 class="mt-3">Thresholds</h4>
             <div class="table-responsive">
                 <table class="table">

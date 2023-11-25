@@ -2,3 +2,4 @@
 */5     *       *       *       *       /usr/bin/php /app/www/public/crons/state.php
 */10    *       *       *       *       /usr/bin/php /app/www/public/crons/housekeeper.php
 */60    *       *       *       *       /usr/bin/php /app/www/public/crons/pulls.php
+0       12      *       *       *       /usr/bin/php /app/www/public/crons/prune.php

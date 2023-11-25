@@ -39,6 +39,11 @@ if ($_POST['m'] == 'init') {
                                 <td>1h</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('pulls')"></i></td>
                             </tr>
+                            <tr>
+                                <td>Prune</td>
+                                <td>24h</td>
+                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('prune')"></i></td>
+                            </tr>
                         </tbody>
                     </table>
                     <br clear="all">
@@ -71,6 +76,7 @@ if ($_POST['m'] == 'runTask') {
         case 'state':
         case 'housekeeper':
         case 'pulls':
+        case 'prune':
             $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'crons/' . $_POST['task'] . '.php';
             echo shell_exec($cmd . ' 2>&1');
             break;

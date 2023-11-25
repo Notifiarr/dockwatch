@@ -31,6 +31,10 @@ $triggers   = [
                     'label' => 'Removed', 
                     'desc'  => 'Send a notification when a container is removed, state event' 
                 ],[
+                    'name'  => 'prune', 
+                    'label' => 'Prune', 
+                    'desc'  => 'Send a notification when an image or volume is pruned, prune event' 
+                ],[
                     'name'  => 'cpuHigh', 
                     'label' => 'CPU Usage', 
                     'desc'  => 'Send a notification when container CPU usage exceeds threshold (set in Settings), usage event' 
