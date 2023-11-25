@@ -11,6 +11,7 @@ require 'shared.php';
 
 if ($_POST['m'] == 'init') {
     $pulls = is_array($pulls) ? $pulls : json_decode($pulls, true);
+    array_sort_by_key($processList, 'Names');
 
     ?>
     <div class="container-fluid pt-4 px-4 mb-5">
@@ -143,6 +144,7 @@ if ($_POST['m'] == 'init') {
                                     <option value="7">Update</option>
                                     <option value="5">Generate docker run</option>
                                     <option value="6">Generate docker-compose</option>
+                                    <option value="8">Mount Compare</option>
                                 </select>
                                 <button type="button" class="btn btn-outline-info" onclick="massApplyContainerTrigger()">Apply</button>
                             </td>
@@ -259,6 +261,10 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             }
 
             $result = 'Container ' . $container['Names'] . ' update: '. $updateResult;
+            break;
+        case '8': // MOUNT COMPARE
+            $result = $container['Names'] . '<br>';
+            $result .= '<div class="ms-4">' . implode('<br>', $container['inspect'][0]['HostConfig']['Binds']) . '</div><br>';
             break;
     }
 
