@@ -10,13 +10,15 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'login') {
-    logger($systemLog, 'login -> ', 'info');
+    $systemLog = LOGS_PATH . 'system/' . date('Ymd') . '.log';
+    logger($systemLog, 'login ->', 'info');
 
     $_SESSION['authenticated'] = false;
     $error = '';
 
     if (!file_exists(LOGIN_FILE)) {
         $error = 'Could not find login file \'' . LOGIN_FILE . '\'';
+        logger($systemLog, $error, 'info');
     } else {
         $loginsFile = file(LOGIN_FILE);
 
@@ -24,10 +26,7 @@ if ($_POST['m'] == 'login') {
 
         if (empty($loginsFile)) {
             $error = 'Could not read login file data or it is empty';
-        }
-
-        if ($_POST['user'] == 'admin' && ($_POST['pass'] == 'pass' || $_POST['pass'] == 'password')) {
-            $error = 'Please use something other than admin:pass and admin:password';
+            logger($systemLog, $error, 'info');
         }
 
         if (!$error) {
@@ -41,14 +40,20 @@ if ($_POST['m'] == 'login') {
                 logger($systemLog, 'post pass: \'' . $_POST['pass'] . '\'', 'info');
 
                 if (strtolower($user) == strtolower($_POST['user']) && $pass == $_POST['pass']) {
-                    logger($systemLog, 'match found, updating session key', 'info');
-                    $_SESSION['authenticated'] = true;
-                    logger($systemLog, 'session key authenticated:' . $_SESSION['authenticated'], 'info');
+                    if ($_POST['user'] == 'admin' && ($_POST['pass'] == 'pass' || $_POST['pass'] == 'password')) {
+                        $error = 'Please use something other than admin:pass and admin:password';
+                        logger($systemLog, $error, 'info');
+                    } else {
+                        logger($systemLog, 'match found, updating session key', 'info');
+                        $_SESSION['authenticated'] = true;
+                        logger($systemLog, 'session key authenticated:' . $_SESSION['authenticated'], 'info');
+                    }
                 }
             }
 
-            if (!$_SESSION['authenticated']) {
+            if (!$error && !$_SESSION['authenticated']) {
                 $error = 'Did not find a matching user:pass in the login file with what was provided';
+                logger($systemLog, $error, 'info');
             }
         }
     }
