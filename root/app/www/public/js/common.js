@@ -50,6 +50,12 @@ function login()
         url: '../ajax/login.php',
         data: '&m=login&user=' + $('#username').val() + '&pass=' + $('#password').val(),
         success: function (resultData) {
+            if (resultData) {
+                toast('Login', 'Error: ' + resultData, 'error');
+                loadingStop();
+                return;
+            }
+
             reload();
         }
     });
