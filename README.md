@@ -1,9 +1,9 @@
 # Docker Watcher
 
-### Purpose
+## Purpose
 Simple UI driven way to manage updates & notifications for containers. As this is meant to be simple, there is no db container required or setup. This will save things it needs to files in the `/config` mount instead.
 
-### Notification triggers
+## Notification triggers
 - Notify when a container is added
 - Notify when a container is removed
 - Notify when a container changes state (running -> stopped)
@@ -13,15 +13,15 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Notify if memory is > n%
 - Notify if CPU is > n%
 
-### Notification platforms
+## Notification platforms
 - Notifiarr
 
-### Update options
+## Update options
 - Ignore
 - Auto update
 - Check for update
 
-### Features
+## Features
 - Setup update schedules on a container by container basis
 - Setup notify only or update on a container by container basis
 - Mass prune/remove orphan images and volumes
@@ -30,7 +30,7 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Mass select containers and start/restart/stop/pull/update
 - Memcached support (optional)
 
-### Permissions
+## Permissions
 No matter how docker is installed (native, unraid, etc), it is required that the user running the container has permission to use the docker commands. View `root/app/www/public/functions/docker.php` to see what is used
 
 Unraid: This is built into the container with
@@ -44,7 +44,7 @@ Ubuntu: This is an example to get the group id to use
 grep docker /etc/group
 ```
 
-### Run
+## Run
 This is an unraid example, adjust paths and settings for your setup
 
 ```
@@ -66,7 +66,7 @@ docker run \
   -v '/var/run/docker.sock':'/var/run/docker.sock':'rw' 'ghcr.io/notifiarr/dockwatch:main'
 ```
 
-### Compose
+## Compose
 This is an example, adjust paths and settings for your setup
 
 ```
@@ -86,10 +86,10 @@ dockwatch:
 	  - /proc:/proc
 ```
 
-### Manual
+## Manual
 `docker pull ghcr.io/notifiarr/dockwatch:main`
 
-### ENV
+## ENV
 These are my settings, adjust them to fit your setup!!
 
 Volumes
@@ -111,14 +111,14 @@ Variables
 | PGID | PGID | 100 |
 | UMASK | UMASK | 022 |
 
-### Login
+## Login
 There is support for a simple login mechanism but i would recomment using something like a reverse proxy with authentication
 - Add a file `logins` to `/config`
 - Add `admin:password` to the file and save it
 - Reload
 - Multiple logins, drop a line and add another `admin:password`
 
-### Development
+## Development
 Firstly i **am not** a docker expert so there are likely other/better ways to do this. What i list below is just how i work on it without having to rebuild the container for every change and a reminder for me on what i did. Since this involves messing with the contents of the container, if an update is applied these steps will need re-applied
 
 Option 1:
@@ -134,7 +134,20 @@ Option 2:
 - Run `chown -R abc:abc /app/www`
 - Open the UI to Settings -> Development and change the environment from Internal to External & save
 - Restart the container and it is now looking at `/config/www` for the working files so make sure you copy the files to there!
-### Screenshots
+
+## Icons
+Unraid:
+- Icons show up automatically using unraid labels
+
+Non-Unraid:
+- It tries to match the container image to an icon from <https://github.com/Notifiarr/images> (Feel free to add more icons to that repo for others to use)
+- If the icon name is not the same as the official image or the app has multiple images then an alias would be used:
+	- Internal alias file: <https://github.com/Notifiarr/dockwatch/blob/main/root/app/www/public/container-alias.json>
+  		- This can be modified to add more links to official images as needed
+	- If you have your own custom images that you want to point to an icon:
+		- Create `/config/container-alias.json` and use the same format as the internal file
+
+## Screenshots
 UI
 
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/9bfd385e-9b2c-4881-95f5-31c64b073424)
