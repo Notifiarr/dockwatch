@@ -34,6 +34,12 @@ if ($_POST['m'] == 'login') {
                 logger($systemLog, 'credentials check', 'info');
                 list($user, $pass) = explode(':', $login);
 
+                //-- STRIP OUT THE SPACES AND LINE BREAKS USERS ACCIDENTALLY PROVIDE
+                $user = trim($user);
+                $pass = trim($pass);
+                $_POST['user'] = trim($_POST['user']);
+                $_POST['pass'] = trim($_POST['pass']);
+
                 logger($systemLog, 'file user: \'' . $user . '\'', 'info');
                 logger($systemLog, 'file pass: \'' . $pass . '\'', 'info');
                 logger($systemLog, 'post user: \'' . $_POST['user'] . '\'', 'info');
