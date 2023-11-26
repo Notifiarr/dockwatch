@@ -10,6 +10,7 @@
 require 'loader.php';
 require 'includes/header.php';
 $dockerPerms = dockerPermissionCheck();
+
 ?>
     <div id="content-overview" style="display: none;"></div>
     <div id="content-containers" style="display: none;"></div>

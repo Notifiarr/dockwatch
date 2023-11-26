@@ -1,0 +1,5 @@
+{
+    "apprise": ["apprise-api"],
+    "grafana": ["grafana-image-renderer"],
+    "portainer": ["portainer-ce", "portainer-be"]
+}

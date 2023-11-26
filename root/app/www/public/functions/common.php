@@ -194,30 +194,30 @@ function linkWebroot($location)
     }
 }
 
-function getIcons()
+function getIcons($bustCache = false)
 {
     $update = false;
-    if (file_exists(LOGO_FILE)) {
-        $age = filemtime(LOGO_FILE);
-        if ($age + 86400 <= time()) {
+    if ($bustCache) {
+        $update = true;
+    } else {
+        if (file_exists(LOGO_FILE)) {
+            $age = filemtime(LOGO_FILE);
+            if ($age + 86400 <= time()) {
+                $update = true;
+            }
+        } else {
             $update = true;
         }
-    } else {
-        $update = true;
     }
 
     if ($update) {
-        $icons = file_get_contents('https://github.com/walkxcode/dashboard-icons/blob/main/ICONS.md?raw=true');
-        preg_match_all('/< *img[^>]*src *= *["\']?([^"\']*)/i', $icons, $matches);
-        
-        foreach ($matches[1] as $match) {
-            if (strpos($match, '.png') !== false) {
-                preg_match('/(.*)\/(.*)\.png/', $match, $imageName);
-                $iconList[$imageName[2]] = $match;
-            }
-        }
+        $iconList = getIconListFromGithub();
 
-        setFile(LOGO_FILE, $iconList);
+        if (!empty($iconList)) {
+            setFile(LOGO_FILE, $iconList);
+        } else { //-- GH REQUST FAILED, USE EXISTING
+            $iconList = getFile(LOGO_FILE);    
+        }
     } else {
         $iconList = getFile(LOGO_FILE);
     }
@@ -230,13 +230,35 @@ function getIcon($inspect)
     if ($inspect[0]['Config']['Labels']['net.unraid.docker.icon']) {
         return $inspect[0]['Config']['Labels']['net.unraid.docker.icon'];
     } else {
+        //-- TRY AN EXACT MATCH
         $icons = getIcons();
         $image = explode('/', $inspect[0]['Config']['Image']);
         $image = $image[count($image) - 1];
         $image = explode(':', $image);
         $image = $image[0];
 
-        return $icons[$image];
+        if ($icons[$image]) {
+            return ICON_URL . $icons[$image];
+        }
+
+        //-- TRY THE ALIAS FILES
+        $aliasFiles = [EXTERNAL_ICON_ALIAS_FILE, INTERNAL_ICON_ALIAS_FILE];
+
+        foreach ($aliasFiles as $aliasFile) {
+            $alias = ABSOLUTE_PATH . $aliasFile;
+
+            if (file_exists($alias)) {
+                $aliasList = getFile($alias);
+
+                foreach ($aliasList as $name => $aliasOptions) {
+                    if (in_array($image, $aliasOptions)) {
+                        return ICON_URL . $icons[$name];
+                    }
+                }
+            }
+        }
+
+        return;
     }
 }
 

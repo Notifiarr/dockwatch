@@ -44,6 +44,11 @@ if ($_POST['m'] == 'init') {
                                 <td>24h</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('prune')"></i></td>
                             </tr>
+                            <tr>
+                                <td>Icon update</td>
+                                <td>24h</td>
+                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('icons')"></i></td>
+                            </tr>
                         </tbody>
                     </table>
                     <br clear="all">
@@ -92,6 +97,10 @@ if ($_POST['m'] == 'runTask') {
             break;
         case 'session':
             print_r($_SESSION);
+            break;
+        case 'icons':
+            getIcons(true);
+            echo 'The icon list has been refreshed';
             break;
     }
 }
