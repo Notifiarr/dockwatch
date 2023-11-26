@@ -59,6 +59,10 @@ if ($_POST['m'] == 'init') {
                                 <td>Server Variables</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('server')"></i></td>
                             </tr>
+                            <tr>
+                                <td>Session Variables</td>
+                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('session')"></i></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -85,6 +89,9 @@ if ($_POST['m'] == 'runTask') {
             echo '/usr/bin/php -r \'print_r($_SERVER);\'<br><br>';
             echo 'browser:<br>';
             print_r($_SERVER);
+            break;
+        case 'session':
+            print_r($_SESSION);
             break;
     }
 }
