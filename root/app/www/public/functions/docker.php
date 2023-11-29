@@ -7,35 +7,51 @@
 ----------------------------------
 */
 
+function findContainerFromHash($hash)
+{
+    global $stateFile;
+
+    if (!$stateFile) {
+        $stateFile = getServerFile('state');
+        $stateFile = $stateFile['file'];
+    }
+
+    foreach ($stateFile as $container) {
+        if (md5($container['Names']) == $hash) {
+            return $container;
+        }
+    }
+}
+
 function dockerState()
 {
-    $state = dockerProcessList(false);
-    $state = json_decode($state, true);
+    $processList = apiRequest('dockerProcessList', ['useCache' => false]);
+    $processList = json_decode($processList['response']['docker'], true);
 
-    $dockerStats = dockerStats(false);
-    $dockerStats = json_decode($dockerStats, true);
-    
-    if (!empty($state)) {
-        foreach ($state as $index => $process) {
-            $inspect = dockerInspect($process['Names'], false);
-            $state[$index]['inspect'] = json_decode($inspect, true);
+    $dockerStats = apiRequest('dockerStats', ['useCache' => false]);
+    $dockerStats = json_decode($dockerStats['response']['docker'], true);
+
+    if (!empty($processList)) {
+        foreach ($processList as $index => $process) {
+            $inspect = apiRequest('dockerInspect', ['name' => $process['Names'], 'useCache' => false]);
+            $processList[$index]['inspect'] = json_decode($inspect['response']['docker'], true);
 
             foreach ($dockerStats as $dockerStat) {
                 if ($dockerStat['Name'] == $process['Names']) {
-                    $state[$index]['stats'] = $dockerStat;
+                    $processList[$index]['stats'] = $dockerStat;
                     break;
                 }
             }
         }
     }
 
-    return $state;
+    return $processList;
 }
 
 function dockerPermissionCheck()
 {
-    $response = dockerProcessList();
-    return empty(json_decode($response, true)) ? false : true;
+    $response = apiRequest('dockerProcessList');
+    return empty(json_decode($response['response']['docker'], true)) ? false : true;
 }
 
 function dockerProcessList($useCache = true)
@@ -178,9 +194,9 @@ function dockerRemoveImage($id)
     return shell_exec($cmd . ' 2>&1');
 }
 
-function dockerPruneImage($id)
+function dockerPruneImage()
 {
-    $cmd = '/usr/bin/docker image prune -af ' . $id;
+    $cmd = '/usr/bin/docker image prune -af';
     return shell_exec($cmd . ' 2>&1');
 }
 
@@ -190,8 +206,8 @@ function dockerRemoveVolume($name)
     return shell_exec($cmd . ' 2>&1');
 }
 
-function dockerPruneVolume($name)
+function dockerPruneVolume()
 {
-    $cmd = '/usr/bin/docker volume prune -af ' . $name;
+    $cmd = '/usr/bin/docker volume prune -af';
     return shell_exec($cmd . ' 2>&1');
 }

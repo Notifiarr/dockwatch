@@ -7,6 +7,23 @@
 ----------------------------------
 */
 
+function viewLog($log)
+{
+    $error = $header = $content = '';
+    if (file_exists(LOGS_PATH . $log)) {
+        $log        = file(LOGS_PATH . $log);
+        $header     = 'Lines: ' . count($log);
+        
+        foreach ($log as $index => $line) {
+            $content .= str_pad(($index + 1), strlen(count($log)), ' ', STR_PAD_RIGHT) .' | '. $line;
+        }
+    } else {
+        $error = 'Selected log file not found';
+    }
+
+    return json_encode(['header' => $header, 'log' => str_replace('[ERROR]', '<span class="text-danger">[ERROR]</span>', $content), 'error' => $error]);
+}
+
 function logger($logfile, $msg, $type = 'info')
 {
     if (!$logfile) {

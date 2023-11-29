@@ -47,7 +47,6 @@ $triggers   = [
 
 if ($_POST['m'] == 'init') {
     $notificationPlatforms = $notifications->getPlatforms();
-
     ?>
     <div class="container-fluid pt-4 px-4">
         <div class="bg-secondary rounded h-100 p-4">
@@ -65,7 +64,7 @@ if ($_POST['m'] == 'init') {
                     <tbody>
                         <?php
                         foreach ($triggers as $trigger) {
-                            $notificationSetting = $settings['notifications']['triggers'][$trigger['name']];
+                            $notificationSetting = $settingsFile['notifications']['triggers'][$trigger['name']];
                             ?>
                             <tr>
                                 <th scope="row"><input type="checkbox" <?= ($notificationSetting['active'] ? 'checked' : '') ?> class="form-check-input notification-check" id="notifications-name-<?= $trigger['name'] ?>"></th>
@@ -136,7 +135,7 @@ if ($_POST['m'] == 'saveNotificationSettings') {
                                     'platform'  => $_POST['notifications-platform-' . $type]
                                 ];
     }
-    $settings['notifications']['triggers'] = $newSettings;
+    $settingsFile['notifications']['triggers'] = $newSettings;
 
     //-- PLATFORM SETTINGS
     $newSettings = [];
@@ -150,21 +149,25 @@ if ($_POST['m'] == 'saveNotificationSettings') {
 
         $newSettings[$platformId][$platformField] = trim($val);
     }
-    $settings['notifications']['platforms'] = $newSettings;
+    $settingsFile['notifications']['platforms'] = $newSettings;
 
-    setFile(SETTINGS_FILE, $settings);
+    $saveSettings = setServerFile('settings', $settingsFile);
+
+    if ($saveSettings['code'] != 200) {
+        $error = 'Error saving notification settings on server ' . ACTIVE_SERVER_NAME;
+    }
+
+    echo json_encode(['error' => $error, 'server' => ACTIVE_SERVER_NAME]);
 }
 
 if ($_POST['m'] == 'testNotify') {
-    $payload    = [
-                    'event'     => 'test', 
-                    'title'     => 'DockWatch Test', 
-                    'message'   => 'This is a test message sent from DockWatch'
-                ];
+    $apiResponse = apiRequest('testNotify', [], ['platform' => $_POST['platform']]);
 
-    $result = $notifications->notify($_POST['platform'], $payload);
-
-    if ($result['code'] != 200) {
-        echo 'Code ' . $result['code'] . ', ' . $result['error'];
+    if ($apiResponse['code'] == 200) {
+        $result = 'Test notification sent on server ' . ACTIVE_SERVER_NAME;
+    } else {
+        $error = 'Failed to send test notification on server ' . ACTIVE_SERVER_NAME . '. ' . $apiResponse['response']['result'];
     }
+
+    echo json_encode(['error' => $error, 'result' => $result]);
 }

@@ -29,9 +29,14 @@ function saveNotificationSettings()
         type: 'POST',
         url: '../ajax/notification.php',
         data: '&m=saveNotificationSettings' + params,
+        dataType: 'json',
         success: function (resultData) {
+            if (resultData.error) {
+                toast('Notifications', resultData.error, 'error');
+            } else {
+                toast('Notifications', 'Notification settings saved on server ' + resultData.server, 'success');
+            }
             loadingStop();
-            toast('Notifications', 'Notification settings saved', 'success');
         }
     });
 
@@ -45,14 +50,14 @@ function testNotify(platform)
         type: 'POST',
         url: '../ajax/notification.php',
         data: '&m=testNotify&platform=' + platform,
+        dataType: 'json',
         success: function (resultData) {
-            loadingStop();
-            if (resultData) {
-                toast('Notifications', 'Test notification failed: ' + resultData, 'error');
-                return;
+            if (resultData.error) {
+                toast('Notifications', resultData.error, 'error');
+            } else {
+                toast('Notifications', resultData.result, 'success');
             }
-
-            toast('Notifications', 'Test notification sent', 'success');
+            loadingStop();
         }
     });
 }

@@ -9,8 +9,21 @@
 
 require 'loader.php';
 require 'includes/header.php';
-$dockerPerms = dockerPermissionCheck();
 
+$dockerPerms = apiRequest('dockerPermissionCheck');
+$dockerPerms = json_decode($dockerPerms['response']['docker'], true);
+
+if (!$serversFile) {
+    $apiError = 'Servers file missing or corrupt';
+}
+
+if ($apiError) {
+    ?>
+    <div id="apiError">
+        <?= $apiError ?>
+    </div>
+    <?php
+} else {
 ?>
     <div id="content-overview" style="display: none;"></div>
     <div id="content-containers" style="display: none;"></div>
@@ -30,4 +43,5 @@ $dockerPerms = dockerPermissionCheck();
         </div>
     </div>
 <?php
+}
 require 'includes/footer.php';

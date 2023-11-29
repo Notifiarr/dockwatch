@@ -10,7 +10,7 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $globalSettings = $settings['global'];
+    $globalSettings = $settingsFile['global'];
     $cpus = cpuTotal();
     if ($cpus == 0) {
         $cpus = '0 (Could not get cpu count from /proc/cpuinfo)';
@@ -36,6 +36,58 @@ if ($_POST['m'] == 'init') {
                             </td>
                             <td>The name of this server, also passed in the notification payload</td>
                         </tr>
+                    </tbody>
+                </table>
+            </div>
+            <h4>Server list</h4>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col" width="15%">Name</th>
+                            <th scope="col" width="30%">URL</th>
+                            <th scope="col" width="55%">API Key</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php 
+                    if ($_SESSION['serverIndex'] != 0) {
+                        ?>
+                        <tr>
+                            <td colspan="3">Sorry, remote management of server access is not allowed. Go to the <?= ACTIVE_SERVER_NAME ?> server to make those changes.</td>
+                        </tr>
+                        <?php
+                    } else {
+                        ?>
+                        <tr>
+                            <th scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-0" value="<?= $serversFile[0]['name'] ?>"></th>
+                            <td><input class="form-control" type="text" id="globalSetting-serverList-url-0" value="<?= $serversFile[0]['url'] ?>"></td>
+                            <td><?= $serversFile[0]['apikey'] ?><input type="hidden" id="globalSetting-serverList-apikey-0" value="<?= $serversFile[0]['apikey'] ?>"></td>
+                        </tr>
+                        <?php 
+                        if (count($serversFile) > 1) {
+                            foreach ($serversFile as $serverIndex => $serverSettings) {
+                                if ($serverIndex == 0) {
+                                    continue;
+                                }
+                                ?>
+                                <tr>
+                                    <th scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-<?= $serverIndex ?>" value="<?= $serverSettings['name'] ?>"></th>
+                                    <td><input class="form-control" type="text" id="globalSetting-serverList-url-<?= $serverIndex ?>" value="<?= $serverSettings['url'] ?>"></td>
+                                    <td><input class="form-control" type="text" id="globalSetting-serverList-apikey-<?= $serverIndex ?>" value="<?= $serverSettings['apikey'] ?>"></td>
+                                </tr>
+                                <?php
+                            }
+                        }
+                        ?>
+                        <tr>
+                            <th scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-new" value="" placeholder="New server name"></th>
+                            <td><input class="form-control" type="text" id="globalSetting-serverList-url-new" value="" placeholder="New server url"></td>
+                            <td><input class="form-control" type="text" id="globalSetting-serverList-apikey-new" value="" placeholder="New server apikey"></td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
                     </tbody>
                 </table>
             </div>
@@ -246,15 +298,54 @@ if ($_POST['m'] == 'init') {
 }
 
 if ($_POST['m'] == 'saveGlobalSettings') {
-    $currentSettings = getFile(SETTINGS_FILE);
+    $currentSettings = getServerFile('settings');
     $newSettings = [];
 
     foreach ($_POST as $key => $val) {
-        if ($key == 'm') {
+        if ($key == 'm' || strpos($key, 'serverList') !== false) {
             continue;
         }
 
         $newSettings[$key] = trim($val);
+    }
+
+    //-- ADD SERVER TO LIST
+    if ($_POST['serverList-name-new'] && $_POST['serverList-url-new'] && $_POST['serverList-apikey-new']) {
+        $serversFile[] = ['name' => $_POST['serverList-name-new'], 'url' => rtrim($_POST['serverList-url-new'], '/'), 'apikey' => $_POST['serverList-apikey-new']];
+    }
+
+    //-- UPDATE SERVER LIST
+    foreach ($_POST as $key => $val) {
+        if (strpos($key, 'serverList-apikey') === false) {
+            continue;
+        }
+
+        list($name, $field, $index) = explode('-', $key);
+
+        if (!is_numeric($index)) {
+            continue;
+        }
+
+        if ($_POST['serverList-name-' . $index] && $_POST['serverList-url-' . $index] && $_POST['serverList-apikey-' . $index]) {
+            $serversFile[$index] = ['name' => $_POST['serverList-name-' . $index], 'url' => rtrim($_POST['serverList-url-' . $index], '/'), 'apikey' => $_POST['serverList-apikey-' . $index]];
+        }
+    }
+
+    //-- REMOVE SERVER FROM LIST
+    foreach ($_POST as $key => $val) {
+        if (strpos($key, 'serverList-apikey') === false) {
+            continue;
+        }
+
+        list($name, $field, $index) = explode('-', $key);
+
+        if (!is_numeric($index)) {
+            continue;
+        }
+
+        if (!$_POST['serverList-name-' . $index] && !$_POST['serverList-url-' . $index] && !$_POST['serverList-apikey-' . $index]) {
+            unset($serversFile[$index]);
+        }
     }
 
     if ($currentSettings['global']['environment'] != $_POST['environment']) {
@@ -265,6 +356,38 @@ if ($_POST['m'] == 'saveGlobalSettings') {
         }
     }
 
-    $settings['global'] = $newSettings;
-    setFile(SETTINGS_FILE, $settings);
+    $settingsFile['global'] = $newSettings;
+    $saveSettings = setServerFile('settings', $settingsFile);
+
+    if ($saveSettings['code'] != 200) {
+        $error = 'Error saving global settings on server ' . ACTIVE_SERVER_NAME;
+    }
+
+    $saveServers = setServerFile('servers', $serversFile);
+
+    if ($saveServers['code'] != 200) {
+        $error = 'Error saving servers on server ' . ACTIVE_SERVER_NAME;
+    }
+
+    $serverList = '';
+    foreach ($serversFile as $serverIndex => $serverDetails) {
+        $ping = curl($serverDetails['url'] . '/api/?request=ping', ['x-api-key: ' . $serverDetails['apikey']]);
+        $disabled = '';
+        if ($ping['code'] != 200) {
+            $disabled = ' [' . $ping['code'] . ']';
+        }
+        $serverList .= '<option ' . ($disabled ? 'disabled ' : '') . ($_SESSION['serverIndex'] == $serverIndex ? 'selected' : '') . ' value="' . $serverIndex . '">' . $serverDetails['name'] . $disabled . '</option>';
+    }
+
+    echo json_encode(['error' => $error, 'server' => ACTIVE_SERVER_NAME, 'serverList' => $serverList]);
+}
+
+//-- CALLED FROM THE NAV MENU SELECT
+if ($_POST['m'] == 'updateServerIndex') {
+    $_SESSION['serverIndex'] = intval($_POST['index']);
+
+    $cacheKey = MEMCACHE_PREFIX . 'dockerProcessList';
+    memcacheBust($cacheKey);
+    $cacheKey = MEMCACHE_PREFIX . 'dockerStats';
+    memcacheBust($cacheKey);
 }

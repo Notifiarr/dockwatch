@@ -10,7 +10,7 @@
 define('ABSOLUTE_PATH', str_replace('crons', '', __DIR__));
 require ABSOLUTE_PATH . 'loader.php';
 
-logger($systemLog, 'Cron: running prune', 'info');
+logger(SYSTEM_LOG, 'Cron: running prune', 'info');
 
 set_time_limit(0);
 
@@ -18,15 +18,20 @@ $logfile = LOGS_PATH . 'crons/prune-' . date('Ymd_Hi') . '.log';
 logger($logfile, 'Cron run started');
 echo 'Cron run started: prune' . "\n";
 
+if ($settingsFile['tasks']['prune']['disabled']) {
+    logger($logfile, 'Cron run stopped: disabled in tasks menu');
+    echo 'Cron run cancelled: disabled in tasks menu' . "\n";
+    exit();
+}
+
 $imagePrune = $volumePrune = [];
-$settings   = getFile(SETTINGS_FILE);
 $images     = json_decode(dockerGetOrphanContainers(), true);
 $volumes    = json_decode(dockerGetOrphanVolumes(), true);
 
 logger($logfile, 'images=' . json_encode($images));
 logger($logfile, 'volumes=' . json_encode($volumes));
 
-if ($settings['global']['autoPruneImages']) {
+if ($settingsFile['global']['autoPruneImages']) {
     if ($images) {
         foreach ($images as $image) {
             $imagePrune[] = $image['ID'];
@@ -36,7 +41,7 @@ if ($settings['global']['autoPruneImages']) {
     logger($logfile, 'Auto prune images disabled');
 }
 
-if ($settings['global']['autoPruneVolumes']) {
+if ($settingsFile['global']['autoPruneVolumes']) {
     if ($volumes) {
         foreach ($volumes as $volume) {
             $volumePrune[] = $volume['Name'];
@@ -62,10 +67,10 @@ if ($volumePrune) {
     logger($logfile, 'result: ' . $prune);
 }
 
-if ($settings['notifications']['triggers']['prune']['active'] && (count($volumePrune) > 0 || count($imagePrune) > 0)) {
+if ($settingsFile['notifications']['triggers']['prune']['active'] && (count($volumePrune) > 0 || count($imagePrune) > 0)) {
     $payload = ['event' => 'prune', 'volume' => count($volumePrune), 'image' => count($imagePrune)];
     logger($logfile, 'Notification payload: ' . json_encode($payload));
-    $notifications->notify($settings['notifications']['triggers']['prune']['platform'], $payload);
+    $notifications->notify($settingsFile['notifications']['triggers']['prune']['platform'], $payload);
 }
 
 logger($logfile, 'Cron run finished');

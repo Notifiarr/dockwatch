@@ -20,20 +20,20 @@ require ABSOLUTE_PATH . 'loader.php';
 
 $processList = [];
 if (in_array($_POST['page'], $getProc)) {
-    $processList = dockerProcessList();
-    $processList = json_decode($processList, true);
+    $processList = apiRequest('dockerProcessList');
+    $processList = json_decode($processList['response']['docker'], true);
 }
 
 if (in_array($_POST['page'], $getStats)) {
-    $dockerStats = dockerStats();
-    $dockerStats = json_decode($dockerStats, true);
+    $dockerStats = apiRequest('dockerStats');
+    $dockerStats = json_decode($dockerStats['response']['docker'], true);
 }
 
 if (!empty($processList)) {
     foreach ($processList as $index => $process) {
         if (in_array($_POST['page'], $getInspect)) {
-            $inspect = dockerInspect($process['Names']);
-            $processList[$index]['inspect'] = json_decode($inspect, true);
+            $inspect = apiRequest('dockerInspect', ['name' => $process['Names'], 'useCache' => true]);
+            $processList[$index]['inspect'] = json_decode($inspect['response']['docker'], true);
         }
 
         if (in_array($_POST['page'], $getStats)) {
@@ -49,11 +49,8 @@ if (!empty($processList)) {
 
 //-- UPDATE THE STATE FILE WHEN EVERYTHING IS FETCHED
 if ($_POST['page'] == 'overview' || $_POST['page'] == 'containers') {
-    setFile(STATE_FILE, json_encode($processList));
+    setServerFile('state', json_encode($processList));
 }
 
-//-- SETTINGS
-$settings = getFile(SETTINGS_FILE);
-
 //-- STATE
-$state = $processList;
+$stateFile = $processList;

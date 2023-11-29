@@ -10,7 +10,7 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $pulls = is_array($pulls) ? $pulls : json_decode($pulls, true);
+    $pulls = is_array($pullsFile) ? $pullsFile : json_decode($pullsFile, true);
     array_sort_by_key($processList, 'Names');
 
     ?>
@@ -68,8 +68,8 @@ if ($_POST['m'] == 'init') {
                     <tbody>
                         <?php
                         //-- GROUPS
-                        if ($settings['containerGroups']) {
-                            foreach ($settings['containerGroups'] as $groupHash => $containerGroup) {
+                        if ($settingsFile['containerGroups']) {
+                            foreach ($settingsFile['containerGroups'] as $groupHash => $containerGroup) {
                                 $groupCPU = $groupMemory = 0;
                                 foreach ($processList as $process) {
                                     $nameHash = md5($process['Names']);
@@ -79,8 +79,8 @@ if ($_POST['m'] == 'init') {
                                         $groupMemory += $memUsage;
 
                                         $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
-                                        if (intval($settings['global']['cpuAmount']) > 0) {
-                                            $cpuUsage = number_format(($cpuUsage / intval($settings['global']['cpuAmount'])), 2);
+                                        if (intval($settingsFile['global']['cpuAmount']) > 0) {
+                                            $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2);
                                         }
                                         $groupCPU += $cpuUsage;
                                     }
@@ -102,15 +102,15 @@ if ($_POST['m'] == 'init') {
                                         $nameHash = md5($process['Names']);
     
                                         if ($nameHash == $containerHash) {
-                                            $containerSettings  = $settings['containers'][$nameHash];
+                                            $containerSettings  = $settingsFile['containers'][$nameHash];
                                             $logo               = getIcon($process['inspect']);
                                             $control            = $process['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $nameHash . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $nameHash . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $nameHash . '\', \'start\')">Start</button>';
                 
                                             $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
-                                            if (intval($settings['global']['cpuAmount']) > 0) {
-                                                $cpuUsage = number_format(($cpuUsage / intval($settings['global']['cpuAmount'])), 2) . '%';
+                                            if (intval($settingsFile['global']['cpuAmount']) > 0) {
+                                                $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
                                             }
-                                            $pullData = $pulls[$nameHash];
+                                            $pullData = $pullsFile[$nameHash];
                                             $updateStatus = '<span class="text-danger">Unknown</span>';
                                             if ($pullData) {
                                                 $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
@@ -171,8 +171,8 @@ if ($_POST['m'] == 'init') {
                         foreach ($processList as $process) {
                             $inGroup    = false;
                             $nameHash   = md5($process['Names']);
-                            if ($settings['containerGroups']) {
-                                foreach ($settings['containerGroups'] as $containerGroup) {
+                            if ($settingsFile['containerGroups']) {
+                                foreach ($settingsFile['containerGroups'] as $containerGroup) {
                                     if (in_array($nameHash, $containerGroup['containers'])) {
                                         $inGroup = true;
                                         break;
@@ -184,15 +184,15 @@ if ($_POST['m'] == 'init') {
                                 continue;
                             }
 
-                            $containerSettings  = $settings['containers'][$nameHash];
+                            $containerSettings  = $settingsFile['containers'][$nameHash];
                             $logo               = getIcon($process['inspect']);
                             $control            = $process['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $nameHash . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $nameHash . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $nameHash . '\', \'start\')">Start</button>';
 
                             $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
-                            if (intval($settings['global']['cpuAmount']) > 0) {
-                                $cpuUsage = number_format(($cpuUsage / intval($settings['global']['cpuAmount'])), 2) . '%';
+                            if (intval($settingsFile['global']['cpuAmount']) > 0) {
+                                $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
                             }
-                            $pullData = $pulls[$nameHash];
+                            $pullData = $pullsFile[$nameHash];
                             $updateStatus = '<span class="text-danger">Unknown</span>';
                             if ($pullData) {
                                 $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
@@ -296,50 +296,49 @@ if ($_POST['m'] == 'saveContainerSettings') {
                                 ];
     }
 
-    $settings['containers'] = $newSettings;
-    setFile(SETTINGS_FILE, $settings);
+    $settingsFile['containers'] = $newSettings;
+    setServerFile('settings', $settingsFile);
 }
 
 if ($_POST['m'] == 'massApplyContainerTrigger') {
-    $pulls      = getFile(PULL_FILE);
-    $pulls      = is_array($pulls) ? $pulls : json_decode($pulls, true); 
     $container  = findContainerFromHash($_POST['hash']);
 
     switch ($_POST['trigger']) {
         case '1': //-- Start
-            dockerStartContainer($container['Names']);
+            apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
             $result = 'Started ' . $container['Names'] . '<br>';
             break;
         case '2': //-- Restart
-            dockerStopContainer($container['Names']);
-            dockerStartContainer($container['Names']);
+            apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
+            apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
             $result = 'Restarted ' . $container['Names'] . '<br>';
             break;
         case '3': //-- Stop
-            dockerStopContainer($container['Names']);
+            apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
             $result = 'Stopped ' . $container['Names'] . '<br>';
             break;
         case '4': //-- Pull
             $image              = $container['inspect'][0]['Config']['Image'];
-            $pull               = dockerPullContainer($image);
-            $inspectContainer   = dockerInspect($container['Names'], false);
-            $inspectContainer   = json_decode($inspectContainer, true);
-            $inspectImage       = dockerInspect($image, false);
-            $inspectImage       = json_decode($inspectImage, true);
+            $pull               = apiRequest('dockerPullContainer', [], ['name' => $image]);
+            $inspectContainer   = apiRequest('dockerInspect', ['name' => $container['Names'], 'useCache' => false]);
+            $inspectContainer   = json_decode($inspectContainer['response']['docker'], true);
+            $inspectContainer   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false]);
+            $inspectImage       = json_decode($inspectContainer['response']['docker'], true);
 
-            $pulls[md5($container['Names'])]    = [
-                                                    'checked'   => time(),
-                                                    'name'      => $container['Names'],
-                                                    'image'     => $inspectImage[0]['Id'],
-                                                    'container' => $inspectContainer[0]['Image']
-                                                ];
+            $pullsFile[md5($container['Names'])]    = [
+                                                        'checked'   => time(),
+                                                        'name'      => $container['Names'],
+                                                        'image'     => $inspectImage[0]['Id'],
+                                                        'container' => $inspectContainer[0]['Image']
+                                                    ];
 
-            setFile(PULL_FILE, $pulls);
+            setServerFile('pull', $pullsFile);
             $result = 'Pulled ' . $container['Names'] . '<br>';
             break;
         case '5': //-- GERNERATE RUN
-            $run = dockerAutoRun($container['Names']);
-            $result = 'docker run ' . $container['Names'] . '<br><pre>' . $run . '</pre>';
+            $autoRun    = apiRequest('dockerAutoRun', ['name' => $container['Names']]);
+            $autoRun    = $autoRun['response']['docker'];
+            $result     = '<pre>' . $autoRun . '</pre>';
             break;
         case '6': //-- GENERATE COMPOSE
             $containerList  = '';
@@ -350,33 +349,37 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $containerList .= $thisContainer['Names'] . ' ';
             }
 
-            $result = '<pre>' . dockerAutoCompose(trim($containerList)) . '</pre>';
+            $autoCompose    = apiRequest('dockerAutoCompose', ['name' => trim($containerList)]);
+            $autoCompose    = $autoCompose['response']['docker'];
+            $result         = '<pre>' . $autoCompose . '</pre>';
             break;
         case '7': //-- UPDATE
             if (strpos($image, 'dockwatch') !== false) {
                 $updateResult = 'skipped';
             } else {
-                $runCommand     = dockerAutoRun($container['Names']);
-                $lines = explode("\n", $runCommand);
+                $autoRun    = apiRequest('dockerAutoRun', ['name' => $container['Names']]);
+                $autoRun    = json_decode($autoRun['response']['docker'], true);
+                $lines      = explode("\n", $runCommand);
                 foreach ($lines as $line) {
                     $newRun .= trim(str_replace('\\', '', $line)) . ' ';
                 }
-                $runCommand = $newRun;
-                $stop           = dockerStopContainer($container['Names']);
-                $remove         = dockerRemoveContainer($container['ID']);
-                $update         = trim(dockerUpdateContainer($runCommand));
+                $autoRun = $newRun;
+                apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
+                apiRequest('dockerRemoveContainer', [], ['id' => $container['ID']]);
+                $update         = apiRequest('dockerUpdateContainer', [], ['command' => $command]);
+                $update         = trim($update['response']['docker']);
                 $updateResult   = 'failed';
 
                 if (strlen($update) == 64) {
                     $updateResult = 'complete';
-                    $pulls[$_POST['hash']]  = [
-                                                'checked'   => time(),
-                                                'name'      => $container['Names'],
-                                                'image'     => $update,
-                                                'container' => $update
-                                            ];
+                    $pullsFile[$_POST['hash']]  = [
+                                                    'checked'   => time(),
+                                                    'name'      => $container['Names'],
+                                                    'image'     => $update,
+                                                    'container' => $update
+                                                ];
 
-                    setFile(PULL_FILE, $pulls);
+                    setServerFile('pull', $pulls);
                 }
             }
 
@@ -388,10 +391,10 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
     }
 
-    $processList    = dockerProcessList(false);
-    $processList    = json_decode($processList, true);
-    $dockerStats    = dockerStats(false);
-    $dockerStats    = json_decode($dockerStats, true);
+    $processList    = apiRequest('dockerProcessList', ['useCache' => false]);
+    $processList    = json_decode($processList['response']['docker'], true);
+    $dockerStats    = apiRequest('dockerStats', ['useCache' => false]);
+    $dockerStats    = json_decode($dockerStats['response']['docker'], true);
     $containerProcess = $containerStats = [];
 
     if (is_array($container)) {
@@ -416,15 +419,15 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
     $control = $containerProcess['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'start\')">Start</button>';
 
-    $pullData = $pulls[$_POST['hash']];
+    $pullData = $pullsFile[$_POST['hash']];
     $updateStatus = '<span class="text-danger">Unknown</span>';
     if ($pullData) {
         $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
     }
 
     $cpuUsage = floatval(str_replace('%', '', $containerStats['CPUPerc']));
-    if (intval($settings['global']['cpuAmount']) > 0) {
-        $cpuUsage = number_format(($cpuUsage / intval($settings['global']['cpuAmount'])), 2) . '%';
+    if (intval($settingsFile['global']['cpuAmount']) > 0) {
+        $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
     }
 
     $return     = [
@@ -446,14 +449,14 @@ if ($_POST['m'] == 'controlContainer') {
     $container = findContainerFromHash($_POST['hash']);
 
     if ($_POST['action'] == 'stop' || $_POST['action'] == 'restart') {
-        dockerStopContainer($container['Names']);
+        apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
     }
     if ($_POST['action'] == 'start' || $_POST['action'] == 'restart') {
-        dockerStartContainer($container['Names']);
+        apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
     }
 
-    $processList        = dockerProcessList(false);
-    $processList        = json_decode($processList, true);
+    $processList        = apiRequest('dockerProcessList', ['useCache' => false]);
+    $processList        = json_decode($processList['response']['docker'], true);
     $containerProcess   = [];
     foreach ($processList as $process) {
         if ($process['Names'] == $container['Names']) {
@@ -462,8 +465,8 @@ if ($_POST['m'] == 'controlContainer') {
         }
     }
 
-    $dockerStats    = dockerStats(false);
-    $dockerStats    = json_decode($dockerStats, true);
+    $dockerStats    = apiRequest('dockerStats', ['useCache' => false]);
+    $dockerStats    = json_decode($dockerStats['response']['docker'], true);
     $containerStats = [];
     foreach ($dockerStats as $dockerStat) {
         if ($dockerStat['Name'] == $container['Names']) {
@@ -474,7 +477,7 @@ if ($_POST['m'] == 'controlContainer') {
 
     $control = $containerProcess['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'start\')">Start</button>';
 
-    $pullData = $pulls[$_POST['hash']];
+    $pullData = $pullsFile[$_POST['hash']];
     $updateStatus = '<span class="text-danger">Unknown</span>';
     if ($pullData) {
         $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
@@ -494,9 +497,8 @@ if ($_POST['m'] == 'controlContainer') {
 }
 
 if ($_POST['m'] == 'openContainerGroups') {
-    $settings       = getFile(SETTINGS_FILE);
-    $processList    = dockerProcessList();
-    $processList    = json_decode($processList, true);
+    $processList = apiRequest('dockerProcessList');
+    $processList = json_decode($processList['response']['docker'], true);
     array_sort_by_key($processList, 'Names');
 
     ?>
@@ -509,8 +511,8 @@ if ($_POST['m'] == 'openContainerGroups') {
                         <select class="form-select" id="groupSelection" onchange="loadContainerGroup()">
                             <option value="1">New Group</option>
                             <?php 
-                            if ($settings['containerGroups']) {
-                                foreach ($settings['containerGroups'] as $groupHash => $groupDetails) {
+                            if ($settingsFile['containerGroups']) {
+                                foreach ($settingsFile['containerGroups'] as $groupHash => $groupDetails) {
                                     ?><option value="<?= $groupHash ?>"><?= $groupDetails['name'] ?></option><?php
                                 }
                             } 
@@ -534,8 +536,8 @@ if ($_POST['m'] == 'openContainerGroups') {
                 foreach ($processList as $process) {
                     $nameHash   = md5($process['Names']);
                     $inGroup    = '';
-                    if ($settings['containerGroups']) {
-                        foreach ($settings['containerGroups'] as $groupContainers) {
+                    if ($settingsFile['containerGroups']) {
+                        foreach ($settingsFile['containerGroups'] as $groupContainers) {
                             if (in_array($nameHash, $groupContainers['containers'])) {
                                 $inGroup = $groupContainers['name'];
                                 break;
@@ -559,17 +561,16 @@ if ($_POST['m'] == 'openContainerGroups') {
 }
 
 if ($_POST['m'] == 'loadContainerGroup') {
-    $settings       = getFile(SETTINGS_FILE);
-    $processList    = dockerProcessList();
-    $processList    = json_decode($processList, true);
+    $processList = apiRequest('dockerProcessList');
+    $processList = json_decode($processList['response']['docker'], true);
     array_sort_by_key($processList, 'Names');
 
     foreach ($processList as $process) {
         $nameHash       = md5($process['Names']);
         $inGroup        = '';
         $inThisGroup    = false;
-        if ($settings['containerGroups']) {
-            foreach ($settings['containerGroups'] as $groupHash => $groupContainers) {
+        if ($settingsFile['containerGroups']) {
+            foreach ($settingsFile['containerGroups'] as $groupHash => $groupContainers) {
                 if (in_array($nameHash, $groupContainers['containers'])) {
                     $inGroup = $groupContainers['name'];
 
@@ -590,16 +591,15 @@ if ($_POST['m'] == 'loadContainerGroup') {
 }
 
 if ($_POST['m'] == 'saveContainerGroup') {
-    $settings   = getFile(SETTINGS_FILE);
     $groupName  = trim($_POST['name']);
     $groupHash  = $_POST['selection'] == '1' ? md5($groupName) : $_POST['selection'];
     $error      = '';
 
     if ($_POST['delete']) {
-        unset($settings['containerGroups'][$groupHash]);
+        unset($settingsFile['containerGroups'][$groupHash]);
     } else {
-        if ($_POST['selection'] == '1' && is_array($settings['containerGroups'])) {
-            foreach ($settings['containerGroups'] as $groupDetails) {
+        if ($_POST['selection'] == '1' && is_array($settingsFile['containerGroups'])) {
+            foreach ($settingsFile['containerGroups'] as $groupDetails) {
                 if (strtolower($groupDetails['name']) == strtolower($groupName)) {
                     $error = 'A group with that name already exists';
                     break;
@@ -619,12 +619,12 @@ if ($_POST['m'] == 'saveContainerGroup') {
                 $containers[] = $containerHash;
             }
         
-            $settings['containerGroups'][$groupHash] = ['name' => $groupName, 'containers' => $containers];
+            $settingsFile['containerGroups'][$groupHash] = ['name' => $groupName, 'containers' => $containers];
         }
     }
 
     if (!$error) {
-        setFile(SETTINGS_FILE, $settings);
+        setServerFile('settings', $settingsFile);
     }
 
     echo $error;

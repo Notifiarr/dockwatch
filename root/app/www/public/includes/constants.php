@@ -12,15 +12,23 @@ define('APP_NAME', 'DockWatch');
 define('ICON_REPO', 'Notifiarr/images');
 define('ICON_URL', 'https://gh.notifiarr.com/images/icons/');
 
-//-- PATHS
-define('LOGIN_FILE', '/config/logins');
-define('SETTINGS_FILE', '/config/settings.json');
-define('STATE_FILE', '/config/state.json');
-define('PULL_FILE', '/config/pull.json');
-define('LOGS_PATH', '/config/logs/');
-define('LOGO_FILE', '/config/logos.json');
+//-- FOLDERS
+define('APP_DATA_PATH', '/config/');
+define('BACKUP_PATH', APP_DATA_PATH . 'backups/');
+define('LOGS_PATH', APP_DATA_PATH . 'logs/');
+
+//-- DATA FILES
+define('SERVERS_FILE', APP_DATA_PATH . 'servers.json');
+define('LOGIN_FILE', APP_DATA_PATH . 'logins');
+define('SETTINGS_FILE', APP_DATA_PATH . 'settings.json');
+define('STATE_FILE', APP_DATA_PATH . 'state.json');
+define('PULL_FILE', APP_DATA_PATH . 'pull.json');
+define('LOGO_FILE', APP_DATA_PATH . 'logos.json');
 define('INTERNAL_ICON_ALIAS_FILE', 'container-alias.json');
-define('EXTERNAL_ICON_ALIAS_FILE', '/config/container-alias.json');
+define('EXTERNAL_ICON_ALIAS_FILE', APP_DATA_PATH . 'container-alias.json');
+
+//-- LOG FILES
+define('SYSTEM_LOG', LOGS_PATH . 'system/' . date('Ymd') . '.log');
 
 //-- MEMCACHE
 define('MEMCACHE_PREFIX', 'dockwatch-' . substr(md5($_SERVER['SERVER_NAME']), 0, 10) . '-');

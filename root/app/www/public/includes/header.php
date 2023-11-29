@@ -7,6 +7,17 @@
 ----------------------------------
 */
 
+$serverList = '<select class="form-select w-75" id="activeServer" onchange="updateServerIndex()">';
+foreach ($serversFile as $serverIndex => $serverDetails) {
+    $ping = curl($serverDetails['url'] . '/api/?request=ping', ['x-api-key: ' . $serverDetails['apikey']]);
+    $disabled = '';
+    if ($ping['code'] != 200) {
+        $disabled = ' [' . $ping['code'] . ']';
+    }
+    $serverList .= '<option ' . ($disabled ? 'disabled ' : '') . ($_SESSION['serverIndex'] == $serverIndex ? 'selected' : '') . ' value="' . $serverIndex . '">' . $serverDetails['name'] . $disabled . '</option>';
+}
+$serverList .= '</select>';
+
 ?>
 
 <!DOCTYPE html>
@@ -51,12 +62,9 @@
         <div class="sidebar pe-4 pb-3">
             <nav class="navbar bg-secondary navbar-dark">
                 <a href="index.php" class="navbar-brand mx-4">
-                    <h3 class="text-primary">DockWatch</h3>
+                    <h3 class="text-primary mb-0">DockWatch</h3>
                 </a>
-                <div class="navbar-brand w-100 mb-1 text-center">
-                    <a href="https://github.com/Notifiarr/dockwatch" target="_blank"><i class="fab fa-github btn-secondary me-2"></i></a>
-                    <a href="https://notifiarr.com/discord" target="_blank"><i class="fab fa-discord btn-secondary"></i></a>
-                </div>
+                <div class="mb-4 w-100" align="center"><?= $serverList ?></div>
                 <?php if ($_SESSION['authenticated']) { ?>
                 <div class="navbar-nav w-100">
                     <a id="menu-overview" onclick="initPage('overview')" style="cursor: pointer;" class="nav-item nav-link active"><i class="fas fa-heartbeat me-2"></i>Overview</a>
@@ -71,6 +79,10 @@
                     <?php } ?> 
                 </div>
                 <?php } ?>
+                <div class="navbar-brand w-100 mb-1 text-center">
+                    <a href="https://github.com/Notifiarr/dockwatch" target="_blank"><i class="fab fa-github btn-secondary me-2"></i></a>
+                    <a href="https://notifiarr.com/discord" target="_blank"><i class="fab fa-discord btn-secondary"></i></a>
+                </div>
             </nav>
             <div class="w-100 text-center" style="position: absolute; bottom: 0;">
                 Theme By <a href="https://htmlcodex.com">HTML Codex</a>

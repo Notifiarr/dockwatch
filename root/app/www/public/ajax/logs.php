@@ -77,16 +77,15 @@ if ($_POST['m'] == 'init') {
 }
 
 if ($_POST['m'] == 'viewLog') {
-    $error = $header = $content = '';
-    if (file_exists(LOGS_PATH . $_POST['name'])) {
-        $log        = file(LOGS_PATH . $_POST['name']);
-        $header     = 'Lines: ' . count($log);
-        
-        foreach ($log as $index => $line) {
-            $content .= str_pad(($index + 1), strlen(count($log)), ' ', STR_PAD_RIGHT) .' | '. $line;
-        }
+    logger(SYSTEM_LOG, 'View log: ' . $_POST['name'], 'info');
+
+    $apiResponse = apiRequest('viewLog', [], ['name' => $_POST['name']]);
+
+    if ($apiResponse['code'] == 200) {
+        $result = json_decode($apiResponse['response']['result'], true);
     } else {
-        $error = 'Selected log file not found';
+        $error = 'Failed to get log from server ' . ACTIVE_SERVER_NAME;
     }
-    echo json_encode(['header' => $header, 'log' => str_replace('[ERROR]', '<span class="text-danger">[ERROR]</span>', $content), 'error' => $error]);
+
+    echo json_encode(['error' => $error, 'header' => $result['header'], 'log' => $result['log'], 'server' => ACTIVE_SERVER_NAME]);
 }

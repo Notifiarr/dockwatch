@@ -29,14 +29,17 @@ class Notifications
     protected $serverName;
     public function __construct()
     {
-        global $platforms;
+        global $platforms, $settingsFile;
 
-        $settings = getFile(SETTINGS_FILE);
+        if (!$settingsFile) {
+            $settingsFile = getServerFile('settings');
+            $settingsFile = $settingsFile['file'];
+        }
 
         $this->platforms        = $platforms; //-- includes/platforms.php
-        $this->platformSettings = $settings['notifications']['platforms'];
+        $this->platformSettings = $settingsFile['notifications']['platforms'];
         $this->logpath          = LOGS_PATH . 'notifications/';
-        $this->serverName       = $settings['global']['serverName'];
+        $this->serverName       = $settingsFile['global']['serverName'];
     }
 
     public function __toString()

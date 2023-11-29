@@ -137,3 +137,15 @@ function loadingStop()
 
 }
 // -------------------------------------------------------------------------------------------
+function updateServerIndex()
+{
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/settings.php',
+        data: '&m=updateServerIndex&index=' + $('#activeServer').val(),
+        success: function (resultData) {
+            reload();
+        }
+    });
+}
+// -------------------------------------------------------------------------------------------

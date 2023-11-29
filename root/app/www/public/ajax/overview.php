@@ -21,9 +21,8 @@ if ($_POST['m'] == 'init') {
         }
 
         //-- GET UPDATES
-        if ($pulls) {
-            $pulls = is_array($pulls) ? $pulls : json_decode($pulls, true);
-            foreach ($pulls as $hash => $pull) {
+        if ($pullsFile) {
+            foreach ($pullsFile as $hash => $pull) {
                 if (md5($process['Names']) == $hash) {
                     if ($pull['image'] == $pull['container']) {
                         $updated++;
@@ -65,8 +64,8 @@ if ($_POST['m'] == 'init') {
     }
 
     $cpu = number_format((($running + $stopped) * 100) / $cpu, 2);
-    if (intval($settings['global']['cpuAmount']) > 0) {
-        $cpuActual = number_format(($cpu / intval($settings['global']['cpuAmount'])), 2);
+    if (intval($settingsFile['global']['cpuAmount']) > 0) {
+        $cpuActual = number_format(($cpu / intval($settingsFile['global']['cpuAmount'])), 2);
     }
 
     ?>

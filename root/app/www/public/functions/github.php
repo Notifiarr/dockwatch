@@ -17,6 +17,10 @@ function getIconListFromGithub()
     $curl       = curl($url, $headers);
     $sha        = '';
     foreach ($curl['response'] as $treeItems) {
+        if (!is_array($treeItems)) {
+            continue;
+        }
+
         if ($treeItems['name'] == 'icons') {
             $sha = $treeItems['sha'];
             break;

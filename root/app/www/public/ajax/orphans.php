@@ -10,8 +10,10 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $images     = json_decode(dockerGetOrphanContainers(), true);
-    $volumes    = json_decode(dockerGetOrphanVolumes(), true);
+    $images     = apiRequest('dockerGetOrphanContainers');
+    $images     = json_decode($images['response']['docker'], true);
+    $volumes    = apiRequest('dockerGetOrphanVolumes');
+    $volumes    = json_decode($volumes['response']['docker'], true);
 
     ?>
     <div class="container-fluid pt-4 px-4 mb-5">
@@ -77,7 +79,6 @@ if ($_POST['m'] == 'init') {
                                 <select id="massOrphanTrigger" class="form-control d-inline-block w-50">
                                     <option value="0">-- Select option --</option>
                                     <option value="1">Remove</option>
-                                    <option value="2">Prune</option>
                                 </select>
                                 <button type="button" class="btn btn-outline-info" onclick="removeOrphans()">Apply</button>
                             </td>
@@ -95,29 +96,17 @@ if ($_POST['m'] == 'removeOrphans') {
     switch ($_POST['action']) {
         case 'remove':
             if ($_POST['type'] == 'image') {
-                $remove = dockerRemoveImage($_POST['orphan']);
-                if (stripos($remove, 'error') !== false) {
+                $remove = apiRequest('dockerRemoveImage', [], ['id' => $_POST['orphan']]);
+                $remove = $remove['response']['docker'];
+                if (stripos($remove, 'error') !== false || stripos($remove, 'help') !== false) {
                     echo $remove;
                 }
             }
             if ($_POST['type'] == 'volume') {
-                $remove = dockerRemoveVolume($_POST['orphan']);
-                if (stripos($remove, 'error') !== false) {
+                $remove = apiRequest('dockerRemoveVolume', [], ['name' => $_POST['orphan']]);
+                $remove = $remove['response']['docker'];
+                if (stripos($remove, 'error') !== false || stripos($remove, 'help') !== false) {
                     echo $remove;
-                }
-            }
-            break;
-        case 'prune':
-            if ($_POST['type'] == 'image') {
-                $prune = dockerPruneImage($_POST['orphan']);
-                if (stripos($prune, 'error') !== false) {
-                    echo $prune;
-                }
-            }
-            if ($_POST['type'] == 'volume') {
-                $prune = dockerPruneVolume($_POST['orphan']);
-                if (stripos($prune, 'error') !== false) {
-                    echo $prune;
                 }
             }
             break;

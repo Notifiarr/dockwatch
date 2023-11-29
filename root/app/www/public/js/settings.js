@@ -18,9 +18,17 @@ function saveGlobalSettings()
         type: 'POST',
         url: '../ajax/settings.php',
         data: '&m=saveGlobalSettings' + params,
+        dataType: 'json',
         success: function (resultData) {
+            if (resultData.error) {
+                toast('Settings', resultData.error, 'error');
+            } else  {
+                toast('Settings', 'Global settings saved on server ' + resultData.server, 'success');
+                initPage('settings');
+                $('#activeServer').html(resultData.serverList);
+            }
+
             loadingStop();
-            toast('Settings', 'Global settings saved', 'success');
         }
     });
 
