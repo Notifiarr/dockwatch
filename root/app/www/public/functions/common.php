@@ -18,6 +18,8 @@ function automation()
     createDirectoryTree(LOGS_PATH . 'crons');
     createDirectoryTree(LOGS_PATH . 'notifications');
     createDirectoryTree(LOGS_PATH . 'system');
+    createDirectoryTree(LOGS_PATH . 'ui');
+    createDirectoryTree(LOGS_PATH . 'api');
     createDirectoryTree(BACKUP_PATH);
 }
 

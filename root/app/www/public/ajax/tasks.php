@@ -85,7 +85,7 @@ if ($_POST['m'] == 'init') {
 }
 
 if ($_POST['m'] == 'runTask') {
-    logger(SYSTEM_LOG, 'Run task: ' . $_POST['task'], 'info');
+    logger(SYSTEM_LOG, 'Run task: ' . $_POST['task']);
 
     $apiResponse = apiRequest('runTask', [], ['task' => $_POST['task']]);
 

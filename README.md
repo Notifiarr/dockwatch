@@ -9,6 +9,8 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Notify when a container changes state (running -> stopped)
 - Nofity when an update is available
 - Notify when an update is applied
+- Notify when images are pruned
+- Notify when volumes are pruned
 - Notify when images/volumes have been pruned
 - Notify if memory is > n%
 - Notify if CPU is > n%
@@ -22,6 +24,8 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Check for update
 
 ## Features
+- Link and control multiple servers
+- Try to find/match icons for non unraid usage
 - Setup update schedules on a container by container basis
 - Setup notify only or update on a container by container basis
 - Mass prune/remove orphan images and volumes

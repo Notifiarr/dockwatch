@@ -27,7 +27,7 @@ function sendTestNotification($platform)
     //-- INITIALIZE THE NOTIFY CLASS
     if (!$notifications) {
         $notifications = new Notifications();
-        logger(SYSTEM_LOG, 'Init class: Notifications()', 'info');
+        logger(SYSTEM_LOG, 'Init class: Notifications()');
     }
 
     $return     = '';

@@ -263,6 +263,20 @@ if ($_POST['m'] == 'init') {
                             </td>
                             <td>How long to store logs generated when notifications are sent (min 1 day)</td>
                         </tr>
+                        <tr>
+                            <th scope="row">UI</th>
+                            <td>
+                                <input class="form-control" type="number" id="globalSetting-uiLogLength" value="<?= ($globalSettings['uiLogLength'] <= 1 ? 1 : $globalSettings['uiLogLength']) ?>">
+                            </td>
+                            <td>How long to store logs generated from using the UI (min 1 day)</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">API</th>
+                            <td>
+                                <input class="form-control" type="number" id="globalSetting-apiLogLength" value="<?= ($globalSettings['apiLogLength'] <= 1 ? 1 : $globalSettings['apiLogLength']) ?>">
+                            </td>
+                            <td>How long to store logs generated when api requests are made (min 1 day)</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

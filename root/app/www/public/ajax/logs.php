@@ -77,7 +77,7 @@ if ($_POST['m'] == 'init') {
 }
 
 if ($_POST['m'] == 'viewLog') {
-    logger(SYSTEM_LOG, 'View log: ' . $_POST['name'], 'info');
+    logger(SYSTEM_LOG, 'View log: ' . $_POST['name']);
 
     $apiResponse = apiRequest('viewLog', [], ['name' => $_POST['name']]);
 

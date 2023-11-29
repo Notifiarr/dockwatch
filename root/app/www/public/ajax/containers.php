@@ -301,28 +301,40 @@ if ($_POST['m'] == 'saveContainerSettings') {
 }
 
 if ($_POST['m'] == 'massApplyContainerTrigger') {
+    logger(UI_LOG, 'massApplyContainerTrigger ->');
     $container  = findContainerFromHash($_POST['hash']);
+
+    logger(UI_LOG, 'trigger:' . $_POST['trigger']);
+    logger(UI_LOG, 'findContainerFromHash:' . json_encode($container));
 
     switch ($_POST['trigger']) {
         case '1': //-- Start
-            apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
+            $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
+            logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult));
             $result = 'Started ' . $container['Names'] . '<br>';
             break;
         case '2': //-- Restart
-            apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
-            apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
+            $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
+            logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
+            $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
+            logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult));
             $result = 'Restarted ' . $container['Names'] . '<br>';
             break;
         case '3': //-- Stop
-            apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
+            $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
+            logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
             $result = 'Stopped ' . $container['Names'] . '<br>';
             break;
         case '4': //-- Pull
             $image              = $container['inspect'][0]['Config']['Image'];
+            logger(UI_LOG, 'image:' . $image);
             $pull               = apiRequest('dockerPullContainer', [], ['name' => $image]);
+            logger(UI_LOG, 'dockerPullContainer:' . json_encode($pull));
             $inspectContainer   = apiRequest('dockerInspect', ['name' => $container['Names'], 'useCache' => false]);
+            logger(UI_LOG, 'dockerInspect:' . json_encode($inspectContainer));
             $inspectContainer   = json_decode($inspectContainer['response']['docker'], true);
             $inspectContainer   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false]);
+            logger(UI_LOG, 'dockerInspect:' . json_encode($inspectContainer));
             $inspectImage       = json_decode($inspectContainer['response']['docker'], true);
 
             $pullsFile[md5($container['Names'])]    = [
@@ -337,6 +349,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '5': //-- GERNERATE RUN
             $autoRun    = apiRequest('dockerAutoRun', ['name' => $container['Names']]);
+            logger(UI_LOG, 'dockerAutoRun:' . json_encode($autoRun));
             $autoRun    = $autoRun['response']['docker'];
             $result     = '<pre>' . $autoRun . '</pre>';
             break;
@@ -350,23 +363,35 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             }
 
             $autoCompose    = apiRequest('dockerAutoCompose', ['name' => trim($containerList)]);
+            logger(UI_LOG, 'dockerAutoCompose:' . json_encode($autoCompose));
             $autoCompose    = $autoCompose['response']['docker'];
             $result         = '<pre>' . $autoCompose . '</pre>';
             break;
         case '7': //-- UPDATE
             if (strpos($image, 'dockwatch') !== false) {
+                logger(UI_LOG, 'skipping dockwatch update');
                 $updateResult = 'skipped';
             } else {
                 $autoRun    = apiRequest('dockerAutoRun', ['name' => $container['Names']]);
-                $autoRun    = json_decode($autoRun['response']['docker'], true);
-                $lines      = explode("\n", $runCommand);
+                logger(UI_LOG, 'dockerAutoRun:' . json_encode($autoRun));
+
+                $autoRun    = $autoRun['response']['docker'];
+                $lines      = explode("\n", $autoRun);
+
                 foreach ($lines as $line) {
                     $newRun .= trim(str_replace('\\', '', $line)) . ' ';
                 }
                 $autoRun = $newRun;
-                apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
-                apiRequest('dockerRemoveContainer', [], ['id' => $container['ID']]);
-                $update         = apiRequest('dockerUpdateContainer', [], ['command' => $command]);
+                logger(UI_LOG, 'run command:' . $autoRun);
+
+                $apiResponse = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResponse));
+
+                $apiResponse = apiRequest('dockerRemoveContainer', [], ['id' => $container['ID']]);
+                logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResponse));
+
+                $update         = apiRequest('dockerUpdateContainer', [], ['command' => $autoRun]);
+                logger(UI_LOG, 'dockerUpdateContainer:' . json_encode($update));
                 $update         = trim($update['response']['docker']);
                 $updateResult   = 'failed';
 
@@ -379,7 +404,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                                                     'container' => $update
                                                 ];
 
-                    setServerFile('pull', $pulls);
+                    setServerFile('pull', $pullsFile);
                 }
             }
 
@@ -392,8 +417,10 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     }
 
     $processList    = apiRequest('dockerProcessList', ['useCache' => false]);
+    logger(UI_LOG, 'dockerProcessList:' . json_encode($processList));
     $processList    = json_decode($processList['response']['docker'], true);
     $dockerStats    = apiRequest('dockerStats', ['useCache' => false]);
+    logger(UI_LOG, 'dockerStats:' . json_encode($dockerStats));
     $dockerStats    = json_decode($dockerStats['response']['docker'], true);
     $containerProcess = $containerStats = [];
 
@@ -442,6 +469,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     'result'    => $result
                 ];
 
+    logger(UI_LOG, 'massApplyContainerTrigger <-');
     echo json_encode($return);
 }
 

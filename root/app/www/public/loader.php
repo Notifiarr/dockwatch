@@ -98,17 +98,17 @@ if (strpos($_SERVER['PHP_SELF'], '/api/') === false) {
             header('Location: login.php');
         }
     } else {
-        logger(SYSTEM_LOG, 'Starting', 'info');
+        logger(SYSTEM_LOG, 'Starting');
 
         //-- INITIALIZE THE NOTIFY CLASS
         $notifications = new Notifications();
-        logger(SYSTEM_LOG, 'Init class: Notifications()', 'info');
+        logger(SYSTEM_LOG, 'Init class: Notifications()');
 
         //-- INITIALIZE MEMCACHE
         if ($settingsFile['global']['memcachedServer'] && $settingsFile['global']['memcachedPort']) {
             $memcache = new Memcached();
             $memcache->addServer($settingsFile['global']['memcachedServer'], $settingsFile['global']['memcachedPort']);
-            logger(SYSTEM_LOG, 'Init class: Memcached()', 'info');
+            logger(SYSTEM_LOG, 'Init class: Memcached()');
         }
     }
 }

@@ -56,8 +56,8 @@ class Notifications
         $platformData   = $this->getNotificationPlatformFromId($platform);
         $logfile        = $this->logpath . $platformData['name'] . '-'. date('Ymd') .'.log';
 
-        logger($logfile, 'notification request to ' . $platformData['name'], 'info');
-        logger($logfile, 'notification payload: ' . json_encode($payload), 'info');
+        logger($logfile, 'notification request to ' . $platformData['name']);
+        logger($logfile, 'notification payload: ' . json_encode($payload));
 
         /*
             Everything should return an array with code => ..., error => ... (if no error, just code is fine)

@@ -10,16 +10,14 @@
 define('ABSOLUTE_PATH', str_replace('crons', '', __DIR__));
 require ABSOLUTE_PATH . 'loader.php';
 
-logger(SYSTEM_LOG, 'Cron: running pulls', 'info');
-
 set_time_limit(0);
 
-$logfile = LOGS_PATH . 'crons/pulls-' . date('Ymd_Hi') . '.log';
-logger($logfile, 'Cron run started');
+logger(SYSTEM_LOG, 'Cron: running pulls');
+logger(CRON_PULLS_LOG, 'Cron run started');
 echo 'Cron run started: pulls' . "\n";
 
 if ($settingsFile['tasks']['pulls']['disabled']) {
-    logger($logfile, 'Cron run stopped: disabled in tasks menu');
+    logger(CRON_PULLS_LOG, 'Cron run stopped: disabled in tasks menu');
     echo 'Cron run cancelled: disabled in tasks menu' . "\n";
     exit();
 }
@@ -58,24 +56,24 @@ if ($updateSettings) {
                     $image = $containerState['inspect'][0]['Config']['Image'];
 
                     $msg = 'Pulling: ' . $image;
-                    logger($logfile, $msg);
+                    logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
                     $pull = apiRequest('dockerPullContainer', ['name' => $image]);
 
                     $msg = 'Inspecting container: ' . $containerState['Names'];
-                    logger($logfile, $msg);
+                    logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
                     $inspectContainer = apiRequest('dockerInspect', ['name' => $containerState['Names'], 'useCache' => false]);
                     $inspectContainer = json_decode($inspectContainer['response']['docker'], true);
 
                     $msg = 'Inspecting image: ' . $image;
-                    logger($logfile, $msg);
+                    logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
                     $inspectImage = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false]);
                     $inspectImage = json_decode($inspectImage['response']['docker'], true);
 
                     $msg = 'Updating pull data: ' . $containerState['Names'];
-                    logger($logfile, $msg);
+                    logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
                     $pullsFile[$containerHash]  = [
                                                     'checked'   => time(),
@@ -95,7 +93,7 @@ if ($updateSettings) {
                         case 1: //-- Auto update
                             if ($inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
                                 $msg = 'Building run command: ' . $containerState['Names'];
-                                logger($logfile, $msg);
+                                logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
                                 $runCommand = dockerAutoRun($containerState['Names']);
                                 $lines = explode("\n", $runCommand);
@@ -105,23 +103,23 @@ if ($updateSettings) {
                                 $runCommand = $newRun;
 
                                 $msg = 'Stopping container: ' . $containerState['Names'];
-                                logger($logfile, $msg);
+                                logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
                                 dockerStopContainer($containerState['Names']);
 
                                 $msg = 'Removing container: ' . $containerState['Names'];
-                                logger($logfile, $msg);
+                                logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
                                 $remove = dockerRemoveContainer($containerState['ID']);
 
                                 $msg = 'Updating container: ' . $containerState['Names'];
-                                logger($logfile, $msg);
+                                logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
                                 $update = trim(dockerUpdateContainer($runCommand));
 
                                 if (strlen($update) == 64) {
                                     $msg = 'Updating pull data: ' . $containerState['Names'];
-                                    logger($logfile, $msg);
+                                    logger(CRON_PULLS_LOG, $msg);
                                     echo $msg . "\n";
                                     $pullsFile[$containerHash]  = [
                                                                     'checked'   => time(),
@@ -131,7 +129,7 @@ if ($updateSettings) {
                                                                 ];
                                 } else {
                                     $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update);
-                                    logger($logfile, $msg);
+                                    logger(CRON_PULLS_LOG, $msg);
                                     echo $msg . "\n";
                                 }
 
@@ -148,12 +146,12 @@ if ($updateSettings) {
                     }
                 } else {
                     $msg = 'Skipping: ' . $containerState['Names'] . ' (\'' . $containerSettings['frequency'] . '\' frequency not met, last check \'' . $daysSince . '\')';
-                    logger($logfile, $msg);
+                    logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";                    
                 }
             } else {
                 $msg = 'Skipping: ' . $containerState['Names'] . ' (\'' . $containerSettings['hour'] . '\' hour not met)';
-                logger($logfile, $msg);
+                logger(CRON_PULLS_LOG, $msg);
                 echo $msg . "\n";
             }
         }
@@ -165,22 +163,22 @@ if ($updateSettings) {
         //-- IF THEY USE THE SAME PLATFORM, COMBINE THEM
         if ($settingsFile['notifications']['triggers']['updated']['platform'] == $settingsFile['notifications']['triggers']['updates']['platform']) {
             $payload = ['event' => 'updates', 'available' => $notify['available'], 'updated' => $notify['updated']];
-            logger($logfile, 'Notification payload: ' . json_encode($payload));
+            logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload));
             $notifications->notify($settingsFile['notifications']['triggers']['updated']['platform'], $payload);
         } else {
             if ($notify['available']) {
                 $payload = ['event' => 'updates', 'available' => $notify['available']];
-                logger($logfile, 'Notification payload: ' . json_encode($payload));
+                logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload));
                 $notifications->notify($settingsFile['notifications']['triggers']['updated']['platform'], $payload);
             }
 
             if ($notify['usage']['mem']) {
                 $payload = ['event' => 'updates', 'updated' => $notify['updated']];
-                logger($logfile, 'Notification payload: ' . json_encode($payload));
+                logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload));
                 $notifications->notify($settingsFile['notifications']['triggers']['updates']['platform'], $payload);
             }
         }
     }
 }
 
-logger($logfile, 'Cron run finished');
+logger(CRON_PULLS_LOG, 'Cron run finished');

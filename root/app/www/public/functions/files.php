@@ -37,7 +37,7 @@ function setServerFile($file, $contents)
 
 function getFile($file) 
 {
-    logger(SYSTEM_LOG, 'getFile() ' . $file, 'info');
+    logger(SYSTEM_LOG, 'getFile() ' . $file);
 
     if (!file_exists($file)) {
         file_put_contents($file, '[]');
@@ -48,7 +48,7 @@ function getFile($file)
 
 function setFile($file, $contents)
 {
-    logger(SYSTEM_LOG, 'setFile() ' . $file, 'info');
+    logger(SYSTEM_LOG, 'setFile() ' . $file);
 
     $contents = is_array($contents) ? json_encode($contents) : $contents;
     file_put_contents($file, $contents);

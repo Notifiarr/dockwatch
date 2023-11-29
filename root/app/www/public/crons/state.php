@@ -10,14 +10,12 @@
 define('ABSOLUTE_PATH', str_replace('crons', '', __DIR__));
 require ABSOLUTE_PATH . 'loader.php';
 
-logger(SYSTEM_LOG, 'Cron: running housekeeper', 'info');
-
-$logfile = LOGS_PATH . 'crons/state-' . date('Ymd_Hi') . '.log';
-logger($logfile, 'Cron run started');
+logger(SYSTEM_LOG, 'Cron: running housekeeper');
+logger(CRON_STATE_LOG, 'Cron run started');
 echo 'Cron run started: state' . "\n";
 
 if ($settingsFile['tasks']['state']['disabled']) {
-    logger($logfile, 'Cron run stopped: disabled in tasks menu');
+    logger(CRON_STATE_LOG, 'Cron run stopped: disabled in tasks menu');
     echo 'Cron run cancelled: disabled in tasks menu' . "\n";
     exit();
 }
@@ -28,11 +26,11 @@ $currentStates  = dockerState();
 if ($currentStates) {
     setServerFile('state', $currentStates);
 } else {
-    logger($logfile, 'STATE_FILE update skipped, $currentStates empty');
+    logger(CRON_STATE_LOG, 'STATE_FILE update skipped, $currentStates empty');
 }
 
-logger($logfile, 'previousStates: ' . json_encode($previousStates));
-logger($logfile, 'currentStates: ' . json_encode($currentStates));
+logger(CRON_STATE_LOG, 'previousStates: ' . json_encode($previousStates));
+logger(CRON_STATE_LOG, 'currentStates: ' . json_encode($currentStates));
 
 foreach ($previousStates as $previousState) {
     $previousContainers[] = $previousState['Names'];
@@ -42,8 +40,8 @@ foreach ($currentStates as $currentState) {
     $currentContainers[] = $currentState['Names'];
 }
 
-logger($logfile, 'previousContainers: ' . json_encode($previousContainers));
-logger($logfile, 'currentContainers: ' . json_encode($currentContainers));
+logger(CRON_STATE_LOG, 'previousContainers: ' . json_encode($previousContainers));
+logger(CRON_STATE_LOG, 'currentContainers: ' . json_encode($currentContainers));
 
 //-- CHECK FOR ADDED CONTAINERS
 foreach ($currentContainers as $currentContainer) {
@@ -52,16 +50,16 @@ foreach ($currentContainers as $currentContainer) {
             $added[] = ['container' => $currentContainer];
         }
 
-        $updates    = array_key_exists('updates', $settingsFile['global']) ? $settingsFile['global']['updates'] : 3; //-- CHECK ONLY FALLBACK
-        $frequency  = array_key_exists('updatesFrequency', $settingsFile['global']) ? $settingsFile['global']['updatesFrequency'] : '1d'; //-- DAILY FALLBACK
-        $hour       = array_key_exists('updatesHour', $settingsFile['global']) ? $settingsFile['global']['updatesHour'] : 3; //-- 3AM FALLBACK
+        $updates    = is_array($settingsFile['global']) && array_key_exists('updates', $settingsFile['global']) ? $settingsFile['global']['updates'] : 3; //-- CHECK ONLY FALLBACK
+        $frequency  = is_array($settingsFile['global']) && array_key_exists('updatesFrequency', $settingsFile['global']) ? $settingsFile['global']['updatesFrequency'] : '1d'; //-- DAILY FALLBACK
+        $hour       = is_array($settingsFile['global']) && array_key_exists('updatesHour', $settingsFile['global']) ? $settingsFile['global']['updatesHour'] : 3; //-- 3AM FALLBACK
         $settingsFile['containers'][md5($currentContainer)] = ['updates' => $updates, 'frequency' => $frequency, 'hour' => $hour];
     }
 }
 if ($added) {
     $notify['state']['added'] = $added;
 }
-logger($logfile, 'Added containers: ' . json_encode($notify['state']['added']));
+logger(CRON_STATE_LOG, 'Added containers: ' . json_encode($notify['state']['added']));
 
 //-- CHECK FOR REMOVED CONTAINERS
 foreach ($previousContainers as $previousContainer) {
@@ -75,7 +73,7 @@ foreach ($previousContainers as $previousContainer) {
 if ($removed) {
     $notify['state']['removed'] = $removed;
 }
-logger($logfile, 'Removed containers: ' . json_encode($notify['state']['removed']));
+logger(CRON_STATE_LOG, 'Removed containers: ' . json_encode($notify['state']['removed']));
 
 setServerFile('settings', $settings);
 
@@ -89,7 +87,7 @@ foreach ($currentStates as $currentState) {
         }
     }
 }
-logger($logfile, 'State changed containers: ' . json_encode($notify['state']['changed']));
+logger(CRON_STATE_LOG, 'State changed containers: ' . json_encode($notify['state']['changed']));
 
 foreach ($currentStates as $currentState) {
     //-- CHECK FOR HIGH CPU USAGE CONTAINERS
@@ -118,41 +116,41 @@ foreach ($currentStates as $currentState) {
         }
     }
 }
-logger($logfile, 'CPU issue containers: ' . json_encode($notify['usage']['cpu']));
-logger($logfile, 'Mem issue containers: ' . json_encode($notify['usage']['mem']));
+logger(CRON_STATE_LOG, 'CPU issue containers: ' . json_encode($notify['usage']['cpu']));
+logger(CRON_STATE_LOG, 'Mem issue containers: ' . json_encode($notify['usage']['mem']));
 
 if (!$previousStates) {
     $notify = [];
-    logger($logfile, 'Notification skipped, $previousStates empty');
+    logger(CRON_STATE_LOG, 'Notification skipped, $previousStates empty');
 }
 
 if (!$currentStates) {
     $notify = [];
-    logger($logfile, 'Notification skipped, $currentStates empty');
+    logger(CRON_STATE_LOG, 'Notification skipped, $currentStates empty');
 }
 
 if ($notify['state']) {
     //-- IF THEY USE THE SAME PLATFORM, COMBINE THEM
     if ($settingsFile['notifications']['triggers']['stateChange']['platform'] == $settingsFile['notifications']['triggers']['added']['platform'] && $settingsFile['notifications']['triggers']['stateChange']['platform'] == $settingsFile['notifications']['triggers']['removed']['platform']) {
         $payload = ['event' => 'state', 'changes' => $notify['state']['changed'], 'added' => $notify['state']['added'], 'removed' => $notify['state']['removed']];
-        logger($logfile, 'Notification payload: ' . json_encode($payload));
+        logger(CRON_STATE_LOG, 'Notification payload: ' . json_encode($payload));
         $notifications->notify($settingsFile['notifications']['triggers']['stateChange']['platform'], $payload);
     } else {
         if ($notify['state']['changed']) {
             $payload = ['event' => 'state', 'changes' => $notify['state']['changed']];
-            logger($logfile, 'Notification payload: ' . json_encode($payload));
+            logger(CRON_STATE_LOG, 'Notification payload: ' . json_encode($payload));
             $notifications->notify($settingsFile['notifications']['triggers']['stateChange']['platform'], $payload);
         }
 
         if ($notify['state']['added']) {
             $payload = ['event' => 'state', 'added' => $notify['state']['added']];
-            logger($logfile, 'Notification payload: ' . json_encode($payload));
+            logger(CRON_STATE_LOG, 'Notification payload: ' . json_encode($payload));
             $notifications->notify($settingsFile['notifications']['triggers']['added']['platform'], $payload);
         }
 
         if ($notify['state']['removed']) {
             $payload = ['event' => 'state', 'removed' => $notify['state']['removed']];
-            logger($logfile, 'Notification payload: ' . json_encode($payload));
+            logger(CRON_STATE_LOG, 'Notification payload: ' . json_encode($payload));
             $notifications->notify($settingsFile['notifications']['triggers']['removed']['platform'], $payload);
         }
     }
@@ -162,21 +160,21 @@ if ($notify['usage']) {
     //-- IF THEY USE THE SAME PLATFORM, COMBINE THEM
     if ($settingsFile['notifications']['triggers']['cpuHigh']['platform'] == $settingsFile['notifications']['triggers']['memHigh']['platform']) {
         $payload = ['event' => 'usage', 'cpu' => $notify['usage']['cpu'], 'cpuThreshold' => $settingsFile['global']['cpuThreshold'], 'mem' => $notify['usage']['mem'], 'memThreshold' => $settingsFile['global']['memThreshold']];
-        logger($logfile, 'Notification payload: ' . json_encode($payload));
+        logger(CRON_STATE_LOG, 'Notification payload: ' . json_encode($payload));
         $notifications->notify($settingsFile['notifications']['triggers']['cpuHigh']['platform'], $payload);
     } else {
         if ($notify['usage']['cpu']) {
             $payload = ['event' => 'usage', 'cpu' => $notify['usage']['cpu'], 'cpuThreshold' => $settingsFile['global']['cpuThreshold']];
-            logger($logfile, 'Notification payload: ' . json_encode($payload));
+            logger(CRON_STATE_LOG, 'Notification payload: ' . json_encode($payload));
             $notifications->notify($settingsFile['notifications']['triggers']['cpuHigh']['platform'], $payload);
         }
 
         if ($notify['usage']['mem']) {
             $payload = ['event' => 'usage', 'mem' => $notify['usage']['mem'], 'memThreshold' => $settingsFile['global']['memThreshold']];
-            logger($logfile, 'Notification payload: ' . json_encode($payload));
+            logger(CRON_STATE_LOG, 'Notification payload: ' . json_encode($payload));
             $notifications->notify($settingsFile['notifications']['triggers']['memHigh']['platform'], $payload);
         }
     }
 }
 
-logger($logfile, 'Cron run finished');
+logger(CRON_STATE_LOG, 'Cron run finished');

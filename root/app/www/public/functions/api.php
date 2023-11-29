@@ -33,7 +33,7 @@ function apiResponse($code, $response)
 
 function apiRequest($request, $params = [], $payload = [])
 {
-    logger(SYSTEM_LOG, 'apiRequest() ' . $request . ' for server ' . ACTIVE_SERVER_NAME, 'info');
+    logger(SYSTEM_LOG, 'apiRequest() ' . $request . ' for server ' . ACTIVE_SERVER_NAME);
 
     if ($payload) {
         $params = http_build_query($params);
