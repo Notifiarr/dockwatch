@@ -106,6 +106,7 @@ function massApplyContainerTrigger()
     } else {
         $.each($('[id^=massTrigger-]'), function () {
             if ($(this).prop('checked')) {
+                const containerName = $(this).attr('data-name');
                 const containerHash = $(this).attr('id').replace('massTrigger-', '');
     
                 $.ajax({
@@ -113,7 +114,7 @@ function massApplyContainerTrigger()
                     url: '../ajax/containers.php',
                     data: '&m=massApplyContainerTrigger&trigger=' + $('#massContainerTrigger').val() + '&hash=' + containerHash,
                     dataType: 'json',
-                    async: 'global',
+                    timeout: 600000,
                     success: function (resultData) {
                         if (parseInt($('#massContainerTrigger').val()) == 5) {
                             $('#massTrigger-results').append(resultData.result + "\n");
@@ -129,6 +130,17 @@ function massApplyContainerTrigger()
                             $('#massTrigger-results').prepend(counter + ': ' + resultData.result);
                         }
     
+                        if (counter == selected) {
+                            $('#massContainerTrigger').val('0');
+                            $('.containers-check').prop('checked', false);
+                            $('#massTrigger-close-btn').show();
+                            $('#massTrigger-spinner').hide();
+                        }
+                        counter++;
+                    },
+                    error: function(jqhdr, textStatus, errorThrown) {
+                        $('#massTrigger-results').prepend(counter + ': ' + containerName + ' ajax error (' + errorThrown + ')<br>');
+
                         if (counter == selected) {
                             $('#massContainerTrigger').val('0');
                             $('.containers-check').prop('checked', false);

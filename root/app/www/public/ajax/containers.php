@@ -117,7 +117,7 @@ if ($_POST['m'] == 'init') {
                                             }
                                             ?>
                                             <tr id="<?= $nameHash ?>" class="<?= $groupHash ?>" style="display: none;">
-                                                <th scope="row"><input id="massTrigger-<?= $nameHash ?>" type="checkbox" class="form-check-input containers-check group-<?= $groupHash ?>-check"></th>
+                                                <th scope="row"><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check group-<?= $groupHash ?>-check"></th>
                                                 <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32">' : '') ?></td>
                                                 <td><?= $process['Names'] ?><br><span class="text-muted small-text"><?= truncateMiddle($process['inspect'][0]['Config']['Image'], 35) ?></span></td>
                                                 <td id="<?= $nameHash ?>-control"><?= $control ?></td>
@@ -199,7 +199,7 @@ if ($_POST['m'] == 'init') {
                             }
                             ?>
                             <tr id="<?= $nameHash ?>">
-                                <th scope="row"><input id="massTrigger-<?= $nameHash ?>" type="checkbox" class="form-check-input containers-check"></th>
+                                <th scope="row"><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check"></th>
                                 <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32">' : '') ?></td>
                                 <td><?= $process['Names'] ?><br><span class="text-muted small-text"><?= truncateMiddle($process['inspect'][0]['Config']['Image'], 35) ?></span></td>
                                 <td id="<?= $nameHash ?>-control"><?= $control ?></td>
