@@ -55,7 +55,6 @@ docker run \
   -d \
   --name "/dockwatch" \
   --volume "/home/dockwatch/config:/config:rw" \
-  --volume "/home/dockwatch/logs:/logs:rw" \
   --volume "/var/run/docker.sock:/var/run/docker.sock:rw" \
   --restart "unless-stopped" \
   --publish "9999:80/tcp" \
@@ -68,20 +67,19 @@ docker run \
 ## Compose
 This is an example, adjust paths and settings for your setup
 ```
-dockwatch:
-	container_name: dockwatch
-	image: ghcr.io/notifiarr/dockwatch:main
-	ports:
-	  - 9999:80/tcp
-	environment:
-	  - PUID=1000
-	  - PGID=999
-	  - UMASK=022
-	  - TZ=Etc/UTC
-	volumes:
-	  - /appdata/dockwatch/config:/config
-	  - /var/run/docker.sock:/var/run/docker.sock
-	  - /proc:/proc
+version: "2.1"
+services:
+  dockwatch:
+    container_name: dockwatch
+    image: ghcr.io/notifiarr/dockwatch:main
+    ports:
+      - 9999:80/tcp
+    environment:
+      - PGID=999
+      - TZ=America/New_York
+    volumes:
+      - /home/dockwatch/config:/config
+      - /var/run/docker.sock:/var/run/docker.sock
 ```
 
 ## Manual
