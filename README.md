@@ -49,30 +49,24 @@ grep docker /etc/group
 ```
 
 ## Run
-This is an unraid example, adjust paths and settings for your setup
-
+This is just an example; change the TZ, PGID, network and volume paths accordingly
 ```
 docker run \
   -d \
-  --name='dockwatch' \
-  --net='custom-bridge' \
-  -e TZ="America/New_York" \
-  -e HOST_OS="Unraid" \
-  -e 'PUID'='1001' \
-  -e 'PGID'='999' \
-  -e 'UMASK'='022' \
-  -l net.unraid.docker.managed=dockerman \
-  -l net.unraid.docker.webui='http://[IP]:[PORT:9999]' \
-  -l net.unraid.docker.icon='https://golift.io/crontabs.png' \
-  -p '9999:80/tcp' \
-  -v '/mnt/disk1/appdata/dockwatch/config':'/config':'rw' \
-  -v '/proc':'/proc':'rw' \
-  -v '/var/run/docker.sock':'/var/run/docker.sock':'rw' 'ghcr.io/notifiarr/dockwatch:main'
+  --name "/dockwatch" \
+  --volume "/home/dockwatch/config:/config:rw" \
+  --volume "/home/dockwatch/logs:/logs:rw" \
+  --volume "/var/run/docker.sock:/var/run/docker.sock:rw" \
+  --restart "unless-stopped" \
+  --publish "9999:80/tcp" \
+  --network "bridge" \
+  --env "TZ=America/New_York" \
+  --env "PGID=122" \
+  "ghcr.io/notifiarr/dockwatch:main"
 ```
 
 ## Compose
 This is an example, adjust paths and settings for your setup
-
 ```
 dockwatch:
 	container_name: dockwatch

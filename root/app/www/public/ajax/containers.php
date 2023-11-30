@@ -253,10 +253,11 @@ if ($_POST['m'] == 'init') {
                                 <select id="massContainerTrigger" class="form-control d-inline-block w-50">
                                     <option value="0">-- Select option --</option>
                                     <optgroup label="Control">
-                                        <option value="1">Start</option>
-                                        <option value="2">Restart</option>
-                                        <option value="3">Stop</option>
                                         <option value="4">Pull</option>
+                                        <option value="9">Remove</option>
+                                        <option value="2">Restart</option>
+                                        <option value="1">Start</option>
+                                        <option value="3">Stop</option>
                                         <option value="7">Update</option>
                                     </optgroup>
                                     <optgroup label="Information">
@@ -308,24 +309,24 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     logger(UI_LOG, 'findContainerFromHash:' . json_encode($container));
 
     switch ($_POST['trigger']) {
-        case '1': //-- Start
+        case '1': //-- START
             $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
             logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult));
             $result = 'Started ' . $container['Names'] . '<br>';
             break;
-        case '2': //-- Restart
+        case '2': //-- RESTART
             $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
             logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
             $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
             logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult));
             $result = 'Restarted ' . $container['Names'] . '<br>';
             break;
-        case '3': //-- Stop
+        case '3': //-- STOP
             $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
             logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
             $result = 'Stopped ' . $container['Names'] . '<br>';
             break;
-        case '4': //-- Pull
+        case '4': //-- PULL
             $image              = $container['inspect'][0]['Config']['Image'];
             logger(UI_LOG, 'image:' . $image);
             $pull               = apiRequest('dockerPullContainer', [], ['name' => $image]);
@@ -414,60 +415,17 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $result = $container['Names'] . '<br>';
             $result .= '<div class="ms-4">' . implode('<br>', $container['inspect'][0]['HostConfig']['Binds']) . '</div><br>';
             break;
+        case '9': //-- REMOVE
+            $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
+            logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
+            $apiResult = apiRequest('dockerRemoveContainer', [], ['name' => $container['Names']]);
+            logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResult));
+            $result = 'Removed ' . $container['Names'] . '<br>';
+            break;
     }
 
-    $processList    = apiRequest('dockerProcessList', ['useCache' => false]);
-    logger(UI_LOG, 'dockerProcessList:' . json_encode($processList));
-    $processList    = json_decode($processList['response']['docker'], true);
-    $dockerStats    = apiRequest('dockerStats', ['useCache' => false]);
-    logger(UI_LOG, 'dockerStats:' . json_encode($dockerStats));
-    $dockerStats    = json_decode($dockerStats['response']['docker'], true);
-    $containerProcess = $containerStats = [];
-
-    if (is_array($container)) {
-        foreach ($processList as $process) {
-            if (!is_array($process)) {
-                continue;
-            }
-
-            if ($process['Names'] == $container['Names']) {
-                $containerProcess = $process;
-                break;
-            }
-        }
-
-        foreach ($dockerStats as $dockerStat) {
-            if ($dockerStat['Name'] == $container['Names']) {
-                $containerStats = $dockerStat;
-                break;
-            }
-        }
-    }
-
-    $control = $containerProcess['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'start\')">Start</button>';
-
-    $pullData = $pullsFile[$_POST['hash']];
-    $updateStatus = '<span class="text-danger">Unknown</span>';
-    if ($pullData) {
-        $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
-    }
-
-    $cpuUsage = floatval(str_replace('%', '', $containerStats['CPUPerc']));
-    if (intval($settingsFile['global']['cpuAmount']) > 0) {
-        $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
-    }
-
-    $return     = [
-                    'control'   => $control,
-                    'update'    => $updateStatus,
-                    'state'     => $containerProcess['State'],
-                    'running'   => $containerProcess['RunningFor'],
-                    'status'    => $containerProcess['Status'],
-                    'cpu'       => $cpuUsage,
-                    'cpuTitle'  => $containerStats['CPUPerc'],
-                    'mem'       => $containerStats['MemPerc'],
-                    'result'    => $result
-                ];
+    $return = renderContainerRow($_POST['hash']);
+    $return['result'] = $result;
 
     logger(UI_LOG, 'massApplyContainerTrigger <-');
     echo json_encode($return);
@@ -483,43 +441,7 @@ if ($_POST['m'] == 'controlContainer') {
         apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
     }
 
-    $processList        = apiRequest('dockerProcessList', ['useCache' => false]);
-    $processList        = json_decode($processList['response']['docker'], true);
-    $containerProcess   = [];
-    foreach ($processList as $process) {
-        if ($process['Names'] == $container['Names']) {
-            $containerProcess = $process;
-            break;
-        }
-    }
-
-    $dockerStats    = apiRequest('dockerStats', ['useCache' => false]);
-    $dockerStats    = json_decode($dockerStats['response']['docker'], true);
-    $containerStats = [];
-    foreach ($dockerStats as $dockerStat) {
-        if ($dockerStat['Name'] == $container['Names']) {
-            $containerStats = $dockerStat;
-            break;
-        }
-    }
-
-    $control = $containerProcess['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $_POST['hash'] . '\', \'start\')">Start</button>';
-
-    $pullData = $pullsFile[$_POST['hash']];
-    $updateStatus = '<span class="text-danger">Unknown</span>';
-    if ($pullData) {
-        $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
-    }
-
-    $return     = [
-                    'control'   => $control,
-                    'update'    => $updateStatus,
-                    'state'     => $containerProcess['State'],
-                    'running'   => $containerProcess['RunningFor'],
-                    'status'    => $containerProcess['Status'],
-                    'cpu'       => $containerStats['CPUPerc'],
-                    'mem'       => $containerStats['MemPerc'],
-                ];
+    $return = renderContainerRow($_POST['hash']);
 
     echo json_encode($return);
 }
