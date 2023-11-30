@@ -7,7 +7,7 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Notify when a container is added
 - Notify when a container is removed
 - Notify when a container changes state (running -> stopped)
-- Nofity when an update is available
+- Notify when an update is available
 - Notify when an update is applied
 - Notify when images are pruned
 - Notify when volumes are pruned
