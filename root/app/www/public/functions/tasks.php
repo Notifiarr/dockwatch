@@ -34,6 +34,14 @@ function executeTask($task)
             getIcons(true);
             $return = 'The icon list has been refreshed';
             break;
+        case 'pullFile':
+            $pull   = getFile(PULL_FILE);
+            $return = json_encode($pull, JSON_PRETTY_PRINT);
+            break;
+        case 'stateFile':
+            $state  = getFile(STATE_FILE);
+            $return = json_encode($state, JSON_PRETTY_PRINT);
+            break;
     }
 
     return $return;

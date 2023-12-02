@@ -37,7 +37,7 @@ if ($updateSettings) {
         if ($containerState) {
             $pullHistory = $pullsFile[$containerHash];
             //-- CHECK AGAINST HOUR
-            if (date('H') == $containerSettings['hour']) {
+            if (date('H') == $containerSettings['hour'] || !$pullHistory) {
                 $pullAllowed = false;
 
                 //-- CHECK AGAINST FREQUENCY
@@ -50,6 +50,10 @@ if ($updateSettings) {
                     if ($daysSince >= $pullDays) {
                         $pullAllowed = true;
                     }
+                }
+
+                if (!$pullHistory) {
+                    $pullAllowed = true;
                 }
 
                 if ($pullAllowed) {

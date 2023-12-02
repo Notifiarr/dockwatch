@@ -104,54 +104,63 @@ function massApplyContainerTrigger()
             }
         });
     } else {
+        let selectedContainers = [];
         $.each($('[id^=massTrigger-]'), function () {
             if ($(this).prop('checked')) {
                 const containerName = $(this).attr('data-name');
                 const containerHash = $(this).attr('id').replace('massTrigger-', '');
-    
-                $.ajax({
-                    type: 'POST',
-                    url: '../ajax/containers.php',
-                    data: '&m=massApplyContainerTrigger&trigger=' + $('#massContainerTrigger').val() + '&hash=' + containerHash,
-                    dataType: 'json',
-                    timeout: 600000,
-                    success: function (resultData) {
-                        if (parseInt($('#massContainerTrigger').val()) == 5) {
-                            $('#massTrigger-results').append(resultData.result + "\n");
-                        } else {
-                            $('#' + containerHash + '-control').html(resultData.control);
-                            $('#' + containerHash + '-update').html(resultData.update);
-                            $('#' + containerHash + '-state').html(resultData.state);
-                            $('#' + containerHash + '-running').html(resultData.running);
-                            $('#' + containerHash + '-status').html(resultData.status);
-                            $('#' + containerHash + '-cpu').html(resultData.cpu);
-                            $('#' + containerHash + '-mem').html(resultData.mem);
-        
-                            $('#massTrigger-results').prepend(counter + ': ' + resultData.result);
-                        }
-    
-                        if (counter == selected) {
-                            $('#massContainerTrigger').val('0');
-                            $('.containers-check').prop('checked', false);
-                            $('#massTrigger-close-btn').show();
-                            $('#massTrigger-spinner').hide();
-                        }
-                        counter++;
-                    },
-                    error: function(jqhdr, textStatus, errorThrown) {
-                        $('#massTrigger-results').prepend(counter + ': ' + containerName + ' ajax error (' + errorThrown + ')<br>');
-
-                        if (counter == selected) {
-                            $('#massContainerTrigger').val('0');
-                            $('.containers-check').prop('checked', false);
-                            $('#massTrigger-close-btn').show();
-                            $('#massTrigger-spinner').hide();
-                        }
-                        counter++;
-                    }
-                });
+                selectedContainers.push({'containerName': containerName, 'containerHash': containerHash});
             }
         });
+
+        let c = 0;
+        function runTrigger()
+        {
+            if (c == selectedContainers.length) {
+                $('#massContainerTrigger').val('0');
+                $('.containers-check').prop('checked', false);
+                $('#massTrigger-close-btn').show();
+                $('#massTrigger-spinner').hide();
+                return;
+            }
+
+            const containerName = selectedContainers[c]['containerName'];
+            const containerHash = selectedContainers[c]['containerHash'];
+
+            $.ajax({
+                type: 'POST',
+                url: '../ajax/containers.php',
+                data: '&m=massApplyContainerTrigger&trigger=' + $('#massContainerTrigger').val() + '&hash=' + containerHash,
+                dataType: 'json',
+                timeout: 600000,
+                success: function (resultData) {
+                    if (parseInt($('#massContainerTrigger').val()) == 5) {
+                        $('#massTrigger-results').append(resultData.result + "\n");
+                    } else {
+                        $('#' + containerHash + '-control').html(resultData.control);
+                        $('#' + containerHash + '-update').html(resultData.update);
+                        $('#' + containerHash + '-state').html(resultData.state);
+                        $('#' + containerHash + '-running').html(resultData.running);
+                        $('#' + containerHash + '-status').html(resultData.status);
+                        $('#' + containerHash + '-cpu').html(resultData.cpu);
+                        $('#' + containerHash + '-mem').html(resultData.mem);
+
+                        $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + resultData.result);
+                    }
+
+                    c++;
+
+                    runTrigger();
+                },
+                error: function(jqhdr, textStatus, errorThrown) {
+                    $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + containerName + ' ajax error (' + errorThrown + ')<br>');
+                    c++;
+
+                    runTrigger();
+                }
+            });
+        }
+        runTrigger();
     }
 }
 // ---------------------------------------------------------------------------------------------

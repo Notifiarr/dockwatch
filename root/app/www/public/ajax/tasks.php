@@ -67,12 +67,20 @@ if ($_POST['m'] == 'init') {
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Server Variables</td>
+                                <td>View server variables</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('server')"></i></td>
                             </tr>
                             <tr>
-                                <td>Session Variables</td>
+                                <td>View session variables</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('session')"></i></td>
+                            </tr>
+                            <tr>
+                                <td>View pull file</td>
+                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('pullFile')"></i></td>
+                            </tr>
+                            <tr>
+                                <td>View state file</td>
+                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('stateFile')"></i></td>
                             </tr>
                         </tbody>
                     </table>
