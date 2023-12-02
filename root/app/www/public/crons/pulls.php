@@ -96,6 +96,7 @@ if ($updateSettings) {
                     switch ($containerSettings['updates']) {
                         case 1: //-- Auto update
                             if ($inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
+                                $newRun = '';
                                 $msg = 'Building run command: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
