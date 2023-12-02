@@ -54,13 +54,23 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => dockerInspect($_GET['name'], $_GET['useCache'])];
+                $response = ['docker' => dockerInspect($_GET['name'], $_GET['useCache'], $_GET['format'], $_GET['params'])];
+                break;
+            case 'dockerNetworks':
+                $response = ['docker' => dockerNetworks($_GET['params'])];
                 break;
             case 'dockerPermissionCheck':
                 $response = ['docker' => dockerPermissionCheck()];
                 break;
+            case 'dockerPort':
+                if (!$_GET['name']) {
+                    apiResponse(400, ['error' => 'Missing name parameter']);
+                }
+
+                $response = ['docker' => dockerPort($_GET['name'], $_GET['params'])];
+                break;
             case 'dockerProcessList':
-                $response = ['docker' => dockerProcessList($_GET['useCache'])];
+                $response = ['docker' => dockerProcessList($_GET['useCache'], $_GET['format'], $_GET['params'])];
                 break;
             case 'dockerPruneImage':
                 $response = ['docker' => dockerPruneImage()];

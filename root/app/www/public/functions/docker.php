@@ -50,18 +50,23 @@ function dockerState()
 
 function dockerPermissionCheck()
 {
-    $response = apiRequest('dockerProcessList');
+    $response = apiRequest('dockerProcessList', ['format' => true]);
     return empty(json_decode($response['response']['docker'], true)) ? false : true;
 }
 
-function dockerProcessList($useCache = true)
+function dockerProcessList($useCache = true, $format = true, $params = '')
 {
     $cacheKey   = MEMCACHE_PREFIX . 'dockerProcessList';
     $cache      = memcacheGet($cacheKey);
     if ($cache && $useCache) {
         return $cache;
     } else {
-        $cmd    = '/usr/bin/docker ps --all --no-trunc --format="{{json . }}" | jq -s --tab .';
+        if ($format) {
+            $cmd = '/usr/bin/docker ps --all --no-trunc --format="{{json . }}" | jq -s --tab .';
+        } else {
+            $cmd = '/usr/bin/docker ps ' . $params;
+        }
+
         $shell  = shell_exec($cmd . ' 2>&1');
         memcacheSet($cacheKey, $shell, MEMCACHE_DOCKER_PROCESS);
         return $shell;
@@ -82,14 +87,19 @@ function dockerStats($useCache = true)
     }
 }
 
-function dockerInspect($containerName, $useCache = true)
+function dockerInspect($containerName, $useCache = true, $format = true, $params = '')
 {
     $cacheKey   = MEMCACHE_PREFIX . 'dockerInspect.' . md5($containerName);
     $cache      = memcacheGet($cacheKey);
     if ($cache && $useCache) {
         return $cache;
     } else {
-        $cmd    = '/usr/bin/docker inspect ' . $containerName . ' --format="{{json . }}" | jq -s --tab .';
+        if ($format) {
+            $cmd = '/usr/bin/docker inspect ' . $containerName . ' --format="{{json . }}" | jq -s --tab .';
+        } else {
+            $cmd = '/usr/bin/docker inspect ' . $containerName . ' ' . $params;
+        }
+
         $shell  = shell_exec($cmd . ' 2>&1');
         memcacheSet($cacheKey, $shell, MEMCACHE_DOCKER_INSPECT);
         return $shell;
@@ -209,5 +219,23 @@ function dockerRemoveVolume($name)
 function dockerPruneVolume()
 {
     $cmd = '/usr/bin/docker volume prune -af';
+    return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerNetworks($params = '')
+{
+    $cmd = '/usr/bin/docker network ' . $params;
+    return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerPort($containerName, $params = '')
+{
+    $cmd = '/usr/bin/docker port ' . $containerName . ' ' . $params;
+    return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerPs($params = '')
+{
+    $cmd = '/usr/bin/docker ps ' . $params;
     return shell_exec($cmd . ' 2>&1');
 }

@@ -331,10 +331,10 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             logger(UI_LOG, 'image:' . $image);
             $pull               = apiRequest('dockerPullContainer', [], ['name' => $image]);
             logger(UI_LOG, 'dockerPullContainer:' . json_encode($pull));
-            $inspectContainer   = apiRequest('dockerInspect', ['name' => $container['Names'], 'useCache' => false]);
+            $inspectContainer   = apiRequest('dockerInspect', ['name' => $container['Names'], 'useCache' => false, 'format' => true]);
             logger(UI_LOG, 'dockerInspect:' . json_encode($inspectContainer));
             $inspectContainer   = json_decode($inspectContainer['response']['docker'], true);
-            $inspectContainer   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false]);
+            $inspectContainer   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
             logger(UI_LOG, 'dockerInspect:' . json_encode($inspectContainer));
             $inspectImage       = json_decode($inspectContainer['response']['docker'], true);
 
@@ -447,7 +447,7 @@ if ($_POST['m'] == 'controlContainer') {
 }
 
 if ($_POST['m'] == 'openContainerGroups') {
-    $processList = apiRequest('dockerProcessList');
+    $processList = apiRequest('dockerProcessList', ['format' => true]);
     $processList = json_decode($processList['response']['docker'], true);
     array_sort_by_key($processList, 'Names');
 
@@ -511,7 +511,7 @@ if ($_POST['m'] == 'openContainerGroups') {
 }
 
 if ($_POST['m'] == 'loadContainerGroup') {
-    $processList = apiRequest('dockerProcessList');
+    $processList = apiRequest('dockerProcessList', ['format' => true]);
     $processList = json_decode($processList['response']['docker'], true);
     array_sort_by_key($processList, 'Names');
 

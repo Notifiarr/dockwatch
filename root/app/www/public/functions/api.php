@@ -33,7 +33,13 @@ function apiResponse($code, $response)
 
 function apiRequest($request, $params = [], $payload = [])
 {
-    logger(SYSTEM_LOG, 'apiRequest() ' . $request . ' for server ' . ACTIVE_SERVER_NAME);
+    global $serverOverride;
+
+    $serverUrl      = is_array($serverOverride) && $serverOverride['url'] ? $serverOverride['url'] : ACTIVE_SERVER_URL;
+    $serverName     = is_array($serverOverride) && $serverOverride['name'] ? $serverOverride['name'] : ACTIVE_SERVER_NAME;
+    $serverApikey   = is_array($serverOverride) && $serverOverride['apikey'] ? $serverOverride['apikey'] : ACTIVE_SERVER_APIKEY;
+
+    logger(SYSTEM_LOG, 'apiRequest() ' . $request . ' for server ' . $serverName);
 
     if ($payload) {
         $params = http_build_query($params);
@@ -42,12 +48,12 @@ function apiRequest($request, $params = [], $payload = [])
             $payload['request'] = $request;
         }
 
-        $curl = curl(ACTIVE_SERVER_URL . '/api/' . ($params ? '?' . $params : ''), ['x-api-key: ' . ACTIVE_SERVER_APIKEY], 'POST', json_encode($payload));
+        $curl = curl($serverUrl . '/api/' . ($params ? '?' . $params : ''), ['x-api-key: ' . $serverApikey], 'POST', json_encode($payload));
     } else {
         $params['request'] = $request;
         $builtParams = http_build_query($params);
 
-        $curl = curl(ACTIVE_SERVER_URL . '/api/' . ($builtParams ? '?' . $builtParams : ''), ['x-api-key: ' . ACTIVE_SERVER_APIKEY]);
+        $curl = curl($serverUrl . '/api/' . ($builtParams ? '?' . $builtParams : ''), ['x-api-key: ' . $serverApikey]);
     }
 
     return $curl['response'];

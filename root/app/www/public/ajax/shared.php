@@ -20,7 +20,7 @@ require ABSOLUTE_PATH . 'loader.php';
 
 $processList = [];
 if (in_array($_POST['page'], $getProc)) {
-    $processList = apiRequest('dockerProcessList');
+    $processList = apiRequest('dockerProcessList', ['format' => true]);
     $processList = json_decode($processList['response']['docker'], true);
 }
 
@@ -32,7 +32,7 @@ if (in_array($_POST['page'], $getStats)) {
 if (!empty($processList)) {
     foreach ($processList as $index => $process) {
         if (in_array($_POST['page'], $getInspect)) {
-            $inspect = apiRequest('dockerInspect', ['name' => $process['Names'], 'useCache' => true]);
+            $inspect = apiRequest('dockerInspect', ['name' => $process['Names'], 'useCache' => true, 'format' => true]);
             $processList[$index]['inspect'] = json_decode($inspect['response']['docker'], true);
         }
 

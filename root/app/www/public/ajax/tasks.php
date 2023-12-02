@@ -32,19 +32,19 @@ if ($_POST['m'] == 'init') {
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('state')"></i></td>
                             </tr>
                             <tr>
-                            <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('housekeeping', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['housekeeping']['disabled'] ? 'checked' : '') ?>></td>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('housekeeping', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['housekeeping']['disabled'] ? 'checked' : '') ?>></td>
                                 <td>Housekeeping</td>
                                 <td>10m</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('housekeeper')"></i></td>
                             </tr>
                             <tr>
-                            <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('pulls', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['pulls']['disabled'] ? 'checked' : '') ?>></td>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('pulls', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['pulls']['disabled'] ? 'checked' : '') ?>></td>
                                 <td>Pulls</td>
                                 <td>1h</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('pulls')"></i></td>
                             </tr>
                             <tr>
-                            <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('prune', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['prune']['disabled'] ? 'checked' : '') ?>></td>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('prune', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['prune']['disabled'] ? 'checked' : '') ?>></td>
                                 <td>Prune</td>
                                 <td>24h</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('prune')"></i></td>

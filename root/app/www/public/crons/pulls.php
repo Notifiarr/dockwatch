@@ -67,13 +67,13 @@ if ($updateSettings) {
                     $msg = 'Inspecting container: ' . $containerState['Names'];
                     logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
-                    $inspectContainer = apiRequest('dockerInspect', ['name' => $containerState['Names'], 'useCache' => false]);
+                    $inspectContainer = apiRequest('dockerInspect', ['name' => $containerState['Names'], 'useCache' => false, 'format' => true]);
                     $inspectContainer = json_decode($inspectContainer['response']['docker'], true);
 
                     $msg = 'Inspecting image: ' . $image;
                     logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
-                    $inspectImage = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false]);
+                    $inspectImage = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
                     $inspectImage = json_decode($inspectImage['response']['docker'], true);
 
                     $msg = 'Updating pull data: ' . $containerState['Names'];

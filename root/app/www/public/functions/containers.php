@@ -12,7 +12,7 @@ function renderContainerRow($hash)
     global $pullsFile, $settingsFile;
 
     $container      = findContainerFromHash($hash);
-    $processList    = apiRequest('dockerProcessList', ['useCache' => false]);
+    $processList    = apiRequest('dockerProcessList', ['useCache' => false, 'format' => true]);
     logger(UI_LOG, 'dockerProcessList:' . json_encode($processList));
     $processList    = json_decode($processList['response']['docker'], true);
     $dockerStats    = apiRequest('dockerStats', ['useCache' => false]);
