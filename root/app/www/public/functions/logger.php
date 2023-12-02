@@ -24,6 +24,38 @@ function viewLog($log)
     return json_encode(['header' => $header, 'log' => str_replace('[ERROR]', '<span class="text-danger">[ERROR]</span>', $content), 'error' => $error]);
 }
 
+function deleteLog($log)
+{
+    logger(UI_LOG, 'deleteLog() ->');
+    logger(UI_LOG, '$log: \''. $log .'\'');
+    logger(UI_LOG, 'removing \''. LOGS_PATH . $log .'\'');
+    unlink(LOGS_PATH . $log);
+    logger(UI_LOG, 'deleteLog() <-');
+
+    return json_encode(['deleted' => LOGS_PATH . $log]);
+}
+
+function purgeLogs($group)
+{
+    logger(UI_LOG, 'purgeLogs() ->');
+    logger(UI_LOG, '$group: \''. $group .'\'');
+    $removedFiles = [];
+    $logDir = LOGS_PATH . $group .'/';
+    $dir = opendir($logDir);
+    while ($log = readdir($dir)) {
+        if ($log[0] == '.' || is_dir($logDir . $log)) {
+            continue;
+        }
+        logger(UI_LOG, 'removing \''. $logDir . $log .'\'');
+        $removedFiles[] = $logDir . $log;
+        unlink($logDir . $log);
+    }
+    closedir($dir);
+    logger(UI_LOG, 'purgeLogs() <-');
+
+    return json_encode(['deleted' => $removedFiles]);
+}
+
 function logger($logfile, $msg, $type = 'info')
 {
     if (!$logfile) {

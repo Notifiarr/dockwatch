@@ -45,9 +45,9 @@ if ($_POST['m'] == 'init') {
                             <?php 
                             foreach ($logFiles as $group => $groupLogs) { 
                                 ?>
-                                <h4 class="mt-3 mb-0"><?= $group ?></h4>
+                                <i class="far fa-trash-alt" style="display: inline; color: red; cursor: pointer;" title="Delete all <?= $group ?> log files" onclick="purgeLogs('<?= $group ?>')"></i> <h4 style="display: inline;" class="mt-3 mb-0"><?= $group ?></h4><br>
                                 <span class="small-text text-muted"><?= LOGS_PATH . $group ?>/</span>
-                                <div style="max-height: 300px; overflow: auto;">
+                                <div class="mb-3" style="max-height: 300px; overflow: auto;">
                                 <?php
 
                                 if (!$groupLogs) {
@@ -57,7 +57,7 @@ if ($_POST['m'] == 'init') {
                                 foreach ($groupLogs as $log) {
                                     $logHash = md5($log['name']);
                                     ?>
-                                    <li id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?> (<?= byteConversion($log['size']) ?>)</li>
+                                    <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<span class="text-danger" style="cursor:pointer;" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"><?= byteConversion($log['size']) ?></span>)</li>
                                     <?php
                                 }
 
@@ -79,7 +79,7 @@ if ($_POST['m'] == 'init') {
 if ($_POST['m'] == 'viewLog') {
     logger(SYSTEM_LOG, 'View log: ' . $_POST['name']);
 
-    $apiResponse = apiRequest('viewLog', [], ['name' => $_POST['name']]);
+    $apiResponse = apiRequest('viewLog', ['name' => $_POST['name']]);
 
     if ($apiResponse['code'] == 200) {
         $result = json_decode($apiResponse['response']['result'], true);
@@ -88,4 +88,18 @@ if ($_POST['m'] == 'viewLog') {
     }
 
     echo json_encode(['error' => $error, 'header' => $result['header'], 'log' => $result['log'], 'server' => ACTIVE_SERVER_NAME]);
+}
+
+if ($_POST['m'] == 'purgeLogs') {
+    logger(SYSTEM_LOG, 'Purge logs: ' . $_POST['group']);
+
+    $apiResponse = apiRequest('purgeLogs', [], ['group' => $_POST['group']]);
+    logger(UI_LOG, 'purgeLogs:' . json_encode($apiResponse));
+}
+
+if ($_POST['m'] == 'deleteLog') {
+    logger(SYSTEM_LOG, 'Delete log: ' . $_POST['log']);
+
+    $apiResponse = apiRequest('deleteLog', [], ['log' => $_POST['log']]);
+    logger(UI_LOG, 'deleteLog:' . json_encode($apiResponse));
 }

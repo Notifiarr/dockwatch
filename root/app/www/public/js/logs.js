@@ -24,3 +24,35 @@ function viewLog(name, hash)
 
 }
 // ---------------------------------------------------------------------------------------------
+function purgeLogs(group)
+{
+    loadingStart();
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/logs.php',
+        data: '&m=purgeLogs&group=' + group,
+        success: function (resultData) {
+            initPage('logs');
+            loadingStop();
+        }
+    });
+
+}
+// ---------------------------------------------------------------------------------------------
+function deleteLog(log)
+{
+    loadingStart();
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/logs.php',
+        data: '&m=deleteLog&log=' + log,
+        success: function (resultData) {
+            initPage('logs');
+            loadingStop();
+        }
+    });
+
+}
+// ---------------------------------------------------------------------------------------------

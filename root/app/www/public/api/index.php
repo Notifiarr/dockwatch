@@ -99,6 +99,9 @@ switch (true) {
             case 'servers':
                 $response = ['servers' => getFile(SERVERS_FILE)];
                 break;
+            case 'viewLog':
+                $response = ['result' => viewLog($_GET['name'])];
+                break;
             default:
                 apiResponse(405, ['error' => 'Invalid GET request']);
                 break;
@@ -140,6 +143,13 @@ switch (true) {
                 $response = ['result' => STATE_FILE . ' updated'];
                 break;
             //-- ACTIONS
+            case 'deleteLog':
+                if (!$_POST['log']) {
+                    apiResponse(400, ['error' => 'Missing log parameter']);
+                }
+
+                $response = ['result' => deleteLog($_POST['log'])];
+                break;
             case 'dockerPullContainer':
                 if (!$_POST['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
@@ -189,7 +199,18 @@ switch (true) {
 
                 $response = ['docker' => dockerUpdateContainer($_POST['command'])];
                 break;
+            case 'purgeLogs':
+                if (!$_POST['group']) {
+                    apiResponse(400, ['error' => 'Missing group parameter']);
+                }
+
+                $response = ['result' => purgeLogs($_POST['group'])];
+                break;
             case 'runTask':
+                if (!$_POST['task']) {
+                    apiResponse(400, ['error' => 'Missing task parameter']);
+                }
+
                 $response = ['result' => executeTask($_POST['task'])];
                 break;
             case 'testNotify':
@@ -200,9 +221,6 @@ switch (true) {
                 }
             
                 $response = ['result' => $testNotification];
-                break;
-            case 'viewLog':
-                $response = ['result' => viewLog($_POST['name'])];
                 break;
             default:
                 apiResponse(405, ['error' => 'Invalid POST request']);
