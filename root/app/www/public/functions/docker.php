@@ -50,25 +50,36 @@ function dockerState()
 
 function dockerPermissionCheck()
 {
+    logger(UI_LOG, 'dockerPermissionCheck ->');
     $response = apiRequest('dockerProcessList', ['format' => true]);
+    logger(UI_LOG, '$response: ' . $response);
+    logger(UI_LOG, 'dockerPermissionCheck <-');
     return empty(json_decode($response['response']['docker'], true)) ? false : true;
 }
 
 function dockerProcessList($useCache = true, $format = true, $params = '')
 {
+    logger(SYSTEM_LOG, 'dockerProcessList ->');
     $cacheKey   = MEMCACHE_PREFIX . 'dockerProcessList';
     $cache      = memcacheGet($cacheKey);
     if ($cache && $useCache) {
+        logger(SYSTEM_LOG, 'cache=true');
+        logger(SYSTEM_LOG, '$cache=' . $cache);
+        logger(SYSTEM_LOG, 'dockerProcessList <-');
         return $cache;
     } else {
+        logger(SYSTEM_LOG, 'cache=false');
         if ($format) {
             $cmd = '/usr/bin/docker ps --all --no-trunc --format="{{json . }}" | jq -s --tab .';
         } else {
             $cmd = '/usr/bin/docker ps ' . $params;
         }
 
+        logger(SYSTEM_LOG, '$cmd=' . $cmd);
         $shell  = shell_exec($cmd . ' 2>&1');
+        logger(SYSTEM_LOG, '$shell=' . $shell);
         memcacheSet($cacheKey, $shell, MEMCACHE_DOCKER_PROCESS);
+        logger(SYSTEM_LOG, 'dockerProcessList <-');
         return $shell;
     }
 }
