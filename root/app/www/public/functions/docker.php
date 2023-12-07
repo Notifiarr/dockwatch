@@ -52,7 +52,7 @@ function dockerPermissionCheck()
 {
     logger(UI_LOG, 'dockerPermissionCheck ->');
     $response = apiRequest('dockerProcessList', ['format' => true]);
-    logger(UI_LOG, '$response: ' . $response);
+    logger(UI_LOG, '$response: ' . json_encode($response));
     logger(UI_LOG, 'dockerPermissionCheck <-');
     return empty(json_decode($response['response']['docker'], true)) ? false : true;
 }
