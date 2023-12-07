@@ -11,9 +11,19 @@ require 'shared.php';
 
 if ($_POST['m'] == 'init') {
     $ports = $networks = [];
-    $running = $stopped = $memory = $cpu = $network = $size = $updated = $outdated = 0;
+    $running = $stopped = $memory = $cpu = $network = $size = $updated = $outdated = $healthy = $unhealthy = $unknownhealth = 0;
 
     foreach ($processList as $process) {
+        if (strpos($process['Status'], 'healthy') !== false) {
+            $healthy++;
+        }
+        if (strpos($process['Status'], 'unhealthy') !== false) {
+            $unhealthy++;
+        }
+        if (strpos($process['Status'], 'health') === false) {
+            $unknownhealth++;
+        }
+
         if ($process['State'] == 'running') {
             $running++;
         } else {
@@ -77,6 +87,14 @@ if ($_POST['m'] == 'init') {
                     Running: <?= $running ?><br>
                     Stopped: <?= $stopped ?><br>
                     Total: <?= ($running + $stopped) ?><br><br>
+                </div>
+            </div>
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
+                <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                    <h3>Health</h3>
+                    Healthy: <?= $healthy ?><br>
+                    Unhealthy: <?= $unhealthy ?><br>
+                    Unknown: <?= $unknownhealth ?><br><br>
                 </div>
             </div>
             <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">

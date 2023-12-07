@@ -9,15 +9,38 @@
 
 function renderContainerRow($hash)
 {
-    global $pullsFile, $settingsFile;
+    global $pullsFile, $settingsFile, $processList, $dockerStats;
 
-    $container      = findContainerFromHash($hash);
-    $processList    = apiRequest('dockerProcessList', ['useCache' => false, 'format' => true]);
-    logger(UI_LOG, 'dockerProcessList:' . json_encode($processList));
-    $processList    = json_decode($processList['response']['docker'], true);
-    $dockerStats    = apiRequest('dockerStats', ['useCache' => false]);
-    logger(UI_LOG, 'dockerStats:' . json_encode($dockerStats));
-    $dockerStats    = json_decode($dockerStats['response']['docker'], true);
+    $container = findContainerFromHash($hash);
+
+    if (!$pullsFile) {
+        $pullsFile = getServerFile('pull');
+        if ($pullsFile['code'] != 200) {
+            $apiError = $pullsFile['file'];
+        }
+        $pullsFile = $pullsFile['file'];
+    }
+
+    if (!$settingsFile) {
+        $settingsFile = getServerFile('settings');
+        if ($settingsFile['code'] != 200) {
+            $apiError = $settingsFile['file'];
+        }
+        $settingsFile = $settingsFile['file'];
+    }
+
+    if (!$processList) {
+        $processList = apiRequest('dockerProcessList', ['useCache' => false, 'format' => true]);
+        logger(UI_LOG, 'dockerProcessList:' . json_encode($processList));
+        $processList = json_decode($processList['response']['docker'], true);
+    }
+
+    if (!$dockerStats) {
+        $dockerStats = apiRequest('dockerStats', ['useCache' => false]);
+        logger(UI_LOG, 'dockerStats:' . json_encode($dockerStats));
+        $dockerStats = json_decode($dockerStats['response']['docker'], true);
+    }
+
     $containerProcess = $containerStats = [];
 
     if (is_array($container)) {
@@ -53,6 +76,14 @@ function renderContainerRow($hash)
         $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
     }
 
+    $health = 'Unknown';
+    if (strpos($containerProcess['Status'], 'healthy') !== false) {
+        $health = 'Healthy';
+    }
+    if (strpos($containerProcess['Status'], 'unhealthy') !== false) {
+        $health = 'Unhealthy';
+    }
+
     $return     = [
                     'control'   => $control,
                     'update'    => $updateStatus,
@@ -61,7 +92,8 @@ function renderContainerRow($hash)
                     'status'    => $containerProcess['Status'],
                     'cpu'       => $cpuUsage,
                     'cpuTitle'  => $containerStats['CPUPerc'],
-                    'mem'       => $containerStats['MemPerc']
+                    'mem'       => $containerStats['MemPerc'],
+                    'health'    => $health
                 ];
 
     return $return;

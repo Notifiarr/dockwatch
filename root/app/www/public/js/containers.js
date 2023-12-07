@@ -1,3 +1,31 @@
+function updateContainerRowText(hash, data, refresh = false)
+{
+    $('#' + hash + '-control').html((refresh ? 'Updating' : data.control));
+    $('#' + hash + '-update').html((refresh ? 'Updating' : data.update));
+    $('#' + hash + '-state').html((refresh ? 'Updating' : data.state));
+    $('#' + hash + '-running').html((refresh ? 'Updating' : data.running));
+    $('#' + hash + '-status').html((refresh ? 'Updating' : data.status));
+    $('#' + hash + '-cpu').html((refresh ? 'Updating' : data.cpu));
+    $('#' + hash + '-cpu').prop('title', (refresh ? 'Updating' : data.cpu));
+    $('#' + hash + '-mem').html((refresh ? 'Updating' : data.mem));
+    $('#' + hash + '-health').html((refresh ? 'Updating' : data.health));
+}
+// ---------------------------------------------------------------------------------------------
+function updateContainerRows()
+{
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/containers.php',
+        data: '&m=updateContainerRows',
+        dataType: 'json',
+        success: function (resultData) {
+            $.each(resultData, function() {
+                updateContainerRowText(this['hash'], this['row']);
+            });
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
 function saveContainerSettings()
 {
     loadingStart();
@@ -36,15 +64,7 @@ function controlContainer(containerHash, action)
         data: '&m=controlContainer&hash=' + containerHash + '&action=' + action,
         dataType: 'json',
         success: function (resultData) {
-            $('#' + containerHash + '-control').html(resultData.control);
-            $('#' + containerHash + '-update').html(resultData.update);
-            $('#' + containerHash + '-state').html(resultData.state);
-            $('#' + containerHash + '-running').html(resultData.running);
-            $('#' + containerHash + '-status').html(resultData.status);
-            $('#' + containerHash + '-cpu').html(resultData.cpu);
-            $('#' + containerHash + '-cpu').prop('title', resultData.cpuTitle);
-            $('#' + containerHash + '-mem').html(resultData.mem);
-
+            updateContainerRowText(containerHash, resultData);
             loadingStop();
             toast('Containers', 'Request processed: ' + action, 'success');
         }
@@ -137,14 +157,7 @@ function massApplyContainerTrigger()
                     if (parseInt($('#massContainerTrigger').val()) == 5) {
                         $('#massTrigger-results').append(resultData.result + "\n");
                     } else {
-                        $('#' + containerHash + '-control').html(resultData.control);
-                        $('#' + containerHash + '-update').html(resultData.update);
-                        $('#' + containerHash + '-state').html(resultData.state);
-                        $('#' + containerHash + '-running').html(resultData.running);
-                        $('#' + containerHash + '-status').html(resultData.status);
-                        $('#' + containerHash + '-cpu').html(resultData.cpu);
-                        $('#' + containerHash + '-mem').html(resultData.mem);
-
+                        updateContainerRowText(containerHash, resultData);
                         $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + resultData.result);
                     }
 

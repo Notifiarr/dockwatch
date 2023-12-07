@@ -26,6 +26,7 @@ if ($_POST['m'] == 'init') {
                             <th scope="col"></th>
                             <th scope="col">Update</th>
                             <th scope="col">State</th>
+                            <th scope="col">Health</th>
                             <th scope="col">Added</th>
                             <th scope="col">CPU</th>
                             <th scope="col">Memory</th>
@@ -115,6 +116,14 @@ if ($_POST['m'] == 'init') {
                                             if ($pullData) {
                                                 $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
                                             }
+
+                                            $health = 'Unknown';
+                                            if (strpos($process['Status'], 'healthy') !== false) {
+                                                $health = 'Healthy';
+                                            }
+                                            if (strpos($process['Status'], 'unhealthy') !== false) {
+                                                $health = 'Unhealthy';
+                                            }
                                             ?>
                                             <tr id="<?= $nameHash ?>" class="<?= $groupHash ?>" style="display: none;">
                                                 <th scope="row"><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check group-<?= $groupHash ?>-check"></th>
@@ -123,6 +132,7 @@ if ($_POST['m'] == 'init') {
                                                 <td id="<?= $nameHash ?>-control"><?= $control ?></td>
                                                 <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>"><?= $updateStatus ?></td>
                                                 <td id="<?= $nameHash ?>-state"><?= $process['State'] ?></td>
+                                                <td id="<?= $nameHash ?>-health"><?= $health ?></td>
                                                 <td><span id="<?= $nameHash ?>-running"><?= $process['RunningFor'] ?></span><br><span id="<?= $nameHash ?>-status"><?= $process['Status'] ?></span></td>
                                                 <td id="<?= $nameHash ?>-cpu" title="<?= $process['stats']['CPUPerc'] ?>"><?= $cpuUsage ?></td>
                                                 <td id="<?= $nameHash ?>-mem"><?= $process['stats']['MemPerc'] ?></td>
@@ -197,6 +207,14 @@ if ($_POST['m'] == 'init') {
                             if ($pullData) {
                                 $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
                             }
+
+                            $health = 'Unknown';
+                            if (strpos($process['Status'], 'healthy') !== false) {
+                                $health = 'Healthy';
+                            }
+                            if (strpos($process['Status'], 'unhealthy') !== false) {
+                                $health = 'Unhealthy';
+                            }
                             ?>
                             <tr id="<?= $nameHash ?>">
                                 <th scope="row"><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check"></th>
@@ -205,6 +223,7 @@ if ($_POST['m'] == 'init') {
                                 <td id="<?= $nameHash ?>-control"><?= $control ?></td>
                                 <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>"><?= $updateStatus ?></td>
                                 <td id="<?= $nameHash ?>-state"><?= $process['State'] ?></td>
+                                <td id="<?= $nameHash ?>-health"><?= $health ?></td>
                                 <td><span id="<?= $nameHash ?>-running"><?= $process['RunningFor'] ?></span><br><span id="<?= $nameHash ?>-status"><?= $process['Status'] ?></span></td>
                                 <td id="<?= $nameHash ?>-cpu" title="<?= $process['stats']['CPUPerc'] ?>"><?= $cpuUsage ?></td>
                                 <td id="<?= $nameHash ?>-mem"><?= $process['stats']['MemPerc'] ?></td>
@@ -444,6 +463,19 @@ if ($_POST['m'] == 'controlContainer') {
     $return = renderContainerRow($_POST['hash']);
 
     echo json_encode($return);
+}
+
+if ($_POST['m'] == 'updateContainerRows') {
+    $processList = apiRequest('dockerProcessList', ['format' => true]);
+    $processList = json_decode($processList['response']['docker'], true);
+
+    $update = [];
+    foreach ($processList as $process) {
+        $nameHash = md5($process['Names']);
+        $update[] = ['hash' => $nameHash, 'row' => renderContainerRow($nameHash)];
+    }
+
+    echo json_encode($update);
 }
 
 if ($_POST['m'] == 'openContainerGroups') {

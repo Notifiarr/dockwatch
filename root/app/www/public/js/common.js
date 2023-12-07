@@ -1,3 +1,5 @@
+let updateContainerRowInterval = '';
+
 $(document).ready(function () {
     if ($('#menu-overview').length) {
         initPage('overview');
@@ -30,7 +32,17 @@ function initPage(page)
         data: '&m=init&page=' + page,
         success: function (resultData) {
             $('#content-' + page).html(resultData);
-            setTimeout(loadingStop, 1000);
+            setTimeout(loadingStop, 500);
+
+            if (page == 'containers') {
+                updateContainerRowInterval = setInterval(function() {
+                    updateContainerRows();
+                }, 20000);
+            } else {
+                if (typeof updateContainerRowInterval !== undefined) {
+                    clearInterval(updateContainerRowInterval);
+                }
+            }
         }
     });
 
