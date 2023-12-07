@@ -7,7 +7,7 @@
 ----------------------------------
 */
 
-function curl($url, $headers = [], $method = 'GET', $payload = '', $userPass = [], $timeout = 10)
+function curl($url, $headers = [], $method = 'GET', $payload = '', $userPass = [], $timeout = 60)
 {
     if (!is_string($payload)) {
         $payload = '';
