@@ -70,7 +70,7 @@ switch (true) {
                 $response = ['docker' => dockerPort($_GET['name'], $_GET['params'])];
                 break;
             case 'dockerProcessList':
-                $response = ['docker' => dockerProcessList($_GET['useCache'], $_GET['format'], $_GET['params'])];
+                $response = ['docker' => dockerProcessList($_GET['useCache'], $_GET['format'], $_GET['size'], $_GET['params'])];
                 break;
             case 'dockerPruneImage':
                 $response = ['docker' => dockerPruneImage()];

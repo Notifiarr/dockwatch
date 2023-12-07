@@ -57,7 +57,7 @@ function dockerPermissionCheck()
     return empty(json_decode($response['response']['docker'], true)) ? false : true;
 }
 
-function dockerProcessList($useCache = true, $format = true, $params = '')
+function dockerProcessList($useCache = true, $format = true, $size = false, $params = '')
 {
     logger(SYSTEM_LOG, 'dockerProcessList ->');
     $cacheKey   = MEMCACHE_PREFIX . 'dockerProcessList';
@@ -70,7 +70,7 @@ function dockerProcessList($useCache = true, $format = true, $params = '')
     } else {
         logger(SYSTEM_LOG, 'cache=false');
         if ($format) {
-            $cmd = '/usr/bin/docker ps --all --no-trunc --format="{{json . }}" | jq -s --tab .';
+            $cmd = '/usr/bin/docker ps --all --no-trunc ' . ($size ? '' : '--size=false') . ' --format="{{json . }}" | jq -s --tab .';
         } else {
             $cmd = '/usr/bin/docker ps ' . $params;
         }
