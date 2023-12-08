@@ -87,6 +87,9 @@ switch (true) {
             case 'dockerStats':
                 $response = ['docker' => dockerStats($_GET['useCache'])];
                 break;
+            case 'health':
+                $response = ['health' => getFile(HEALTH_FILE)];
+                break;
             case 'ping':
                 $response = ['result' => 'pong from ' . ACTIVE_SERVER_NAME];
                 break;
@@ -113,6 +116,14 @@ switch (true) {
     case $_POST['request']:
         switch ($_POST['request']) {
             //-- SETTERS
+            case 'health':
+                if (!$_POST['contents']) {
+                    apiResponse(400, ['error' => 'Missing settings object']);
+                }
+            
+                setFile(HEALTH_FILE, $_POST['contents']);
+                $response = ['result' => HEALTH_FILE . ' updated'];
+                break;
             case 'pull':
                 if (!$_POST['contents']) {
                     apiResponse(400, ['error' => 'Missing pull object']);

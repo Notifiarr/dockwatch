@@ -20,7 +20,7 @@ $triggers   = [
                     'desc'  => 'Send a notification when a container has an update available, updates event'
                 ],[
                     'name'  => 'stateChange', 
-                    'label' => 'State Change', 
+                    'label' => 'State change', 
                     'desc'  => 'Send a notification when a container has a state change (running -> down), state event' 
                 ],[
                     'name'  => 'added', 
@@ -36,12 +36,16 @@ $triggers   = [
                     'desc'  => 'Send a notification when an image or volume is pruned, prune event' 
                 ],[
                     'name'  => 'cpuHigh', 
-                    'label' => 'CPU Usage', 
+                    'label' => 'CPU usage', 
                     'desc'  => 'Send a notification when container CPU usage exceeds threshold (set in Settings), usage event' 
                 ],[
                     'name'  => 'memHigh', 
-                    'label' => 'Memory Usage', 
+                    'label' => 'Memory usage', 
                     'desc'  => 'Send a notification when container memory usage exceeds threshold (set in Settings), usage event' 
+                ],[
+                    'name'  => 'health', 
+                    'label' => 'Health change', 
+                    'desc'  => 'Send a notification when container becomes unhealthy, health event' 
                 ]
             ];
 

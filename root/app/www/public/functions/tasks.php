@@ -11,6 +11,7 @@ function executeTask($task)
 {
     switch ($task) {
         case 'state':
+        case 'health':
         case 'housekeeper':
         case 'pulls':
         case 'prune':

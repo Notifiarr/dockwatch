@@ -75,7 +75,7 @@ if ($removed) {
 }
 logger(CRON_STATE_LOG, 'Removed containers: ' . json_encode($notify['state']['removed']));
 
-setServerFile('settings', $settings);
+setServerFile('settings', $settingsFile);
 
 //-- CHECK FOR STATE CHANGED CONTAINERS
 foreach ($currentStates as $currentState) {

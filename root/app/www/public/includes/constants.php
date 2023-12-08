@@ -24,6 +24,7 @@ define('SETTINGS_FILE', APP_DATA_PATH . 'settings.json');
 define('STATE_FILE', APP_DATA_PATH . 'state.json');
 define('PULL_FILE', APP_DATA_PATH . 'pull.json');
 define('LOGO_FILE', APP_DATA_PATH . 'logos.json');
+define('HEALTH_FILE', APP_DATA_PATH . 'health.json');
 define('INTERNAL_ICON_ALIAS_FILE', 'container-alias.json');
 define('EXTERNAL_ICON_ALIAS_FILE', APP_DATA_PATH . 'container-alias.json');
 
@@ -35,6 +36,7 @@ define('CRON_HOUSEKEEPER_LOG', LOGS_PATH . 'crons/housekeeper-' . date('Ymd_Hi')
 define('CRON_PRUNE_LOG', LOGS_PATH . 'crons/prune-' . date('Ymd_Hi') . '.log');
 define('CRON_PULLS_LOG', LOGS_PATH . 'crons/pulls-' . date('Ymd_Hi') . '.log');
 define('CRON_STATE_LOG', LOGS_PATH . 'crons/state-' . date('Ymd_Hi') . '.log');
+define('CRON_HEALTH_LOG', LOGS_PATH . 'crons/health-' . date('Ymd_Hi') . '.log');
 
 //-- MEMCACHE
 define('MEMCACHE_PREFIX', 'dockwatch-' . substr(md5($_SERVER['SERVER_NAME']), 0, 10) . '-');

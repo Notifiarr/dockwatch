@@ -38,6 +38,12 @@ if ($_POST['m'] == 'init') {
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('housekeeper')"></i></td>
                             </tr>
                             <tr>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('health', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['health']['disabled'] ? 'checked' : '') ?>></td>
+                                <td>Health</td>
+                                <td>15m</td>
+                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('health')"></i></td>
+                            </tr>
+                            <tr>
                                 <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('pulls', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['pulls']['disabled'] ? 'checked' : '') ?>></td>
                                 <td>Pulls</td>
                                 <td>1h</td>
