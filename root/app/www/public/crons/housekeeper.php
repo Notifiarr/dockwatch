@@ -21,8 +21,7 @@ if ($settingsFile['tasks']['housekeeping']['disabled']) {
 }
 
 //-- LOG FILE CLEANUP (DAILY @ MIDNIGHT)
-//if (date('H') == 0 && date('i') <= 5) {
-if (date('H') == 23) {
+if (date('H') == 0 && date('i') <= 5) {
     $cleanup    = [
                     [
                         'crons'         => [[
