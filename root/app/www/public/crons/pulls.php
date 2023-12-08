@@ -13,7 +13,7 @@ require ABSOLUTE_PATH . 'loader.php';
 set_time_limit(0);
 
 logger(SYSTEM_LOG, 'Cron: running pulls');
-logger(CRON_PULLS_LOG, 'Cron run started');
+logger(CRON_PULLS_LOG, 'run ->');
 echo 'Cron run started: pulls' . "\n";
 
 if ($settingsFile['tasks']['pulls']['disabled']) {
@@ -186,4 +186,4 @@ if ($updateSettings) {
     }
 }
 
-logger(CRON_PULLS_LOG, 'Cron run finished');
+logger(CRON_PULLS_LOG, 'run <-');

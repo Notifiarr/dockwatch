@@ -25,7 +25,7 @@ function findContainerFromHash($hash)
 
 function dockerState()
 {
-    $processList = apiRequest('dockerProcessList', ['useCache' => false]);
+    $processList = apiRequest('dockerProcessList', ['format' => true, 'useCache' => false]);
     $processList = json_decode($processList['response']['docker'], true);
 
     $dockerStats = apiRequest('dockerStats', ['useCache' => false]);

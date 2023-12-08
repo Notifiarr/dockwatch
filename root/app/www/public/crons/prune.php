@@ -13,7 +13,7 @@ require ABSOLUTE_PATH . 'loader.php';
 set_time_limit(0);
 
 logger(SYSTEM_LOG, 'Cron: running prune');
-logger(CRON_PRUNE_LOG, 'Cron run started');
+logger(CRON_PRUNE_LOG, 'run ->');
 echo 'Cron run started: prune' . "\n";
 
 if ($settingsFile['tasks']['prune']['disabled']) {
@@ -71,4 +71,4 @@ if ($settingsFile['notifications']['triggers']['prune']['active'] && (count($vol
     $notifications->notify($settingsFile['notifications']['triggers']['prune']['platform'], $payload);
 }
 
-logger(CRON_PRUNE_LOG, 'Cron run finished');
+logger(CRON_PRUNE_LOG, 'run <-');

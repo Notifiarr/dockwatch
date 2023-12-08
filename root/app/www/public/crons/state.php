@@ -11,7 +11,7 @@ define('ABSOLUTE_PATH', str_replace('crons', '', __DIR__));
 require ABSOLUTE_PATH . 'loader.php';
 
 logger(SYSTEM_LOG, 'Cron: running housekeeper');
-logger(CRON_STATE_LOG, 'Cron run started');
+logger(CRON_STATE_LOG, 'run ->');
 echo 'Cron run started: state' . "\n";
 
 if ($settingsFile['tasks']['state']['disabled']) {
@@ -23,6 +23,7 @@ if ($settingsFile['tasks']['state']['disabled']) {
 $notify = $added = $removed = $previousStates = $currentStates = $previousContainers = $currentContainers = [];
 $previousStates = $stateFile;
 $currentStates  = dockerState();
+
 if ($currentStates) {
     setServerFile('state', $currentStates);
 } else {
@@ -177,4 +178,4 @@ if ($notify['usage']) {
     }
 }
 
-logger(CRON_STATE_LOG, 'Cron run finished');
+logger(CRON_STATE_LOG, 'run <-');

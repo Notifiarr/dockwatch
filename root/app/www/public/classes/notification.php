@@ -54,7 +54,7 @@ class Notifications
         }
 
         $platformData   = $this->getNotificationPlatformFromId($platform);
-        $logfile        = $this->logpath . $platformData['name'] . '-'. date('Ymd') .'.log';
+        $logfile        = $this->logpath . $platformData['name'] . '.log';
 
         logger($logfile, 'notification request to ' . $platformData['name']);
         logger($logfile, 'notification payload: ' . json_encode($payload));

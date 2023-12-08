@@ -11,7 +11,7 @@ define('ABSOLUTE_PATH', str_replace('crons', '', __DIR__));
 require ABSOLUTE_PATH . 'loader.php';
 
 logger(SYSTEM_LOG, 'Cron: running health');
-logger(CRON_HEALTH_LOG, 'Cron run started');
+logger(CRON_HEALTH_LOG, 'run ->');
 echo 'Cron run started: health' . "\n";
 
 if ($settingsFile['tasks']['health']['disabled']) {
@@ -104,4 +104,4 @@ if ($unhealthy) {
     setServerFile('health', []);
 }
 
-logger(CRON_HEALTH_LOG, 'Cron run finished');
+logger(CRON_HEALTH_LOG, 'run <-');

@@ -110,8 +110,8 @@ function truncateMiddle($str, $max)
 
 function daysBetweenDates($ymdStart, $ymdEnd)
 {
-    $start  = new DateTime($ymdStart . ' 00:00:01');
-    $end    = new DateTime($ymdEnd . '23:59:59');
+    $start  = new DateTime($ymdStart . ' 12:00:00');
+    $end    = new DateTime($ymdEnd . '12:00:00');
     $diff   = $end->diff($start)->format('%a');
 
     return $diff;

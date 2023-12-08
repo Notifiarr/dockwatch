@@ -11,7 +11,7 @@ define('ABSOLUTE_PATH', str_replace('crons', '', __DIR__));
 require ABSOLUTE_PATH . 'loader.php';
 
 logger(SYSTEM_LOG, 'Cron: running housekeeper');
-logger(CRON_HOUSEKEEPER_LOG, 'Cron run started');
+logger(CRON_HOUSEKEEPER_LOG, 'run ->');
 echo 'Cron run started: housekeeper' . "\n";
 
 if ($settingsFile['tasks']['housekeeping']['disabled']) {
@@ -21,55 +21,61 @@ if ($settingsFile['tasks']['housekeeping']['disabled']) {
 }
 
 //-- LOG FILE CLEANUP (DAILY @ MIDNIGHT)
-if (date('H') == 0 && date('i') <= 5) {
+//if (date('H') == 0 && date('i') <= 5) {
+if (date('H') == 23) {
     $cleanup    = [
                     [
-                        'crons'         => [
+                        'crons'         => [[
                                             'message'   => 'Cron log file cleanup (daily @ midnight)',
                                             'length'    => ($settingsFile['global']['cronLogLength'] <= 1 ? 1 : $settingsFile['global']['cronLogLength'])
-                                            ]
+                                        ]]
                     ],[
-                        'notifications' => [
+                        'notifications' => [[
                                             'message'   => 'Notification log file cleanup (daily @ midnight)',
                                             'length'    => ($settingsFile['global']['notificationLogLength'] <= 1 ? 1 : $settingsFile['global']['notificationLogLength'])
-                                            ]
+                                        ]]
                     ],[
-                        'system'        => [
+                        'system'        => [[
+                                            'type'      => 'app',
                                             'message'   => 'System log file cleanup (daily @ midnight)',
                                             'length'    => 1
-                                            ]
-                    ],[
-                        'ui'            => [
+                                        ],[
+                                            'type'      => 'ui',
                                             'message'   => 'UI log file cleanup (daily @ midnight)',
                                             'length'    => ($settingsFile['global']['uiLogLength'] <= 1 ? 1 : $settingsFile['global']['uiLogLength'])
-                                            ]
-                     ],[
-                        'api'           => [
+                                        ],[
+                                            'type'      => 'api',
                                             'message'   => 'API log file cleanup (daily @ midnight)',
                                             'length'    => ($settingsFile['global']['apiLogLength'] <= 1 ? 1 : $settingsFile['global']['apiLogLength'])
-                                            ]
+                                        ]]
                     ]
                 ];
 
     foreach ($cleanup as $folders) {
-        foreach ($folders as $dir => $settings) {
-            logger(CRON_HOUSEKEEPER_LOG, $settings['message']);
-            logger(CRON_HOUSEKEEPER_LOG, 'Allowed ' . $dir . ' log age: ' . $settings['length']);
+        foreach ($folders as $dir => $dirTypes) {
+            $thisDir = LOGS_PATH . $dir . '/';
+            if (!is_dir($thisDir)) {
+                continue;
+            }
 
-            $thisDir    = LOGS_PATH . $dir . '/';
-            $dir        = opendir($thisDir);
-            while ($log = readdir($dir)) {
-                if ($log[0] != '.' && !is_dir($log)) {
-                    $daysBetween = daysBetweenDates(date('Ymd', filemtime($thisDir . $log)), date('Ymd'));
-                    logger(CRON_HOUSEKEEPER_LOG, 'logfile: ' . $thisDir . $log . ', age: ' . $daysBetween);
-        
-                    if ($daysBetween > $settings['length']) {
-                        logger(CRON_HOUSEKEEPER_LOG, 'removing logfile');
-                        unlink($thisDir . $log);
+            foreach ($dirTypes as $settings) {
+                logger(CRON_HOUSEKEEPER_LOG, $settings['message']);
+                logger(CRON_HOUSEKEEPER_LOG, 'Allowed ' . $dir . ' log age: ' . $settings['length']);
+
+                $folder = opendir($thisDir);
+                while ($log = readdir($folder)) {
+                    if ($log[0] != '.' && !is_dir($thisDir . $log)) {
+                        $daysBetween = daysBetweenDates(date('Ymd', filemtime($thisDir . $log)), date('Ymd'));
+                        logger(CRON_HOUSEKEEPER_LOG, 'logfile: ' . $thisDir . $log . ', days: ' . $daysBetween);
+            
+                        if ($daysBetween > $settings['length']) {
+                            logger(CRON_HOUSEKEEPER_LOG, 'removing logfile');
+                            unlink($thisDir . $log);
+                        }
                     }
                 }
+                closedir($folder);
             }
-            closedir($dir);
         }
     }
 }
@@ -100,4 +106,4 @@ if (!file_exists(BACKUP_PATH . $settingsFile)) {
     closedir($dir);
 }
 
-logger(CRON_HOUSEKEEPER_LOG, 'Cron run finished');
+logger(CRON_HOUSEKEEPER_LOG, 'run <-');

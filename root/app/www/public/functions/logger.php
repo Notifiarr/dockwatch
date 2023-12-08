@@ -72,6 +72,12 @@ function logger($logfile, $msg, $type = 'info')
     $log        = date('g:i:s') . ' ' . ($type ? '[' . strtoupper($type) . '] ' : '') . $file . ' LN: ' . $line . ' :: ' . (is_array($msg) || is_object($msg) ? loggerLoopArray($msg, 0) : $msg) . "\n";
 
     file_put_contents($logfile, $log, FILE_APPEND);
+
+    $rotateSize = LOG_ROTATE_SIZE * pow(1024, 2);
+    if (filesize($logfile) >= $rotateSize) {
+        $rotated = str_replace('.log', '-' . time() . '.log', $logfile);
+        rename($logfile, $rotated);
+    }
 }
 
 function loggerLoopArray($stack, $depth = 0, $output = '')

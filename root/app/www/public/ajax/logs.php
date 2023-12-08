@@ -53,14 +53,29 @@ if ($_POST['m'] == 'init') {
                                 if (!$groupLogs) {
                                     continue;
                                 }
+                                $rotated = [];
 
                                 foreach ($groupLogs as $log) {
+                                    if (strpos($log['name'], '-') !== false) {
+                                        $rotated[] = $log;
+                                        continue;
+                                    }
+
                                     $logHash = md5($log['name']);
                                     ?>
                                     <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<span class="text-danger" style="cursor:pointer;" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"><?= byteConversion($log['size']) ?></span>)</li>
                                     <?php
                                 }
 
+                                if ($rotated) {
+                                    ?><hr><?php
+                                    foreach ($rotated as $log) {
+                                        $logHash = md5($log['name']);
+                                        ?>
+                                        <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<span class="text-danger" style="cursor:pointer;" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"><?= byteConversion($log['size']) ?></span>)</li>
+                                        <?php
+                                    }
+                                }
                                 ?>
                                 </div>
                                 <?php
