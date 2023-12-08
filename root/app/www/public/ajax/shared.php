@@ -20,8 +20,11 @@ require ABSOLUTE_PATH . 'loader.php';
 
 $processList = [];
 if (in_array($_POST['page'], $getProc)) {
-    $processList = apiRequest('dockerProcessList', ['format' => true, 'size' => ($_POST['page'] == 'overview' ? true : false)]);
+    $processList = apiRequest('dockerProcessList', ['format' => true]);
     $processList = json_decode($processList['response']['docker'], true);
+
+    $imageSizes = apiRequest('dockerImageSizes');
+    $imageSizes = json_decode($imageSizes['response']['docker'], true);
 }
 
 if (in_array($_POST['page'], $getStats)) {

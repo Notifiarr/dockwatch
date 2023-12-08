@@ -49,6 +49,9 @@ switch (true) {
             case 'dockerGetOrphanVolumes':
                 $response = ['docker' => dockerGetOrphanVolumes()];
                 break;
+            case 'dockerImageSizes':
+                $response = ['docker' => dockerImageSizes()];
+                break;
             case 'dockerInspect':
                 if (!$_GET['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);

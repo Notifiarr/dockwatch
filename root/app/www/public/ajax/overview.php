@@ -58,10 +58,6 @@ if ($_POST['m'] == 'init') {
             }
         }
 
-        //-- GET THE SIZE
-        list($idk, $virtual) = explode('virtual ', $process['Size']);
-        $size += bytesFromString(str_replace(')', '', $virtual));
-
         //-- GET MEMORY UAGE
         $memory += floatval(str_replace('%', '', $process['stats']['MemPerc']));
 
@@ -76,6 +72,11 @@ if ($_POST['m'] == 'init') {
     $cpu = number_format((($running + $stopped) * 100) / $cpu, 2);
     if (intval($settingsFile['global']['cpuAmount']) > 0) {
         $cpuActual = number_format(($cpu / intval($settingsFile['global']['cpuAmount'])), 2);
+    }
+
+    //-- GET THE SIZE
+    foreach ($imageSizes as $imageSize) {
+        $size += bytesFromString($imageSize['Size']);
     }
 
     ?>
