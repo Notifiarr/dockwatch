@@ -69,7 +69,7 @@ function logger($logfile, $msg, $type = 'info')
     $fileName   = $fileParts[count($fileParts) - 1];
     $fileFolder = $fileParts[count($fileParts) - 2];
     $file       = ($fileFolder != 'www' && $fileFolder != 'public' ? $fileFolder . '/' : '') . $fileName;
-    $log        = date('g:i:s') . ' ' . ($type ? '[' . strtoupper($type) . '] ' : '') . $file . ' LN: ' . $line . ' :: ' . (is_array($msg) || is_object($msg) ? loggerLoopArray($msg, 0) : $msg) . "\n";
+    $log        = date('Y-m-d g:i:s') . ' ' . ($type ? '[' . strtoupper($type) . '] ' : '') . $file . ' LN: ' . $line . ' :: ' . (is_array($msg) || is_object($msg) ? loggerLoopArray($msg, 0) : $msg) . "\n";
 
     file_put_contents($logfile, $log, FILE_APPEND);
 
