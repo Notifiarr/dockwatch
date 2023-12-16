@@ -13,7 +13,7 @@ function removeOrphans()
         action = 'prune';
     }
 
-    let params = '';
+    let selectedOrphans = [];
     $.each($('.orphan'), function () {
         if ($(this).prop('checked')) {
             const orphan    = $(this).attr('id');
@@ -26,26 +26,49 @@ function removeOrphans()
                 type = 'volume';
             }
 
-            $.ajax({
-                type: 'POST',
-                url: '../ajax/orphans.php',
-                data: '&m=removeOrphans&orphan=' + split[1] + '&action=' + action + '&type=' + type,
-                async: 'global',
-                success: function (resultData) {
-                    if (resultData) {
-                        toast('Orphans', 'Failed to ' + action + ' ' + type + ' orphan ' + split[1] + '. ' + resultData, 'error');
-                        return;
-                    }
-
-                    toast('Orphans', 'Orphan ' + type + ' ' + action + ' completed', 'success');
-                    $('#' + type + '-' + split[1]).remove();
-                }
-            });
+            selectedOrphans.push({'orphan': split[1], 'type': type});
         }
     });
 
-    $('#massOrphanTrigger').val('0');
-    $('.orphans').prop('checked', false);
-    loadingStop();
+    let o = 0;
+    function runOrphanTrigger(action)
+    {
+        if (o == selectedOrphans.length) {
+            $('#massOrphanTrigger').val('0');
+            $('.orphans').prop('checked', false);
+            loadingStop();
+            return;
+        }
+
+        const orphan = selectedOrphans[o]['orphan'];
+        const type = selectedOrphans[o]['type'];
+
+        $.ajax({
+            type: 'POST',
+            url: '../ajax/orphans.php',
+            data: '&m=removeOrphans&orphan=' + orphan + '&action=' + action + '&type=' + type,
+            timeout: 600000,
+            success: function (resultData) {
+                if (resultData) {
+                    toast('Orphans', 'Failed to ' + action + ' ' + type + ' orphan ' + orphan + '. ' + resultData, 'error');
+                } else {
+                    toast('Orphans', 'Orphan ' + type + ' ' + action + ' completed', 'success');
+                    $('#' + type + '-' + orphan).remove();
+                }
+
+                o++;
+
+                runOrphanTrigger(action);
+            },
+            error: function(jqhdr, textStatus, errorThrown) {
+                toast('Orphans', 'Failed to ' + action + ' ' + type + ' orphan ' + orphan + '. ' + resultData, 'error');
+                o++;
+
+                runOrphanTrigger(action);
+            }
+        });
+    }
+
+    runOrphanTrigger(action);
 }
 // ---------------------------------------------------------------------------------------------

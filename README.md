@@ -7,6 +7,7 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Notify when a container is added
 - Notify when a container is removed
 - Notify when a container changes state (running -> stopped)
+- Notify when a container is unhealthy
 - Notify when an update is available
 - Notify when an update is applied
 - Notify when images are pruned
@@ -28,9 +29,12 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Try to find/match icons for non unraid usage
 - Setup update schedules on a container by container basis
 - Setup notify only or update on a container by container basis
+- Automatically try to restart unhealthy containers
 - Mass prune/remove orphan images and volumes
+- Add container groups for easier management
 - Mass select containers and generate `docker run` commands
 - Mass select containers and generate a `docker-compose` for them
+- Mass select containers and do a mount compare for them
 - Mass select containers and start/restart/stop/pull/update
 - Memcached support (optional)
 
@@ -104,7 +108,6 @@ Variables
 | ----- | ----- | ----- |
 | PUID | PUID | 1001 |
 | PGID | PGID | 100 |
-| UMASK | UMASK | 022 |
 
 ## Login
 There is support for a simple login mechanism but i would recomment using something like a reverse proxy with authentication
@@ -145,13 +148,14 @@ Non-Unraid:
 ## Screenshots
 UI
 
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/9bfd385e-9b2c-4881-95f5-31c64b073424)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/835e095a-ca5f-4671-852e-588276787c37)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/55f2d852-5dba-467a-b7a2-0243bb4bbe19)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/57b57a2a-808b-4ac9-85fe-60c71bbb57e5)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/de74591a-ae22-40ca-8232-e5d7d29d4083)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/ae518014-0c39-4f9a-871e-c285f3dbffde)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/93e66d78-ce87-4fbc-b8b3-de3ec547e9ac)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/87fc88d0-3430-43ba-a636-9c89992c7f59)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/4647bda7-acf5-44d6-943b-083a537b284d)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/6e41ca48-1347-4a7f-8a2a-5e5c5020bf41)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/82edfba9-e4e8-4656-bbd5-0105b7904d67)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/5ef6e6bd-6c46-464e-84e0-b6599c290969)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/0c5c64b1-ea87-4269-b9fc-d91744c7219d)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/952d424a-f171-4366-8f2e-f673618e8e51)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/911efa2e-10e2-4787-985f-d5dd77a4b935)
 
 Notifications
 
@@ -160,5 +164,3 @@ Notifications
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/bae49f20-573f-4b7e-99f8-35abd5a7b932)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/217f4c81-3b84-40f8-b3ce-a51dabda0e1f)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/f48b47db-125c-4caa-bbdb-50de224861e2)
-
-
