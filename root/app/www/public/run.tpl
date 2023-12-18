@@ -1,5 +1,4 @@
 docker run \
-  -d \
   --name {{printf "%q" .Name}} \
     {{- with .HostConfig}}
         {{- if .Privileged}}

@@ -91,7 +91,7 @@ if ($_POST['m'] == 'init') {
                                     <th scope="row"><input type="checkbox" class="form-check-input containers-check" onclick="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></th>
                                     <td><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
                                     <td><span class="text-info" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br><span class="text-muted small-text">Containers: <?= count($containerGroup['containers']) ?></span></td>
-                                    <td colspan="4"></td>
+                                    <td colspan="5"></td>
                                     <td><?= $groupCPU ?>%</td>
                                     <td><?= $groupMemory ?>%</td>
                                     <td colspan="3"></td>
@@ -267,7 +267,7 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="4">
+                            <td colspan="6">
                                 With selected: 
                                 <select id="massContainerTrigger" class="form-control d-inline-block w-50">
                                     <option value="0">-- Select option --</option>
