@@ -140,6 +140,10 @@ if ($updateSettings) {
                                     $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update);
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo $msg . "\n";
+
+                                    if ($settingsFile['notifications']['triggers']['updated']['active']) {
+                                        $notify['failed'][] = ['container' => $containerState['Names']];
+                                    }
                                 }
 
                                 if ($settingsFile['notifications']['triggers']['updated']['active']) {
