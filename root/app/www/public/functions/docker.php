@@ -187,8 +187,25 @@ function dockerAutoCompose($containerName)
 function dockerAutoRun($containerName)
 {
     // Smarter people than me... https://gist.github.com/efrecon/8ce9c75d518b6eb863f667442d7bc679
-    $cmd = '/usr/bin/docker inspect --format "$(cat ' . ABSOLUTE_PATH . 'run.tpl)" ' . $containerName;
-    return shell_exec($cmd . ' 2>&1');
+    $cmd    = '/usr/bin/docker inspect --format "$(cat ' . ABSOLUTE_PATH . 'run.tpl)" ' . $containerName;
+    $shell  = shell_exec($cmd . ' 2>&1');
+
+    //-- MAKE SURE THINGS ARE ESCAPED
+    $lines = explode("\n", $shell);
+    $newLines = [];
+
+    foreach ($lines as $line) {
+        if (strpos($line, '=') !== false) { //-- IGNORE "--schedule" "0 0 4 * * *" "--cleanup"
+            preg_match_all('/\"(. *?)\"/xU', $line, $matches);
+            if (strpos($matches[0][1], '"') !== false) {
+                $escaped = str_replace('"', '\"', $matches[0][1]);
+                $line = str_replace($matches[0][1], $escaped, $line);
+            }
+        }
+        $newLines[] = $line;
+    }
+
+    return implode("\n", $newLines);
 }
 
 function dockerUpdateContainer($command)
