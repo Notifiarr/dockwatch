@@ -1,4 +1,5 @@
 docker run \
+  --detach \
   --name {{printf "%q" .Name}} \
     {{- with .HostConfig}}
         {{- if .Privileged}}
@@ -114,18 +115,6 @@ docker run \
         {{- range $l, $v := .Labels}}
   --label {{printf "%q" $l}}={{printf "%q" $v}} \
         {{- end}}
-    {{- if not (or .AttachStdin  (or .AttachStdout .AttachStderr))}}
-  --detach \
-    {{- end}}
-    {{- if .AttachStdin}}
-  --attach stdin \
-    {{- end}}
-    {{- if .AttachStdout}}
-  --attach stdout \
-    {{- end}}
-    {{- if .AttachStderr}}
-  --attach stderr \
-    {{- end}}
     {{- if .Tty}}
   --tty \
     {{- end}}

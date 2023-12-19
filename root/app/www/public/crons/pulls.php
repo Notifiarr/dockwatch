@@ -105,11 +105,12 @@ if ($updateSettings) {
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
                                 $runCommand = dockerAutoRun($containerState['Names']);
-                                $lines = explode("\n", $runCommand);
+                                $lines      = explode("\n", $runCommand);
+                                $newRun     = [];
                                 foreach ($lines as $line) {
-                                    $newRun .= trim(str_replace('\\', '', $line)) . ' ';
+                                    $newRun[] = rtrim(trim($line), '\\');
                                 }
-                                $runCommand = $newRun;
+                                $runCommand = implode(' ', $newRun);
 
                                 $msg = 'Stopping container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);

@@ -397,11 +397,11 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
                 $autoRun    = $autoRun['response']['docker'];
                 $lines      = explode("\n", $autoRun);
-
+                $newRun     = [];
                 foreach ($lines as $line) {
-                    $newRun .= trim(str_replace('\\', '', $line)) . ' ';
+                    $newRun[] = rtrim(trim($line), '\\');
                 }
-                $autoRun = $newRun;
+                $autoRun = implode(' ', $newRun);
                 logger(UI_LOG, 'run command:' . $autoRun);
 
                 $apiResponse = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
