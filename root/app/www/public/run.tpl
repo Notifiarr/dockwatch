@@ -76,6 +76,9 @@ docker run \
   --device {{printf "%q" (index $d).PathOnHost}}:{{printf "%q" (index $d).PathInContainer}}:{{(index $d).CgroupPermissions}} \
         {{- end}}
     {{- end}}
+    {{- if or (not .NetworkSettings.Networks) (eq (len .NetworkSettings.Networks) 0)}}
+  --network {{printf "%q" .HostConfig.NetworkMode}} \
+    {{- end -}}
     {{- with .NetworkSettings -}}
         {{- range $p, $conf := .Ports}}
             {{- with $conf}}
@@ -87,7 +90,9 @@ docker run \
         {{- end}}
         {{- range $n, $conf := .Networks}}
             {{- with $conf}}
+                {{- if $n}}
   --network {{printf "%q" $n}} \
+                {{- end}}
                 {{- range $a := $conf.Aliases}}
   --network-alias {{printf "%q" $a}} \
                 {{- end}}
