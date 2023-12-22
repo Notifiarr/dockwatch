@@ -158,7 +158,7 @@ function massApplyContainerTrigger()
                         $('#massTrigger-results').append(resultData.result + "\n");
                     } else {
                         updateContainerRowText(containerHash, resultData);
-                        $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + resultData.result);
+                        $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + resultData.result + '<br>');
                     }
 
                     c++;
