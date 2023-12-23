@@ -430,7 +430,7 @@ function dockerAutoRun($container)
     }
 
     //-- EXPOSED PORTS
-    if ($containerArray['Config']['ExposedPorts']) {
+    if (!$containerNetwork && $containerArray['Config']['ExposedPorts']) {
         foreach (array_keys($containerArray['Config']['ExposedPorts']) as $port) {
             $runCommand[] = $indent . '--expose "' . $port . '" \\';
         }
@@ -479,10 +479,11 @@ function dockerAutoRun($container)
 
     foreach ($lines as $line) {
         if (strpos($line, '=') !== false) { //-- IGNORE "--schedule" "0 0 4 * * *" "--cleanup"
+
             preg_match_all('/\"(. *?)\"/xU', $line, $matches);
-            if (strpos($matches[0][1], '"') !== false) {
-                $escaped = str_replace('"', '\"', $matches[0][1]);
-                $line = str_replace($matches[0][1], $escaped, $line);
+            if (str_contains($matches[1][0], '"')) {
+                $escaped    = str_replace('"', '\"', $matches[1][0]);
+                $line       = str_replace($matches[1][0], $escaped, $line);
             }
         }
         $newLines[] = $line;
