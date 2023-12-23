@@ -274,7 +274,7 @@ function dockerAutoRun($container)
 
     foreach ($hostConfigKeyFields as $fieldLabel => $fieldKey) {
         if ($containerArray['HostConfig'][$fieldLabel]) {
-            $runCommand[] = $indent . '--' . $fieldKey . '" \\';
+            $runCommand[] = $indent . '--' . $fieldKey . ' \\';
         }
     }
 
@@ -430,7 +430,7 @@ function dockerAutoRun($container)
 
     foreach ($configKeyFields as $fieldLabel => $fieldKey) {
         if ($containerArray['Config'][$fieldLabel]) {
-            $runCommand[] = $indent . '--' . $fieldKey . '" \\';
+            $runCommand[] = $indent . '--' . $fieldKey . ' \\';
         }
     }
 
