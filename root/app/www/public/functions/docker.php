@@ -262,18 +262,29 @@ function dockerAutoRun($container)
     $runCommand[] = 'docker run \\';
     $runCommand[] = $indent . "--detach \\";
 
+    //-- CHECK FOR AN OVERRIDE
     $name = dockerRunFieldValue('Name', $imageArray['Name'], $containerArray['Name']);
     $runCommand[] = $indent . '--name "' . $name . '" \\';
 
+    //-- <key> FIELDS
+    $hostConfigKeyFields    = [
+                                'Privileged' => 'privileged',
+                                'AutoRemove' => 'rm'
+                            ];
+
+    foreach ($hostConfigKeyFields as $fieldLabel => $fieldKey) {
+        if ($containerArray['HostConfig'][$fieldLabel]) {
+            $runCommand[] = $indent . '--' . $fieldKey . '" \\';
+        }
+    }
+
     //-- <key>:<val> FIELDS
-    $hostConfigFields   = [
-                            'Privileged'    => 'privileged', 
-                            'AutoRemove'    => 'rm',
-                            'Runtime'       => 'runtime',
-                            'UTSMode'       => 'uts'
-                        ];
+    $hostConfigPairFields   = [
+                                'Runtime'       => 'runtime',
+                                'UTSMode'       => 'uts'
+                            ];
     
-    foreach ($hostConfigFields as $fieldLabel => $fieldKey) {
+    foreach ($hostConfigPairFields as $fieldLabel => $fieldKey) {
         if ($containerArray['HostConfig'][$fieldLabel]) {
             $runCommand[] = $indent . '--' . $fieldKey . ' "' . $containerArray['HostConfig'][$fieldLabel] . '" \\';
         }
@@ -344,10 +355,6 @@ function dockerAutoRun($container)
         }
     }
 
-    if ($containerArray['HostConfig']['PublishAllPorts']) {
-        $runCommand[] = $indent . '--publish-all \\';
-    }
-
     //-- RESTART
     $runCommand[] = $indent . '--restart "' . $containerArray['HostConfig']['RestartPolicy']['Name'] . ($containerArray['HostConfig']['RestartPolicy']['Name'] == 'on-failure' ? ':' . $containerArray['HostConfig']['RestartPolicy']['MaximumRetryCount'] : '') . '" \\';
 
@@ -410,15 +417,29 @@ function dockerAutoRun($container)
                 }
             }
         }
+
+        if ($containerArray['HostConfig']['PublishAllPorts']) {
+            $runCommand[] = $indent . '--publish-all \\';
+        }
+    }
+
+    //-- <key> FIELDS
+    $configKeyFields    = [
+                            'Tty' => 'tty'
+                        ];
+
+    foreach ($configKeyFields as $fieldLabel => $fieldKey) {
+        if ($containerArray['Config'][$fieldLabel]) {
+            $runCommand[] = $indent . '--' . $fieldKey . '" \\';
+        }
     }
 
     //-- <key>:<val> FIELDS
-    $configFields   = [
-                        'Domainname'    => 'domainname',
-                        'Tty'           => 'tty'
-                    ];
+    $configPairFields   = [
+                            'Domainname' => 'domainname'
+                        ];
 
-    foreach ($configFields as $fieldLabel => $fieldKey) {
+    foreach ($configPairFields as $fieldLabel => $fieldKey) {
         if ($containerArray['Config'][$fieldLabel]) {
             $runCommand[] = $indent . '--' . $fieldKey . ' "' . $containerArray['Config'][$fieldLabel] . '" \\';
         }
@@ -439,14 +460,14 @@ function dockerAutoRun($container)
     //-- ENV VARS
     if ($containerArray['Config']['Env']) {
         foreach ($containerArray['Config']['Env'] as $env) {
-            $runCommand[] = $indent . '--env "' . trim($env) . '" \\';
+            $runCommand[] = $indent . '--env "' . trim(str_replace('"', '\"', $env)) . '" \\';
         }
     }
 
     //-- LABELS
     if ($containerArray['Config']['Labels']) {
         foreach ($containerArray['Config']['Labels'] as $label => $value) {
-            $runCommand[] = $indent . '--label "' . trim($label) . '"="' . trim($value) . '" \\';
+            $runCommand[] = $indent . '--label "' . trim($label) . '"="' . trim(str_replace('"', '\"', $value)) . '" \\';
         }
     }
 
@@ -473,23 +494,7 @@ function dockerAutoRun($container)
     $runCommand = implode($glue, $runCommand);
     $runCommand = rtrim($runCommand, '\\');
 
-    //-- MAKE SURE THINGS ARE ESCAPED
-    $lines = explode($glue, $runCommand);
-    $newLines = [];
-
-    foreach ($lines as $line) {
-        if (strpos($line, '=') !== false) { //-- IGNORE "--schedule" "0 0 4 * * *" "--cleanup"
-
-            preg_match_all('/\"(. *?)\"/xU', $line, $matches);
-            if (str_contains($matches[1][0], '"')) {
-                $escaped    = str_replace('"', '\"', $matches[1][0]);
-                $line       = str_replace($matches[1][0], $escaped, $line);
-            }
-        }
-        $newLines[] = $line;
-    }
-
-    return implode($glue, $newLines);
+    return $runCommand;
 }
 
 function dockerRunFieldValue($field, $imageVal, $containerVal)
