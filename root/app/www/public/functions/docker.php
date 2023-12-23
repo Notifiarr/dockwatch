@@ -159,55 +159,6 @@ function dockerPullContainer($image)
     return shell_exec($cmd . ' 2>&1');
 }
 
-function dockerAutoCompose($containerName)
-{
-    $cmd        = '/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $containerName;
-    $compose    = shell_exec($cmd . ' 2>&1');
-    $lines      = explode("\n", $compose);
-    $skip       = true;
-    $command    = [];
-    //-- LOOP THIS SO IT REMOVES ALL THE ADD CONTAINER OVERHEAD
-    foreach ($lines as $line) {
-        if (strpos($line, 'networks:') !== false || strpos($line, 'services:') !== false) {
-            $skip = false;
-        }
-
-        if ($skip) {
-            continue;
-        }
-
-        if (trim($line)) {
-            $command[] = $line;
-        }
-    }
-
-    return implode("\n", $command);
-}
-
-function dockerAutoRun($containerName)
-{
-    // Smarter people than me... https://gist.github.com/efrecon/8ce9c75d518b6eb863f667442d7bc679
-    $cmd    = '/usr/bin/docker inspect --format "$(cat ' . ABSOLUTE_PATH . 'run.tpl)" ' . $containerName;
-    $shell  = shell_exec($cmd . ' 2>&1');
-
-    //-- MAKE SURE THINGS ARE ESCAPED
-    $lines = explode("\n", $shell);
-    $newLines = [];
-
-    foreach ($lines as $line) {
-        if (strpos($line, '=') !== false) { //-- IGNORE "--schedule" "0 0 4 * * *" "--cleanup"
-            preg_match_all('/\"(. *?)\"/xU', $line, $matches);
-            if (strpos($matches[0][1], '"') !== false) {
-                $escaped = str_replace('"', '\"', $matches[0][1]);
-                $line = str_replace($matches[0][1], $escaped, $line);
-            }
-        }
-        $newLines[] = $line;
-    }
-
-    return implode("\n", $newLines);
-}
-
 function dockerUpdateContainer($command)
 {
     $cmd = '/usr/bin/' . $command;
@@ -266,4 +217,302 @@ function dockerImageSizes()
 {
     $cmd = '/usr/bin/docker images --format=\'{"ID":"{{ .ID }}", "Size": "{{ .Size }}"}\' | jq -s --tab .';
     return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerAutoCompose($containerName)
+{
+    $cmd        = '/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $containerName;
+    $compose    = shell_exec($cmd . ' 2>&1');
+    $lines      = explode("\n", $compose);
+    $skip       = true;
+    $command    = [];
+    //-- LOOP THIS SO IT REMOVES ALL THE ADD CONTAINER OVERHEAD
+    foreach ($lines as $line) {
+        if (strpos($line, 'networks:') !== false || strpos($line, 'services:') !== false) {
+            $skip = false;
+        }
+
+        if ($skip) {
+            continue;
+        }
+
+        if (trim($line)) {
+            $command[] = $line;
+        }
+    }
+
+    return implode("\n", $command);
+}
+
+function dockerAutoRun($container)
+{
+    $indent         = '  ';
+    $glue           = "\n";
+    $cmd            = '/usr/bin/docker inspect ' . $container . ' --format="{{json . }}" | jq -s --tab .';
+    $containerJson  = shell_exec($cmd . ' 2>&1');
+    $containerArray = json_decode($containerJson, true);
+    $containerArray = $containerArray[0];
+    $image          = $containerArray['Config']['Image'];
+
+    $cmd            = '/usr/bin/docker inspect ' . $image . ' --format="{{json . }}" | jq -s --tab .';
+    $imageJson      = shell_exec($cmd . ' 2>&1');
+    $imageArray     = json_decode($imageJson, true);
+    $imageArray     = $imageArray[0];
+
+    $runCommand[] = 'docker run \\';
+    $runCommand[] = $indent . "--detach \\";
+
+    $name = dockerRunFieldValue('Name', $imageArray['Name'], $containerArray['Name']);
+    $runCommand[] = $indent . '--name "' . $name . '" \\';
+
+    //-- <key>:<val> FIELDS
+    $hostConfigFields   = [
+                            'Privileged'    => 'privileged', 
+                            'AutoRemove'    => 'rm',
+                            'Runtime'       => 'runtime',
+                            'UTSMode'       => 'uts'
+                        ];
+    
+    foreach ($hostConfigFields as $fieldLabel => $fieldKey) {
+        if ($containerArray['HostConfig'][$fieldLabel]) {
+            $runCommand[] = $indent . '--' . $fieldKey . ' "' . $containerArray['HostConfig'][$fieldLabel] . '" \\';
+        }
+    }
+
+    //-- VOLUMES
+    if ($containerArray['HostConfig']['Binds']) {
+        foreach ($containerArray['HostConfig']['Binds'] as $volume) {
+            $runCommand[] = $indent . '--volume "' . $volume . '" \\';
+        }
+    }
+
+    if ($containerArray['HostConfig']['VolumesFrom']) {
+        foreach ($containerArray['HostConfig']['VolumesFrom'] as $volumeFrom) {
+            $runCommand[] = $indent . '--volumes-from "' . $volumeFrom . '" \\';
+        }
+    }
+
+    //-- LINKS
+    if ($containerArray['HostConfig']['Links']) {
+        foreach ($containerArray['HostConfig']['Links'] as $link) {
+            $runCommand[] = $indent . '--link "' . $link . '" \\';
+        }
+    }
+
+    //-- MOUNTS
+    if ($containerArray['HostConfig']['Mounts']) {
+        foreach ($containerArray['HostConfig']['Mounts'] as $mount) {
+            $thisMount = [];
+            $thisMount[] = '--mount type=' . $mount['Type'];
+            if ($mount['Source']) {
+                $thisMount[] = 'source=' . $mount['Source'];
+            }
+            if ($mount['Target']) {
+                $thisMount[] = 'target=' . $mount['Target'];
+            }
+            if ($mount['ReadOnly']) {
+                $thisMount[] = 'readOnly';
+            }
+            if (!empty($mount['VolumeOptions'])) {
+                foreach ($mount['VolumeOptions'] as $volumeOption) {
+                    // stuff here...
+                }
+            }
+            if (!empty($mount['DriverConfig'])) {
+                foreach ($mount['DriverConfig'] as $driverConfig) {
+                    // stuff here...
+                }
+            }
+            if (!empty($mount['BindOptions'])) {
+                foreach ($mount['BindOptions'] as $bindOptions) {
+                    // stuff here...
+                }
+            }
+            // UNCOMMENT THIS WHEN THE UPPER SECTION IS FINISHED
+            //$runCommand[] = $indent . implode(', ', $thisMount) .' \\';
+        }
+    }
+
+    //-- LOGGING
+    if (!empty($containerArray['HostConfig']['LogConfig'])) {
+        $runCommand[] = $indent . '--log-driver "' . $containerArray['HostConfig']['LogConfig']['Type'] . '" \\';
+
+        if (!empty($containerArray['HostConfig']['LogConfig']['Config'])) {
+            foreach ($containerArray['HostConfig']['LogConfig']['Config'] as $logConfigKey => $logConfigVal) {
+                $runCommand[] = $indent . '--log-opt ' . $logConfigKey . '="' . $logConfigVal . '" \\';
+            }
+        }
+    }
+
+    if ($containerArray['HostConfig']['PublishAllPorts']) {
+        $runCommand[] = $indent . '--publish-all \\';
+    }
+
+    //-- RESTART
+    $runCommand[] = $indent . '--restart "' . $containerArray['HostConfig']['RestartPolicy']['Name'] . ($containerArray['HostConfig']['RestartPolicy']['Name'] == 'on-failure' ? ':' . $containerArray['HostConfig']['RestartPolicy']['MaximumRetryCount'] : '') . '" \\';
+
+    //-- HOSTS
+    if ($containerArray['HostConfig']['ExtraHosts']) {
+        foreach ($containerArray['HostConfig']['ExtraHosts'] as $host) {
+            $runCommand[] = $indent . '--add-host "' . $host . '" \\';
+        }
+    }
+
+    //-- CAPABILITES
+    if ($containerArray['HostConfig']['CapAdd']) {
+        foreach ($containerArray['HostConfig']['CapAdd'] as $addCap) {
+            $runCommand[] = $indent . '--cap-add "' . $addCap . '" \\';
+        }
+    }
+    if ($containerArray['HostConfig']['CapDrop']) {
+        foreach ($containerArray['HostConfig']['CapDrop'] as $dropCap) {
+            $runCommand[] = $indent . '--cap-drop "' . $dropCap . '" \\';
+        }
+    }
+
+    //-- DEVICES
+    if ($containerArray['HostConfig']['Devices']) {
+        foreach ($containerArray['HostConfig']['Devices'] as $device) {
+            $runCommand[] = $indent . '--device "' . $device['PathOnHost'] . ':' . $device['PathInContainer'] . ':' . $device['CgroupPermissions'] . '" \\';
+        }
+    }
+
+    //-- NETWORK
+    $containerNetwork = str_contains($containerArray['HostConfig']['NetworkMode'], ':') ? true : false;
+    if ($containerNetwork) {
+        $runCommand[] = $indent . '--network "' . $containerArray['HostConfig']['NetworkMode'] . '" \\';
+    } else {
+        if ($containerArray['Config']['Hostname']) {
+            $runCommand[] = $indent . '--hostname "' . $containerArray['Config']['Hostname'] . '" \\';
+        }
+
+        if (!empty($containerArray['NetworkSettings']['Networks'])) {
+            foreach ($containerArray['NetworkSettings']['Networks'] as $networkName => $networkSettings) {
+                $runCommand[] = $indent . '--network "' . $networkName . '" \\';
+
+                if (!empty($networkSettings['Aliases'])) {
+                    foreach ($networkSettings['Aliases'] as $networkAlias) {
+                        $runCommand[] = $indent . '--network-alias "' . $networkAlias . '" \\';
+                    }
+                }
+            }
+        }
+
+        if (!empty($containerArray['NetworkSettings']['Ports'])) {
+            foreach ($containerArray['NetworkSettings']['Ports'] as $port => $portSettings) {
+                if (empty($portSettings)) {
+                    continue;
+                }
+
+                foreach ($portSettings as $portSetting) {
+                    $runCommand[] = $indent . '--publish "' . $portSetting['HostIp'] . ':' . $portSetting['HostPort'] . ':' . $port . '" \\';
+                    break; //-- ONLY PULL THE FIRST ONE
+                }
+            }
+        }
+    }
+
+    //-- <key>:<val> FIELDS
+    $configFields   = [
+                        'Domainname'    => 'domainname',
+                        'Tty'           => 'tty'
+                    ];
+
+    foreach ($configFields as $fieldLabel => $fieldKey) {
+        if ($containerArray['Config'][$fieldLabel]) {
+            $runCommand[] = $indent . '--' . $fieldKey . ' "' . $containerArray['Config'][$fieldLabel] . '" \\';
+        }
+    }
+
+    $user = dockerRunFieldValue('User', $imageArray['Config']['User'], $containerArray['Config']['User']);
+    if ($user) {
+        $runCommand[] = $indent . '--user "' . $user . '" \\';
+    }
+
+    //-- EXPOSED PORTS
+    if ($containerArray['Config']['ExposedPorts']) {
+        foreach (array_keys($containerArray['Config']['ExposedPorts']) as $port) {
+            $runCommand[] = $indent . '--expose "' . $port . '" \\';
+        }
+    }
+
+    //-- ENV VARS
+    if ($containerArray['Config']['Env']) {
+        foreach ($containerArray['Config']['Env'] as $env) {
+            $runCommand[] = $indent . '--env "' . trim($env) . '" \\';
+        }
+    }
+
+    //-- LABELS
+    if ($containerArray['Config']['Labels']) {
+        foreach ($containerArray['Config']['Labels'] as $label => $value) {
+            $runCommand[] = $indent . '--label "' . trim($label) . '"="' . trim($value) . '" \\';
+        }
+    }
+
+    if ($containerArray['Config']['OpenStdin']) {
+        $runCommand[] = $indent . '--interactive \\';
+    }
+
+    //-- ENTRY
+    if ($containerArray['Config']['Entrypoint']) {
+        $entryPoints = [];
+        foreach ($containerArray['Config']['Entrypoint'] as $entryPoint) {
+            $entryPoints[] = $entryPoint;
+        }
+
+        $runCommand[] = $indent . '--entrypoint "' .  implode('" "', $entryPoints) . '" \\';
+    }
+
+    $runCommand[] = $indent . '"' . $containerArray['Config']['Image'] . '" \\';
+
+    if (!empty($containerArray['Config']['Cmd'])) {
+        $runCommand[] = $indent . '"' . implode('" "', $containerArray['Config']['Cmd']) . '" \\';
+    }
+
+    $runCommand = implode($glue, $runCommand);
+    $runCommand = rtrim($runCommand, '\\');
+
+    //-- MAKE SURE THINGS ARE ESCAPED
+    $lines = explode($glue, $runCommand);
+    $newLines = [];
+
+    foreach ($lines as $line) {
+        if (strpos($line, '=') !== false) { //-- IGNORE "--schedule" "0 0 4 * * *" "--cleanup"
+            preg_match_all('/\"(. *?)\"/xU', $line, $matches);
+            if (strpos($matches[0][1], '"') !== false) {
+                $escaped = str_replace('"', '\"', $matches[0][1]);
+                $line = str_replace($matches[0][1], $escaped, $line);
+            }
+        }
+        $newLines[] = $line;
+    }
+
+    return implode($glue, $newLines);
+}
+
+function dockerRunFieldValue($field, $imageVal, $containerVal)
+{
+    /*
+        This will compare the values of an inspect from the container and the image to look for differences
+        If the container is different from the image, the default was overridden and should be used
+        In some cases, if the values are the same it should be ommited
+    */
+
+    switch ($field) {
+        //-- RETURN THE $containerVal IF DIFFERENT FROM $imageVal
+        case 'Name':
+            if ($containerVal != $imageVal) {
+                return trim($containerVal);
+            }
+            return trim($imageVal);
+        //-- RETURN NOTHING IF THEY ARE THE SAME
+        case 'User':
+            if ($containerVal == $imageVal) {
+                return;
+            } elseif ($containerVal != $imageVal) {
+                return trim($containerVal);
+            }
+            return trim($imageVal);
+    }
 }
