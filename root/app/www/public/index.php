@@ -8,12 +8,6 @@
 */
 
 require 'loader.php';
-
-//$runCommand = dockerRunFromJson('ghcr.io/notifiarr/dockwatch:main', 'dockwatch');
-$runCommand = dockerAutoRun('watchtower');
-echo $runCommand;
-exit();
-
 require 'includes/header.php';
 
 $dockerPerms = apiRequest('dockerPermissionCheck');
