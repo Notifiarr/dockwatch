@@ -388,8 +388,9 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $result         = '<pre>' . $autoCompose . '</pre>';
             break;
         case '7': //-- UPDATE
-            if (strpos($image, 'dockwatch') !== false) {
-                logger(UI_LOG, 'skipping dockwatch update');
+            $containerUpdateSetting = $settingsFile['containers'][$_POST['hash']]['updates'];
+            if($containerUpdateSetting == 0 || $containerUpdateSetting == 2) {
+                logger(UI_LOG, 'skipping '.$container['Names'].' update');
                 $updateResult = 'skipped';
             } else {
                 $autoRun    = apiRequest('dockerAutoRun', ['name' => $container['Names']]);
