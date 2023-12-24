@@ -98,3 +98,13 @@ function renderContainerRow($hash)
 
     return $return;
 }
+
+function skipContainerUpdates($container, $containers)
+{
+    foreach ($containers as $skip) {
+        if (str_contains($container, $skip)) {
+            return true;
+        }
+    }
+    return false;
+}

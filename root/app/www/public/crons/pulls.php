@@ -91,7 +91,7 @@ if ($updateSettings) {
                                                 ];
 
                     //-- DONT AUTO UPDATE THIS CONTAINER, CHECK ONLY
-                    if (strpos($image, 'dockwatch') !== false) {
+                    if (skipContainerUpdates($image, $skipContainerUpdates)) {
                         if ($containerSettings['updates'] == 1) {
                             $containerSettings['updates'] = 2;
                         }
