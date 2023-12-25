@@ -49,3 +49,10 @@ define('MEMCACHE_DOCKER_INSPECT', 10);
 $getStats   = ['overview', 'containers'];
 $getProc    = ['overview', 'containers', 'notifications'];
 $getInspect = ['overview', 'containers'];
+
+//-- SKIP UPDATING CONTAINERS THAT CAN BREAK THINGS
+$skipContainerUpdates   = [
+    'dockwatch', //-- IF THIS AUTO UPDATES, IT WILL STOP THE CONTAINER WHICH MEANS IT CAN NEVER FINISH
+    'cloudflared', //-- IF THIS AUTO UPDATES, IT WILL KILL THE NETWORK TRAFFIC TO DOCKWATCH
+    'gluetun' //-- IF THIS AUTO UPDATES, IT WILL KILL THE VPN NETWORK THAT CONTAINERS RELY ON
+];

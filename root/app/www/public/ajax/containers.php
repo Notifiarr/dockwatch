@@ -139,7 +139,7 @@ if ($_POST['m'] == 'init') {
                                                 <td>
                                                     <select id="containers-update-<?= $nameHash ?>" class="form-control container-updates">
                                                         <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
-                                                        <?php if (strpos($process['inspect'][0]['Config']['Image'], 'dockwatch') === false) { ?>
+                                                        <?php if (!skipContainerUpdates($process['inspect'][0]['Config']['Image'], $skipContainerUpdates)) { ?>
                                                         <option <?= ($containerSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
                                                         <?php } ?>
                                                         <option <?= ($containerSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
@@ -230,7 +230,7 @@ if ($_POST['m'] == 'init') {
                                 <td>
                                     <select id="containers-update-<?= $nameHash ?>" class="form-control container-updates">
                                         <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
-                                        <?php if (strpos($process['inspect'][0]['Config']['Image'], 'dockwatch') === false) { ?>
+                                        <?php if (!skipContainerUpdates($process['inspect'][0]['Config']['Image'], $skipContainerUpdates)) { ?>
                                         <option <?= ($containerSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
                                         <?php } ?>
                                         <option <?= ($containerSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
@@ -388,8 +388,9 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $result         = '<pre>' . $autoCompose . '</pre>';
             break;
         case '7': //-- UPDATE
-            if (strpos($image, 'dockwatch') !== false) {
-                logger(UI_LOG, 'skipping dockwatch update');
+            $image              = $container['inspect'][0]['Config']['Image'];
+            if(skipContainerUpdates($image, $skipContainerUpdates)) {
+                logger(UI_LOG, 'skipping '.$container['Names'].' update');
                 $updateResult = 'skipped';
             } else {
                 $autoRun    = apiRequest('dockerAutoRun', ['name' => $container['Names']]);
