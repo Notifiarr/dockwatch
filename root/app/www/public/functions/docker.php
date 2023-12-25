@@ -479,7 +479,7 @@ function dockerAutoRun($container)
     if ($containerArray['Config']['Entrypoint']) {
         $entryPoints = [];
 
-        if(!empty($containerArray['Config']['Cmd'])) {
+        if (!empty($containerArray['Config']['Cmd'])) {
             foreach ($containerArray['Config']['Entrypoint'] as $entryPoint) {
                 $entryPoints[] = $entryPoint;
             }
@@ -492,13 +492,14 @@ function dockerAutoRun($container)
 
     $runCommand[] = $indent . '"' . $containerArray['Config']['Image'] . '" \\';
 
+    //-- COMMAND
     if (!empty($containerArray['Config']['Cmd'])) {
         $runCommand[] = $indent . '"' . implode('" "', $containerArray['Config']['Cmd']) . '" \\';
     } else {
         $containerCmd = $containerArray['Config']['Entrypoint'];
         array_shift($containerCmd);
 
-        if(count($containerCmd) >= 1) {
+        if (!empty($containerCmd)) {
             $runCommand[] = $indent . '"' . implode('" "', $containerCmd) . '" \\';
         }
     }
