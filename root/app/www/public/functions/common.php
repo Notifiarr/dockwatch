@@ -192,8 +192,8 @@ function convert_docker_timeout($input)
     $seconds = $input / 1e9;
     if ($seconds > 60) {
         $minutes = $seconds / 60;
-        return $minutes . "m";
+        return $minutes . 'm';
     }
 
-    return $seconds . "s";
+    return $seconds . 's';
 }

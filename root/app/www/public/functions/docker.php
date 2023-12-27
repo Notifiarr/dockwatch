@@ -474,7 +474,7 @@ function dockerAutoRun($container)
             }
         }
 
-        if (!empty($healthCommand) && $healthCommand[0] != "NONE") {
+        if (!empty($healthCommand) && $healthCommand[0] != 'NONE') {
             array_shift($healthCommand); //-- REMOVE [CMD, CMD-SHELL, NONE]
             $runCommand[] = $indent . '--health-cmd "' . implode(' ', $healthCommand) . '" \\';
 
