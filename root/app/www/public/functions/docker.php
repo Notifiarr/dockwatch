@@ -479,11 +479,11 @@ function dockerAutoRun($container)
             $runCommand[] = $indent . '--health-cmd "' . implode(' ', $healthCommand) . '" \\';
 
             if ($containerArray['Config']['Healthcheck']['Interval']) {
-                $runCommand[] = $indent . '--health-interval "' . convert_docker_timeout($containerArray['Config']['Healthcheck']['Interval']) . '" \\';
+                $runCommand[] = $indent . '--health-interval "' . convertDockerTimestamp($containerArray['Config']['Healthcheck']['Interval']) . '" \\';
             }
     
             if ($containerArray['Config']['Healthcheck']['Timeout']) {
-                $runCommand[] = $indent . '--health-timeout "' . convert_docker_timeout($containerArray['Config']['Healthcheck']['Timeout']) . '" \\';
+                $runCommand[] = $indent . '--health-timeout "' . convertDockerTimestamp($containerArray['Config']['Healthcheck']['Timeout']) . '" \\';
             }
     
             if ($containerArray['Config']['Healthcheck']['Retries']) {

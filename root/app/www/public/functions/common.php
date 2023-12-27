@@ -186,7 +186,7 @@ function generateApikey($length = 32)
     return bin2hex(random_bytes($length));
 }
 
-function convert_docker_timeout($input) 
+function convertDockerTimestamp($input) 
 {
     //-- 300000000000 -> 300s -> 5m
     $seconds = $input / 1e9;
