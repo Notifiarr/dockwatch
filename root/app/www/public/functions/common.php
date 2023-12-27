@@ -185,3 +185,15 @@ function generateApikey($length = 32)
 {
     return bin2hex(random_bytes($length));
 }
+
+function convert_docker_timeout($input) 
+{
+    //-- 300000000000 -> 300s -> 5m
+    $seconds = $input / 1e9;
+    if ($seconds > 60) {
+        $minutes = $seconds / 60;
+        return $minutes . "m";
+    }
+
+    return $seconds . "s";
+}

@@ -464,6 +464,34 @@ function dockerAutoRun($container)
         }
     }
 
+    //-- HEALTHCHECK
+    if ($containerArray['Config']['Healthcheck']) {
+        $healthCommand = []; 
+
+        if ($containerArray['Config']['Healthcheck']['Test']) {
+            foreach ($containerArray['Config']['Healthcheck']['Test'] as $cmd) {
+                $healthCommand[] = $cmd;
+            }
+        }
+
+        if (!empty($healthCommand) && $healthCommand[0] != "NONE") {
+            array_shift($healthCommand); //-- REMOVE [CMD, CMD-SHELL, NONE]
+            $runCommand[] = $indent . '--health-cmd "' . implode(' ', $healthCommand) . '" \\';
+
+            if ($containerArray['Config']['Healthcheck']['Interval']) {
+                $runCommand[] = $indent . '--health-interval "' . convert_docker_timeout($containerArray['Config']['Healthcheck']['Interval']) . '" \\';
+            }
+    
+            if ($containerArray['Config']['Healthcheck']['Timeout']) {
+                $runCommand[] = $indent . '--health-timeout "' . convert_docker_timeout($containerArray['Config']['Healthcheck']['Timeout']) . '" \\';
+            }
+    
+            if ($containerArray['Config']['Healthcheck']['Retries']) {
+                $runCommand[] = $indent . '--health-retries "' . $containerArray['Config']['Healthcheck']['Retries'] . '" \\';
+            }
+        }
+    }
+
     //-- LABELS
     if ($containerArray['Config']['Labels']) {
         foreach ($containerArray['Config']['Labels'] as $label => $value) {
