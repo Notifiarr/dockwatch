@@ -384,6 +384,13 @@ function dockerAutoRun($container)
         }
     }
 
+    //-- SECURITY OPTIONS
+    if ($containerArray['HostConfig']['SecurityOpt']) {
+        foreach ($containerArray['HostConfig']['SecurityOpt'] as $securityOpt) {
+            $runCommand[] = $indent . '--security-opt "' . $securityOpt . '" \\';
+        }
+    }
+
     //-- NETWORK
     $containerNetwork = str_contains($containerArray['HostConfig']['NetworkMode'], ':') ? true : false;
     if ($containerNetwork) {
