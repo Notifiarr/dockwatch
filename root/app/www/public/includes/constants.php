@@ -52,7 +52,7 @@ $getInspect = ['overview', 'containers'];
 
 //-- SKIP UPDATING CONTAINERS THAT CAN BREAK THINGS
 $skipContainerUpdates   = [
-    'dockwatch', //-- IF THIS AUTO UPDATES, IT WILL STOP THE CONTAINER WHICH MEANS IT CAN NEVER FINISH
-    'cloudflared', //-- IF THIS AUTO UPDATES, IT WILL KILL THE NETWORK TRAFFIC TO DOCKWATCH
-    'gluetun' //-- IF THIS AUTO UPDATES, IT WILL KILL THE VPN NETWORK THAT CONTAINERS RELY ON
-];
+                            'dockwatch',    //-- IF THIS AUTO UPDATES, IT WILL STOP THE CONTAINER WHICH MEANS IT CAN NEVER FINISH
+                            'cloudflared',  //-- IF THIS AUTO UPDATES, IT WILL KILL THE NETWORK TRAFFIC TO DOCKWATCH
+                            'gluetun'       //-- IF THIS AUTO UPDATES, IT WILL KILL THE VPN NETWORK THAT CONTAINERS RELY ON
+                        ];

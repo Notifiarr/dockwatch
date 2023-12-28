@@ -9,7 +9,14 @@
 
 function executeTask($task)
 {
+    $return = '[]';
+
     switch ($task) {
+        case 'aliasFile':
+            $external   = getFile(EXTERNAL_ICON_ALIAS_FILE);
+            $internal   = getFile(ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE);
+            $return     = json_encode(['external_file' => EXTERNAL_ICON_ALIAS_FILE, 'external_alias' => $external, 'internal_file' => ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE, 'internal_alias' => $internal], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            break;
         case 'state':
         case 'health':
         case 'housekeeper':
@@ -37,11 +44,11 @@ function executeTask($task)
             break;
         case 'pullFile':
             $pull   = getFile(PULL_FILE);
-            $return = json_encode($pull, JSON_PRETTY_PRINT);
+            $return = json_encode($pull, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
             break;
         case 'stateFile':
             $state  = getFile(STATE_FILE);
-            $return = json_encode($state, JSON_PRETTY_PRINT);
+            $return = json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
             break;
     }
 
