@@ -2,5 +2,6 @@
     "apprise": ["apprise-api"],
     "grafana": ["grafana-image-renderer"],
     "portainer": ["portainer-ce", "portainer-be", "portainer_agent", "portainer-ee"],
-    "prometheus": ["node_exporter"]
+    "prometheus": ["node_exporter"],
+    "flood": ["rflood"]
 }
