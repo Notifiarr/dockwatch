@@ -6,5 +6,5 @@
     "flood": ["rflood"],
     "cloudflare": ["cloudflared"],
     "qbitmanage": ["qbitmanage"],
-    "memcached": ["memcached"],
+    "memcached": ["memcached"]
 }
