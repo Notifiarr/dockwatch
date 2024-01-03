@@ -208,7 +208,7 @@ if ($_POST['m'] == 'init') {
                                 $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
                             }
 
-                            $health = 'Unknown';
+                            $health = 'Not setup';
                             if (strpos($process['Status'], 'healthy') !== false) {
                                 $health = 'Healthy';
                             }

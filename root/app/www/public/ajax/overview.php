@@ -147,10 +147,16 @@ if ($_POST['m'] == 'init') {
                         ksort($portArray);
                         
                         if ($portArray) {
+                            $portList = '<div style="max-height: 250px; overflow: auto;">';
+
                             foreach ($portArray as $port => $container) {
-                                $portList .= ($portList ? '<br>' : '') . $port . ' :: ' . $container;
+                                $portList .= '<div class="row p-0 m-0">';
+                                $portList .= '  <div class="col-3 text-end">' . $port . '</div>';
+                                $portList .= '  <div class="col-9">' . $container . '</div>';
+                                $portList .= '</div>';    
                             }
-                            $portList = '<div style="max-height: 250px; overflow: auto;">' . $portList . '</div>';
+
+                            $portList .= '</div>';
                         }
                     }
                     echo $portList;
