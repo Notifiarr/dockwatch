@@ -34,17 +34,33 @@ if (in_array($_POST['page'], $getProc)) {
 if (in_array($_POST['page'], $getStats)) {
     $loadTimes[] = trackTime('dockerStats ->');
     $dockerStats = apiRequest('stats');
-    $dockerStats = json_decode($dockerStats['response']['docker'], true);
+
+    if (!$dockerStats['response']['state']) { //-- NOT WRITTEN YET
+        $dockerStats = apiRequest('dockerStats');
+        $dockerStats = json_decode($dockerStats['response']['docker'], true);
+    } else {
+        $dockerStats = $dockerStats['response']['state'];
+    }
+
     $loadTimes[] = trackTime('dockerStats <-');
 }
 
 if (!empty($processList)) {
     $loadTimes[] = trackTime('dockerInspect ->');
-    foreach ($processList as $index => $process) {
-        if (in_array($_POST['page'], $getInspect)) {
-            $inspect = apiRequest('dockerInspect', ['name' => $process['Names'], 'useCache' => true, 'format' => true]);
-            $processList[$index]['inspect'] = json_decode($inspect['response']['docker'], true);
+    //-- GATHER ALL CONTAINERS FOR A SINGLE INSPECT
+    $inspectResults = [];
+    if (in_array($_POST['page'], $getInspect)) {
+        foreach ($processList as $index => $process) {
+            $inspectContainers[] = $process['Names'];
         }
+        $inspect        = apiRequest('dockerInspect', ['name' => implode(' ', $inspectContainers), 'format' => true]);
+        $inspectResults = json_decode($inspect['response']['docker'], true);
+    }
+
+    //-- ADD INSPECT AND STATS TO PROCESS LIST
+    foreach ($processList as $index => $process) {
+        //-- ADD THE INSPECT OBJECT IF IT EXISTS
+        $processList[$index]['inspect'][] = $inspectResults[$index];
 
         if (in_array($_POST['page'], $getStats)) {
             foreach ($dockerStats as $dockerStat) {
