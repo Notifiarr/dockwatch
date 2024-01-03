@@ -155,4 +155,5 @@ if ($_POST['m'] == 'init') {
         </div>
     </div>
     <?php
+    displayTimeTracking($loadTimes);
 }

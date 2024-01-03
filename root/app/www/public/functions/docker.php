@@ -86,14 +86,16 @@ function dockerProcessList($useCache = true, $format = true, $params = '')
 
 function dockerStats($useCache = true)
 {
-    $cacheKey   = MEMCACHE_PREFIX . 'dockerStats';
-    $cache      = memcacheGet($cacheKey);
-    if ($cache && $useCache) {
-        return $cache;
+    if (file_exists(STATS_FILE)) {
+        $statsFile = file_get_contents(STATS_FILE);
+    }
+
+    if ($statsFile && $useCache) {
+        return $statsFile;
     } else {
         $cmd    = '/usr/bin/docker stats --all --no-trunc --no-stream --format="{{json . }}" | jq -s --tab .';
         $shell  = shell_exec($cmd . ' 2>&1');
-        memcacheSet($cacheKey, $shell, MEMCACHE_DOCKER_STATS);
+        setServerFile('stats', $shell);
         return $shell;
     }
 }

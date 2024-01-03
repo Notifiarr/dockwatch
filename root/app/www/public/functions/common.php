@@ -197,3 +197,41 @@ function convertDockerTimestamp($input)
 
     return $seconds . 's';
 }
+
+function trackTime($label, $microtime = 0)
+{
+    $backtrace  = debug_backtrace();
+    $line       = $backtrace[0]['line'];
+    $file       = $backtrace[0]['file'];
+
+    return ['label' => $label, 'microtime' => ($microtime ? $microtime : microtime(true)), 'file' => $file, 'line' => $line];
+}
+
+function displayTimeTracking($loadTimes = [])
+{
+    $backtrace  = debug_backtrace();
+    $line       = $backtrace[0]['line'];
+    $file       = $backtrace[0]['file'];
+
+    $loadTimes[] = ['label' => 'page <-', 'microtime' => microtime(true), 'file' => $file, 'line' => $line];
+    $previousTime = 0;
+    $runningTime = 0;
+
+    foreach ($loadTimes as $index => $event) {
+        if ($index == 0) {
+            $display[] = $event['file'] . '::' . $event['line'] . ' | 0 | ' . $event['label'];
+        } else {
+            $runTime = number_format(($event['microtime'] - $previousTime), 4);
+            $runningTime += $runTime;
+            $display[] = $event['file'] . '::' . $event['line'] . ' | ' . $runningTime  . ' | ' . $event['label'];
+        }
+
+        $previousTime = $event['microtime'];
+    }
+    ?>
+    <div id="loadtime-debug" class="mt-3" style="display: none;">
+        <h4>Load time tracking</h4>
+        <?= implode('<br>', $display) ?>
+    </div>
+    <?php
+}

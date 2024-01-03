@@ -86,7 +86,7 @@ $serverList .= '</select>';
                 </div>
             </nav>
             <div class="w-100 text-center" style="position: absolute; bottom: 0;">
-                Theme By <a href="https://htmlcodex.com">HTML Codex</a>
+                Theme By <a href="https://htmlcodex.com">HTML Codex</a> | <i class="fas fa-stopwatch" onclick="$('#loadtime-debug').toggle()"></i>
             </div>
         </div>
         <!-- Sidebar End -->

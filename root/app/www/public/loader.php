@@ -14,6 +14,9 @@ if (!defined('ABSOLUTE_PATH')) {
     define('ABSOLUTE_PATH', './');
 }
 
+$loadTimes = [];
+$start = microtime(true);
+
 //-- DIRECTORIES TO LOAD FILES FROM, ORDER IS IMPORTANT
 $autoloads          = ['includes', 'functions', 'classes'];
 $ignoreAutoloads    = ['header.php', 'footer.php'];
@@ -30,6 +33,8 @@ foreach ($autoloads as $autoload) {
         closedir($handle);
     }
 }
+
+$loadTimes[] = trackTime('page ->', $start);
 
 if (!$_SESSION) {
     session_start();
