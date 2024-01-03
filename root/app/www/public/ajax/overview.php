@@ -69,7 +69,7 @@ if ($_POST['m'] == 'init') {
         $network += bytesFromString($netUsed);
     }
 
-    $cpu = number_format((($running + $stopped) * 100) / $cpu, 2);
+    $cpu = $cpu > 0 ? number_format((($running + $stopped) * 100) / $cpu, 2) : 0;
     if (intval($settingsFile['global']['cpuAmount']) > 0) {
         $cpuActual = number_format(($cpu / intval($settingsFile['global']['cpuAmount'])), 2);
     }

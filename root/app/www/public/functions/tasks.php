@@ -22,6 +22,7 @@ function executeTask($task)
         case 'housekeeper':
         case 'pulls':
         case 'prune':
+        case 'stats':
             $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'crons/' . $task . '.php';
             $return = shell_exec($cmd . ' 2>&1');
             break;

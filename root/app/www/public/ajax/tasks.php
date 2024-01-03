@@ -26,6 +26,12 @@ if ($_POST['m'] == 'init') {
                         </thead>
                         <tbody>
                             <tr>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('stats', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['stats']['disabled'] ? 'checked' : '') ?>></td>
+                                <td>Stats changes</td>
+                                <td>1m</td>
+                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('stats')"></i></td>
+                            </tr>
+                            <tr>
                                 <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('state', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['state']['disabled'] ? 'checked' : '') ?>></td>
                                 <td>State changes</td>
                                 <td>5m</td>

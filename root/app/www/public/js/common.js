@@ -32,7 +32,7 @@ function initPage(page)
         data: '&m=init&page=' + page,
         success: function (resultData) {
             $('#content-' + page).html(resultData);
-            setTimeout(loadingStop, 500);
+            loadingStop();
 
             if (page == 'containers') {
                 updateContainerRowInterval = setInterval(function() {

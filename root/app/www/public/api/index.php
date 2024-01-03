@@ -156,6 +156,14 @@ switch (true) {
                 setFile(STATE_FILE, $_POST['contents']);
                 $response = ['result' => STATE_FILE . ' updated'];
                 break;
+            case 'stats':
+                if (!$_POST['contents']) {
+                    apiResponse(400, ['error' => 'Missing stats object']);
+                }
+            
+                setFile(STATS_FILE, $_POST['contents']);
+                $response = ['result' => STATS_FILE . ' updated'];
+                break;
             //-- ACTIONS
             case 'deleteLog':
                 if (!$_POST['log']) {

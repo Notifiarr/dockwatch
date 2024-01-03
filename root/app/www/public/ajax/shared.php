@@ -28,8 +28,12 @@ if (in_array($_POST['page'], $getProc)) {
 }
 
 if (in_array($_POST['page'], $getStats)) {
-    $dockerStats = apiRequest('dockerStats');
-    $dockerStats = json_decode($dockerStats['response']['docker'], true);
+    if (file_exists(STATS_FILE)) {
+        $dockerStats = json_decode(file_get_contents(STATS_FILE), true);
+    } else {
+        $dockerStats = apiRequest('dockerStats');
+        $dockerStats = json_decode($dockerStats['response']['docker'], true);
+    }
 }
 
 if (!empty($processList)) {

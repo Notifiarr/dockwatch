@@ -27,6 +27,7 @@ define('LOGO_FILE', APP_DATA_PATH . 'logos.json');
 define('HEALTH_FILE', APP_DATA_PATH . 'health.json');
 define('INTERNAL_ICON_ALIAS_FILE', 'container-alias.json');
 define('EXTERNAL_ICON_ALIAS_FILE', APP_DATA_PATH . 'container-alias.json');
+define('STATS_FILE', APP_DATA_PATH . 'stats.json');
 
 //-- LOG FILES
 define('SYSTEM_LOG', LOGS_PATH . 'system/app.log');
@@ -36,6 +37,7 @@ define('CRON_HOUSEKEEPER_LOG', LOGS_PATH . 'crons/housekeeper.log');
 define('CRON_PRUNE_LOG', LOGS_PATH . 'crons/prune.log');
 define('CRON_PULLS_LOG', LOGS_PATH . 'crons/pulls.log');
 define('CRON_STATE_LOG', LOGS_PATH . 'crons/state.log');
+define('CRON_STATS_LOG', LOGS_PATH . 'crons/stats.log');
 define('CRON_HEALTH_LOG', LOGS_PATH . 'crons/health.log');
 define('LOG_ROTATE_SIZE', 2); //-- MB UNTIL ROTATE
 
