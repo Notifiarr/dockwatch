@@ -44,7 +44,6 @@ if (!empty($processList)) {
         if (in_array($_POST['page'], $getInspect)) {
             $inspect = apiRequest('dockerInspect', ['name' => $process['Names'], 'useCache' => true, 'format' => true]);
             $processList[$index]['inspect'] = json_decode($inspect['response']['docker'], true);
-            $processList[$index]['inspect'] = [];
         }
 
         if (in_array($_POST['page'], $getStats)) {
