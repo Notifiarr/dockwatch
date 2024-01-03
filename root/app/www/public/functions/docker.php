@@ -466,6 +466,16 @@ function dockerAutoRun($container)
         }
     }
 
+    //-- IPC MODE
+    if ($containerArray['HostConfig']['IpcMode']) {
+        $runCommand[] = $indent . '--ipc "' . trim($containerArray['HostConfig']['IpcMode']) . '" \\';
+    }
+
+    //-- WORKING DIRECTORY
+    if ($containerArray['Config']['WorkingDir']) {
+        $runCommand[] = $indent . '--workdir "' . trim($containerArray['Config']['WorkingDir']) . '" \\';
+    }
+
     //-- ENV VARS
     if ($containerArray['Config']['Env']) {
         foreach ($containerArray['Config']['Env'] as $env) {
@@ -504,7 +514,7 @@ function dockerAutoRun($container)
     //-- LABELS
     if ($containerArray['Config']['Labels']) {
         foreach ($containerArray['Config']['Labels'] as $label => $value) {
-            $runCommand[] = $indent . '--label "' . trim($label) . '"="' . trim(str_replace('"', '\"', $value)) . '" \\';
+            $runCommand[] = $indent . '--label "' . trim($label) . '"="' . trim(str_replace(['"', '`'], ['\"', '\`'], $value)) . '" \\';
         }
     }
 
