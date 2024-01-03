@@ -45,7 +45,12 @@ if ($_POST['m'] == 'init') {
         }
 
         //-- GET USED NETWORKS
-        $networks[$process['inspect'][0]['HostConfig']['NetworkMode']]++;
+        if ($process['inspect'][0]['NetworkSettings']['Networks']) {
+            $networkKeys = array_keys($process['inspect'][0]['NetworkSettings']['Networks']);
+            foreach ($networkKeys as $networkKey) {
+                $networks[$networkKey]++;
+            }
+        }
 
         //-- GET USED PORTS
         if ($process['inspect'][0]['HostConfig']['PortBindings']) {
