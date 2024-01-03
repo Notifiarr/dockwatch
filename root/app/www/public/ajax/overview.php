@@ -121,7 +121,7 @@ if ($_POST['m'] == 'init') {
                     <?php
                     $networkList = '';
                     foreach ($networks as $networkName => $networkCount) {
-                        $networkList .= ($networkList ? '<br>' : '') . $networkName . ': ' . $networkCount;
+                        $networkList .= ($networkList ? '<br>' : '') . truncateMiddle($networkName, 30) . ': ' . $networkCount;
                     }
                     echo '<div style="max-height: 250px; overflow: auto;">' . $networkList . '</div>';
                     ?>

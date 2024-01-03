@@ -20,7 +20,6 @@ function initPage(page)
         return;
     }
 
-    loadingStart();
     $('[id^=content-]').hide();
     $('#content-' + page).html('Loading ' + page + '...').show();
     $('[id^=menu-]').removeClass('active');
@@ -32,7 +31,6 @@ function initPage(page)
         data: '&m=init&page=' + page,
         success: function (resultData) {
             $('#content-' + page).html(resultData);
-            loadingStop();
 
             if (page == 'containers') {
                 updateContainerRowInterval = setInterval(function() {
