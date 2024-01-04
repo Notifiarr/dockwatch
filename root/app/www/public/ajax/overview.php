@@ -145,6 +145,7 @@ if ($_POST['m'] == 'init') {
                             }
                         }
                         ksort($portArray);
+                        $portArray = formatPortRanges($portArray);
                         
                         if ($portArray) {
                             $portList = '<div style="max-height: 250px; overflow: auto;">';
