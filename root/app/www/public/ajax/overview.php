@@ -50,6 +50,8 @@ if ($_POST['m'] == 'init') {
             foreach ($networkKeys as $networkKey) {
                 $networks[$networkKey]++;
             }
+        } else {
+            $networks[$process['inspect'][0]['HostConfig']['NetworkMode']]++;
         }
 
         //-- GET USED PORTS
