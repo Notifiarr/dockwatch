@@ -151,8 +151,9 @@ if ($_POST['m'] == 'init') {
 
                             foreach ($portArray as $port => $container) {
                                 $portList .= '<div class="row p-0 m-0">';
-                                $portList .= '  <div class="col-3 text-end">' . $port . '</div>';
-                                $portList .= '  <div class="col-9">' . $container . '</div>';
+                                $portList .= '  <div class="col-sm-3 text-end">' . str_pad($port, 5, ' ', STR_PAD_LEFT) . '</div>';
+                                $portList .= '  <div class="col-sm-1">&nbsp</div>';
+                                $portList .= '  <div class="col-sm-7" title="' . $container . '">' . truncateMiddle($container, 14) . '</div>';
                                 $portList .= '</div>';    
                             }
 

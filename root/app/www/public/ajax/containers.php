@@ -203,7 +203,7 @@ if ($_POST['m'] == 'init') {
                                 $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
                             }
                             $pullData = $pullsFile[$nameHash];
-                            $updateStatus = '<span class="text-danger">Unknown</span>';
+                            $updateStatus = '<span class="text-danger">Unchecked</span>';
                             if ($pullData) {
                                 $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
                             }
