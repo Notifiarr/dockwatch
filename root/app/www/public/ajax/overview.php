@@ -50,6 +50,8 @@ if ($_POST['m'] == 'init') {
             foreach ($networkKeys as $networkKey) {
                 $networks[$networkKey]++;
             }
+        } else {
+            $networks[$process['inspect'][0]['HostConfig']['NetworkMode']]++;
         }
 
         //-- GET USED PORTS
@@ -85,63 +87,103 @@ if ($_POST['m'] == 'init') {
     }
 
     ?>
-    <div class="container-fluid pt-4 px-4">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
-                <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
-                    <h3>Status</h3>
-                    Running: <?= $running ?><br>
-                    Stopped: <?= $stopped ?><br>
-                    Total: <?= ($running + $stopped) ?><br><br>
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2">
+                <div class="row bg-secondary rounded p-4 me-2">
+                    <div class="col-sm-12 col-lg-4">
+                        <h3>Status</h3>
+                    </div>
+                    <div class="col-sm-12 col-lg-8 text-end">
+                        Running: <?= $running ?><br>
+                        Stopped: <?= $stopped ?><br>
+                        Total: <?= ($running + $stopped) ?>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
-                <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
-                    <h3>Health</h3>
-                    Healthy: <?= $healthy ?><br>
-                    Unhealthy: <?= $unhealthy ?><br>
-                    Unknown: <?= $unknownhealth ?><br><br>
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2">
+                <div class="row bg-secondary rounded p-4 me-2">
+                    <div class="col-sm-12 col-lg-4">
+                        <h3>Health</h3>
+                    </div>
+                    <div class="col-sm-12 col-lg-8 text-end">
+                        Healthy: <?= $healthy ?><br>
+                        Unhealthy: <?= $unhealthy ?><br>
+                        Unknown: <?= $unknownhealth ?>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
-                <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
-                    <h3>Updates</h3>
-                    Updated: <?= $updated ?><br>
-                    Outdated: <?= $outdated ?><br>
-                    Unchecked: <?= (($running + $stopped) - ($updated + $outdated)) ?><br><br>
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2">
+                <div class="row bg-secondary rounded p-4 me-2">
+                    <div class="col-sm-12 col-lg-4">
+                        <h3>Updates</h3>
+                    </div>
+                    <div class="col-sm-12 col-lg-8 text-end">
+                        Updated: <?= $updated ?><br>
+                        Outdated: <?= $outdated ?><br>
+                        Unchecked: <?= (($running + $stopped) - ($updated + $outdated)) ?>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
-                <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
-                    <h3>Usage</h3>
-                    Disk:  <?= byteConversion($size) ?><br>
-                    CPU: <?= $cpu ?>%<?= ($cpuActual ? ' (' . $cpuActual . '%)' : '') ?><br>
-                    Memory: <?= $memory ?>%<br>
-                    Network I/O: <?= byteConversion($network) ?>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2">
+                <div class="row bg-secondary rounded p-4 me-2">
+                    <div class="col-sm-12 col-lg-4">
+                        <h3>Usage</h3>
+                    </div>
+                    <div class="col-sm-12 col-lg-8 text-end">
+                        Disk:  <?= byteConversion($size) ?><br>
+                        CPU: <?= $cpu ?>%<?= ($cpuActual ? ' (' . $cpuActual . '%)' : '') ?><br>
+                        Memory: <?= $memory ?>%<br>
+                        Network I/O: <?= byteConversion($network) ?>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
-                <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
-                    <h3>Networks</h3>
-                    <?php
-                    $networkList = '';
-                    foreach ($networks as $networkName => $networkCount) {
-                        $networkList .= ($networkList ? '<br>' : '') . truncateMiddle($networkName, 30) . ': ' . $networkCount;
-                    }
-                    echo '<div style="max-height: 250px; overflow: auto;">' . $networkList . '</div>';
-                    ?>
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2">
+                <div class="row bg-secondary rounded p-4 me-2">
+                    <div class="col-sm-12 col-lg-4">
+                        <h3>Network</h3>
+                    </div>
+                    <div class="col-sm-12 col-lg-8 text-end">
+                        <?php
+                        $networkList = '';
+                        foreach ($networks as $networkName => $networkCount) {
+                            $networkList .= ($networkList ? '<br>' : '') . truncateMiddle($networkName, 30) . ': ' . $networkCount;
+                        }
+                        echo '<div style="max-height: 250px; overflow: auto;">' . $networkList . '</div>';
+                        ?>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-3">
-                <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
-                    <h3>Ports</h3>
-                    <?php
-                    $portArray = [];
-                    $portList = '';
-                    if ($ports) {
-                        foreach ($ports as $container => $containerPorts) {
-                            foreach ($containerPorts as $containerPort) {
-                                $portArray[$containerPort] = $container;
+            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2">
+                <div class="row bg-secondary rounded p-4 me-2">
+                    <div class="col-sm-12 col-lg-4">
+                        <h3>Ports</h3>
+                    </div>
+                    <div class="col-sm-12 col-lg-8">
+                        <?php
+                        $portArray = [];
+                        $portList = '';
+                        if ($ports) {
+                            foreach ($ports as $container => $containerPorts) {
+                                foreach ($containerPorts as $containerPort) {
+                                    $portArray[$containerPort] = $container;
+                                }
+                            }
+                            ksort($portArray);
+                            
+                            if ($portArray) {
+                                $portList = '<div style="max-height: 250px; overflow: auto;">';
+
+                                foreach ($portArray as $port => $container) {
+                                    $portList .= '<div class="row p-0 m-0">';
+                                    $portList .= '  <div class="col-sm-3 text-end">' . $port . '</div>';
+                                    $portList .= '  <div class="col-sm-9 text-end" title="' . $container . '">' . truncateMiddle($container, 17) . '</div>';
+                                    $portList .= '</div>';    
+                                }
+
+                                $portList .= '</div>';
                             }
                         }
                         ksort($portArray);
@@ -163,6 +205,7 @@ if ($_POST['m'] == 'init') {
                     }
                     echo $portList;
                     ?>
+                    </div>
                 </div>
             </div>
         </div>
