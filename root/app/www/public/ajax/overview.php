@@ -178,9 +178,9 @@ if ($_POST['m'] == 'init') {
                                 $portList = '<div style="max-height: 250px; overflow: auto;">';
 
                                 foreach ($portArray as $port => $container) {
-                                    $portList .= '<div class="row p-0 m-0">';
-                                    $portList .= '  <div class="col-sm-6 text-end">' . $port . '</div>';
-                                    $portList .= '  <div class="col-sm-6 text-end" title="' . $container . '">' . truncateMiddle($container, 17) . '</div>';
+                                    $portList .= '<div class="row flex-nowrap p-0 m-0">';
+                                    $portList .= '  <div class="col text-end">' . $port . '</div>';
+                                    $portList .= '  <div class="col text-end" title="' . $container . '">' . truncateMiddle($container, 14) . '</div>';
                                     $portList .= '</div>';    
                                 }
 
