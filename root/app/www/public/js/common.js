@@ -1,4 +1,5 @@
 let updateContainerRowInterval = '';
+let initializingPage = false;
 
 $(document).ready(function () {
     if ($('#menu-overview').length) {
@@ -13,12 +14,17 @@ $(document).ready(function () {
     }
 });
 // -------------------------------------------------------------------------------------------
-function initPage(page)
+async function initPage(page)
 {
     const dockerPermissionsError = $('#content-dockerPermissions').is(':visible');
     if (dockerPermissionsError) {
         return;
     }
+
+    while (initializingPage) {
+        await new Promise(p => setTimeout(p, 25));
+    }
+    initializingPage = true;
 
     $('[id^=content-]').hide();
     $('#content-' + page).html('Loading ' + page + '...').show();
@@ -31,6 +37,7 @@ function initPage(page)
         data: '&m=init&page=' + page,
         success: function (resultData) {
             $('#content-' + page).html(resultData);
+            initializingPage = false;
 /*
             if (page == 'containers') {
                 updateContainerRowInterval = setInterval(function() {
