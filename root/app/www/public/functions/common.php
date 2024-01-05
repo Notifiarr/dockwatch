@@ -235,3 +235,33 @@ function displayTimeTracking($loadTimes = [])
     </div>
     <?php
 }
+
+//-- TAKE ARRAY INPUT OF PORTS AND GROUP THEM TO A RANGE IF THEY ARE WITHIN A SINGLE DIGIT
+function formatPortRanges($ports) 
+{
+    $ranges = [];
+    $rangeStart = $rangeStop = 0;
+
+    foreach ($ports as $port => $container) {
+        if ($ports[$port + 1] == $container) { //-- SEE IF THEY ARE THE SAME NAME SEQUENTIALLY
+            if ($ports[$port + 1]) { //-- CHECK NEXT SEQUENTIAL PORT
+                if (!$rangeStart) {
+                    $rangeStart = $port;
+                }
+                $rangeStop = $port + 1;
+            } elseif ($rangeStart) { //-- RANGE EXISTS BUT IS LAST SEQUENTIAL PORT
+                $ranges[$rangeStart . '-' . $rangeStop] = $container;
+                $rangeStart = $rangeStop = 0;
+            } else { //-- NOT A NUMERICALLY SEQUENTIAL PORT
+                $ranges[$port] = $container;
+            }
+        } elseif ($rangeStart) { //-- NOT SEQUENTIAL NAME WISE BUT PREVIOUS WAS
+            $ranges[$rangeStart . '-' . $rangeStop] = $container;
+            $rangeStart = $rangeStop = 0;
+        } else { //-- NOT IN THE SAME CONTAINER GROUP
+            $ranges[$port] = $container;
+        }
+    }
+
+    return $ranges;
+}

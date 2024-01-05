@@ -158,10 +158,10 @@ if ($_POST['m'] == 'init') {
             </div>
             <div class="col-sm-12 col-lg-6 col-xl-4 mt-2">
                 <div class="row bg-secondary rounded p-4 me-2">
-                    <div class="col-sm-12 col-lg-4">
+                    <div class="col-sm-12 col-lg-2">
                         <h3>Ports</h3>
                     </div>
-                    <div class="col-sm-12 col-lg-8">
+                    <div class="col-sm-12 col-lg-10">
                         <?php
                         $portArray = [];
                         $portList = '';
@@ -172,14 +172,15 @@ if ($_POST['m'] == 'init') {
                                 }
                             }
                             ksort($portArray);
+                            $portArray = formatPortRanges($portArray);
                             
                             if ($portArray) {
                                 $portList = '<div style="max-height: 250px; overflow: auto;">';
 
                                 foreach ($portArray as $port => $container) {
-                                    $portList .= '<div class="row p-0 m-0">';
-                                    $portList .= '  <div class="col-sm-3 text-end">' . $port . '</div>';
-                                    $portList .= '  <div class="col-sm-9 text-end" title="' . $container . '">' . truncateMiddle($container, 17) . '</div>';
+                                    $portList .= '<div class="row flex-nowrap p-0 m-0">';
+                                    $portList .= '  <div class="col text-end">' . $port . '</div>';
+                                    $portList .= '  <div class="col text-end" title="' . $container . '">' . truncateMiddle($container, 14) . '</div>';
                                     $portList .= '</div>';    
                                 }
 
@@ -187,7 +188,7 @@ if ($_POST['m'] == 'init') {
                             }
                         }
                         echo $portList;
-                        ?>
+                    ?>
                     </div>
                 </div>
             </div>
