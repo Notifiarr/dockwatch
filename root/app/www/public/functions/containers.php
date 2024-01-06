@@ -66,9 +66,9 @@ function renderContainerRow($hash)
     $control = $containerProcess['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $hash . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $hash . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $hash . '\', \'start\')">Start</button>';
 
     $pullData = $pullsFile[$hash];
-    $updateStatus = '<span class="text-danger">Unknown</span>';
+    $updateStatus = '<span class="text-danger">Unchecked</span>';
     if ($pullData) {
-        $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
+        $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
     }
 
     $cpuUsage = floatval(str_replace('%', '', $containerStats['CPUPerc']));
@@ -76,7 +76,7 @@ function renderContainerRow($hash)
         $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
     }
 
-    $health = 'Unknown';
+    $health = 'Not setup';
     if (strpos($containerProcess['Status'], 'healthy') !== false) {
         $health = 'Healthy';
     }

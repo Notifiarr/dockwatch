@@ -11,21 +11,6 @@ function updateContainerRowText(hash, data, refresh = false)
     $('#' + hash + '-health').html((refresh ? 'Updating' : data.health));
 }
 // ---------------------------------------------------------------------------------------------
-function updateContainerRows()
-{
-    $.ajax({
-        type: 'POST',
-        url: '../ajax/containers.php',
-        data: '&m=updateContainerRows',
-        dataType: 'json',
-        success: function (resultData) {
-            $.each(resultData, function() {
-                updateContainerRowText(this['hash'], this['row']);
-            });
-        }
-    });
-}
-// ---------------------------------------------------------------------------------------------
 function saveContainerSettings()
 {
     loadingStart();

@@ -9,6 +9,12 @@ $(document).ready(function () {
         keyboard: false,
         backdrop: 'static'
     });
+
+    //-- DELAY THE CONNECTION SO IT DOESNT STALL THE UI ON PAGE LOAD
+    setTimeout(function () {
+        sse();
+    }, 5000);
+
 }).keyup(function (e) {
     if ($('#username').length) {
         if (e.keyCode === 13) {
