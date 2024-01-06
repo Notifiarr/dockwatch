@@ -49,7 +49,7 @@ define('MEMCACHE_DOCKER_PROCESS', 10);
 define('MEMCACHE_DOCKER_INSPECT', 10);
 
 //-- REGCTL
-define('REGCTL_PATH', '/config/regctl/');
+define('REGCTL_PATH', '/usr/local/bin/');
 define('REGCTL_BINARY', 'regctl');
 
 //-- WHAT DATA TO GET WHEN VIEWING A PAGE

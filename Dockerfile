@@ -74,6 +74,12 @@ RUN \
   grep -qxF 'clear_env = no' /etc/php82/php-fpm.d/www.conf || echo 'clear_env = no' >> /etc/php82/php-fpm.d/www.conf && \
   echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php82/php-fpm.conf
 
+# add regctl for container digest checks
+ARG TARGETARCH
+ARG REGCTL_VERSION=v0.5.6
+RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclient/releases/download/${REGCTL_VERSION}/regctl-linux-${TARGETARCH}" \
+  && chmod +x /usr/local/bin/regctl
+
 ARG INSTALL_PACKAGES=docker gzip
 RUN apk add --update ${INSTALL_PACKAGES} && \
   addgroup -g 281 unraiddocker && \

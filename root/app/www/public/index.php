@@ -13,14 +13,19 @@ require 'includes/header.php';
 $dockerPerms = apiRequest('dockerPermissionCheck');
 $dockerPerms = json_decode($dockerPerms['response']['docker'], true);
 
+$loadError = '';
 if (!$serversFile) {
-    $apiError = 'Servers file missing or corrupt';
+    $loadError = 'Servers file missing or corrupt';
 }
 
-if ($apiError) {
+if (!file_exists(REGCTL_PATH . REGCTL_BINARY)) {
+    $loadError = 'The required regctl binary is missing from \'' . REGCTL_PATH . REGCTL_BINARY . '\'';
+}
+
+if ($loadError) {
     ?>
     <div id="apiError">
-        <?= $apiError ?>
+        <?= $loadError ?>
     </div>
     <?php
 } else {
