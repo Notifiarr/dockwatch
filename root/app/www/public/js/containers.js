@@ -74,7 +74,6 @@ function controlContainer(containerHash, action)
 function massApplyContainerTrigger()
 {
     let selected = 0;
-    let params = '';
     $.each($('[id^=massTrigger-]'), function () {
         if ($(this).prop('checked')) {
             selected++;
@@ -96,8 +95,6 @@ function massApplyContainerTrigger()
     $('#massTrigger-header').html('Containers to apply trigger to: ' + selected + '<br>');
     $('#massTrigger-spinner').show();
     $('#massTrigger-results').html('');
-    let counter = 1;
-    let firstCompose = '';
 
     //-- DO COMPOSE ALL AT ONCE
     if (parseInt($('#massContainerTrigger').val()) == 6) {

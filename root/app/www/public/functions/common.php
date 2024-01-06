@@ -21,6 +21,10 @@ function automation()
     createDirectoryTree(LOGS_PATH . 'ui');
     createDirectoryTree(LOGS_PATH . 'api');
     createDirectoryTree(BACKUP_PATH);
+    createDirectoryTree(REGCTL_PATH);
+
+    //-- DOWNLOAD THE NECESSARY regctl
+    regctlExists();
 }
 
 function createDirectoryTree($tree)

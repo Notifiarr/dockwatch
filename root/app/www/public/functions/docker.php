@@ -582,3 +582,12 @@ function dockerRunFieldValue($field, $imageVal, $containerVal)
             return trim($imageVal);
     }
 }
+
+function isDockerIO($name)
+{
+    if (!$name) {
+        return;
+    }
+
+    return str_contains($name, '/') ? $name : 'library/' . $name;
+}

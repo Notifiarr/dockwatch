@@ -114,10 +114,10 @@ if ($_POST['m'] == 'init') {
                                             $pullData = $pullsFile[$nameHash];
                                             $updateStatus = '<span class="text-danger">Unknown</span>';
                                             if ($pullData) {
-                                                $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
+                                                $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
                                             }
 
-                                            $health = 'Unknown';
+                                            $health = 'Not setup';
                                             if (strpos($process['Status'], 'healthy') !== false) {
                                                 $health = 'Healthy';
                                             }
@@ -128,9 +128,12 @@ if ($_POST['m'] == 'init') {
                                             <tr id="<?= $nameHash ?>" class="<?= $groupHash ?>" style="display: none;">
                                                 <th scope="row"><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check group-<?= $groupHash ?>-check"></th>
                                                 <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32">' : '') ?></td>
-                                                <td><?= $process['Names'] ?><br><span class="text-muted small-text"><?= truncateMiddle($process['inspect'][0]['Config']['Image'], 35) ?></span></td>
+                                                <td><?= $process['Names'] ?><br><span class="text-muted small-text"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 35) ?></span></td>
                                                 <td id="<?= $nameHash ?>-control"><?= $control ?></td>
-                                                <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>"><?= $updateStatus ?></td>
+                                                <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
+                                                    <?= $updateStatus ?><br>
+                                                    <span class="text-muted small-text" title="<?= $pullData['imageDigest'] ?>"><?= truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) ?></span>
+                                                </td>
                                                 <td id="<?= $nameHash ?>-state"><?= $process['State'] ?></td>
                                                 <td id="<?= $nameHash ?>-health"><?= $health ?></td>
                                                 <td><span id="<?= $nameHash ?>-running"><?= $process['RunningFor'] ?></span><br><span id="<?= $nameHash ?>-status"><?= $process['Status'] ?></span></td>
@@ -205,7 +208,7 @@ if ($_POST['m'] == 'init') {
                             $pullData = $pullsFile[$nameHash];
                             $updateStatus = '<span class="text-danger">Unchecked</span>';
                             if ($pullData) {
-                                $updateStatus = ($pullData['image'] == $pullData['container']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
+                                $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
                             }
 
                             $health = 'Not setup';
@@ -219,9 +222,12 @@ if ($_POST['m'] == 'init') {
                             <tr id="<?= $nameHash ?>">
                                 <th scope="row"><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check"></th>
                                 <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32">' : '') ?></td>
-                                <td><?= $process['Names'] ?><br><span class="text-muted small-text"><?= truncateMiddle($process['inspect'][0]['Config']['Image'], 35) ?></span></td>
+                                <td><?= $process['Names'] ?><br><span class="text-muted small-text"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 35) ?></span></td>
                                 <td id="<?= $nameHash ?>-control"><?= $control ?></td>
-                                <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>"><?= $updateStatus ?></td>
+                                <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
+                                    <?= $updateStatus ?><br>
+                                    <span class="text-muted small-text" title="<?= $pullData['imageDigest'] ?>"><?= truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) ?></span>
+                                </td>
                                 <td id="<?= $nameHash ?>-state"><?= $process['State'] ?></td>
                                 <td id="<?= $nameHash ?>-health"><?= $health ?></td>
                                 <td><span id="<?= $nameHash ?>-running"><?= $process['RunningFor'] ?></span><br><span id="<?= $nameHash ?>-status"><?= $process['Status'] ?></span></td>
@@ -346,22 +352,24 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $result = 'Stopped ' . $container['Names'] . '<br>';
             break;
         case '4': //-- PULL
-            $image              = $container['inspect'][0]['Config']['Image'];
+            $image = isDockerIO($container['inspect'][0]['Config']['Image']);
             logger(UI_LOG, 'image:' . $image);
-            $pull               = apiRequest('dockerPullContainer', [], ['name' => $image]);
+
+            $regctlDigest = trim(regctlCheck($image));
+
+            $pull = apiRequest('dockerPullContainer', [], ['name' => $image]);
             logger(UI_LOG, 'dockerPullContainer:' . json_encode($pull));
-            $inspectContainer   = apiRequest('dockerInspect', ['name' => $container['Names'], 'useCache' => false, 'format' => true]);
-            logger(UI_LOG, 'dockerInspect:' . json_encode($inspectContainer));
-            $inspectContainer   = json_decode($inspectContainer['response']['docker'], true);
-            $inspectContainer   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
-            logger(UI_LOG, 'dockerInspect:' . json_encode($inspectContainer));
-            $inspectImage       = json_decode($inspectContainer['response']['docker'], true);
+
+            $inspectImage   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
+            $inspectImage   = json_decode($inspectImage['response']['docker'], true);
+            list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
+            logger(UI_LOG, 'dockerInspect:' . json_encode($inspectImage));
 
             $pullsFile[md5($container['Names'])]    = [
-                                                        'checked'   => time(),
-                                                        'name'      => $container['Names'],
-                                                        'image'     => $inspectImage[0]['Id'],
-                                                        'container' => $inspectContainer[0]['Image']
+                                                        'checked'       => time(),
+                                                        'name'          => $container['Names'],
+                                                        'regctlDigest'  => $regctlDigest,
+                                                        'imageDigest'   => $imageDigest
                                                     ];
 
             setServerFile('pull', $pullsFile);
@@ -390,10 +398,16 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
         case '7': //-- UPDATE
             $image              = $container['inspect'][0]['Config']['Image'];
             if(skipContainerUpdates($image, $skipContainerUpdates)) {
-                logger(UI_LOG, 'skipping '.$container['Names'].' update');
+                logger(UI_LOG, 'skipping ' . $container['Names'].' update');
                 $updateResult = 'skipped';
             } else {
-                $autoRun    = apiRequest('dockerAutoRun', ['name' => $container['Names']]);
+                $image = $container['inspect'][0]['Config']['Image'];
+                logger(UI_LOG, 'image:' . $image);
+
+                $apiResponse = apiRequest('dockerPullContainer', [], ['name' => $image]);
+                logger(UI_LOG, 'dockerPullContainer:' . json_encode($apiResponse));
+
+                $autoRun = apiRequest('dockerAutoRun', ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerAutoRun:' . json_encode($autoRun));
 
                 $autoRun    = $autoRun['response']['docker'];
@@ -417,12 +431,16 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $updateResult   = 'failed';
 
                 if (strlen($update) == 64) {
+                    $inspectImage   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
+                    $inspectImage   = json_decode($inspectImage['response']['docker'], true);
+                    list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
+
                     $updateResult = 'complete';
                     $pullsFile[$_POST['hash']]  = [
-                                                    'checked'   => time(),
-                                                    'name'      => $container['Names'],
-                                                    'image'     => $update,
-                                                    'container' => $update
+                                                    'checked'       => time(),
+                                                    'name'          => $container['Names'],
+                                                    'regctlDigest'  => $imageDigest,
+                                                    'imageDigest'   => $imageDigest
                                                 ];
 
                     setServerFile('pull', $pullsFile);

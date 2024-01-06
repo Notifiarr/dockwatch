@@ -34,7 +34,7 @@ if ($_POST['m'] == 'init') {
         if ($pullsFile) {
             foreach ($pullsFile as $hash => $pull) {
                 if (md5($process['Names']) == $hash) {
-                    if ($pull['image'] == $pull['container']) {
+                    if ($pull['regctlDigest'] == $pull['imageDigest']) {
                         $updated++;
                     } else {
                         $outdated++;
