@@ -432,6 +432,20 @@ function dockerAutoRun($container)
         }
     }
 
+    //-- STATIC IP
+    if (!empty($containerArray['NetworkSettings']['Networks'])) {
+        $network = array_keys($containerArray['NetworkSettings']['Networks'])[0];
+
+        if (!empty($containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig'])) {
+            if ($containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv4Address']) {
+                $runCommand[] = $indent . '--ip "'. $containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv4Address'] .'" \\';
+            }
+            if ($containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv6Address']) {
+                $runCommand[] = $indent . '--ip6 "'. $containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv6Address'] .'" \\';
+            }
+        }
+    }
+
     //-- <key> FIELDS
     $configKeyFields    = [
                             'Tty' => 'tty'
