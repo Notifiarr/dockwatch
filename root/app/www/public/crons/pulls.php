@@ -37,15 +37,26 @@ if ($updateSettings) {
         if ($containerState) {
             $pullHistory = $pullsFile[$containerHash];
             //-- CHECK AGAINST HOUR
+            $hour = intval($containerSettings['hour']);
+            $six = 0;
+            if ($containerSettings['frequency'] == '6h') {
+                $six = date('g', strtotime('+ 6 hours', mktime($hour)));
+            }
+            $twelve = 0;
+            if ($containerSettings['frequency'] == '12h') {
+                $twelve = date('g', strtotime(mktime($hour)));
+            }
+
             if (
-                intval(date('H')) == intval($containerSettings['hour']) || 
-                ($containerSettings['frequency'] == '12h' && intval(date('H')) == (intval($containerSettings['hour']) - 12)) ||
+                date('H') == $hour || 
+                ($containerSettings['frequency'] == '12h' && date('g') == $twelve) ||
+                ($containerSettings['frequency'] == '6h' && date('g') == $six) ||
                 !$pullHistory
                 ) {
                 $pullAllowed = false;
 
                 //-- CHECK AGAINST FREQUENCY
-                if ($containerSettings['frequency'] == '12h') {
+                if ($containerSettings['frequency'] == '6h' || $containerSettings['frequency'] == '12h') {
                     $pullAllowed = true;
                 } else {
                     $pullDays   = calculateDaysFromString($containerSettings['frequency']);

@@ -109,6 +109,7 @@ function renderContainerRow($nameHash, $return)
             </td>
             <td>
                 <select id="containers-frequency-<?= $nameHash ?>" class="form-control container-frequency">
+                    <option <?= ($containerSettings['frequency'] == '6h' ? 'selected' : '') ?> value="6h">6h</option>
                     <option <?= ($containerSettings['frequency'] == '12h' ? 'selected' : '') ?> value="12h">12h</option>
                     <option <?= ($containerSettings['frequency'] == '1d' ? 'selected' : '') ?> value="1d">1d</option>
                     <option <?= ($containerSettings['frequency'] == '2d' ? 'selected' : '') ?> value="2d">2d</option>

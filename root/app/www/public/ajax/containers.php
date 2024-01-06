@@ -41,6 +41,7 @@ if ($_POST['m'] == 'init') {
                             <th scope="col">
                                 <span onclick="$('#container-frequency-all').toggle()" class="text-info" style="cursor: pointer;">Frequency</span>
                                 <select id="container-frequency-all" style="display: none;" class="form-control" onchange="$('.container-frequency').val($(this).val())">
+                                    <option value="6h">6h</option>
                                     <option value="12h">12h</option>
                                     <option value="1d">1d</option>
                                     <option value="2d">2d</option>
