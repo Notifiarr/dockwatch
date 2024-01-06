@@ -518,9 +518,13 @@ function dockerAutoRun($container)
             if ($containerArray['Config']['Healthcheck']['Timeout']) {
                 $runCommand[] = $indent . '--health-timeout "' . convertDockerTimestamp($containerArray['Config']['Healthcheck']['Timeout']) . '" \\';
             }
-    
+
             if ($containerArray['Config']['Healthcheck']['Retries']) {
                 $runCommand[] = $indent . '--health-retries "' . $containerArray['Config']['Healthcheck']['Retries'] . '" \\';
+            }
+
+            if ($containerArray['Config']['Healthcheck']['StartPeriod']) {
+                $runCommand[] = $indent . '--health-start-period "' . convertDockerTimestamp($containerArray['Config']['Healthcheck']['StartPeriod']) . '" \\';
             }
         }
     }
