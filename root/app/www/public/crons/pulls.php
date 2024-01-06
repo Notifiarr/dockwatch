@@ -61,33 +61,42 @@ if ($updateSettings) {
                 }
 
                 if ($pullAllowed) {
-                    $image = $containerState['inspect'][0]['Config']['Image'];
+                    $image = isDockerIO($containerState['inspect'][0]['Config']['Image']);
 
-                    $msg = 'Pulling: ' . $image;
+                    if (!$image) {
+                        $msg = 'Skipping local (has no Config.Image): ' . $containerState['Names'];
+                        logger(CRON_PULLS_LOG, $msg, 'error');
+                        echo $msg . "\n";
+                        continue;
+                    }
+
+                    $msg = 'Getting registry digest: ' . $image;
                     logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
-                    $pull = apiRequest('dockerPullContainer', ['name' => $image]);
+                    $regctlDigest = trim(regctlCheck($image));
 
-                    $msg = 'Inspecting container: ' . $containerState['Names'];
-                    logger(CRON_PULLS_LOG, $msg);
-                    echo $msg . "\n";
-                    $inspectContainer = apiRequest('dockerInspect', ['name' => $containerState['Names'], 'useCache' => false, 'format' => true]);
-                    $inspectContainer = json_decode($inspectContainer['response']['docker'], true);
+                    if (str_contains($regctlDigest, 'Error')) {
+                        logger(CRON_PULLS_LOG, $regctlDigest, 'error');
+                        echo $regctlDigest . "\n";
+                        continue;
+                    }
 
                     $msg = 'Inspecting image: ' . $image;
                     logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
-                    $inspectImage = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
-                    $inspectImage = json_decode($inspectImage['response']['docker'], true);
+                    $inspectImage   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
+                    $inspectImage   = json_decode($inspectImage['response']['docker'], true);
+                    list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
 
-                    $msg = 'Updating pull data: ' . $containerState['Names'];
+                    $msg = 'Updating pull data: ' . $containerState['Names'] . "\n";
+                    $msg .= '|__ regctl \'' . truncateMiddle(str_replace('sha256:', '', $regctlDigest), 30) . '\' image \'' . truncateMiddle(str_replace('sha256:', '', $imageDigest), 30) .'\'';
                     logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
                     $pullsFile[$containerHash]  = [
-                                                    'checked'   => time(),
-                                                    'name'      => $containerState['Names'],
-                                                    'image'     => $inspectImage[0]['Id'],
-                                                    'container' => $inspectContainer[0]['Image']
+                                                    'checked'       => time(),
+                                                    'name'          => $containerState['Names'],
+                                                    'regctlDigest'  => $regctlDigest,
+                                                    'imageDigest'   => $imageDigest
                                                 ];
 
                     //-- DONT AUTO UPDATE THIS CONTAINER, CHECK ONLY
@@ -97,9 +106,14 @@ if ($updateSettings) {
                         }
                     }
 
-                    switch ($containerSettings['updates']) {
-                        case 1: //-- Auto update
-                            if ($inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
+                    if ($regctlDigest != $imageDigest) {
+                        switch ($containerSettings['updates']) {
+                            case 1: //-- Auto update
+                                $msg = 'Pulling image: ' . $image;
+                                logger(CRON_PULLS_LOG, $msg);
+                                echo $msg . "\n";
+                                dockerPullContainer($image);
+
                                 $newRun = '';
                                 $msg = 'Building run command: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
@@ -115,12 +129,14 @@ if ($updateSettings) {
                                 $msg = 'Stopping container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
-                                dockerStopContainer($containerState['Names']);
+                                $stop = dockerStopContainer($containerState['Names']);
+                                logger(CRON_PULLS_LOG, $stop);
 
-                                $msg = 'Removing container: ' . $containerState['Names'];
+                                $msg = 'Removing container: ' . $containerState['Names'] . ' (' . $containerState['ID'] . ')';
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
                                 $remove = dockerRemoveContainer($containerState['ID']);
+                                logger(CRON_PULLS_LOG, $remove);
 
                                 $msg = 'Updating container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
@@ -132,10 +148,10 @@ if ($updateSettings) {
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo $msg . "\n";
                                     $pullsFile[$containerHash]  = [
-                                                                    'checked'   => time(),
-                                                                    'name'      => $containerState['Names'],
-                                                                    'image'     => $update,
-                                                                    'container' => $update
+                                                                    'checked'       => time(),
+                                                                    'name'          => $containerState['Names'],
+                                                                    'regctlDigest'  => $regctlDigest,
+                                                                    'imageDigest'   => $regctlDigest
                                                                 ];
                                 } else {
                                     $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update);
@@ -150,13 +166,13 @@ if ($updateSettings) {
                                 if ($settingsFile['notifications']['triggers']['updated']['active']) {
                                     $notify['updated'][] = ['container' => $containerState['Names']];
                                 }
-                            }
-                            break;
-                        case 2: //-- Check for updates
-                            if ($settingsFile['notifications']['triggers']['updates']['active'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
-                                $notify['available'][] = ['container' => $containerState['Names']];
-                            }
-                            break;
+                                break;
+                            case 2: //-- Check for updates
+                                if ($settingsFile['notifications']['triggers']['updates']['active'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
+                                    $notify['available'][] = ['container' => $containerState['Names']];
+                                }
+                                break;
+                        }
                     }
                 } else {
                     $msg = 'Skipping: ' . $containerState['Names'] . ' (\'' . $containerSettings['frequency'] . '\' frequency not met, last check \'' . $daysSince . '\')';

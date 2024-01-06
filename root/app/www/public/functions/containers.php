@@ -86,7 +86,7 @@ function renderContainerRow($hash)
 
     $return     = [
                     'control'   => $control,
-                    'update'    => $updateStatus,
+                    'update'    => $updateStatus . '<br><span class="text-muted small-text" title="' . $pullData['imageDigest'] .'">' . truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) . '</span>',
                     'state'     => $containerProcess['State'],
                     'running'   => $containerProcess['RunningFor'],
                     'status'    => $containerProcess['Status'],

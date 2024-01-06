@@ -1,4 +1,4 @@
-let updateContainerRowInterval = '';
+let init = false;
 
 $(document).ready(function () {
     if ($('#menu-overview').length) {
@@ -6,8 +6,7 @@ $(document).ready(function () {
     }
 }).keyup(function (e) {
     if ($('#username').length) {
-        const key = window.event ? e.keyCode : event.which;
-        if (key === 13) {
+        if (e.keyCode === 13) {
             login();
         }
     }
@@ -15,11 +14,17 @@ $(document).ready(function () {
 // -------------------------------------------------------------------------------------------
 function initPage(page)
 {
+    if (init) {
+        toast('Loading', 'A previous page load is still finishing, try again in a second', 'info');
+        return;
+    }
+
     const dockerPermissionsError = $('#content-dockerPermissions').is(':visible');
     if (dockerPermissionsError) {
         return;
     }
 
+    init = true;
     $('[id^=content-]').hide();
     $('#content-' + page).html('Loading ' + page + '...').show();
     $('[id^=menu-]').removeClass('active');
@@ -31,17 +36,7 @@ function initPage(page)
         data: '&m=init&page=' + page,
         success: function (resultData) {
             $('#content-' + page).html(resultData);
-/*
-            if (page == 'containers') {
-                updateContainerRowInterval = setInterval(function() {
-                    updateContainerRows();
-                }, 20000);
-            } else {
-                if (typeof updateContainerRowInterval !== undefined) {
-                    clearInterval(updateContainerRowInterval);
-                }
-            }
-*/
+            init = false;
         }
     });
 

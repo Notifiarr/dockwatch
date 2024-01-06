@@ -8,6 +8,7 @@
 */
 
 define('APP_NAME', 'DockWatch');
+define('APP_IMAGE', 'ghcr.io/notifiarr/dockwatch:main');
 
 define('ICON_REPO', 'Notifiarr/images');
 define('ICON_URL', 'https://gh.notifiarr.com/images/icons/');
@@ -46,6 +47,10 @@ define('MEMCACHE_PREFIX', 'dockwatch-' . substr(md5($_SERVER['SERVER_NAME']), 0,
 define('MEMCACHE_DOCKER_STATS', 10);
 define('MEMCACHE_DOCKER_PROCESS', 10);
 define('MEMCACHE_DOCKER_INSPECT', 10);
+
+//-- REGCTL
+define('REGCTL_PATH', '/config/regctl/');
+define('REGCTL_BINARY', 'regctl');
 
 //-- WHAT DATA TO GET WHEN VIEWING A PAGE
 $getStats   = ['overview', 'containers'];
