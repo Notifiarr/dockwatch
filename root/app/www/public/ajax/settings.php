@@ -337,7 +337,7 @@ if ($_POST['m'] == 'saveGlobalSettings') {
     $newSettings = [];
 
     foreach ($_POST as $key => $val) {
-        if ($key == 'm' || strpos($key, 'serverList') !== false) {
+        if ($key == 'm' || str_contains($key, 'serverList')) {
             continue;
         }
 
@@ -351,7 +351,7 @@ if ($_POST['m'] == 'saveGlobalSettings') {
 
     //-- UPDATE SERVER LIST
     foreach ($_POST as $key => $val) {
-        if (strpos($key, 'serverList-apikey') === false) {
+        if (!str_contains($key, 'serverList-apikey')) {
             continue;
         }
 
@@ -368,7 +368,7 @@ if ($_POST['m'] == 'saveGlobalSettings') {
 
     //-- REMOVE SERVER FROM LIST
     foreach ($_POST as $key => $val) {
-        if (strpos($key, 'serverList-apikey') === false) {
+        if (!str_contains($key, 'serverList-apikey')) {
             continue;
         }
 

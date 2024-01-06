@@ -119,11 +119,11 @@ function daysBetweenDates($ymdStart, $ymdEnd)
 
 function calculateDaysFromString($str)
 {
-    if (strpos($str, 'd') !== false) { //-- [1-29]d
+    if (str_contains($str, 'd')) { //-- [1-29]d
         return intval(str_replace('d', '', $str));
-    } elseif (strpos($str, 'w') !== false) { //-- [1-3]w
+    } elseif (str_contains($str, 'w')) { //-- [1-3]w
         return intval(str_replace('w', '', $str)) * 7;
-    } elseif (strpos($str, 'm') !== false) { //-- [1-12]m
+    } elseif (str_contains($str, 'm')) { //-- [1-12]m
         return intval(str_replace('m', '', $str)) * 30;
     }
 }
@@ -136,7 +136,7 @@ function cpuTotal()
     $lines      = explode("\n", $cpuinfo);
 
     foreach ($lines as $line) {
-        if (strpos($line, 'processor') !== false) {
+        if (str_contains($line, 'processor')) {
             $cpus++;
         }
     }

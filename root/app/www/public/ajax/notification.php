@@ -129,7 +129,7 @@ if ($_POST['m'] == 'saveNotificationSettings') {
     //-- TRIGGER SETTINGS
     $newSettings = [];
     foreach ($_POST as $key => $val) {
-        if (strpos($key, '-name-') === false) {
+        if (!str_contains($key, '-name-')) {
             continue;
         }
 

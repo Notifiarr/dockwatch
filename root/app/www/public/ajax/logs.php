@@ -56,7 +56,7 @@ if ($_POST['m'] == 'init') {
                                 $rotated = [];
 
                                 foreach ($groupLogs as $log) {
-                                    if (strpos($log['name'], '-') !== false) {
+                                    if (str_contains($log['name'], '-')) {
                                         $rotated[] = $log;
                                         continue;
                                     }

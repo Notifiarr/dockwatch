@@ -12,7 +12,7 @@
 $traits     = ABSOLUTE_PATH . 'classes/traits/notification/';
 $traitsDir  = opendir($traits);
 while ($traitFile = readdir($traitsDir)) {
-    if (strpos($traitFile, '.php') !== false) {
+    if (str_contains($traitFile, '.php')) {
         require $traits . $traitFile;
     }
 }

@@ -50,7 +50,7 @@ define('ACTIVE_SERVER_NAME', $serversFile[$_SESSION['serverIndex']]['name']);
 define('ACTIVE_SERVER_URL', rtrim($serversFile[$_SESSION['serverIndex']]['url'], '/'));
 define('ACTIVE_SERVER_APIKEY', $serversFile[$_SESSION['serverIndex']]['apikey']);
 
-if (strpos($_SERVER['PHP_SELF'], '/api/') === false) {
+if (!str_contains($_SERVER['PHP_SELF'], '/api/')) {
     //-- CHECK IF SELECTED SERVER CAN BE TALKED TO
     $ping = apiRequest('ping');
     if (!is_array($ping) || $ping['code'] != 200) {
@@ -84,7 +84,7 @@ if (strpos($_SERVER['PHP_SELF'], '/api/') === false) {
     }
     $pullsFile = $pullsFile['file'];
 
-    if (file_exists(LOGIN_FILE) && strpos($_SERVER['PHP_SELF'], '/crons/') === false) {
+    if (file_exists(LOGIN_FILE) && !str_contains($_SERVER['PHP_SELF'], '/crons/')) {
         define('USE_AUTH', true);
         $loginsFile = file(LOGIN_FILE);
 
@@ -99,7 +99,7 @@ if (strpos($_SERVER['PHP_SELF'], '/api/') === false) {
     }
 
     if (!$_SESSION['authenticated']) {
-        if (strpos($_SERVER['PHP_SELF'], 'login.php') === false) {
+        if (!str_contains($_SERVER['PHP_SELF'], 'login.php')) {
             header('Location: login.php');
         }
     } else {

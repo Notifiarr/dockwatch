@@ -12,7 +12,7 @@ function loadJS()
     $jsDir  = 'js/';
     $dir    = opendir($jsDir);
     while ($file = readdir($dir)) {
-        if (strpos($file, '.js') !== false) {
+        if (str_contains($file, '.js')) {
             echo '<script src="'. $jsDir . $file .'?t='. filemtime($jsDir . $file) .'"></script>';
         }
     }

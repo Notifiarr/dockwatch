@@ -103,84 +103,16 @@ if ($_POST['m'] == 'init') {
                                         $nameHash = md5($process['Names']);
     
                                         if ($nameHash == $containerHash) {
-                                            $containerSettings  = $settingsFile['containers'][$nameHash];
-                                            $logo               = getIcon($process['inspect']);
-                                            $control            = $process['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $nameHash . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $nameHash . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $nameHash . '\', \'start\')">Start</button>';
-                
-                                            $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
-                                            if (intval($settingsFile['global']['cpuAmount']) > 0) {
-                                                $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
-                                            }
-                                            $pullData = $pullsFile[$nameHash];
-                                            $updateStatus = '<span class="text-danger">Unknown</span>';
-                                            if ($pullData) {
-                                                $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
-                                            }
-
-                                            $health = 'Not setup';
-                                            if (strpos($process['Status'], 'healthy') !== false) {
-                                                $health = 'Healthy';
-                                            }
-                                            if (strpos($process['Status'], 'unhealthy') !== false) {
-                                                $health = 'Unhealthy';
-                                            }
-                                            ?>
-                                            <tr id="<?= $nameHash ?>" class="<?= $groupHash ?>" style="display: none; background-color: #232833;">
-                                                <th scope="row"><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check group-<?= $groupHash ?>-check"></th>
-                                                <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;"> ' : '') ?></td>
-                                                <td><?= $process['Names'] ?><br><span class="text-muted small-text"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 35) ?></span></td>
-                                                <td id="<?= $nameHash ?>-control"><?= $control ?></td>
-                                                <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
-                                                    <?= $updateStatus ?><br>
-                                                    <span class="text-muted small-text" title="<?= $pullData['imageDigest'] ?>"><?= truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) ?></span>
-                                                </td>
-                                                <td id="<?= $nameHash ?>-state"><?= $process['State'] ?></td>
-                                                <td id="<?= $nameHash ?>-health"><?= $health ?></td>
-                                                <td><span id="<?= $nameHash ?>-running"><?= $process['RunningFor'] ?></span><br><span id="<?= $nameHash ?>-status"><?= $process['Status'] ?></span></td>
-                                                <td id="<?= $nameHash ?>-cpu" title="<?= $process['stats']['CPUPerc'] ?>"><?= $cpuUsage ?></td>
-                                                <td id="<?= $nameHash ?>-mem"><?= $process['stats']['MemPerc'] ?></td>
-                                                <td>
-                                                    <select id="containers-update-<?= $nameHash ?>" class="form-control container-updates">
-                                                        <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
-                                                        <?php if (!skipContainerUpdates($process['inspect'][0]['Config']['Image'], $skipContainerUpdates)) { ?>
-                                                        <option <?= ($containerSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
-                                                        <?php } ?>
-                                                        <option <?= ($containerSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
-                                                    </select>
-                                                </td>
-                                                <td>
-                                                    <select id="containers-frequency-<?= $nameHash ?>" class="form-control container-frequency">
-                                                        <option <?= ($containerSettings['frequency'] == '12h' ? 'selected' : '') ?> value="12h">12h</option>
-                                                        <option <?= ($containerSettings['frequency'] == '1d' ? 'selected' : '') ?> value="1d">1d</option>
-                                                        <option <?= ($containerSettings['frequency'] == '2d' ? 'selected' : '') ?> value="2d">2d</option>
-                                                        <option <?= ($containerSettings['frequency'] == '3d' ? 'selected' : '') ?> value="3d">3d</option>
-                                                        <option <?= ($containerSettings['frequency'] == '4d' ? 'selected' : '') ?> value="4d">4d</option>
-                                                        <option <?= ($containerSettings['frequency'] == '5d' ? 'selected' : '') ?> value="5d">5d</option>
-                                                        <option <?= ($containerSettings['frequency'] == '6d' ? 'selected' : '') ?> value="6d">6d</option>
-                                                        <option <?= ($containerSettings['frequency'] == '1w' ? 'selected' : '') ?> value="1w">1w</option>
-                                                        <option <?= ($containerSettings['frequency'] == '2w' ? 'selected' : '') ?> value="2w">2w</option>
-                                                        <option <?= ($containerSettings['frequency'] == '3w' ? 'selected' : '') ?> value="3w">3w</option>
-                                                        <option <?= ($containerSettings['frequency'] == '1m' ? 'selected' : '') ?> value="1m">1m</option>
-                                                    </select>
-                                                </td>
-                                                <td>
-                                                    <select id="containers-hour-<?= $nameHash ?>" class="form-control container-hour">
-                                                    <?php
-                                                    for ($h = 0; $h <= 23; $h++) {
-                                                        ?><option <?= ($containerSettings['hour'] == $h ? 'selected' : '') ?> value="<?= $h ?>"><?= $h ?></option><?php
-                                                    }
-                                                    ?>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <?php
+                                            renderContainerRow($nameHash, 'html');
                                             break;
                                         }
                                     }
                                 }
                             }
                         }
+
                         //-- NON GROUPS
+                        $groupHash  = '';
                         foreach ($processList as $process) {
                             $inGroup    = false;
                             $nameHash   = md5($process['Names']);
@@ -197,77 +129,7 @@ if ($_POST['m'] == 'init') {
                                 continue;
                             }
 
-                            $containerSettings  = $settingsFile['containers'][$nameHash];
-                            $logo               = getIcon($process['inspect']);
-                            $control            = $process['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $nameHash . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $nameHash . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $nameHash . '\', \'start\')">Start</button>';
-
-                            $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
-                            if (intval($settingsFile['global']['cpuAmount']) > 0) {
-                                $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
-                            }
-                            $pullData = $pullsFile[$nameHash];
-                            $updateStatus = '<span class="text-danger">Unchecked</span>';
-                            if ($pullData) {
-                                $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
-                            }
-
-                            $health = 'Not setup';
-                            if (strpos($process['Status'], 'healthy') !== false) {
-                                $health = 'Healthy';
-                            }
-                            if (strpos($process['Status'], 'unhealthy') !== false) {
-                                $health = 'Unhealthy';
-                            }
-                            ?>
-                            <tr id="<?= $nameHash ?>">
-                                <th scope="row"><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check"></th>
-                                <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '') ?></td>
-                                <td><?= $process['Names'] ?><br><span class="text-muted small-text"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 35) ?></span></td>
-                                <td id="<?= $nameHash ?>-control"><?= $control ?></td>
-                                <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
-                                    <?= $updateStatus ?><br>
-                                    <span class="text-muted small-text" title="<?= $pullData['imageDigest'] ?>"><?= truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) ?></span>
-                                </td>
-                                <td id="<?= $nameHash ?>-state"><?= $process['State'] ?></td>
-                                <td id="<?= $nameHash ?>-health"><?= $health ?></td>
-                                <td><span id="<?= $nameHash ?>-running"><?= $process['RunningFor'] ?></span><br><span id="<?= $nameHash ?>-status"><?= $process['Status'] ?></span></td>
-                                <td id="<?= $nameHash ?>-cpu" title="<?= $process['stats']['CPUPerc'] ?>"><?= $cpuUsage ?></td>
-                                <td id="<?= $nameHash ?>-mem"><?= $process['stats']['MemPerc'] ?></td>
-                                <td>
-                                    <select id="containers-update-<?= $nameHash ?>" class="form-control container-updates">
-                                        <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
-                                        <?php if (!skipContainerUpdates($process['inspect'][0]['Config']['Image'], $skipContainerUpdates)) { ?>
-                                        <option <?= ($containerSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
-                                        <?php } ?>
-                                        <option <?= ($containerSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select id="containers-frequency-<?= $nameHash ?>" class="form-control container-frequency">
-                                        <option <?= ($containerSettings['frequency'] == '12h' ? 'selected' : '') ?> value="12h">12h</option>
-                                        <option <?= ($containerSettings['frequency'] == '1d' ? 'selected' : '') ?> value="1d">1d</option>
-                                        <option <?= ($containerSettings['frequency'] == '2d' ? 'selected' : '') ?> value="2d">2d</option>
-                                        <option <?= ($containerSettings['frequency'] == '3d' ? 'selected' : '') ?> value="3d">3d</option>
-                                        <option <?= ($containerSettings['frequency'] == '4d' ? 'selected' : '') ?> value="4d">4d</option>
-                                        <option <?= ($containerSettings['frequency'] == '5d' ? 'selected' : '') ?> value="5d">5d</option>
-                                        <option <?= ($containerSettings['frequency'] == '6d' ? 'selected' : '') ?> value="6d">6d</option>
-                                        <option <?= ($containerSettings['frequency'] == '1w' ? 'selected' : '') ?> value="1w">1w</option>
-                                        <option <?= ($containerSettings['frequency'] == '2w' ? 'selected' : '') ?> value="2w">2w</option>
-                                        <option <?= ($containerSettings['frequency'] == '3w' ? 'selected' : '') ?> value="3w">3w</option>
-                                        <option <?= ($containerSettings['frequency'] == '1m' ? 'selected' : '') ?> value="1m">1m</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <select id="containers-hour-<?= $nameHash ?>" class="form-control container-hour">
-                                    <?php
-                                    for ($h = 0; $h <= 23; $h++) {
-                                        ?><option <?= ($containerSettings['hour'] == $h ? 'selected' : '') ?> value="<?= $h ?>"><?= $h ?></option><?php
-                                    }
-                                    ?>
-                                    </select>
-                                </td>
-                            </tr>
-                            <?php
+                            renderContainerRow($nameHash, 'html');
                         }
                         ?>
                     </tbody>
@@ -310,7 +172,7 @@ if ($_POST['m'] == 'saveContainerSettings') {
     $newSettings = [];
 
     foreach ($_POST as $key => $val) {
-        if (strpos($key, '-update-') === false) {
+        if (!str_contains($key, '-update-')) {
             continue;
         }
 
@@ -462,7 +324,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
     }
 
-    $return = renderContainerRow($_POST['hash']);
+    $return = renderContainerRow($_POST['hash'], 'json');
     $return['result'] = $result;
 
     logger(UI_LOG, 'massApplyContainerTrigger <-');
@@ -479,7 +341,7 @@ if ($_POST['m'] == 'controlContainer') {
         apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
     }
 
-    $return = renderContainerRow($_POST['hash']);
+    $return = renderContainerRow($_POST['hash'], 'json');
 
     echo json_encode($return);
 }
@@ -491,7 +353,7 @@ if ($_POST['m'] == 'updateContainerRows') {
     $update = [];
     foreach ($processList as $process) {
         $nameHash = md5($process['Names']);
-        $update[] = ['hash' => $nameHash, 'row' => renderContainerRow($nameHash)];
+        $update[] = ['hash' => $nameHash, 'row' => renderContainerRow($nameHash, 'json')];
     }
 
     echo json_encode($update);
@@ -612,7 +474,7 @@ if ($_POST['m'] == 'saveContainerGroup') {
             $containers = [];
     
             foreach ($_POST as $key => $val) {
-                if (strpos($key, 'groupContainer') === false) {
+                if (!str_contains($key, 'groupContainer')) {
                     continue;
                 }
         

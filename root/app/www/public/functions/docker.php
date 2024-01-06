@@ -230,7 +230,7 @@ function dockerAutoCompose($containerName)
     $command    = [];
     //-- LOOP THIS SO IT REMOVES ALL THE ADD CONTAINER OVERHEAD
     foreach ($lines as $line) {
-        if (strpos($line, 'networks:') !== false || strpos($line, 'services:') !== false) {
+        if (str_contains($line, 'networks:') || str_contains($line, 'services:')) {
             $skip = false;
         }
 

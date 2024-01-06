@@ -49,7 +49,7 @@ logger(CRON_HEALTH_LOG, '$unhealthy=' . json_encode($unhealthy));
 foreach ($processList as $process) {
     $nameHash = md5($process['Names']);
 
-    if (strpos($process['Status'], 'unhealthy') !== false) {
+    if (str_contains($process['Status'], 'unhealthy')) {
         logger(CRON_HEALTH_LOG, 'container \'' . $process['Names'] . '\' (' . $nameHash . ') is unhealthy');
 
         if (!$unhealthy[$nameHash]) {

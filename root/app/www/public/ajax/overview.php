@@ -14,13 +14,13 @@ if ($_POST['m'] == 'init') {
     $running = $stopped = $memory = $cpu = $network = $size = $updated = $outdated = $healthy = $unhealthy = $unknownhealth = 0;
 
     foreach ($processList as $process) {
-        if (strpos($process['Status'], 'healthy') !== false) {
+        if (str_contains($process['Status'], 'healthy')) {
             $healthy++;
         }
-        if (strpos($process['Status'], 'unhealthy') !== false) {
+        if (str_contains($process['Status'], 'unhealthy')) {
             $unhealthy++;
         }
-        if (strpos($process['Status'], 'health') === false) {
+        if (!str_contains($process['Status'], 'health')) {
             $unknownhealth++;
         }
 

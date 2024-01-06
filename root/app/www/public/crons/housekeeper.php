@@ -84,7 +84,7 @@ $settingsFile = str_replace(APP_DATA_PATH, '', SETTINGS_FILE);
 if (!file_exists(BACKUP_PATH . $settingsFile)) {
     $dir = opendir(APP_DATA_PATH);
     while ($item = readdir($dir)) {
-        if (strpos($item, '.json') !== false) {
+        if (str_contains($item, '.json')) {
             $copy = false;
 
             if (!file_exists(BACKUP_PATH . $item)) {

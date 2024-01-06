@@ -32,7 +32,7 @@ function curl($url, $headers = [], $method = 'GET', $payload = '', $userPass = [
     curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
     curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 
-    if (strpos($url, '/api/') === false) {
+    if (!str_contains($url, '/api/')) {
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     }
 
