@@ -119,8 +119,13 @@ function massApplyContainerTrigger()
         function runTrigger()
         {
             if (c == selectedContainers.length) {
-                $('#massContainerTrigger').val('0');
-                $('.containers-check').prop('checked', false);
+                if ($('#massContainerTrigger').val() == 9) {
+                    initPage('containers');
+                } else {
+                    $('#massContainerTrigger').val('0');
+                    $('.containers-check').prop('checked', false);
+                }
+
                 $('#massTrigger-close-btn').show();
                 $('#massTrigger-spinner').hide();
                 return;
