@@ -220,6 +220,27 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
+            <h4 class="mt-3">SSE</h4>
+            <div class="table-responsive mt-2">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col" width="15%">Name</th>
+                            <th scope="col" width="30%">Setting</th>
+                            <th scope="col" width="55%">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Disabled</th>
+                            <td>
+                                <input class="form-check-input" type="checkbox" id="globalSetting-disableSSE" <?= ($globalSettings['disableSSE'] ? 'checked' : '') ?>>
+                            </td>
+                            <td>Server side events which will update the container list UI every minute with current status of Updates, State, Health, Added, CPU and Memory</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <h4 class="mt-3">Memcached</h4>
             Optionally memcached can be used to speed things up in the UI while navigating
             <div class="table-responsive mt-2">

@@ -46,6 +46,10 @@ $serverList .= '</select>';
 
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
+
+    <script type="text/javascript">
+        const USE_SSE = <?= $settingsFile['global']['disableSSE'] ? 'false' : 'true' ?>
+    </script>
 </head>
 
 <body>

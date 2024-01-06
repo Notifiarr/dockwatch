@@ -9,7 +9,7 @@
 
 function renderContainerRow($nameHash, $return)
 {
-    global $pullsFile, $settingsFile, $processList, $dockerStats, $skipContainerUpdates, $groupHash;
+    global $pullsFile, $settingsFile, $processList, $skipContainerUpdates, $groupHash;
 
     if (!$pullsFile) {
         $pullsFile = getServerFile('pull');
@@ -25,18 +25,6 @@ function renderContainerRow($nameHash, $return)
             $apiError = $settingsFile['file'];
         }
         $settingsFile = $settingsFile['file'];
-    }
-
-    if (!$processList) {
-        $processList = apiRequest('dockerProcessList', ['useCache' => false, 'format' => true]);
-        logger(UI_LOG, 'dockerProcessList:' . json_encode($processList));
-        $processList = json_decode($processList['response']['docker'], true);
-    }
-
-    if (!$dockerStats) {
-        $dockerStats = apiRequest('dockerStats', ['useCache' => false]);
-        logger(UI_LOG, 'dockerStats:' . json_encode($dockerStats));
-        $dockerStats = json_decode($dockerStats['response']['docker'], true);
     }
 
     foreach ($processList as $process) {
@@ -76,8 +64,8 @@ function renderContainerRow($nameHash, $return)
                         'running'   => $process['RunningFor'],
                         'status'    => $process['Status'],
                         'cpu'       => $cpuUsage,
-                        'cpuTitle'  => $process['CPUPerc'],
-                        'mem'       => $process['MemPerc'],
+                        'cpuTitle'  => $process['stats']['CPUPerc'],
+                        'mem'       => $process['stats']['MemPerc'],
                         'health'    => $health
                     ];
 
