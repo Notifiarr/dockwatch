@@ -242,9 +242,10 @@ function saveContainerGroup()
         url: '../ajax/containers.php',
         data: '&m=saveContainerGroup&selection=' + $('#groupSelection').val() + '&name=' + $('#groupName').val() + '&delete=' + ($('#groupDelete').prop('checked') ? 1 : 0) + params,
         success: function (resultData) {
+            loadingStop();
+
             if (resultData) {
                 toast('Group Management', 'Error saving group: ' + resultData, 'error');
-                loadingStop();
                 return;
             }
 

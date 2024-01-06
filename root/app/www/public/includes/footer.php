@@ -21,7 +21,7 @@
     <div class="toast-container bottom-0 end-0 p-3" style="z-index: 10001 !important; position: fixed;"></div>
 
     <!-- Loading modal -->
-    <div class="modal fade" id="loading-modal" style="z-index: 10000 !important;" data-bs-backdrop="static">
+    <div class="modal" id="loading-modal" style="z-index: 10000 !important;" data-bs-backdrop="static">
         <div class="modal-dialog">
             <div class="modal-content bg-dark" style="border: grey solid 1px;">
                 <div class="modal-header" style="border: grey solid 1px;">

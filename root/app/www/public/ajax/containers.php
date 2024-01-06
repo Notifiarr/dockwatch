@@ -24,7 +24,7 @@ if ($_POST['m'] == 'init') {
                             <th scope="col"></th>
                             <th scope="col">Name</th>
                             <th scope="col"></th>
-                            <th scope="col">Update</th>
+                            <th scope="col">Updates</th>
                             <th scope="col">State</th>
                             <th scope="col">Health</th>
                             <th scope="col">Added</th>
@@ -114,7 +114,7 @@ if ($_POST['m'] == 'init') {
                                             $pullData = $pullsFile[$nameHash];
                                             $updateStatus = '<span class="text-danger">Unknown</span>';
                                             if ($pullData) {
-                                                $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
+                                                $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
                                             }
 
                                             $health = 'Not setup';
@@ -208,7 +208,7 @@ if ($_POST['m'] == 'init') {
                             $pullData = $pullsFile[$nameHash];
                             $updateStatus = '<span class="text-danger">Unchecked</span>';
                             if ($pullData) {
-                                $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Updated</span>' : '<span class="text-warning">Outdated</span>';
+                                $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
                             }
 
                             $health = 'Not setup';

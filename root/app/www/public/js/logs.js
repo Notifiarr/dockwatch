@@ -4,6 +4,7 @@ function viewLog(name, hash)
 
     $('[id^=logList-]').removeClass('*').addClass('text-info');
     $('#logList-' + hash).removeClass('text-info').addClass('text-success');
+    $('#logViewer').html('Fetching log...');
 
     $.ajax({
         type: 'POST',
@@ -11,6 +12,8 @@ function viewLog(name, hash)
         data: '&m=viewLog&name=' + name,
         dataType: 'json',
         success: function (resultData) {
+            loadingStop();
+
             if (resultData.error) {
                 $('#logHeader').html('');
                 $('#logViewer').html(resultData.error);
@@ -18,7 +21,6 @@ function viewLog(name, hash)
                 $('#logHeader').html(resultData.header);
                 $('#logViewer').html(resultData.log);
             }
-            loadingStop();
         }
     });
 

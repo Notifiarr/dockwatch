@@ -119,7 +119,7 @@ if ($_POST['m'] == 'init') {
                         <h3>Updates</h3>
                     </div>
                     <div class="col-sm-12 col-lg-8 text-end">
-                        Updated: <?= $updated ?><br>
+                        Up to date: <?= $updated ?><br>
                         Outdated: <?= $outdated ?><br>
                         Unchecked: <?= (($running + $stopped) - ($updated + $outdated)) ?>
                     </div>

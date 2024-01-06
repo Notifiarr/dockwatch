@@ -4,6 +4,11 @@ $(document).ready(function () {
     if ($('#menu-overview').length) {
         initPage('overview');
     }
+
+    $('#loading-modal').modal({
+        keyboard: false,
+        backdrop: 'static'
+    });
 }).keyup(function (e) {
     if ($('#username').length) {
         if (e.keyCode === 13) {
@@ -121,10 +126,9 @@ function toast(title, message, type)
 // -------------------------------------------------------------------------------------------
 function loadingStart()
 {
-    $('#loading-modal').modal({
-        keyboard: false,
-        backdrop: 'static'
-    });
+    if ($('#loading-modal .btn-close').is(':visible')) {
+        loadingStop();
+    }
 
     $('#loading-modal .btn-close').hide();
     $('#loading-modal').modal('show');
@@ -139,7 +143,7 @@ function loadingStop()
 {
     setTimeout(function () {
         $('#loading-modal').modal('hide');
-    }, 500);
+    }, 100);
 
 }
 // -------------------------------------------------------------------------------------------
