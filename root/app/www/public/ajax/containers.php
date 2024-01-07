@@ -150,8 +150,9 @@ if ($_POST['m'] == 'init') {
                                     </optgroup>
                                     <optgroup label="Information">
                                         <option value="8">Mount compare</option>
-                                        <option value="5">Generate docker run</option>
+                                        <option value="10">Generate docker api create</option>
                                         <option value="6">Generate docker-compose</option>
+                                        <option value="5">Generate docker run</option>
                                     </optgroup>
                                 </select>
                                 <button type="button" class="btn btn-outline-info" onclick="massApplyContainerTrigger()">Apply</button>
@@ -322,6 +323,15 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $apiResult = apiRequest('dockerRemoveContainer', [], ['name' => $container['Names']]);
             logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResult));
             $result = 'Removed ' . $container['Names'] . '<br>';
+            break;
+        case '10': //-- GENERATE API CREATE
+            $apiResult = apiRequest('dockerContainerCreateAPI', ['name' => $container['Names']]);
+            logger(UI_LOG, 'dockerContainerCreateAPI:' . json_encode($apiResult));
+            $apiResult = json_decode($apiResult['response']['docker'], true);
+
+            $result = $container['Names'] . '<br>';
+            $result .= 'Endpoint: <code>' . $apiResult['endpoint'] . '</code><br>';
+            $result .= '<pre>' . json_encode($apiResult['payload'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</pre>';
             break;
     }
 

@@ -43,6 +43,18 @@ switch (true) {
 
                 $response = ['docker' => dockerAutoRun($_GET['name'])];
                 break;
+            case 'dockerContainerCreateAPI':
+                if (!$_GET['name']) {
+                    apiResponse(400, ['error' => 'Missing name parameter']);
+                }
+
+                $inspect = json_decode(dockerInspect($_GET['name'], false, true), true);
+                if (!$inspect) {
+                    apiResponse(400, ['error' => 'Failed to get inspect for container: ' . $_GET['name']]);
+                }
+
+                $response = ['docker' => json_encode(dockerContainerCreateAPI($inspect))];
+                break;
             case 'dockerGetOrphanContainers':
                 $response = ['docker' => dockerGetOrphanContainers()];
                 break;

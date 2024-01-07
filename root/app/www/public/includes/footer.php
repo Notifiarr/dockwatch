@@ -48,7 +48,7 @@
                 </div>
                 <div class="modal-body" style="border: grey solid 1px;">
                     <div id="massTrigger-header"></div>
-                    <div id="massTrigger-results" style="max-height: 400px; overflow: auto;"></div>
+                    <div id="massTrigger-results" style="max-height: 600px; overflow: auto;"></div>
                 </div>
                 <div class="modal-footer" align="center">
                     <button id="massTrigger-close-btn" style="display: none;" type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Close</button>

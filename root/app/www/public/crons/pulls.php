@@ -141,13 +141,13 @@ if ($updateSettings) {
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
                                 $stop = dockerStopContainer($containerState['Names']);
-                                logger(CRON_PULLS_LOG, $stop);
+                                logger(CRON_PULLS_LOG, trim($stop));
 
                                 $msg = 'Removing container: ' . $containerState['Names'] . ' (' . $containerState['ID'] . ')';
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
                                 $remove = dockerRemoveContainer($containerState['Names']);
-                                logger(CRON_PULLS_LOG, $remove);
+                                logger(CRON_PULLS_LOG, trim($remove));
 
                                 $msg = 'Updating container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);

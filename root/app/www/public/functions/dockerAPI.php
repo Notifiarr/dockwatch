@@ -7,11 +7,19 @@
 ----------------------------------
 */
 
+/*
+    USAGE:
+        $api            = dockerContainerCreateAPI($inspect);
+        $payload        = is_array($api['payload']) ? json_encode($api['payload']) : '';
+        $apiResponse    = dockerCurlAPI($payload, 'post', $api['endpoint']);
+*/
+
 function dockerVersionAPI()
 {
     $cmd = '/usr/bin/docker version | grep "API"';
     $shell = shell_exec($cmd . ' 2>&1');
     preg_match_all("/([0-9]\.[0-9]{1,3})/", $shell, $matches);
+
     return $matches[0][1];
 }
 
@@ -46,7 +54,8 @@ function dockerContainerStopAPI($name)
     */
 
     $endpoint = '/containers/' . $name . '/stop';
-    $apiResponse = dockerCurlAPI(null, 'post', $endpoint);
+
+    return ['endpoint' => $endpoint, 'payload' => ''];
 }
 
 //-- https://docs.docker.com/engine/api/v1.42/#tag/Container/operation/ContainerCreate
@@ -64,30 +73,15 @@ function dockerContainerCreateAPI($inspect = [])
         }
     }
 
-    $ipamConfig = $links = $aliases = null;
-    if (!empty($inspect['NetworkSettings']['Networks'])) {
-        $network = array_keys($inspect['NetworkSettings']['Networks'])[0];
-
-        if (!empty($inspect['NetworkSettings']['Networks'][$network]['IPAMConfig'])) {
-            $ipamConfig = $inspect['NetworkSettings']['Networks'][$network]['IPAMConfig'];
-        }
-        if (!empty($inspect['NetworkSettings']['Networks'][$network]['Links'])) {
-            $links = $inspect['NetworkSettings']['Networks'][$network]['Links'];
-        }
-        if (!empty($inspect['NetworkSettings']['Networks'][$network]['Aliases'])) {
-            $aliases = $inspect['NetworkSettings']['Networks'][$network]['Aliases'];
-        }
-    }
-
     $payload                        = [
+                                        'Hostname'          => $inspect['Config']['Hostname'] ? $inspect['Config']['Hostname'] : $containerName,
                                         'Domainname'        => $inspect['Config']['Domainname'],
                                         'User'              => $inspect['Config']['User'],
                                         'Tty'               => $inspect['Config']['Tty'],
                                         'Entrypoint'        => $inspect['Config']['Entrypoint'],
                                         'Image'             => $inspect['Config']['Image'],
                                         'WorkingDir'        => $inspect['Config']['WorkingDir'],
-                                        'MacAddress'        => $inspect['NetworkSettings']['MacAddress'],
-                                        'Shell'             => '' //-- NOT SURE WHERE THIS IS YET
+                                        'Shell'             => ''   //-- NOT SURE WHERE THIS IS YET
                                     ];
 
     $payload['Env']                 = $inspect['Config']['Env'];
@@ -95,16 +89,10 @@ function dockerContainerCreateAPI($inspect = [])
     $payload['Healthcheck']         = $inspect['Config']['Healthcheck'];
     $payload['Labels']              = $inspect['Config']['Labels'];
     $payload['Volumes']             = $inspect['Config']['Volumes'];
-    $payload['ExposedPorts']        = $inspect['NetworkSettings']['Ports'];
+    $payload['ExposedPorts']        = $inspect['Config']['ExposedPorts'];
     $payload['HostConfig']          = $inspect['HostConfig'];
     $payload['NetworkingConfig']    = [
-                                        'EndpointsConfig'   => [
-                                                                'isolated_nw'   => [
-                                                                                    'IPAMConfig'    => $ipamConfig,
-                                                                                    'Links'         => $links,
-                                                                                    'Aliases'       => $aliases
-                                                                                ]
-                                                            ]
+                                        'EndpointsConfig'   => [$inspect['NetworkSettings']['Networks']]
                                     ];
 
     //-- API VALIDATION STUFF
@@ -112,8 +100,7 @@ function dockerContainerCreateAPI($inspect = [])
         $payload['HostConfig']['PortBindings'] = null;
     }
 
-    $endpoint       = '/containers/create?name=' . $containerName;
-    $apiResponse    = dockerCurlAPI(json_encode($payload), 'post', $endpoint);
+    $endpoint = '/containers/create?name=' . $containerName;
 
-    return $apiResponse;
+    return ['endpoint' => $endpoint, 'payload' => $payload];
 }
