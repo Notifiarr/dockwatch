@@ -125,17 +125,11 @@ if ($updateSettings) {
                                 echo $msg . "\n";
                                 dockerPullContainer($image);
 
-                                $newRun = '';
-                                $msg = 'Building run command: ' . $containerState['Names'];
+                                $msg = 'Inspecting container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
-                                $runCommand = dockerAutoRun($containerState['Names']);
-                                $lines      = explode("\n", $runCommand);
-                                $newRun     = [];
-                                foreach ($lines as $line) {
-                                    $newRun[] = rtrim(trim($line), '\\');
-                                }
-                                $runCommand = implode(' ', $newRun);
+                                $inspect = dockerInspect($containerState['Names']);
+                                logger(CRON_PULLS_LOG, trim($inspect));
 
                                 $msg = 'Stopping container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
@@ -152,9 +146,10 @@ if ($updateSettings) {
                                 $msg = 'Updating container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
-                                $update = trim(dockerUpdateContainer($runCommand));
+                                $update = dockerUpdateContainer(json_decode($inspect, true));
+                                logger(CRON_PULLS_LOG, 'dockerUpdateContainer:' . trim(json_encode($update)));
 
-                                if (strlen($update) == 64) {
+                                if (strlen($update['Id']) == 64) {
                                     $msg = 'Updating pull data: ' . $containerState['Names'];
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo $msg . "\n";
@@ -164,6 +159,12 @@ if ($updateSettings) {
                                                                     'regctlDigest'  => $regctlDigest,
                                                                     'imageDigest'   => $regctlDigest
                                                                 ];
+
+                                    $msg = 'Starting container: ' . $containerState['Names'];
+                                    logger(CRON_PULLS_LOG, $msg);
+                                    echo $msg . "\n";
+                                    $restart = dockerStartContainer($containerState['Names']);
+                                    logger(CRON_PULLS_LOG, 'dockerStartContainer:' . trim($restart));
                                 } else {
                                     $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update);
                                     logger(CRON_PULLS_LOG, $msg);

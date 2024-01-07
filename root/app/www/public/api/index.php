@@ -230,11 +230,11 @@ switch (true) {
                 $response = ['docker' => dockerStopContainer($_POST['name'])];
                 break;         
             case 'dockerUpdateContainer':
-                if (!$_POST['command']) {
-                    apiResponse(400, ['error' => 'Missing command parameter']);
+                if (!$_POST['inspect']) {
+                    apiResponse(400, ['error' => 'Missing inspect parameter']);
                 }
 
-                $response = ['docker' => dockerUpdateContainer($_POST['command'])];
+                $response = ['docker' => dockerUpdateContainer(json_decode($_POST['inspect'], true))];
                 break;
             case 'purgeLogs':
                 if (!$_POST['group']) {

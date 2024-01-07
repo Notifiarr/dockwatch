@@ -80,8 +80,7 @@ function dockerContainerCreateAPI($inspect = [])
                                         'Tty'               => $inspect['Config']['Tty'],
                                         'Entrypoint'        => $inspect['Config']['Entrypoint'],
                                         'Image'             => $inspect['Config']['Image'],
-                                        'WorkingDir'        => $inspect['Config']['WorkingDir'],
-                                        'Shell'             => ''   //-- NOT SURE WHERE THIS IS YET
+                                        'WorkingDir'        => $inspect['Config']['WorkingDir']
                                     ];
 
     $payload['Env']                 = $inspect['Config']['Env'];
@@ -92,12 +91,20 @@ function dockerContainerCreateAPI($inspect = [])
     $payload['ExposedPorts']        = $inspect['Config']['ExposedPorts'];
     $payload['HostConfig']          = $inspect['HostConfig'];
     $payload['NetworkingConfig']    = [
-                                        'EndpointsConfig'   => [$inspect['NetworkSettings']['Networks']]
+                                        'EndpointsConfig' => $inspect['NetworkSettings']['Networks']
                                     ];
 
     //-- API VALIDATION STUFF
     if (empty($payload['HostConfig']['PortBindings'])) {
         $payload['HostConfig']['PortBindings'] = null;
+    }
+
+    if (empty($payload['ExposedPorts'])) {
+        $payload['ExposedPorts'] = null;
+    } else {
+        foreach ($payload['ExposedPorts'] as $port => $value) {
+            $payload['ExposedPorts'][$port] = null;
+        }
     }
 
     $endpoint = '/containers/create?name=' . $containerName;

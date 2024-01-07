@@ -161,10 +161,11 @@ function dockerPullContainer($image)
     return shell_exec($cmd . ' 2>&1');
 }
 
-function dockerUpdateContainer($command)
+function dockerUpdateContainer($inspect)
 {
-    $cmd = '/usr/bin/' . $command;
-    return shell_exec($cmd . ' 2>&1');
+    $create     = dockerContainerCreateAPI($inspect);
+    $apiRequest = dockerCurlAPI(json_encode($create['payload']), 'post', $create['endpoint']);
+    return $apiRequest;
 }
 
 function dockerGetOrphanContainers()

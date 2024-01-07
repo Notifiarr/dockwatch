@@ -268,20 +268,12 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $image = $container['inspect'][0]['Config']['Image'];
                 logger(UI_LOG, 'image:' . $image);
 
+                $apiResponse = apiRequest('dockerInspect', ['name' => $container['Names'], 'useCache' => false, 'format' => true]);
+                logger(UI_LOG, 'dockerInspect:' . json_encode($apiResponse));
+                $inspectImage = $apiResponse['response']['docker'];
+
                 $apiResponse = apiRequest('dockerPullContainer', [], ['name' => $image]);
                 logger(UI_LOG, 'dockerPullContainer:' . json_encode($apiResponse));
-
-                $autoRun = apiRequest('dockerAutoRun', ['name' => $container['Names']]);
-                logger(UI_LOG, 'dockerAutoRun:' . json_encode($autoRun));
-
-                $autoRun    = $autoRun['response']['docker'];
-                $lines      = explode("\n", $autoRun);
-                $newRun     = [];
-                foreach ($lines as $line) {
-                    $newRun[] = rtrim(trim($line), '\\');
-                }
-                $autoRun = implode(' ', $newRun);
-                logger(UI_LOG, 'run command:' . $autoRun);
 
                 $apiResponse = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResponse));
@@ -289,12 +281,12 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $apiResponse = apiRequest('dockerRemoveContainer', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResponse));
 
-                $update         = apiRequest('dockerUpdateContainer', [], ['command' => $autoRun]);
-                logger(UI_LOG, 'dockerUpdateContainer:' . json_encode($update));
-                $update         = trim($update['response']['docker']);
+                $apiResponse = apiRequest('dockerUpdateContainer', [], ['inspect' => $inspectImage]);
+                logger(UI_LOG, 'dockerUpdateContainer:' . json_encode($apiResponse));
+                $update         = $apiResponse['response']['docker'];
                 $updateResult   = 'failed';
 
-                if (strlen($update) == 64) {
+                if (strlen($update['Id']) == 64) {
                     $inspectImage   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
                     $inspectImage   = json_decode($inspectImage['response']['docker'], true);
                     list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
@@ -308,6 +300,9 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                                                 ];
 
                     setServerFile('pull', $pullsFile);
+
+                    $apiResponse = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
+                    logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResponse));
                 }
             }
 
