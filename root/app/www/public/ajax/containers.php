@@ -285,7 +285,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $apiResponse = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResponse));
 
-                $apiResponse = apiRequest('dockerRemoveContainer', [], ['id' => $container['ID']]);
+                $apiResponse = apiRequest('dockerRemoveContainer', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResponse));
 
                 $update         = apiRequest('dockerUpdateContainer', [], ['command' => $autoRun]);
@@ -319,7 +319,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
         case '9': //-- REMOVE
             $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
             logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
-            $apiResult = apiRequest('dockerRemoveContainer', [], ['id' => $container['ID']]);
+            $apiResult = apiRequest('dockerRemoveContainer', [], ['name' => $container['Names']]);
             logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResult));
             $result = 'Removed ' . $container['Names'] . '<br>';
             break;

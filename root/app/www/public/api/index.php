@@ -183,11 +183,11 @@ switch (true) {
                 $response = ['docker' => dockerPullContainer($_POST['name'])];
                 break;
             case 'dockerRemoveContainer':
-                if (!$_POST['id']) {
-                    apiResponse(400, ['error' => 'Missing id parameter']);
+                if (!$_POST['name']) {
+                    apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => dockerRemoveContainer($_POST['id'])];
+                $response = ['docker' => dockerRemoveContainer($_POST['name'])];
                 break;
             case 'dockerRemoveImage':
                 if (!$_POST['id']) {

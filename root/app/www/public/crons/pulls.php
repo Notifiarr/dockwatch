@@ -146,7 +146,7 @@ if ($updateSettings) {
                                 $msg = 'Removing container: ' . $containerState['Names'] . ' (' . $containerState['ID'] . ')';
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
-                                $remove = dockerRemoveContainer($containerState['ID']);
+                                $remove = dockerRemoveContainer($containerState['Names']);
                                 logger(CRON_PULLS_LOG, $remove);
 
                                 $msg = 'Updating container: ' . $containerState['Names'];

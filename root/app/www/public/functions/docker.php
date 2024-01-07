@@ -143,9 +143,9 @@ function dockerStartContainer($containerName)
     return shell_exec($cmd . ' 2>&1');
 }
 
-function dockerRemoveContainer($containerId)
+function dockerRemoveContainer($containerName)
 {
-    $cmd = '/usr/bin/docker rm -f ' . $containerId;
+    $cmd = '/usr/bin/docker rm -f ' . $containerName;
     return shell_exec($cmd . ' 2>&1');
 }
 
