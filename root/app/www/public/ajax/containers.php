@@ -23,11 +23,10 @@ if ($_POST['m'] == 'init') {
                             <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.containers-check').prop('checked', $(this).prop('checked'));"></th>
                             <th scope="col"></th>
                             <th scope="col">Name</th>
-                            <th scope="col"></th>
                             <th scope="col">Updates</th>
                             <th scope="col">State</th>
                             <th scope="col">Health</th>
-                            <th scope="col">Added</th>
+                            <th scope="col">Mounts</th>
                             <th scope="col">CPU</th>
                             <th scope="col">Memory</th>
                             <th scope="col">
@@ -92,7 +91,7 @@ if ($_POST['m'] == 'init') {
                                     <th scope="row"><input type="checkbox" class="form-check-input containers-check" onclick="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></th>
                                     <td><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
                                     <td><span class="text-info" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br><span class="text-muted small-text">Containers: <?= count($containerGroup['containers']) ?></span></td>
-                                    <td colspan="5"></td>
+                                    <td colspan="4"></td>
                                     <td><?= $groupCPU ?>%</td>
                                     <td><?= $groupMemory ?>%</td>
                                     <td colspan="3"></td>
@@ -348,6 +347,10 @@ if ($_POST['m'] == 'controlContainer') {
     }
 
     $return = renderContainerRow($_POST['hash'], 'json');
+
+    if ($_POST['action'] == 'start' || $_POST['action'] == 'restart') {
+        $return['length'] = 'Up 1 second';
+    }
 
     echo json_encode($return);
 }

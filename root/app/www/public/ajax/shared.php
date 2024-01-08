@@ -18,8 +18,12 @@ if (file_exists('../../loader.php')) {
 }
 require ABSOLUTE_PATH . 'loader.php';
 
+$fetchProc      = in_array($_POST['page'], $getProc) || $_POST['hash'];
+$fetchStats     = in_array($_POST['page'], $getStats) || $_POST['hash'];
+$fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'];
+
 $processList = [];
-if (in_array($_POST['page'], $getProc)) {
+if ($fetchProc) {
     $loadTimes[]    = trackTime('dockerProcessList ->');
     $processList    = apiRequest('dockerProcessList', ['format' => true]);
     $processList    = json_decode($processList['response']['docker'], true);
@@ -31,7 +35,7 @@ if (in_array($_POST['page'], $getProc)) {
     $loadTimes[]    = trackTime('dockerImageSizes <-');
 }
 
-if (in_array($_POST['page'], $getStats)) {
+if ($fetchStats) {
     $loadTimes[] = trackTime('dockerStats ->');
     $dockerStats = apiRequest('stats');
 
@@ -49,7 +53,7 @@ if (!empty($processList)) {
     $loadTimes[] = trackTime('dockerInspect ->');
     //-- GATHER ALL CONTAINERS FOR A SINGLE INSPECT
     $inspectResults = [];
-    if (in_array($_POST['page'], $getInspect)) {
+    if ($fetchInspect) {
         foreach ($processList as $index => $process) {
             $inspectContainers[] = $process['Names'];
         }
@@ -62,7 +66,7 @@ if (!empty($processList)) {
         //-- ADD THE INSPECT OBJECT IF IT EXISTS
         $processList[$index]['inspect'][] = $inspectResults[$index];
 
-        if (in_array($_POST['page'], $getStats)) {
+        if ($fetchStats) {
             foreach ($dockerStats as $dockerStat) {
                 if ($dockerStat['Name'] == $process['Names']) {
                     $processList[$index]['stats'] = $dockerStat;

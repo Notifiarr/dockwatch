@@ -35,8 +35,14 @@ function renderContainerRow($nameHash, $return)
 
     $containerSettings  = $settingsFile['containers'][$nameHash];
     $logo               = getIcon($process['inspect']);
-    $control            = $process['State'] == 'running' ? '<button type="button" class="btn btn-outline-success me-2" onclick="controlContainer(\'' . $nameHash . '\', \'restart\')">Restart</button> <button type="button" class="btn btn-outline-danger" onclick="controlContainer(\'' . $nameHash . '\', \'stop\')">Stop</button>' : '<button type="button" class="btn btn-outline-success" onclick="controlContainer(\'' . $nameHash . '\', \'start\')">Start</button>';
 
+    if ($process['State'] == 'running') {
+        $control = '<i class="fas fa-sync-alt text-success container-restart-btn" title="Restart" style="cursor: pointer;" onclick="controlContainer(\'' . $nameHash . '\', \'restart\')"></i><br>';
+        $control .= '<i class="fas fa-power-off text-danger container-stop-btn" title="Stop" style="cursor: pointer;" onclick="controlContainer(\'' . $nameHash . '\', \'stop\')"></i>';
+    } else {
+        $control = '<i class="fas fa-play text-success container-start-btn" title="Start" style="cursor: pointer;" onclick="controlContainer(\'' . $nameHash . '\', \'start\')"></i>';
+    }
+ 
     $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
     if (intval($settingsFile['global']['cpuAmount']) > 0) {
         $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
@@ -55,14 +61,60 @@ function renderContainerRow($nameHash, $return)
     if (str_contains($process['Status'], 'unhealthy')) {
         $health = 'Unhealthy';
     }
+    if (str_contains($process['Status'], 'health:')) {
+        $health = 'Waiting';
+    }
+
+    if (str_contains($process['Status'], 'Exit')) {
+        list($exitMsg, $time) = explode(')', $process['Status']);
+    } else {
+        list($time, $healthMsg) = explode('(', $process['Status']);
+    }
+    $time   = str_replace('ago', '', $time);
+    $parts  = explode(' ', $time);
+
+    $length = [];
+    foreach ($parts as $timePart) {
+        if (is_numeric($timePart) && empty($length)) {
+            continue;
+        }
+        $length[] = trim($timePart);
+    }
+    $length = implode(' ', $length);
+
+    $mountList = '';
+    if ($process['inspect'][0]['Mounts']) {
+        $mounts = [];
+
+        foreach ($process['inspect'][0]['Mounts'] as $mount) {
+            if ($mount['Type'] != 'bind') {
+                continue;
+            }
+
+            $arrow = '&harr;';
+            if ($mount['Mode'] == 'ro') {
+                $arrow = '&larr;';
+            }
+
+            $mounts[] = $mount['Destination'] . ' ' . $arrow . ' ' . $mount['Source'] . ($mount['Mode'] ? ':' . $mount['Mode'] : '');
+        }
+
+        if ($mounts) {
+            $mountList = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-mount-btn-' . $nameHash . '" onclick="hideContainerMounts(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-mount-btn-' . $nameHash . '" onclick="showContainerMounts(\'' . $nameHash . '\')"></i> ';
+            $mountList .= '<span id="mount-list-preview-' . $nameHash . '">' . truncateMiddle($mounts[0], 40) . '</span><br>';
+            $mountList .= '<div id="mount-list-full-' . $nameHash . '" style="display: none;">';
+            $mountList .= implode('<br>', $mounts);
+            $mountList .= '</div>';
+        }
+    }
 
     if ($return == 'json') {
         $return     = [
                         'control'   => $control,
                         'update'    => $updateStatus . '<br><span class="text-muted small-text" title="' . $pullData['imageDigest'] .'">' . truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) . '</span>',
                         'state'     => $process['State'],
-                        'running'   => $process['RunningFor'],
-                        'status'    => $process['Status'],
+                        'mounts'    => $mountList,
+                        'length'    => $length,
                         'cpu'       => $cpuUsage,
                         'cpuTitle'  => $process['stats']['CPUPerc'],
                         'mem'       => $process['stats']['MemPerc'],
@@ -75,18 +127,30 @@ function renderContainerRow($nameHash, $return)
         <tr id="<?= $nameHash ?>" <?= ($groupHash ? 'class="' . $groupHash . '" style="display: none; background-color: #232833;"' : '' ) ?>>
             <td scope="row"><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check <?= ($groupHash ? 'group-' . $groupHash . '-check' : '') ?>"></td>
             <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '') ?></td>
-            <td><?= $process['Names'] ?><br><span class="text-muted small-text"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 35) ?></span></td>
-            <td id="<?= $nameHash ?>-control"><?= $control ?></td>
+            <td>
+                <div class="row m-0 p-0">
+                    <div class="col-sm-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
+                    <div class="col-sm-10">
+                        <?= $process['Names'] ?><br>
+                        <span class="text-muted small-text" title="<?= isDockerIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 25) ?></span>
+                    </div>
+                </div>
+            </td>
             <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
                 <?= $updateStatus ?><br>
                 <span class="text-muted small-text" title="<?= $pullData['imageDigest'] ?>"><?= truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) ?></span>
             </td>
-            <td id="<?= $nameHash ?>-state"><?= $process['State'] ?></td>
+            <td>
+                <span id="<?= $nameHash ?>-state"><?= $process['State'] ?></span><br>
+                <span class="text-muted small-text" id="<?= $nameHash ?>-length"><?= $length ?></span>
+            </td>
             <td id="<?= $nameHash ?>-health"><?= $health ?></td>
-            <td><span id="<?= $nameHash ?>-running"><?= $process['RunningFor'] ?></span><br><span id="<?= $nameHash ?>-status"><?= $process['Status'] ?></span></td>
+            <td id="<?= $nameHash ?>-mounts-td">
+                <span id="<?= $nameHash ?>-mounts" class="small-text"><?= $mountList ?></span>
+            </td>
             <td id="<?= $nameHash ?>-cpu" title="<?= $process['stats']['CPUPerc'] ?>"><?= $cpuUsage ?></td>
             <td id="<?= $nameHash ?>-mem"><?= $process['stats']['MemPerc'] ?></td>
-            <td>
+            <td id="<?= $nameHash ?>-update-td">
                 <select id="containers-update-<?= $nameHash ?>" class="form-control container-updates">
                     <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
                     <?php if (!skipContainerUpdates($process['inspect'][0]['Config']['Image'], $skipContainerUpdates)) { ?>
@@ -95,7 +159,7 @@ function renderContainerRow($nameHash, $return)
                     <option <?= ($containerSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
                 </select>
             </td>
-            <td>
+            <td id="<?= $nameHash ?>-frequency-td">
                 <select id="containers-frequency-<?= $nameHash ?>" class="form-control container-frequency">
                     <option <?= ($containerSettings['frequency'] == '6h' ? 'selected' : '') ?> value="6h">6h</option>
                     <option <?= ($containerSettings['frequency'] == '12h' ? 'selected' : '') ?> value="12h">12h</option>
@@ -111,7 +175,7 @@ function renderContainerRow($nameHash, $return)
                     <option <?= ($containerSettings['frequency'] == '1m' ? 'selected' : '') ?> value="1m">1m</option>
                 </select>
             </td>
-            <td>
+            <td id="<?= $nameHash ?>-hour-td">
                 <select id="containers-hour-<?= $nameHash ?>" class="form-control container-hour">
                 <?php
                 for ($h = 0; $h <= 23; $h++) {

@@ -3,8 +3,8 @@ function updateContainerRowText(hash, data, refresh = false)
     $('#' + hash + '-control').html((refresh ? 'Updating' : data.control));
     $('#' + hash + '-update').html((refresh ? 'Updating' : data.update));
     $('#' + hash + '-state').html((refresh ? 'Updating' : data.state));
-    $('#' + hash + '-running').html((refresh ? 'Updating' : data.running));
-    $('#' + hash + '-status').html((refresh ? 'Updating' : data.status));
+    $('#' + hash + '-mounts').html((refresh ? 'Updating' : data.mounts));
+    $('#' + hash + '-length').html((refresh ? 'Updating' : data.length));
     $('#' + hash + '-cpu').html((refresh ? 'Updating' : data.cpu));
     $('#' + hash + '-cpu').prop('title', (refresh ? 'Updating' : data.cpu));
     $('#' + hash + '-mem').html((refresh ? 'Updating' : data.mem));
@@ -245,5 +245,23 @@ function saveContainerGroup()
         }
     });
 
+}
+// ---------------------------------------------------------------------------------------------
+function showContainerMounts(containerHash)
+{
+    $('#hide-mount-btn-' + containerHash + ', #mount-list-full-' + containerHash).show();
+    $('#show-mount-btn-' + containerHash + ', #mount-list-preview-' + containerHash).hide();
+    // <td>
+    $('#' + containerHash + '-cpu, #' + containerHash + '-mem, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').hide();
+    $('#' + containerHash + '-mounts-td').attr('colspan', 5);
+}
+// ---------------------------------------------------------------------------------------------
+function hideContainerMounts(containerHash)
+{
+    $('#show-mount-btn-' + containerHash + ', #mount-list-preview-' + containerHash).show();
+    $('#hide-mount-btn-' + containerHash + ', #mount-list-full-' + containerHash).hide();
+    // <td>
+    $('#' + containerHash + '-cpu, #' + containerHash + '-mem, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').show();
+    $('#' + containerHash + '-mounts-td').attr('colspan', 0);
 }
 // ---------------------------------------------------------------------------------------------
