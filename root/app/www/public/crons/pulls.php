@@ -129,7 +129,6 @@ if ($updateSettings) {
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
                                 $inspect = dockerInspect($containerState['Names']);
-                                logger(CRON_PULLS_LOG, trim($inspect));
 
                                 $msg = 'Stopping container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
