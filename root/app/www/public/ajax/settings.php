@@ -233,9 +233,9 @@ if ($_POST['m'] == 'init') {
                     </thead>
                     <tbody>
                         <tr>
-                            <th scope="row">Disabled</th>
+                            <th scope="row">Enabled</th>
                             <td>
-                                <input class="form-check-input" type="checkbox" id="globalSetting-disableSSE" <?= ($globalSettings['disableSSE'] ? 'checked' : '') ?>>
+                                <input class="form-check-input" type="checkbox" id="globalSetting-useSSE" <?= ($globalSettings['useSSE'] ? 'checked' : '') ?>>
                             </td>
                             <td>Server side events which will update the container list UI every minute with current status of Updates, State, Health, Added, CPU and Memory</td>
                         </tr>
