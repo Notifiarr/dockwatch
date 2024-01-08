@@ -111,6 +111,7 @@ if ($_POST['m'] == 'init') {
                                     <option <?= ($globalSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
                                 </select>
                                 <select class="form-control d-inline-block w-25" id="globalSetting-updatesFrequency">
+                                    <option <?= ($globalSettings['updatesFrequency'] == '6h' ? 'selected' : '') ?> value="6h">6h</option>
                                     <option <?= ($globalSettings['updatesFrequency'] == '12h' ? 'selected' : '') ?> value="12h">12h</option>
                                     <option <?= ($globalSettings['updatesFrequency'] == '1d' ? 'selected' : '') ?> value="1d">1d</option>
                                     <option <?= ($globalSettings['updatesFrequency'] == '2d' ? 'selected' : '') ?> value="2d">2d</option>
