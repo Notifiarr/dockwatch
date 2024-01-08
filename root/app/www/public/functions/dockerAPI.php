@@ -64,7 +64,11 @@ function dockerContainerCreateAPI($inspect = [])
     $inspect = $inspect[0] ? $inspect[0] : $inspect;
 
     $containerName = '';
-    if (!empty($inspect['Config']['Env'])) {
+    if ($inspect['Name']) {
+        $containerName = str_replace('/', '', $inspect['Name']);
+    }
+
+    if (!$containerName && !empty($inspect['Config']['Env'])) {
         foreach ($inspect['Config']['Env'] as $env) {
             if (str_contains($env, 'HOST_CONTAINERNAME')) {
                 list($key, $containerName) = explode('=', $env);
