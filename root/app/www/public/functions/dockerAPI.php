@@ -107,6 +107,14 @@ function dockerContainerCreateAPI($inspect = [])
         }
     }
 
+    if (empty($payload['Volumes'])) {
+        $payload['Volumes'] = null;
+    } else {
+        foreach ($payload['Volumes'] as $volume => $value) {
+            $payload['Volumes'][$volume] = null;
+        }
+    }
+
     $endpoint = '/containers/create?name=' . $containerName;
 
     return ['endpoint' => $endpoint, 'payload' => $payload];
