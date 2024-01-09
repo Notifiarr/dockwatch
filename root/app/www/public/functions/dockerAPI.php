@@ -33,11 +33,28 @@ function dockerCurlAPI($payload, $method, $endpoint)
         $cmd .= ' ' . $headers . ' ';
     }
     if ($payload) {
-        $cmd .= ' -d \'' . $payload . '\'';
+        $cmd .= ' -d "' . dockerEscapePayloadAPI($payload) . '"';
     }
-    $shell = json_decode(shell_exec($cmd . ' 2>&1'), true);
+    $shell = shell_exec($cmd . ' 2>&1');
+
+    if (!$shell) {
+        $shell = ['result' => 'failed', 'cmd' => $cmd, 'shell' => $shell];
+    } else {
+        $shell = json_decode($shell, true);
+        if ($shell['message']) {
+            $shell['cmd'] = $cmd;
+        }
+    }
 
     return $shell;
+}
+
+function dockerEscapePayloadAPI($payload)
+{
+    $in     = ["\\", '"'];
+    $out    = ["\\\\", '\"'];
+
+    return str_replace($in, $out, $payload);
 }
 
 //-- https://docs.docker.com/engine/api/v1.41/#tag/Container/operation/ContainerStop
