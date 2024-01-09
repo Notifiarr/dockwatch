@@ -103,6 +103,10 @@ function dockerContainerCreateAPI($inspect = [])
         $payload['HostConfig']['PortBindings'] = null;
     }
 
+    if (empty($payload['NetworkingConfig']['EndpointsConfig'])) {
+        $payload['NetworkingConfig']['EndpointsConfig'] = null;
+    }
+
     if (empty($payload['ExposedPorts'])) {
         $payload['ExposedPorts'] = null;
     } else {
@@ -121,6 +125,11 @@ function dockerContainerCreateAPI($inspect = [])
 
     if (empty($payload['HostConfig']['LogConfig']['Config'])) {
         $payload['HostConfig']['LogConfig']['Config'] = null;
+    }
+
+    if (str_contains($payload['HostConfig']['NetworkMode'], 'container:')) { //-- Remove conflicting payload values if it's a container network
+        $payload['Hostname'] = null;
+        $payload['ExposedPorts'] = null;
     }
 
     if (empty($payload['HostConfig']['Mounts'])) {
