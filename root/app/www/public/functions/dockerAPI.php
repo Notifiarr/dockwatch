@@ -119,6 +119,20 @@ function dockerContainerCreateAPI($inspect = [])
         }
     }
 
+    if (empty($payload['HostConfig']['LogConfig']['Config'])) {
+        $payload['HostConfig']['LogConfig']['Config'] = null;
+    }
+
+    if (empty($payload['HostConfig']['Mounts'])) {
+        $payload['HostConfig']['Mounts'] = null;
+    } else {
+        foreach ($payload['HostConfig']['Mounts'] as $index => $mount) {
+            if (empty($payload['HostConfig']['Mounts'][$index]['VolumeOptions'])) {
+                $payload['HostConfig']['Mounts'][$index]['VolumeOptions'] = null;
+            }
+        }
+    }
+
     $endpoint = '/containers/create?name=' . $containerName;
 
     return ['endpoint' => $endpoint, 'payload' => $payload];
