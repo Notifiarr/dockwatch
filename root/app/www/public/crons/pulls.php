@@ -120,6 +120,8 @@ if ($updateSettings) {
                     if ($regctlDigest != $imageDigest) {
                         switch ($containerSettings['updates']) {
                             case 1: //-- Auto update
+                                $preVersion = $postVersion = '';
+
                                 $msg = 'Pulling image: ' . $image;
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
@@ -129,6 +131,17 @@ if ($updateSettings) {
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
                                 $inspect = dockerInspect($containerState['Names']);
+
+                                if ($inspect) {
+                                    $inspectArray = json_decode($inspect, true);
+
+                                    foreach ($inspectArray[0]['Config']['Labels'] as $label => $val) {
+                                        if (str_contains($label, 'image.version')) {
+                                            $preVersion = $val;
+                                            break;
+                                        }
+                                    }
+                                }
 
                                 $msg = 'Stopping container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
@@ -164,6 +177,22 @@ if ($updateSettings) {
                                     echo $msg . "\n";
                                     $restart = dockerStartContainer($containerState['Names']);
                                     logger(CRON_PULLS_LOG, 'dockerStartContainer:' . trim($restart));
+
+                                    $msg = 'Inspecting container: ' . $containerState['Names'];
+                                    logger(CRON_PULLS_LOG, $msg);
+                                    echo $msg . "\n";
+                                    $inspect = dockerInspect($containerState['Names']);
+    
+                                    if ($inspect) {
+                                        $inspectArray = json_decode($inspect, true);
+    
+                                        foreach ($inspectArray[0]['Config']['Labels'] as $label => $val) {
+                                            if (str_contains($label, 'image.version')) {
+                                                $postVersion = $val;
+                                                break;
+                                            }
+                                        }
+                                    }
                                 } else {
                                     $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update);
                                     logger(CRON_PULLS_LOG, $msg);
@@ -175,7 +204,12 @@ if ($updateSettings) {
                                 }
 
                                 if ($settingsFile['notifications']['triggers']['updated']['active']) {
-                                    $notify['updated'][] = ['container' => $containerState['Names']];
+                                    $notify['updated'][]    = [
+                                                                'container' => $containerState['Names'],
+                                                                'image'     => $image,
+                                                                'pre'       => ['digest' => str_replace('sha256:', '', $imageDigest), 'version' => $preVersion], 
+                                                                'post'      => ['digest' => str_replace('sha256:', '', $regctlDigest), 'version' => $postVersion]
+                                                            ];
                                 }
                                 break;
                             case 2: //-- Check for updates
