@@ -145,16 +145,20 @@ function massApplyContainerTrigger()
                         $('#massTrigger-results').append(resultData.result + "\n");
                     } else {
                         updateContainerRowText(containerHash, resultData);
-                        $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + resultData.result);
+                        $('#massTrigger-results').append((c + 1) + '/' + selectedContainers.length + ': ' + resultData.result);
                     }
 
                     c++;
+                    
+                    $('#massTrigger-results').append("<br>");
 
                     runTrigger();
                 },
                 error: function(jqhdr, textStatus, errorThrown) {
-                    $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + containerName + ' ajax error (' + errorThrown + ')<br>');
+                    $('#massTrigger-results').append((c + 1) + '/' + selectedContainers.length + ': ' + containerName + ' ajax error (' + errorThrown + ')<br>');
                     c++;
+
+                    $('#massTrigger-results').append("<br>");
 
                     runTrigger();
                 }
