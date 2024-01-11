@@ -122,11 +122,6 @@ if ($updateSettings) {
                             case 1: //-- Auto update
                                 $preVersion = $postVersion = '';
 
-                                $msg = 'Pulling image: ' . $image;
-                                logger(CRON_PULLS_LOG, $msg);
-                                echo $msg . "\n";
-                                dockerPullContainer($image);
-
                                 $msg = 'Inspecting container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
@@ -142,6 +137,11 @@ if ($updateSettings) {
                                         }
                                     }
                                 }
+
+                                $msg = 'Pulling image: ' . $image;
+                                logger(CRON_PULLS_LOG, $msg);
+                                echo $msg . "\n";
+                                dockerPullContainer($image);
 
                                 $msg = 'Stopping container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
@@ -193,6 +193,15 @@ if ($updateSettings) {
                                             }
                                         }
                                     }
+
+                                    if ($settingsFile['notifications']['triggers']['updated']['active']) {
+                                        $notify['updated'][]    = [
+                                                                    'container' => $containerState['Names'],
+                                                                    'image'     => $image,
+                                                                    'pre'       => ['digest' => str_replace('sha256:', '', $imageDigest), 'version' => $preVersion], 
+                                                                    'post'      => ['digest' => str_replace('sha256:', '', $regctlDigest), 'version' => $postVersion]
+                                                                ];
+                                    }
                                 } else {
                                     $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update);
                                     logger(CRON_PULLS_LOG, $msg);
@@ -201,15 +210,6 @@ if ($updateSettings) {
                                     if ($settingsFile['notifications']['triggers']['updated']['active']) {
                                         $notify['failed'][] = ['container' => $containerState['Names']];
                                     }
-                                }
-
-                                if ($settingsFile['notifications']['triggers']['updated']['active']) {
-                                    $notify['updated'][]    = [
-                                                                'container' => $containerState['Names'],
-                                                                'image'     => $image,
-                                                                'pre'       => ['digest' => str_replace('sha256:', '', $imageDigest), 'version' => $preVersion], 
-                                                                'post'      => ['digest' => str_replace('sha256:', '', $regctlDigest), 'version' => $postVersion]
-                                                            ];
                                 }
                                 break;
                             case 2: //-- Check for updates
