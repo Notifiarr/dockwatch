@@ -51,8 +51,8 @@ function dockerCurlAPI($payload, $method, $endpoint)
 
 function dockerEscapePayloadAPI($payload)
 {
-    $in     = ["\\", '"'];
-    $out    = ["\\\\", '\"'];
+    $in     = ["\\", '"', '$'];
+    $out    = ["\\\\", '\"', '\$'];
 
     return str_replace($in, $out, $payload);
 }
