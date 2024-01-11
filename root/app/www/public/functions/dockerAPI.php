@@ -95,13 +95,15 @@ function dockerContainerCreateAPI($inspect = [])
     }
 
     $payload                        = [
-                                        'Hostname'          => $inspect['Config']['Hostname'] ? $inspect['Config']['Hostname'] : $containerName,
-                                        'Domainname'        => $inspect['Config']['Domainname'],
-                                        'User'              => $inspect['Config']['User'],
-                                        'Tty'               => $inspect['Config']['Tty'],
-                                        'Entrypoint'        => $inspect['Config']['Entrypoint'],
-                                        'Image'             => $inspect['Config']['Image'],
-                                        'WorkingDir'        => $inspect['Config']['WorkingDir']
+                                        'Hostname'      => $inspect['Config']['Hostname'] ? $inspect['Config']['Hostname'] : $containerName,
+                                        'Domainname'    => $inspect['Config']['Domainname'],
+                                        'User'          => $inspect['Config']['User'],
+                                        'Tty'           => $inspect['Config']['Tty'],
+                                        'Entrypoint'    => $inspect['Config']['Entrypoint'],
+                                        'Image'         => $inspect['Config']['Image'],
+                                        'StopTimeout'   => $inspect['Config']['StopTimeout'],
+                                        'StopSignal'    => $inspect['Config']['StopSignal'],
+                                        'WorkingDir'    => $inspect['Config']['WorkingDir']
                                     ];
 
     $payload['Env']                 = $inspect['Config']['Env'];
@@ -155,6 +157,19 @@ function dockerContainerCreateAPI($inspect = [])
         foreach ($payload['HostConfig']['Mounts'] as $index => $mount) {
             if (empty($payload['HostConfig']['Mounts'][$index]['VolumeOptions'])) {
                 $payload['HostConfig']['Mounts'][$index]['VolumeOptions'] = null;
+            }
+        }
+    }
+
+    if ($payload['NetworkSettings']['Networks']) {
+        foreach ($payload['NetworkSettings']['Networks'] as $network => $networkSettings) {
+            if ($networkSettings['Aliases']) {
+                foreach ($networkSettings['Aliases'] as $index => $alias) {
+                    //-- REMOVE ALIAS FROM PREVIOUS CONTAINER
+                    if ($alias == substr($inspect['Id'], 0, 12)) {
+                        unset($payload['NetworkSettings']['Networks'][$network]['Aliases'][$index]);
+                    }
+                }
             }
         }
     }
