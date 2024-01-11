@@ -98,7 +98,7 @@ function massApplyContainerTrigger()
             dataType: 'json',
             async: 'global',
             success: function (resultData) {
-                $('#massTrigger-results').append(resultData.result);
+                $('#massTrigger-results').prepend(resultData.result);
                 $('#massContainerTrigger').val('0');
                 $('.containers-check').prop('checked', false);
                 $('#massTrigger-close-btn').show();
@@ -142,23 +142,19 @@ function massApplyContainerTrigger()
                 timeout: 600000,
                 success: function (resultData) {
                     if (parseInt($('#massContainerTrigger').val()) == 5) {
-                        $('#massTrigger-results').append(resultData.result + "\n");
+                        $('#massTrigger-results').prepend(resultData.result + "\n");
                     } else {
                         updateContainerRowText(containerHash, resultData);
-                        $('#massTrigger-results').append((c + 1) + '/' + selectedContainers.length + ': ' + resultData.result);
+                        $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + resultData.result);
                     }
 
                     c++;
-                    
-                    $('#massTrigger-results').append("<br>");
 
                     runTrigger();
                 },
                 error: function(jqhdr, textStatus, errorThrown) {
-                    $('#massTrigger-results').append((c + 1) + '/' + selectedContainers.length + ': ' + containerName + ' ajax error (' + errorThrown + ')<br>');
+                    $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + containerName + ' ajax error (' + errorThrown + ')<br>');
                     c++;
-
-                    $('#massTrigger-results').append("<br>");
 
                     runTrigger();
                 }

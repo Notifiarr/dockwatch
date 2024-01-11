@@ -225,7 +225,7 @@ if ($updateSettings) {
                     echo $msg . "\n";                    
                 }
             } else {
-                $msg = 'Skipping: ' . $containerState['Names'] . ' (\'' . $containerSettings['hour'] . '\' hour not met)';
+                $msg = 'Skipping: ' . $containerState['Names'] . ' (12h: \'' . date('g') . '\', 24h: \'' . date('H') . '\', hour setting: \'' . $hour . '\', frequency setting: \'' . $containerSettings['frequency'] . '\', $six: \'' . $six . '\', $twelve: \'' . $twelve . '\')';
                 logger(CRON_PULLS_LOG, $msg);
                 echo $msg . "\n";
             }

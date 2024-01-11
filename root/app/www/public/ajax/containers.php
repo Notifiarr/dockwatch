@@ -286,8 +286,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $updateResult   = 'failed';
 
                 if (strlen($update['Id']) == 64) {
-                    $inspectImage   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
-                    $inspectImage   = json_decode($inspectImage['response']['docker'], true);
+                    $inspectImage           = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
+                    $inspectImage           = json_decode($inspectImage['response']['docker'], true);
                     list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
 
                     $updateResult = 'complete';
@@ -305,7 +305,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 }
             }
 
-            $result = 'Container ' . $container['Names'] . ' update: '. $updateResult;
+            $result = 'Container ' . $container['Names'] . ' update: ' . $updateResult . '<br>';
             break;
         case '8': //-- MOUNT COMPARE
             $result = $container['Names'] . '<br>';
