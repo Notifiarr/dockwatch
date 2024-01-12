@@ -81,6 +81,24 @@ if ($updateSettings) {
                         continue;
                     }
 
+                    $preVersion = $postVersion = '';
+
+                    $msg = 'Inspecting container: ' . $containerState['Names'];
+                    logger(CRON_PULLS_LOG, $msg);
+                    echo $msg . "\n";
+                    $inspect = dockerInspect($containerState['Names']);
+
+                    if ($inspect) {
+                        $inspectArray = json_decode($inspect, true);
+
+                        foreach ($inspectArray[0]['Config']['Labels'] as $label => $val) {
+                            if (str_contains($label, 'image.version')) {
+                                $preVersion = $val;
+                                break;
+                            }
+                        }
+                    }
+
                     $msg = 'Getting registry digest: ' . $image;
                     logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
@@ -120,24 +138,6 @@ if ($updateSettings) {
                     if ($regctlDigest != $imageDigest) {
                         switch ($containerSettings['updates']) {
                             case 1: //-- Auto update
-                                $preVersion = $postVersion = '';
-
-                                $msg = 'Inspecting container: ' . $containerState['Names'];
-                                logger(CRON_PULLS_LOG, $msg);
-                                echo $msg . "\n";
-                                $inspect = dockerInspect($containerState['Names']);
-
-                                if ($inspect) {
-                                    $inspectArray = json_decode($inspect, true);
-
-                                    foreach ($inspectArray[0]['Config']['Labels'] as $label => $val) {
-                                        if (str_contains($label, 'image.version')) {
-                                            $preVersion = $val;
-                                            break;
-                                        }
-                                    }
-                                }
-
                                 $msg = 'Pulling image: ' . $image;
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
