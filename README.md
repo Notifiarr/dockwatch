@@ -1,3 +1,6 @@
+![Logo](https://repository-images.githubusercontent.com/718854440/29604111-7881-4c70-82e5-58710371e1eb)
+
+
 # Docker Watcher
 
 ## Purpose

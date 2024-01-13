@@ -30,7 +30,7 @@ $serverList .= '</select>';
     <meta content="" name="description">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <link href="images/logo.ico" rel="icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,7 +66,7 @@ $serverList .= '</select>';
         <div class="sidebar pe-4 pb-3">
             <nav class="navbar bg-secondary navbar-dark">
                 <a href="index.php" class="navbar-brand mx-4">
-                    <h3 class="text-primary mb-0">DockWatch</h3>
+                    <h3 class="text-primary mb-0">Dockwatch</h3>
                 </a>
                 <div class="mb-4 w-100" align="center"><?= $serverList ?></div>
                 <?php if ($_SESSION['authenticated']) { ?>
@@ -90,7 +90,7 @@ $serverList .= '</select>';
                 </div>
             </nav>
             <div class="w-100 text-center" style="position: absolute; bottom: 0;">
-                Theme By <a href="https://htmlcodex.com">HTML Codex</a> | <i class="fas fa-stopwatch" onclick="$('#loadtime-debug').toggle()"></i>
+                Theme By <a href="https://htmlcodex.com" target="_blank">HTML Codex</a> | <i class="fas fa-stopwatch" onclick="$('#loadtime-debug').toggle()"></i>
             </div>
         </div>
         <!-- Sidebar End -->
@@ -102,6 +102,9 @@ $serverList .= '</select>';
                 <a href="#" class="sidebar-toggler flex-shrink-0 m-2">
                     <i class="fa fa-bars"></i>
                 </a>
+                <div align="right" style="float: right;" class="w-100">
+                    <img src="images/logo.png" height="65">
+                </div>
             </nav>
             <!-- Navbar End -->
 
