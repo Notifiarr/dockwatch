@@ -22,7 +22,7 @@ if ($settingsFile['tasks']['prune']['disabled']) {
     exit();
 }
 
-$imagePrune = $volumePrune = [];
+$imagePrune = $imageList = $volumePrune = [];
 $images     = json_decode(dockerGetOrphanContainers(), true);
 $volumes    = json_decode(dockerGetOrphanVolumes(), true);
 
@@ -32,7 +32,8 @@ logger(CRON_PRUNE_LOG, 'volumes=' . json_encode($volumes));
 if ($settingsFile['global']['autoPruneImages']) {
     if ($images) {
         foreach ($images as $image) {
-            $imagePrune[] = $image['ID'];
+            $imagePrune[]   = $image['ID'];
+            $imageList[]    = ['cr' => $image['Repository'], 'created' => $image['CreatedSince'], 'size' => $image['Size']];
         }
     }
 } else {
@@ -66,7 +67,7 @@ if ($volumePrune) {
 }
 
 if ($settingsFile['notifications']['triggers']['prune']['active'] && (count($volumePrune) > 0 || count($imagePrune) > 0)) {
-    $payload = ['event' => 'prune', 'volume' => count($volumePrune), 'image' => count($imagePrune)];
+    $payload = ['event' => 'prune', 'volume' => count($volumePrune), 'image' => count($imagePrune), 'imageList' => $imageList];
     logger(CRON_PRUNE_LOG, 'Notification payload: ' . json_encode($payload));
     $notifications->notify($settingsFile['notifications']['triggers']['prune']['platform'], $payload);
 }

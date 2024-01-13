@@ -19,7 +19,7 @@ if ($_POST['m'] == 'init') {
     <div class="container-fluid pt-4 px-4 mb-5">
         <div class="bg-secondary rounded h-100 p-4">
             <h4 class="mt-3 mb-0">Images</h4>
-            <span style="small-text text-muted">docker images -f dangling=true</span>
+            <span class="small-text text-muted">docker images -f dangling=true</span>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -49,7 +49,7 @@ if ($_POST['m'] == 'init') {
                 </table>
             </div>
             <h4 class="mt-3 mb-0">Volumes</h4>
-            <span style="small-text text-muted">docker volume ls -qf dangling=true</span>
+            <span class="small-text text-muted">docker volume ls -qf dangling=true</span>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
