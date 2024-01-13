@@ -83,22 +83,6 @@ if ($updateSettings) {
 
                     $preVersion = $postVersion = '';
 
-                    $msg = 'Inspecting container: ' . $containerState['Names'];
-                    logger(CRON_PULLS_LOG, $msg);
-                    echo $msg . "\n";
-                    $inspect = dockerInspect($containerState['Names']);
-
-                    if ($inspect) {
-                        $inspectArray = json_decode($inspect, true);
-
-                        foreach ($inspectArray[0]['Config']['Labels'] as $label => $val) {
-                            if (str_contains($label, 'image.version')) {
-                                $preVersion = $val;
-                                break;
-                            }
-                        }
-                    }
-
                     $msg = 'Getting registry digest: ' . $image;
                     logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
@@ -116,6 +100,15 @@ if ($updateSettings) {
                     $inspectImage   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
                     $inspectImage   = json_decode($inspectImage['response']['docker'], true);
                     list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
+
+                    if ($inspectImage) {
+                        foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
+                            if (str_contains($label, 'image.version')) {
+                                $preVersion = $val;
+                                break;
+                            }
+                        }
+                    }
 
                     $msg = 'Updating pull data: ' . $containerState['Names'] . "\n";
                     $msg .= '|__ regctl \'' . truncateMiddle(str_replace('sha256:', '', $regctlDigest), 30) . '\' image \'' . truncateMiddle(str_replace('sha256:', '', $imageDigest), 30) .'\'';
