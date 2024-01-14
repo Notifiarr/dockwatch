@@ -88,9 +88,12 @@ if ($_POST['m'] == 'init') {
                                 }
                                 ?>
                                 <tr id="<?= $groupHash ?>" style="background-color: #1c2029;">
-                                    <th scope="row"><input type="checkbox" class="form-check-input containers-check" onclick="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></th>
+                                    <td><input type="checkbox" class="form-check-input containers-check" onclick="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></td>
                                     <td><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
-                                    <td><span class="text-info" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br><span class="text-muted small-text">Containers: <?= count($containerGroup['containers']) ?></span></td>
+                                    <td>
+                                        <span class="text-info" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br>
+                                        <span class="text-muted small-text">Containers: <?= count($containerGroup['containers']) ?></span>
+                                    </td>
                                     <td colspan="4"></td>
                                     <td><?= $groupCPU ?>%</td>
                                     <td><?= $groupMemory ?>%</td>
@@ -140,12 +143,13 @@ if ($_POST['m'] == 'init') {
                                 <select id="massContainerTrigger" class="form-control d-inline-block w-50">
                                     <option value="0">-- Select option --</option>
                                     <optgroup label="Control">
-                                        <option value="4">Pull</option>
-                                        <option value="9">Remove</option>
-                                        <option value="2">Restart</option>
                                         <option value="1">Start</option>
                                         <option value="3">Stop</option>
-                                        <option value="7">Update</option>
+                                        <option value="2">Restart</option>
+                                        <option value="9">Remove</option>
+                                        <option value="4">Pull</option>
+                                        <option value="7">Update: Apply</option>
+                                        <option value="11">Update: Check</option>
                                     </optgroup>
                                     <optgroup label="Information">
                                         <option value="8">Mount compare</option>
@@ -199,19 +203,19 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     switch ($_POST['trigger']) {
         case '1': //-- START
             $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult));
+            logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
             $result = 'Started ' . $container['Names'] . '<br>';
             break;
         case '2': //-- RESTART
             $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
             logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
             $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult));
+            logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
             $result = 'Restarted ' . $container['Names'] . '<br>';
             break;
         case '3': //-- STOP
             $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
+            logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
             $result = 'Stopped ' . $container['Names'] . '<br>';
             break;
         case '4': //-- PULL
@@ -221,12 +225,12 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $regctlDigest = trim(regctlCheck($image));
 
             $pull = apiRequest('dockerPullContainer', [], ['name' => $image]);
-            logger(UI_LOG, 'dockerPullContainer:' . json_encode($pull));
+            logger(UI_LOG, 'dockerPullContainer:' . json_encode($pull, JSON_UNESCAPED_SLASHES));
 
             $inspectImage   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
             $inspectImage   = json_decode($inspectImage['response']['docker'], true);
             list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
-            logger(UI_LOG, 'dockerInspect:' . json_encode($inspectImage));
+            logger(UI_LOG, 'dockerInspect:' . json_encode($inspectImage, JSON_UNESCAPED_SLASHES));
 
             $pullsFile[md5($container['Names'])]    = [
                                                         'checked'       => time(),
@@ -240,7 +244,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '5': //-- GERNERATE RUN
             $autoRun    = apiRequest('dockerAutoRun', ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerAutoRun:' . json_encode($autoRun));
+            logger(UI_LOG, 'dockerAutoRun:' . json_encode($autoRun, JSON_UNESCAPED_SLASHES));
             $autoRun    = $autoRun['response']['docker'];
             $result     = '<pre>' . $autoRun . '</pre>';
             break;
@@ -254,12 +258,12 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             }
 
             $autoCompose    = apiRequest('dockerAutoCompose', ['name' => trim($containerList)]);
-            logger(UI_LOG, 'dockerAutoCompose:' . json_encode($autoCompose));
+            logger(UI_LOG, 'dockerAutoCompose:' . json_encode($autoCompose, JSON_UNESCAPED_SLASHES));
             $autoCompose    = $autoCompose['response']['docker'];
             $result         = '<pre>' . $autoCompose . '</pre>';
             break;
-        case '7': //-- UPDATE
-            $image              = $container['inspect'][0]['Config']['Image'];
+        case '7': //-- CHECK FOR UPDATES AND APPLY THEM
+            $image = $container['inspect'][0]['Config']['Image'];
             if(skipContainerUpdates($image, $skipContainerUpdates)) {
                 logger(UI_LOG, 'skipping ' . $container['Names'].' update');
                 $updateResult = 'skipped';
@@ -268,20 +272,20 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, 'image:' . $image);
 
                 $apiResponse = apiRequest('dockerInspect', ['name' => $container['Names'], 'useCache' => false, 'format' => true]);
-                logger(UI_LOG, 'dockerInspect:' . json_encode($apiResponse));
+                logger(UI_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
                 $inspectImage = $apiResponse['response']['docker'];
 
                 $apiResponse = apiRequest('dockerPullContainer', [], ['name' => $image]);
-                logger(UI_LOG, 'dockerPullContainer:' . json_encode($apiResponse));
+                logger(UI_LOG, 'dockerPullContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
 
                 $apiResponse = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResponse));
+                logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
 
                 $apiResponse = apiRequest('dockerRemoveContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResponse));
+                logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
 
                 $apiResponse = apiRequest('dockerUpdateContainer', [], ['inspect' => $inspectImage]);
-                logger(UI_LOG, 'dockerUpdateContainer:' . json_encode($apiResponse));
+                logger(UI_LOG, 'dockerUpdateContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
                 $update         = $apiResponse['response']['docker'];
                 $updateResult   = 'failed';
 
@@ -301,7 +305,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     setServerFile('pull', $pullsFile);
 
                     $apiResponse = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
-                    logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResponse));
+                    logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
                 }
             }
 
@@ -313,19 +317,52 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '9': //-- REMOVE
             $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
+            logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
             $apiResult = apiRequest('dockerRemoveContainer', [], ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResult));
+            logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
             $result = 'Removed ' . $container['Names'] . '<br>';
             break;
         case '10': //-- GENERATE API CREATE
             $apiResult = apiRequest('dockerContainerCreateAPI', ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerContainerCreateAPI:' . json_encode($apiResult));
+            logger(UI_LOG, 'dockerContainerCreateAPI:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
             $apiResult = json_decode($apiResult['response']['docker'], true);
 
             $result = $container['Names'] . '<br>';
             $result .= 'Endpoint: <code>' . $apiResult['endpoint'] . '</code><br>';
             $result .= '<pre>' . json_encode($apiResult['payload'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</pre>';
+            break;
+        case '11': //-- CHECK FOR UPDATES
+            $image = $container['inspect'][0]['Config']['Image'];
+            logger(UI_LOG, 'image:' . $image);
+
+            $apiResponse = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false]);
+            logger(UI_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+            $inspectImage = json_decode($apiResponse['response']['docker'], true);
+            list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
+
+            $msg = 'Getting registry digest: ' . $image;
+            logger(CRON_PULLS_LOG, $msg);
+            $regctlDigest = trim(regctlCheck($image));
+
+            if (str_contains($regctlDigest, 'Error')) {
+                logger(CRON_PULLS_LOG, $regctlDigest, 'error');
+                $result = 'Container ' . $container['Names'] . ': error fetching regctl<br>';
+            } else {
+                if ($regctlDigest != $imageDigest) {
+                    $result = 'Container ' . $container['Names'] . ': update available<br>';
+
+                    $pullsFile[md5($container['Names'])]    = [
+                        'checked'       => time(),
+                        'name'          => $container['Names'],
+                        'regctlDigest'  => $regctlDigest,
+                        'imageDigest'   => $imageDigest
+                    ];
+
+                    setServerFile('pull', $pullsFile);
+                } else {
+                    $result = 'Container ' . $container['Names'] . ': up to date<br>';
+                }
+            }
             break;
     }
 

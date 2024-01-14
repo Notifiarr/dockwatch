@@ -57,11 +57,9 @@ function renderContainerRow($nameHash, $return)
     $health = 'Not setup';
     if (str_contains($process['Status'], 'healthy')) {
         $health = 'Healthy';
-    }
-    if (str_contains($process['Status'], 'unhealthy')) {
+    } elseif (str_contains($process['Status'], 'unhealthy')) {
         $health = 'Unhealthy';
-    }
-    if (str_contains($process['Status'], 'health:')) {
+    } elseif (str_contains($process['Status'], 'health:')) {
         $health = 'Waiting';
     }
 
