@@ -1,3 +1,30 @@
+function openEditContainer(hash)
+{
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/containers.php',
+        data: '&m=openEditContainer&hash=' + hash,
+        success: function (resultData) {
+            dialogOpen({
+                id: 'openEditContainer',
+                title: 'Edit Container',
+                size: 'xl',
+                body: resultData,
+                onOpen: function () {
+
+                }
+            });
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
+function applyContainerAction(hash, action)
+{
+    $('#massTrigger-' + hash).prop('checked', true);
+    $('#massContainerTrigger').val(action);
+    massApplyContainerTrigger();
+}
+// ---------------------------------------------------------------------------------------------
 function updateContainerRowText(hash, data, refresh = false)
 {
     $('#' + hash + '-control').html((refresh ? 'Updating' : data.control));

@@ -538,3 +538,129 @@ if ($_POST['m'] == 'saveContainerGroup') {
 
     echo $error;
 }
+
+if ($_POST['m'] == 'openEditContainer') {
+    $container = findContainerFromHash($_POST['hash']);
+    ?>
+    <div class="bg-secondary rounded h-100 p-4">
+        <?= $container['Names'] ?> (<?= $container['stats']['Container'] ?>)<br>
+        <span class="text-muted"><?= $container['Image'] ?></span><br>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2"><h4 class="text-primary">Container</h4></td>
+                    </tr>
+                    <tr>
+                        <td width="20%">Name</td>
+                        <td><input type="text" class="form-control" value="<?= $container['Names'] ?>"></td>
+                    </tr>
+                    <tr>
+                        <td>Repository</td>
+                        <td><input type="text" class="form-control" value="<?= $container['Image'] ?>"></td>
+                    </tr>
+                    <tr>
+                        <td>Icon</td>
+                        <td>
+                            <input type="text" class="form-control" value="">
+                            <span class="text-muted">This will create a dockwatch label, should be a valid URL (Ex: https://domain.com/image.png)</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Web UI</td>
+                        <td>
+                            <input type="text" class="form-control" value="">
+                            <span class="text-muted">This will create a dockwatch label, should be a valid URL (Ex: http://dockwatch or http://10.1.0.1:9999)</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div style="float: left;"><h4 class="text-primary">Environment</h4></div>
+                            <div style="float: right;"><i class="fas fa-plus-circle text-success"></i></div>
+                        </td>
+                    </tr>
+                    <?php 
+                    if ($container['inspect'][0]['Config']['Env']) {
+                        foreach ($container['inspect'][0]['Config']['Env'] as $env) {
+                            list($name, $value) = explode('=', $env);
+                            ?>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <div>Name: <div style="float: right; width: 80%;"><input type="text" class="form-control d-inline-block" value="<?= $name ?>"></div></div><br>
+                                    <div>Value: <div style="float: right; width: 80%;"><input type="text" class="form-control d-inline-block" value="<?= $value ?>"></div></div><br>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                    }
+                    ?>
+                    <tr>
+                        <td colspan="2">
+                            <div style="float: left;"><h4 class="text-primary">Mounts</h4></div>
+                            <div style="float: right;"><i class="fas fa-plus-circle text-success"></i></div>
+                        </td>
+                    </tr>
+                    <?php 
+                    if ($container['inspect'][0]['Mounts']) {
+                        foreach ($container['inspect'][0]['Mounts'] as $mount) {
+                            if ($mount['Type'] != 'bind') {
+                                continue;
+                            }
+
+                            ?>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <div>Inside: <div style="float: right; width: 80%;"><input type="text" class="form-control d-inline-block" value="<?= $mount['Destination'] ?>"></div></div><br>
+                                    <div>Outside: <div style="float: right; width: 80%;"><input type="text" class="form-control d-inline-block" value="<?= $mount['Source'] ?>"></div></div><br>
+                                    <div>
+                                        Mode:
+                                        <div style="float: right; width: 80%;">
+                                            <select class="form-select">
+                                                <option <?= ($mount['Mode'] == 'rw' ? 'selected' : '') ?> value="rw">Read/Write</option>
+                                                <option <?= ($mount['Mode'] == 'rw,slave' ? 'selected' : '') ?> value="rw,slave">Read/Write - Slave</option>
+                                                <option <?= ($mount['Mode'] == 'rw,shared' ? 'selected' : '') ?> value="rw,shared">Read/Write - Shared</option>
+                                                <option <?= ($mount['Mode'] == 'ro' ? 'selected' : '') ?> value="ro">Read Only</option>
+                                                <option <?= ($mount['Mode'] == 'ro,slave' ? 'selected' : '') ?> value="ro,slave">Read Only - Slave</option>
+                                                <option <?= ($mount['Mode'] == 'ro,shared' ? 'selected' : '') ?> value="ro,shared">Read Only - Shared</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                    } 
+                    ?>
+                    <tr>
+                        <td colspan="2">
+                            <div style="float: left;"><h4 class="text-primary">Labels</h4></div>
+                            <div style="float: right;"><i class="fas fa-plus-circle text-success"></i></div>
+                        </td>
+                    </tr>
+                    <?php 
+                    if ($container['inspect'][0]['Config']['Labels']) {
+                        foreach ($container['inspect'][0]['Config']['Labels'] as $name => $value) {
+                            ?>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <div>Name: <div style="float: right; width: 80%;"><input type="text" class="form-control d-inline-block" value="<?= $name ?>"></div></div><br>
+                                    <div>Value: <div style="float: right; width: 80%;"><input type="text" class="form-control d-inline-block" value="<?= $value ?>"></div></div><br>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php
+}
