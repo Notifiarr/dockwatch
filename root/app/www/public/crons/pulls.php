@@ -131,6 +131,11 @@ if ($updateSettings) {
                     if ($regctlDigest != $imageDigest) {
                         switch ($containerSettings['updates']) {
                             case 1: //-- Auto update
+                                $msg = 'Inspecting container: ' . $containerState['Names'];
+                                logger(CRON_PULLS_LOG, $msg);
+                                echo $msg . "\n";
+                                $inspect = dockerInspect($containerState['Names'], false);
+
                                 $msg = 'Pulling image: ' . $image;
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
@@ -152,7 +157,7 @@ if ($updateSettings) {
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
                                 $update = dockerUpdateContainer(json_decode($inspect, true));
-                                logger(CRON_PULLS_LOG, 'dockerUpdateContainer:' . trim(json_encode($update)));
+                                logger(CRON_PULLS_LOG, 'dockerUpdateContainer:' . trim(json_encode($update, JSON_UNESCAPED_SLASHES)));
 
                                 if (strlen($update['Id']) == 64) {
                                     $msg = 'Updating pull data: ' . $containerState['Names'];
@@ -231,18 +236,18 @@ if ($updateSettings) {
         //-- IF THEY USE THE SAME PLATFORM, COMBINE THEM
         if ($settingsFile['notifications']['triggers']['updated']['platform'] == $settingsFile['notifications']['triggers']['updates']['platform']) {
             $payload = ['event' => 'updates', 'available' => $notify['available'], 'updated' => $notify['updated']];
-            logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload));
+            logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
             $notifications->notify($settingsFile['notifications']['triggers']['updated']['platform'], $payload);
         } else {
             if ($notify['available']) {
                 $payload = ['event' => 'updates', 'available' => $notify['available']];
-                logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload));
+                logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
                 $notifications->notify($settingsFile['notifications']['triggers']['updated']['platform'], $payload);
             }
 
             if ($notify['usage']['mem']) {
                 $payload = ['event' => 'updates', 'updated' => $notify['updated']];
-                logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload));
+                logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
                 $notifications->notify($settingsFile['notifications']['triggers']['updates']['platform'], $payload);
             }
         }
