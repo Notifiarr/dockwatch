@@ -114,6 +114,7 @@ if ($updateSettings) {
                     $msg .= '|__ regctl \'' . truncateMiddle(str_replace('sha256:', '', $regctlDigest), 30) . '\' image \'' . truncateMiddle(str_replace('sha256:', '', $imageDigest), 30) .'\'';
                     logger(CRON_PULLS_LOG, $msg);
                     echo $msg . "\n";
+
                     $pullsFile[$containerHash]  = [
                                                     'checked'       => time(),
                                                     'name'          => $containerState['Names'],
@@ -176,15 +177,14 @@ if ($updateSettings) {
                                     $restart = dockerStartContainer($containerState['Names']);
                                     logger(CRON_PULLS_LOG, 'dockerStartContainer:' . trim($restart));
 
-                                    $msg = 'Inspecting container: ' . $containerState['Names'];
+                                    $msg = 'Inspecting image: ' . $image;
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo $msg . "\n";
-                                    $inspect = dockerInspect($containerState['Names'], false);
-    
-                                    if ($inspect) {
-                                        $inspectArray = json_decode($inspect, true);
-    
-                                        foreach ($inspectArray[0]['Config']['Labels'] as $label => $val) {
+                                    $inspectImage   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
+                                    $inspectImage   = json_decode($inspectImage['response']['docker'], true);
+                
+                                    if ($inspectImage) {
+                                        foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
                                             if (str_contains($label, 'image.version')) {
                                                 $postVersion = $val;
                                                 break;
