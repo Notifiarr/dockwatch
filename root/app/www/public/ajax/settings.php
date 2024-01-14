@@ -366,45 +366,7 @@ if ($_POST['m'] == 'saveGlobalSettings') {
         $newSettings[$key] = trim($val);
     }
 
-    //-- ADD SERVER TO LIST
-    if ($_POST['serverList-name-new'] && $_POST['serverList-url-new'] && $_POST['serverList-apikey-new']) {
-        $serversFile[] = ['name' => $_POST['serverList-name-new'], 'url' => rtrim($_POST['serverList-url-new'], '/'), 'apikey' => $_POST['serverList-apikey-new']];
-    }
-
-    //-- UPDATE SERVER LIST
-    foreach ($_POST as $key => $val) {
-        if (!str_contains($key, 'serverList-apikey')) {
-            continue;
-        }
-
-        list($name, $field, $index) = explode('-', $key);
-
-        if (!is_numeric($index)) {
-            continue;
-        }
-
-        if ($_POST['serverList-name-' . $index] && $_POST['serverList-url-' . $index] && $_POST['serverList-apikey-' . $index]) {
-            $serversFile[$index] = ['name' => $_POST['serverList-name-' . $index], 'url' => rtrim($_POST['serverList-url-' . $index], '/'), 'apikey' => $_POST['serverList-apikey-' . $index]];
-        }
-    }
-
-    //-- REMOVE SERVER FROM LIST
-    foreach ($_POST as $key => $val) {
-        if (!str_contains($key, 'serverList-apikey')) {
-            continue;
-        }
-
-        list($name, $field, $index) = explode('-', $key);
-
-        if (!is_numeric($index)) {
-            continue;
-        }
-
-        if (!$_POST['serverList-name-' . $index] && !$_POST['serverList-url-' . $index] && !$_POST['serverList-apikey-' . $index]) {
-            unset($serversFile[$index]);
-        }
-    }
-
+    //-- ENVIRONMENT SWITCHING
     if ($currentSettings['global']['environment'] != $_POST['environment']) {
         if ($_POST['environment'] == 0) { //-- USE INTERNAL
             linkWebroot('internal');
@@ -420,10 +382,54 @@ if ($_POST['m'] == 'saveGlobalSettings') {
         $error = 'Error saving global settings on server ' . ACTIVE_SERVER_NAME;
     }
 
-    $saveServers = setServerFile('servers', $serversFile);
+    //-- ONLY MAKE SERVER CHANGES ON LOCAL
+    if ($_SESSION['serverIndex'] == 0) {
+        //-- ADD SERVER TO LIST
+        if ($_POST['serverList-name-new'] && $_POST['serverList-url-new'] && $_POST['serverList-apikey-new']) {
+            $serversFile[] = ['name' => $_POST['serverList-name-new'], 'url' => rtrim($_POST['serverList-url-new'], '/'), 'apikey' => $_POST['serverList-apikey-new']];
+        }
 
-    if ($saveServers['code'] != 200) {
-        $error = 'Error saving servers on server ' . ACTIVE_SERVER_NAME;
+        //-- UPDATE SERVER LIST
+        foreach ($_POST as $key => $val) {
+            if (!str_contains($key, 'serverList-apikey')) {
+                continue;
+            }
+
+            list($name, $field, $index) = explode('-', $key);
+
+            if (!is_numeric($index)) {
+                continue;
+            }
+
+            if ($_POST['serverList-name-' . $index] && $_POST['serverList-url-' . $index] && $_POST['serverList-apikey-' . $index]) {
+                $serversFile[$index] = ['name' => $_POST['serverList-name-' . $index], 'url' => rtrim($_POST['serverList-url-' . $index], '/'), 'apikey' => $_POST['serverList-apikey-' . $index]];
+            }
+        }
+
+        //-- REMOVE SERVER FROM LIST
+        foreach ($_POST as $key => $val) {
+            if (!str_contains($key, 'serverList-apikey')) {
+                continue;
+            }
+
+            list($name, $field, $index) = explode('-', $key);
+
+            if (!is_numeric($index)) {
+                continue;
+            }
+
+            if (!$_POST['serverList-name-' . $index] && !$_POST['serverList-url-' . $index] && !$_POST['serverList-apikey-' . $index]) {
+                unset($serversFile[$index]);
+            }
+        }
+
+        $saveServers = setServerFile('servers', $serversFile);
+
+        if ($saveServers['code'] != 200) {
+            $error = 'Error saving server list on server ' . ACTIVE_SERVER_NAME;
+        }
+    } else {
+        $serversFile = getFile(SERVERS_FILE);
     }
 
     $serverList = '';
@@ -431,7 +437,7 @@ if ($_POST['m'] == 'saveGlobalSettings') {
         $ping = curl($serverDetails['url'] . '/api/?request=ping', ['x-api-key: ' . $serverDetails['apikey']]);
         $disabled = '';
         if ($ping['code'] != 200) {
-            $disabled = ' [' . $ping['code'] . ']';
+            $disabled = ' [HTTP: ' . $ping['code'] . ']';
         }
         $serverList .= '<option ' . ($disabled ? 'disabled ' : '') . ($_SESSION['serverIndex'] == $serverIndex ? 'selected' : '') . ' value="' . $serverIndex . '">' . $serverDetails['name'] . $disabled . '</option>';
     }

@@ -12,7 +12,7 @@ foreach ($serversFile as $serverIndex => $serverDetails) {
     $ping = curl($serverDetails['url'] . '/api/?request=ping', ['x-api-key: ' . $serverDetails['apikey']]);
     $disabled = '';
     if ($ping['code'] != 200) {
-        $disabled = ' [' . $ping['code'] . ']';
+        $disabled = ' [HTTP: ' . $ping['code'] . ']';
     }
     $serverList .= '<option ' . ($disabled ? 'disabled ' : '') . ($_SESSION['serverIndex'] == $serverIndex ? 'selected' : '') . ' value="' . $serverIndex . '">' . $serverDetails['name'] . $disabled . '</option>';
 }
