@@ -174,7 +174,7 @@ if ($updateSettings) {
                                     $msg = 'Inspecting container: ' . $containerState['Names'];
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo $msg . "\n";
-                                    $inspect = dockerInspect($containerState['Names']);
+                                    $inspect = dockerInspect($containerState['Names'], false);
     
                                     if ($inspect) {
                                         $inspectArray = json_decode($inspect, true);
