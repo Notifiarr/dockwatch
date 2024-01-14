@@ -31,38 +31,19 @@ if ($_POST['m'] == 'init') {
                             <th scope="col">Memory</th>
                             <th scope="col">
                                 <span onclick="$('#container-updates-all').toggle()" class="text-info" style="cursor: pointer;">Updates</span>
-                                <select id="container-updates-all" style="display: none;" class="form-control" onchange="$('.container-updates').val($(this).val())">
+                                <select id="container-updates-all" style="display: none;" class="form-select" onchange="$('.container-updates').val($(this).val())">
                                     <option value="0">Ignore</option>
                                     <option value="1">Auto update</option>
                                     <option value="2">Check for updates</option>
                                 </select>
                             </th>
-                            <th scope="col">
-                                <span onclick="$('#container-frequency-all').toggle()" class="text-info" style="cursor: pointer;">Frequency</span>
-                                <select id="container-frequency-all" style="display: none;" class="form-control" onchange="$('.container-frequency').val($(this).val())">
-                                    <option value="6h">6h</option>
-                                    <option value="12h">12h</option>
-                                    <option value="1d">1d</option>
-                                    <option value="2d">2d</option>
-                                    <option value="3d">3d</option>
-                                    <option value="4d">4d</option>
-                                    <option value="5d">5d</option>
-                                    <option value="6d">6d</option>
-                                    <option value="1w">1w</option>
-                                    <option value="2w">2w</option>
-                                    <option value="3w">3w</option>
-                                    <option value="1m">1m</option>
-                                </select>
-                            </th>
-                            <th>
-                                <span onclick="$('#container-hour-all').toggle()" class="text-info" style="cursor: pointer;">Hour</span>
-                                <select id="container-hour-all" style="display: none;" class="form-control container-hour" onchange="$('.container-hour').val($(this).val())">
-                                <?php
-                                for ($h = 0; $h <= 23; $h++) {
-                                    ?><option value="<?= $h ?>"><?= str_pad($h, 2, 0, STR_PAD_LEFT) ?></option><?php
-                                }
-                                ?>
-                                </select>
+                            <th scope="col" width="10%">
+                                <span onclick="$('#frequency-all-div').toggle()" class="text-info" style="cursor: pointer;">Frequency</span>
+                                <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
+                                <div id="frequency-all-div" class="m-0 p-0" style="display: none;">
+                                    <input id="container-frequency-all" type="text" class="form-control d-inline-block w-75" value="<?= DEFAULT_CRON ?>">
+                                    <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="$('.container-frequency').val($('#container-frequency-all').val())"></i>
+                                </div>
                             </th>
                         </tr>
                     </thead>
@@ -97,7 +78,7 @@ if ($_POST['m'] == 'init') {
                                     <td colspan="4"></td>
                                     <td><?= $groupCPU ?>%</td>
                                     <td><?= $groupMemory ?>%</td>
-                                    <td colspan="3"></td>
+                                    <td colspan="2"></td>
                                 </tr>
                                 <?php
 
@@ -182,10 +163,19 @@ if ($_POST['m'] == 'saveContainerSettings') {
         }
 
         $hash = str_replace('containers-update-', '', $key);
+
+        list($minute, $hour, $dom, $month, $dow) = explode(' ', $_POST['containers-frequency-' . $hash]);
+        $frequency = '0 ' . $hour . ' ' . $dom . ' ' . $month . ' ' . $dow;
+
+        try {
+            $cron = Cron\CronExpression::factory($frequency);
+        } catch (Exception $e) {
+            $frequency = DEFAULT_CRON;
+        }
+
         $newSettings[$hash]    = [
                                     'updates'   => $val,
-                                    'frequency' => $_POST['containers-frequency-' . $hash],
-                                    'hour'      => $_POST['containers-hour-' . $hash]
+                                    'frequency' => $frequency
                                 ];
     }
 

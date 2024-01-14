@@ -52,9 +52,8 @@ foreach ($currentContainers as $currentContainer) {
         }
 
         $updates    = is_array($settingsFile['global']) && array_key_exists('updates', $settingsFile['global']) ? $settingsFile['global']['updates'] : 3; //-- CHECK ONLY FALLBACK
-        $frequency  = is_array($settingsFile['global']) && array_key_exists('updatesFrequency', $settingsFile['global']) ? $settingsFile['global']['updatesFrequency'] : '1d'; //-- DAILY FALLBACK
-        $hour       = is_array($settingsFile['global']) && array_key_exists('updatesHour', $settingsFile['global']) ? $settingsFile['global']['updatesHour'] : 3; //-- 3AM FALLBACK
-        $settingsFile['containers'][md5($currentContainer)] = ['updates' => $updates, 'frequency' => $frequency, 'hour' => $hour];
+        $frequency  = is_array($settingsFile['global']) && array_key_exists('updatesFrequency', $settingsFile['global']) ? $settingsFile['global']['updatesFrequency'] : DEFAULT_CRON; //-- DAILY FALLBACK
+        $settingsFile['containers'][md5($currentContainer)] = ['updates' => $updates, 'frequency' => $frequency];
     }
 }
 if ($added) {

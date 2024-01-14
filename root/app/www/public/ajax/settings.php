@@ -105,32 +105,12 @@ if ($_POST['m'] == 'init') {
                         <tr>
                             <th scope="row">Updates<sup>1</sup></th>
                             <td>
-                                <select class="form-control d-inline-block w-25" id="globalSetting-updates">
+                                <select class="form-select d-inline-block w-50" id="globalSetting-updates">
                                     <option <?= ($globalSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
                                     <option <?= ($globalSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
                                     <option <?= ($globalSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
                                 </select>
-                                <select class="form-control d-inline-block w-25" id="globalSetting-updatesFrequency">
-                                    <option <?= ($globalSettings['updatesFrequency'] == '6h' ? 'selected' : '') ?> value="6h">6h</option>
-                                    <option <?= ($globalSettings['updatesFrequency'] == '12h' ? 'selected' : '') ?> value="12h">12h</option>
-                                    <option <?= ($globalSettings['updatesFrequency'] == '1d' ? 'selected' : '') ?> value="1d">1d</option>
-                                    <option <?= ($globalSettings['updatesFrequency'] == '2d' ? 'selected' : '') ?> value="2d">2d</option>
-                                    <option <?= ($globalSettings['updatesFrequency'] == '3d' ? 'selected' : '') ?> value="3d">3d</option>
-                                    <option <?= ($globalSettings['updatesFrequency'] == '4d' ? 'selected' : '') ?> value="4d">4d</option>
-                                    <option <?= ($globalSettings['updatesFrequency'] == '5d' ? 'selected' : '') ?> value="5d">5d</option>
-                                    <option <?= ($globalSettings['updatesFrequency'] == '6d' ? 'selected' : '') ?> value="6d">6d</option>
-                                    <option <?= ($globalSettings['updatesFrequency'] == '1w' ? 'selected' : '') ?> value="1w">1w</option>
-                                    <option <?= ($globalSettings['updatesFrequency'] == '2w' ? 'selected' : '') ?> value="2w">2w</option>
-                                    <option <?= ($globalSettings['updatesFrequency'] == '3w' ? 'selected' : '') ?> value="3w">3w</option>
-                                    <option <?= ($globalSettings['updatesFrequency'] == '1m' ? 'selected' : '') ?> value="1m">1m</option>
-                                </select>
-                                <select class="form-control d-inline-block w-25" id="globalSetting-updatesHour">
-                                    <?php
-                                    for ($h = 0; $h <= 23; $h++) {
-                                        ?><option <?= ($globalSettings['updatesHour'] == $h ? 'selected' : '') ?> value="<?= $h ?>"><?= $h ?></option><?php
-                                    }
-                                    ?>
-                                </select>
+                                <input type="text" class="form-control d-inline-block w-25" id="globalSetting-updatesFrequency" value="<?= $globalSettings['updatesFrequency'] ?>">
                             </td>
                             <td>What settings to use for new containers that are added</td>
                         </tr>
@@ -337,7 +317,7 @@ if ($_POST['m'] == 'init') {
                         <tr>
                             <th scope="row">Environment</th>
                             <td>
-                                <select class="form-control" id="globalSetting-environment">
+                                <select class="form-select" id="globalSetting-environment">
                                     <option <?= ($globalSettings['environment'] == 0 ? 'selected' : '') ?> value="0">Internal</option>
                                     <option <?= ($globalSettings['environment'] == 1 ? 'selected' : '') ?> value="1">External</option>
                                 </select>
@@ -361,6 +341,14 @@ if ($_POST['m'] == 'saveGlobalSettings') {
     foreach ($_POST as $key => $val) {
         if ($key == 'm' || str_contains($key, 'serverList')) {
             continue;
+        }
+
+        if ($key == 'updatesFrequency') {
+            try {
+                $cron = Cron\CronExpression::factory($val);
+            } catch (Exception $e) {
+                $val = DEFAULT_CRON;
+            }
         }
 
         $newSettings[$key] = trim($val);

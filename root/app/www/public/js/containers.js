@@ -1,3 +1,13 @@
+function containerFrequencyHelp()
+{
+    dialogOpen({
+        id: 'containerFrequencyHelp',
+        title: 'Frequency Help',
+        size: 'lg',
+        body: $('#containerFrequencyHelpDiv').html()
+    });
+}
+// ---------------------------------------------------------------------------------------------
 function openEditContainer(hash)
 {
     $.ajax({
@@ -280,7 +290,7 @@ function showContainerMounts(containerHash)
     $('#show-mount-btn-' + containerHash + ', #mount-list-preview-' + containerHash).hide();
     // <td>
     $('#' + containerHash + '-cpu, #' + containerHash + '-mem, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').hide();
-    $('#' + containerHash + '-mounts-td').attr('colspan', 5);
+    $('#' + containerHash + '-mounts-td').attr('colspan', 4);
 }
 // ---------------------------------------------------------------------------------------------
 function hideContainerMounts(containerHash)

@@ -162,7 +162,7 @@ function renderContainerRow($nameHash, $return)
             <td id="<?= $nameHash ?>-cpu" title="<?= $process['stats']['CPUPerc'] ?>"><?= $cpuUsage ?></td>
             <td id="<?= $nameHash ?>-mem"><?= $process['stats']['MemPerc'] ?></td>
             <td id="<?= $nameHash ?>-update-td">
-                <select id="containers-update-<?= $nameHash ?>" class="form-control container-updates">
+                <select id="containers-update-<?= $nameHash ?>" class="form-select container-updates">
                     <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
                     <?php if (!skipContainerUpdates($process['inspect'][0]['Config']['Image'], $skipContainerUpdates)) { ?>
                     <option <?= ($containerSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
@@ -171,29 +171,22 @@ function renderContainerRow($nameHash, $return)
                 </select>
             </td>
             <td id="<?= $nameHash ?>-frequency-td">
-                <select id="containers-frequency-<?= $nameHash ?>" class="form-control container-frequency">
-                    <option <?= ($containerSettings['frequency'] == '6h' ? 'selected' : '') ?> value="6h">6h</option>
-                    <option <?= ($containerSettings['frequency'] == '12h' ? 'selected' : '') ?> value="12h">12h</option>
-                    <option <?= ($containerSettings['frequency'] == '1d' ? 'selected' : '') ?> value="1d">1d</option>
-                    <option <?= ($containerSettings['frequency'] == '2d' ? 'selected' : '') ?> value="2d">2d</option>
-                    <option <?= ($containerSettings['frequency'] == '3d' ? 'selected' : '') ?> value="3d">3d</option>
-                    <option <?= ($containerSettings['frequency'] == '4d' ? 'selected' : '') ?> value="4d">4d</option>
-                    <option <?= ($containerSettings['frequency'] == '5d' ? 'selected' : '') ?> value="5d">5d</option>
-                    <option <?= ($containerSettings['frequency'] == '6d' ? 'selected' : '') ?> value="6d">6d</option>
-                    <option <?= ($containerSettings['frequency'] == '1w' ? 'selected' : '') ?> value="1w">1w</option>
-                    <option <?= ($containerSettings['frequency'] == '2w' ? 'selected' : '') ?> value="2w">2w</option>
-                    <option <?= ($containerSettings['frequency'] == '3w' ? 'selected' : '') ?> value="3w">3w</option>
-                    <option <?= ($containerSettings['frequency'] == '1m' ? 'selected' : '') ?> value="1m">1m</option>
-                </select>
-            </td>
-            <td id="<?= $nameHash ?>-hour-td">
-                <select id="containers-hour-<?= $nameHash ?>" class="form-control container-hour">
                 <?php
-                for ($h = 0; $h <= 23; $h++) {
-                    ?><option <?= ($containerSettings['hour'] == $h ? 'selected' : '') ?> value="<?= $h ?>"><?= $h ?></option><?php
+                ?>
+                <input type="text" class="form-control container-frequency" id="containers-frequency-<?= $nameHash ?>" value="<?= $containerSettings['frequency'] ?>">
+                <?php
+                //-- OLD FREQUENCY SETTINGS
+                if (strlen($containerSettings['frequency']) > 3) {
+                    try {
+                        $cron = Cron\CronExpression::factory($containerSettings['frequency']);
+                        $display = $cron->getNextRunDate()->format('Y-m-d H:i:s');
+                    } catch (Exception $e) {
+                        $display = 'Invalid cron syntax';
+                    }
+
+                    echo '<span class="text-muted small-text">' . $display . '</span>';
                 }
                 ?>
-                </select>
             </td>
         </tr>
         <?php

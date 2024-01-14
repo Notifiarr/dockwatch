@@ -90,6 +90,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Frequency helper information -->
+    <div id="containerFrequencyHelpDiv" style="display: none;">
+        There are 5 parts to a cron (6 with the optional year which is not used here). Below shows each section:<br>
+        <pre>
+            *    *    *    *    *
+            -    -    -    -    -
+            |    |    |    |    |
+            |    |    |    |    |
+            |    |    |    |    +----- day of week (0 - 7) (Sunday=0 or 7)
+            |    |    |    +---------- month (1 - 12)
+            |    |    +--------------- day of month (1 - 31)
+            |    +-------------------- hour (0 - 23)
+            +------------------------- min (0 - 59)
+        </pre>
+        An example of a cron for every hour would be: <code>0 * * * *</code> and you can generate a cron for just about any variation using <a href="https://crontab.guru/" target="_blank" class="text-info">Cronitor</a><br><br>
+        <span class="text-danger">NOTES:</span>
+        <ul>
+            <li>The minute section will always be set to 0 (zero) for a minimum check time of 1 hour, be respectful of external API usage.</li>
+            <li>Using an invalid cron syntax will default to daily at midnight <code<?= DEFAULT_CRON ?></code></li>
+        </ul>
+    </div>
+
     <!-- JavaScript Libraries -->
     <script src="libraries/jquery/jquery-3.4.1.min.js"></script>
     <script src="libraries/jquery/jquery-ui-1.13.2.min.js"></script>

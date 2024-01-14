@@ -13,6 +13,9 @@ define('APP_IMAGE', 'ghcr.io/notifiarr/dockwatch:main');
 define('ICON_REPO', 'Notifiarr/images');
 define('ICON_URL', 'https://gh.notifiarr.com/images/icons/');
 
+//-- CRON FREQUENCY
+define('DEFAULT_CRON', '0 0 * * *');
+
 //-- FOLDERS
 define('APP_DATA_PATH', '/config/');
 define('BACKUP_PATH', APP_DATA_PATH . 'backups/');
