@@ -22,7 +22,7 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect)
         $imageSizes     = json_decode($imageSizes['response']['docker'], true);
         $loadTimes[]    = trackTime('dockerImageSizes <-');
     }
-    
+
     if ($fetchStats) {
         $loadTimes[] = trackTime('dockerStats ->');
         $dockerStats = apiRequest('stats');
@@ -45,15 +45,27 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect)
             foreach ($processList as $index => $process) {
                 $inspectContainers[] = $process['Names'];
             }
+
             $inspect        = apiRequest('dockerInspect', ['name' => implode(' ', $inspectContainers), 'format' => true]);
             $inspectResults = json_decode($inspect['response']['docker'], true);
         }
-    
+
         //-- ADD INSPECT AND STATS TO PROCESS LIST
         foreach ($processList as $index => $process) {
             //-- ADD THE INSPECT OBJECT IF IT EXISTS
             $processList[$index]['inspect'][] = $inspectResults[$index];
-    
+
+            if ($inspectResults[$index]) {
+                $image = str_replace('sha256:', '', $inspectResults[$index]['Image']);
+
+                foreach ($imageSizes as $imageSize) {
+                    if (substr($image, 0, 12) == $imageSize['ID']) {
+                        $processList[$index]['size'] = $imageSize['Size'];
+                        break;
+                    }
+                }
+            }
+
             if ($fetchStats) {
                 foreach ($dockerStats as $dockerStat) {
                     if ($dockerStat['Name'] == $process['Names']) {

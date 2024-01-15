@@ -24,7 +24,7 @@ $fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'];
 
 $loadTimes[] = trackTime('getExpandedProcessList ->');
 $getExpandedProcessList = getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect);
-$processList = $getExpandedProcessList['processList'];
+$processList            = $getExpandedProcessList['processList'];
 foreach ($getExpandedProcessList['loadTimes'] as $loadTime) {
     $loadTimes[] = $loadTime;
 }

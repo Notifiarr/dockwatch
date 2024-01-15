@@ -142,6 +142,10 @@ function renderContainerRow($nameHash, $return)
                                     <li><i class="fas fa-cloud fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 11)" tabindex="-1" href="#" class="text-white">Update: Check</a></li>
                                 </ul>
                             </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="text-center mb-1">Info</li>
+                            <li class="ms-1 small-text">Size: <?= $process['size'] ?></li>
+                            <li class="ms-1 small-text">Network: <?= $process['inspect'][0]['HostConfig']['NetworkMode'] ?></li>
                         </ul>
                         <br><span class="text-muted small-text" title="<?= isDockerIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 25) ?></span>
                     </div>

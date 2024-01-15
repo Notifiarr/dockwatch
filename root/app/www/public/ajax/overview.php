@@ -14,13 +14,13 @@ if ($_POST['m'] == 'init') {
     $running = $stopped = $memory = $cpu = $network = $size = $updated = $outdated = $healthy = $unhealthy = $unknownhealth = 0;
 
     foreach ($processList as $process) {
+        $size += bytesFromString($process['size']);
+
         if (str_contains($process['Status'], 'healthy')) {
             $healthy++;
-        }
-        if (str_contains($process['Status'], 'unhealthy')) {
+        } elseif (str_contains($process['Status'], 'unhealthy')) {
             $unhealthy++;
-        }
-        if (!str_contains($process['Status'], 'health')) {
+        } elseif (!str_contains($process['Status'], 'health')) {
             $unknownhealth++;
         }
 
@@ -79,11 +79,6 @@ if ($_POST['m'] == 'init') {
     $cpu = $cpu > 0 ? number_format((($running + $stopped) * 100) / $cpu, 2) : 0;
     if (intval($settingsFile['global']['cpuAmount']) > 0) {
         $cpuActual = number_format(($cpu / intval($settingsFile['global']['cpuAmount'])), 2);
-    }
-
-    //-- GET THE SIZE
-    foreach ($imageSizes as $imageSize) {
-        $size += bytesFromString($imageSize['Size']);
     }
 
     ?>
