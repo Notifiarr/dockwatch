@@ -25,9 +25,9 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 ## Update options
 - Ignore
 - Auto update
-- Check for update
+- Check for updates
 
-## Features
+## Some features
 - Link and control multiple servers
 - Try to find/match icons for non unraid usage
 - Setup update schedules on a container by container basis
@@ -152,10 +152,10 @@ Non-Unraid:
 UI
 
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/87fc88d0-3430-43ba-a636-9c89992c7f59)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/4647bda7-acf5-44d6-943b-083a537b284d)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/d338a736-1c1b-4fa5-ac9e-6d5ab6f885ff)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/6e41ca48-1347-4a7f-8a2a-5e5c5020bf41)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/82edfba9-e4e8-4656-bbd5-0105b7904d67)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/5ef6e6bd-6c46-464e-84e0-b6599c290969)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/9d4fc121-c457-4b85-981d-7c615c037946)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/2257d9bf-a9a8-46e3-8712-f3cb2c037199)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/0c5c64b1-ea87-4269-b9fc-d91744c7219d)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/952d424a-f171-4366-8f2e-f673618e8e51)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/911efa2e-10e2-4787-985f-d5dd77a4b935)
@@ -163,7 +163,8 @@ UI
 Notifications
 
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/f3f3b7cc-646c-4eaf-a344-99d0c1c81767)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/c8f75b40-6564-40ab-96ac-afa4d9cc0e65)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/3b30e241-87ee-4e5d-a9f0-5b52ae5cb776)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/bae49f20-573f-4b7e-99f8-35abd5a7b932)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/217f4c81-3b84-40f8-b3ce-a51dabda0e1f)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/f48b47db-125c-4caa-bbdb-50de224861e2)
+![image](https://github.com/Notifiarr/dockwatch/assets/8321115/ca8ea590-5fd6-4808-90f2-04eca15f83b1)
