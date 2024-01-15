@@ -265,6 +265,17 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
                 $inspectImage = $apiResponse['response']['docker'];
 
+                if ($inspectImage) {
+                    $inspect = json_decode($inspectImage, true);
+
+                    foreach ($inspect[0]['Config']['Labels'] as $label => $val) {
+                        if (str_contains($label, 'image.version')) {
+                            $preVersion = $val;
+                            break;
+                        }
+                    }
+                }
+
                 $apiResponse = apiRequest('dockerPullContainer', [], ['name' => $image]);
                 logger(UI_LOG, 'dockerPullContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
 
@@ -283,6 +294,15 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     $inspectImage           = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
                     $inspectImage           = json_decode($inspectImage['response']['docker'], true);
                     list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
+            
+                    if ($inspectImage) {
+                        foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
+                            if (str_contains($label, 'image.version')) {
+                                $postVersion = $val;
+                                break;
+                            }
+                        }
+                    }
 
                     $updateResult = 'complete';
                     $pullsFile[$_POST['hash']]  = [
@@ -299,7 +319,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 }
             }
 
-            $result = 'Container ' . $container['Names'] . ' update: ' . $updateResult . '<br>';
+            $result = 'Container ' . $container['Names'] . ' update: ' . $updateResult . ($preVersion && $postVersion && $updateResult == 'complete' ? ' from \'' . $preVersion . '\' to \'' . $postVersion . '\'' : '') . '<br>';
             break;
         case '8': //-- MOUNT COMPARE
             $result = $container['Names'] . '<br>';
