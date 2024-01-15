@@ -146,7 +146,7 @@ function dockerPullContainer($image)
 function dockerUpdateContainer($inspect)
 {
     $create     = dockerContainerCreateAPI($inspect);
-    $apiRequest = dockerCurlAPI(json_encode($create['payload']), 'post', $create['endpoint']);
+    $apiRequest = dockerCurlAPI($create, 'post');
     return $apiRequest;
 }
 

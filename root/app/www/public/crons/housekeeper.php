@@ -20,6 +20,22 @@ if ($settingsFile['tasks']['housekeeping']['disabled']) {
     exit();
 }
 
+//-- UPDATE FILES CLEANUP (DAILY @ MIDNIGHT)
+if (date('H') == 0 && date('i') <= 5) {
+    logger(CRON_HOUSEKEEPER_LOG, 'Update tmp file cleanup (daily @ midnight)');
+
+    $dir = opendir(TMP_PATH);
+    while ($file = readdir($dir)) {
+        if (!str_contains($file, 'json')) {
+            continue;
+        }
+
+        logger(CRON_HOUSEKEEPER_LOG, 'removing \'' . TMP_PATH . $file . '\'');
+        unlink(TMP_PATH . $file);
+    }
+    closedir($dir);
+}
+
 //-- LOG FILE CLEANUP (DAILY @ MIDNIGHT)
 if (date('H') == 0 && date('i') <= 5) {
     $cleanup    = [

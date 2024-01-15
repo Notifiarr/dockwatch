@@ -21,6 +21,7 @@ function automation()
     createDirectoryTree(LOGS_PATH . 'ui');
     createDirectoryTree(LOGS_PATH . 'api');
     createDirectoryTree(BACKUP_PATH);
+    createDirectoryTree(TMP_PATH);
 }
 
 function createDirectoryTree($tree)

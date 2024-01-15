@@ -376,6 +376,9 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
     }
 
+    $processList = apiRequest('dockerProcessList', ['format' => true]);
+    $processList = json_decode($processList['response']['docker'], true);
+
     $return = renderContainerRow($_POST['hash'], 'json');
     $return['result'] = $result;
 
@@ -678,7 +681,7 @@ if ($_POST['m'] == 'openEditContainer') {
                                 <td>&nbsp;</td>
                                 <td>
                                     <div>Name: <div style="float: right; width: 80%;"><input type="text" class="form-control d-inline-block" value="<?= $name ?>"></div></div><br>
-                                    <div>Value: <div style="float: right; width: 80%;"><input type="text" class="form-control d-inline-block" value="<?= $value ?>"></div></div><br>
+                                    <div>Value: <div style="float: right; width: 80%;"><input type="text" class="form-control d-inline-block" value="<?= str_replace('"', '&quot;', $value) ?>"></div></div><br>
                                 </td>
                             </tr>
                             <?php

@@ -10,8 +10,7 @@
 /*
     USAGE:
         $api            = dockerContainerCreateAPI($inspect);
-        $payload        = is_array($api['payload']) ? json_encode($api['payload']) : '';
-        $apiResponse    = dockerCurlAPI($payload, 'post', $api['endpoint']);
+        $apiResponse    = dockerCurlAPI($api, 'post');
 */
 
 function dockerVersionAPI()
@@ -23,8 +22,17 @@ function dockerVersionAPI()
     return $matches[0][1];
 }
 
-function dockerCurlAPI($payload, $method, $endpoint)
+function dockerCurlAPI($create, $method)
 {
+    $payload    = $create['payload'];
+    $endpoint   = $create['endpoint'];
+    $container  = $create['container'];
+
+    //-- WRITE THE PAYLOAD TO A FILE
+    $filename = $container . '_' . time() . '.json';
+    file_put_contents(TMP_PATH . $filename, json_encode($payload, JSON_UNESCAPED_SLASHES));
+
+    //-- BUILD THE CURL CALL
     $version    = dockerVersionAPI();
     $headers    = '-H "Content-Type: application/json"';
     $cmd        = 'curl --silent ' . (strtolower($method) == 'post' ? '-X POST' : '');
@@ -33,7 +41,7 @@ function dockerCurlAPI($payload, $method, $endpoint)
         $cmd .= ' ' . $headers . ' ';
     }
     if ($payload) {
-        $cmd .= ' -d "' . dockerEscapePayloadAPI($payload) . '"';
+        $cmd .= ' -d @' . TMP_PATH . $filename;
     }
     $shell = shell_exec($cmd . ' 2>&1');
 
@@ -176,5 +184,5 @@ function dockerContainerCreateAPI($inspect = [])
 
     $endpoint = '/containers/create?name=' . $containerName;
 
-    return ['endpoint' => $endpoint, 'payload' => $payload];
+    return ['container' => $containerName, 'endpoint' => $endpoint, 'payload' => $payload];
 }

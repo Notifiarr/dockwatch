@@ -20,6 +20,7 @@ define('DEFAULT_CRON', '0 0 * * *');
 define('APP_DATA_PATH', '/config/');
 define('BACKUP_PATH', APP_DATA_PATH . 'backups/');
 define('LOGS_PATH', APP_DATA_PATH . 'logs/');
+define('TMP_PATH', APP_DATA_PATH . 'tmp/');
 
 //-- DATA FILES
 define('SERVERS_FILE', APP_DATA_PATH . 'servers.json');
