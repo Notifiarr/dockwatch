@@ -60,28 +60,17 @@ function dockerPermissionCheck()
 function dockerProcessList($useCache = true, $format = true, $params = '')
 {
     logger(SYSTEM_LOG, 'dockerProcessList ->');
-    $cacheKey   = MEMCACHE_PREFIX . 'dockerProcessList';
-    $cache      = memcacheGet($cacheKey);
-    if ($cache && $useCache) {
-        logger(SYSTEM_LOG, 'cache=true');
-        logger(SYSTEM_LOG, '$cache=' . $cache);
-        logger(SYSTEM_LOG, 'dockerProcessList <-');
-        return $cache;
+    if ($format) {
+        $cmd = '/usr/bin/docker ps --all --no-trunc --size=false --format="{{json . }}" | jq -s --tab .';
     } else {
-        logger(SYSTEM_LOG, 'cache=false');
-        if ($format) {
-            $cmd = '/usr/bin/docker ps --all --no-trunc --size=false --format="{{json . }}" | jq -s --tab .';
-        } else {
-            $cmd = '/usr/bin/docker ps ' . $params;
-        }
-
-        logger(SYSTEM_LOG, '$cmd=' . $cmd);
-        $shell  = shell_exec($cmd . ' 2>&1');
-        logger(SYSTEM_LOG, '$shell=' . $shell);
-        memcacheSet($cacheKey, $shell, MEMCACHE_DOCKER_PROCESS);
-        logger(SYSTEM_LOG, 'dockerProcessList <-');
-        return $shell;
+        $cmd = '/usr/bin/docker ps ' . $params;
     }
+
+    logger(SYSTEM_LOG, '$cmd=' . $cmd);
+    $shell  = shell_exec($cmd . ' 2>&1');
+    logger(SYSTEM_LOG, '$shell=' . $shell);
+    logger(SYSTEM_LOG, 'dockerProcessList <-');
+    return $shell;
 }
 
 function dockerStats($useCache = true)
@@ -102,21 +91,14 @@ function dockerStats($useCache = true)
 
 function dockerInspect($containerName, $useCache = true, $format = true, $params = '')
 {
-    $cacheKey   = MEMCACHE_PREFIX . 'dockerInspect.' . md5($containerName);
-    $cache      = memcacheGet($cacheKey);
-    if ($cache && $useCache) {
-        return $cache;
+    if ($format) {
+        $cmd = '/usr/bin/docker inspect ' . $containerName . ' --format="{{json . }}" | jq -s --tab .';
     } else {
-        if ($format) {
-            $cmd = '/usr/bin/docker inspect ' . $containerName . ' --format="{{json . }}" | jq -s --tab .';
-        } else {
-            $cmd = '/usr/bin/docker inspect ' . $containerName . ' ' . $params;
-        }
-
-        $shell  = shell_exec($cmd . ' 2>&1');
-        memcacheSet($cacheKey, $shell, MEMCACHE_DOCKER_INSPECT);
-        return $shell;
+        $cmd = '/usr/bin/docker inspect ' . $containerName . ' ' . $params;
     }
+
+    $shell  = shell_exec($cmd . ' 2>&1');
+    return $shell;
 }
 
 function dockerContainerLogs($containerName, $log)

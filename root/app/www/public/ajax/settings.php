@@ -222,45 +222,6 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
-            <h4 class="mt-3">Memcached</h4>
-            Optionally memcached can be used to speed things up in the UI while navigating
-            <div class="table-responsive mt-2">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col" width="15%">Name</th>
-                            <th scope="col" width="30%">Setting</th>
-                            <th scope="col" width="55%">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row">Enabled</th>
-                            <td><?= ($memcache ? 'Yes' : 'No') ?></td>
-                            <td>Is memcached connected and being used</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Prefix</th>
-                            <td><?= MEMCACHE_PREFIX ?></td>
-                            <td>Everything in memcached will be prefixed with this key to ensure no collisions</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Server</th>
-                            <td>
-                                <input class="form-control" type="text" id="globalSetting-memcachedServer" value="<?= $globalSettings['memcachedServer'] ?>">
-                            </td>
-                            <td>The container, ip, hostname of where memcached is installed</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Port</th>
-                            <td>
-                                <input class="form-control" type="number" id="globalSetting-memcachedPort" value="<?= $globalSettings['memcachedPort'] ?>">
-                            </td>
-                            <td>The memcached port (default is 11211)</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
             <h4 class="mt-3">Logging</h4>
             <div class="table-responsive">
                 <table class="table">
@@ -436,9 +397,4 @@ if ($_POST['m'] == 'saveGlobalSettings') {
 //-- CALLED FROM THE NAV MENU SELECT
 if ($_POST['m'] == 'updateServerIndex') {
     $_SESSION['serverIndex'] = intval($_POST['index']);
-
-    $cacheKey = MEMCACHE_PREFIX . 'dockerProcessList';
-    memcacheBust($cacheKey);
-    $cacheKey = MEMCACHE_PREFIX . 'dockerStats';
-    memcacheBust($cacheKey);
 }

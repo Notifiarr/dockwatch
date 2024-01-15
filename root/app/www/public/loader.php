@@ -108,12 +108,5 @@ if (!str_contains($_SERVER['PHP_SELF'], '/api/')) {
         //-- INITIALIZE THE NOTIFY CLASS
         $notifications = new Notifications();
         logger(SYSTEM_LOG, 'Init class: Notifications()');
-
-        //-- INITIALIZE MEMCACHE
-        if ($settingsFile['global']['memcachedServer'] && $settingsFile['global']['memcachedPort']) {
-            $memcache = new Memcached();
-            $memcache->addServer($settingsFile['global']['memcachedServer'], $settingsFile['global']['memcachedPort']);
-            logger(SYSTEM_LOG, 'Init class: Memcached()');
-        }
     }
 }
