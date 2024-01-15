@@ -530,7 +530,11 @@ if ($_POST['m'] == 'saveContainerGroup') {
 }
 
 if ($_POST['m'] == 'openEditContainer') {
-    $container = findContainerFromHash($_POST['hash']);
+    $container      = findContainerFromHash($_POST['hash']);
+    $inspectImage   = apiRequest('dockerInspect', ['name' => $container['Image'], 'useCache' => false, 'format' => true]);
+    $inspectImage   = json_decode($inspectImage['response']['docker'], true);
+    $inspectImage   = $inspectImage[0];
+
     ?>
     <div class="bg-secondary rounded h-100 p-4">
         <?= $container['Names'] ?> (<?= $container['stats']['Container'] ?>)<br>
@@ -573,7 +577,7 @@ if ($_POST['m'] == 'openEditContainer') {
                             <div style="float: right;"><i class="fas fa-plus-circle text-success"></i></div>
                         </td>
                     </tr>
-                    <?php 
+                    <?php
                     if ($container['inspect'][0]['Config']['Env']) {
                         foreach ($container['inspect'][0]['Config']['Env'] as $env) {
                             list($name, $value) = explode('=', $env);
@@ -633,9 +637,22 @@ if ($_POST['m'] == 'openEditContainer') {
                             <div style="float: right;"><i class="fas fa-plus-circle text-success"></i></div>
                         </td>
                     </tr>
-                    <?php 
+                    <?php
+
                     if ($container['inspect'][0]['Config']['Labels']) {
                         foreach ($container['inspect'][0]['Config']['Labels'] as $name => $value) {
+                            //-- SKIP SOME LABELS
+                            $skip = false;
+                            foreach ($inspectImage['Config']['Labels'] as $imageLabelName => $imageLabelValue) {
+                                if ($imageLabelName == $name) {
+                                    $skip = true;
+                                    break;
+                                }
+                            }
+
+                            if ($skip || str_contains_any($name, ['net.unraid.', 'org.opencontainers.'])) {
+                                continue;
+                            }
                             ?>
                             <tr>
                                 <td>&nbsp;</td>

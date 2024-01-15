@@ -33,11 +33,10 @@ if ($updateSettings) {
         }
 
         $containerState = findContainerFromHash($containerHash);
-
+        $preVersion = $postVersion = $cron = '';
         if ($containerState) {
             $pullHistory = $pullsFile[$containerHash];
 
-            $cron = '';
             try {
                 $cron = Cron\CronExpression::factory($containerSettings['frequency']);
             } catch (Exception $e) {
@@ -57,24 +56,11 @@ if ($updateSettings) {
                     continue;
                 }
 
-                $preVersion = $postVersion = '';
-
-                $msg = 'Getting registry digest: ' . $image;
-                logger(CRON_PULLS_LOG, $msg);
-                echo $msg . "\n";
-                $regctlDigest = trim(regctlCheck($image));
-
-                if (str_contains($regctlDigest, 'Error')) {
-                    logger(CRON_PULLS_LOG, $regctlDigest, 'error');
-                    echo $regctlDigest . "\n";
-                    continue;
-                }
-
                 $msg = 'Inspecting image: ' . $image;
                 logger(CRON_PULLS_LOG, $msg);
                 echo $msg . "\n";
-                $inspectImage   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
-                $inspectImage   = json_decode($inspectImage['response']['docker'], true);
+                $inspectImage = dockerInspect($image, false);
+                $inspectImage = json_decode($inspectImage, true);
                 list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
 
                 if ($inspectImage) {
@@ -84,6 +70,22 @@ if ($updateSettings) {
                             break;
                         }
                     }
+                }
+
+                $msg = 'Pre image version: ' . $preVersion;
+                logger(CRON_PULLS_LOG, $msg);
+                echo $msg . "\n";
+
+                $msg = 'Getting registry digest: ' . $image;
+                logger(CRON_PULLS_LOG, $msg);
+                echo $msg . "\n";
+                $regctlDigest = trim(regctlCheck($image));
+
+                if (!$regctlDigest || str_contains($regctlDigest, 'Error')) {
+                    $msg = 'Skipping checks (regctl failed): \'' . $regctlDigest . '\'';
+                    logger(CRON_PULLS_LOG, $msg, 'error');
+                    echo $msg . "\n";
+                    continue;
                 }
 
                 $msg = 'Updating pull data: ' . $containerState['Names'] . "\n";
@@ -156,8 +158,8 @@ if ($updateSettings) {
                                 $msg = 'Inspecting image: ' . $image;
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
-                                $inspectImage   = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
-                                $inspectImage   = json_decode($inspectImage['response']['docker'], true);
+                                $inspectImage   = dockerInspect($image, false);
+                                $inspectImage   = json_decode($inspectImage, true);
             
                                 if ($inspectImage) {
                                     foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
@@ -167,6 +169,10 @@ if ($updateSettings) {
                                         }
                                     }
                                 }
+
+                                $msg = 'Post image version: ' . $postVersion;
+                                logger(CRON_PULLS_LOG, $msg);
+                                echo $msg . "\n";
 
                                 if ($settingsFile['notifications']['triggers']['updated']['active']) {
                                     $notify['updated'][]    = [

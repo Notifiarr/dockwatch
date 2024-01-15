@@ -290,7 +290,7 @@ function showContainerMounts(containerHash)
     $('#show-mount-btn-' + containerHash + ', #mount-list-preview-' + containerHash).hide();
     // <td>
     $('#' + containerHash + '-cpu, #' + containerHash + '-mem, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').hide();
-    $('#' + containerHash + '-mounts-td').attr('colspan', 4);
+    $('#' + containerHash + '-mounts-td').attr('colspan', 5);
 }
 // ---------------------------------------------------------------------------------------------
 function hideContainerMounts(containerHash)

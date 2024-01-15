@@ -14,5 +14,12 @@ function regctlCheck($image)
     }
 
     $regctl = shell_exec(REGCTL_PATH . REGCTL_BINARY . ' image digest --list ' . $image);
+
+    //-- RETRY
+    if (!$regctl) {
+        sleep(3);
+        $regctl = shell_exec(REGCTL_PATH . REGCTL_BINARY . ' image digest --list ' . $image);
+    }
+
     return $regctl;
 }
