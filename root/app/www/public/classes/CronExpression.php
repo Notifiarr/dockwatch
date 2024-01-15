@@ -2,15 +2,16 @@
 
 namespace Cron;
 
-require 'traits/CronExpression/FieldInterface.php';
-require 'traits/CronExpression/AbstractField.php';
-require 'traits/CronExpression/DayOfMonthField.php';
-require 'traits/CronExpression/DayOfWeekField.php';
-require 'traits/CronExpression/FieldFactory.php';
-require 'traits/CronExpression/HoursField.php';
-require 'traits/CronExpression/MinutesField.php';
-require 'traits/CronExpression/MonthField.php';
-require 'traits/CronExpression/YearField.php';
+//-- ORDER IS IMPORTANT
+require ABSOLUTE_PATH . 'classes/traits/CronExpression/FieldInterface.php';
+require ABSOLUTE_PATH . 'classes/traits/CronExpression/AbstractField.php';
+require ABSOLUTE_PATH . 'classes/traits/CronExpression/DayOfMonthField.php';
+require ABSOLUTE_PATH . 'classes/traits/CronExpression/DayOfWeekField.php';
+require ABSOLUTE_PATH . 'classes/traits/CronExpression/FieldFactory.php';
+require ABSOLUTE_PATH . 'classes/traits/CronExpression/HoursField.php';
+require ABSOLUTE_PATH . 'classes/traits/CronExpression/MinutesField.php';
+require ABSOLUTE_PATH . 'classes/traits/CronExpression/MonthField.php';
+require ABSOLUTE_PATH . 'classes/traits/CronExpression/YearField.php';
 
 use DateTime;
 use DateTimeImmutable;
