@@ -376,8 +376,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
     }
 
-    $processList = apiRequest('dockerProcessList', ['format' => true]);
-    $processList = json_decode($processList['response']['docker'], true);
+    $getExpandedProcessList = getExpandedProcessList(true, true, true);
+    $processList = $getExpandedProcessList['processList'];
 
     $return = renderContainerRow($_POST['hash'], 'json');
     $return['result'] = $result;
