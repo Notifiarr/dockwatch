@@ -17,6 +17,11 @@ if ($_POST['m'] == 'init') {
     <div class="container-fluid pt-4 px-4 mb-5">
         <div class="bg-secondary rounded h-100 p-4">
             <div class="table-responsive">
+                <div class="text-end mb-2">
+                    <span class="small-text text-muted">
+                        Real time updates: <span class="small-text text-muted" title="<?= ($_SESSION['socketPID'] ? 'Process ID: ' . $_SESSION['socketPID'] : 'Make sure real time updates are enabled in the settings and you are not connected to a remote server') ?>"><?= ($_SESSION['socketPID'] ? 'every minute' : 'disabled') ?></span>
+                    </span>
+                </div>
                 <table class="table">
                     <thead>
                         <tr>
@@ -186,32 +191,46 @@ if ($_POST['m'] == 'saveContainerSettings') {
 if ($_POST['m'] == 'massApplyContainerTrigger') {
     logger(UI_LOG, 'massApplyContainerTrigger ->');
     $container  = findContainerFromHash($_POST['hash']);
+    $image      = $container['inspect'][0]['Config']['Image'];
 
     logger(UI_LOG, 'trigger:' . $_POST['trigger']);
     logger(UI_LOG, 'findContainerFromHash:' . json_encode($container));
+    logger(UI_LOG, 'image:' . $image);
 
     switch ($_POST['trigger']) {
         case '1': //-- START
-            $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
-            $result = 'Started ' . $container['Names'] . '<br>';
+            if (skipContainerActions($image, $skipContainerActions)) {
+                logger(UI_LOG, 'skipping ' . $container['Names'].' start request');
+                $result = 'Skipped ' . $container['Names'] . '<br>';
+            } else {
+                $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                $result = 'Started ' . $container['Names'] . '<br>';
+            }
             break;
         case '2': //-- RESTART
-            $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
-            $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
-            $result = 'Restarted ' . $container['Names'] . '<br>';
+            if (skipContainerActions($image, $skipContainerActions)) {
+                logger(UI_LOG, 'skipping ' . $container['Names'].' restart request');
+                $result = 'Skipped ' . $container['Names'] . '<br>';
+            } else {
+                $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
+                $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                $result = 'Restarted ' . $container['Names'] . '<br>';
+            }
             break;
         case '3': //-- STOP
-            $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
-            $result = 'Stopped ' . $container['Names'] . '<br>';
+            if (skipContainerActions($image, $skipContainerActions)) {
+                logger(UI_LOG, 'skipping ' . $container['Names'].' stop request');
+                $result = 'Skipped ' . $container['Names'] . '<br>';
+            } else {
+                $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                $result = 'Stopped ' . $container['Names'] . '<br>';
+            }
             break;
         case '4': //-- PULL
-            $image = isDockerIO($container['inspect'][0]['Config']['Image']);
-            logger(UI_LOG, 'image:' . $image);
-
             $regctlDigest = trim(regctlCheck($image));
 
             $pull = apiRequest('dockerPullContainer', [], ['name' => $image]);
@@ -253,8 +272,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $result         = '<pre>' . $autoCompose . '</pre>';
             break;
         case '7': //-- CHECK FOR UPDATES AND APPLY THEM
-            $image = $container['inspect'][0]['Config']['Image'];
-            if(skipContainerUpdates($image, $skipContainerUpdates)) {
+            if (skipContainerActions($image, $skipContainerActions)) {
                 logger(UI_LOG, 'skipping ' . $container['Names'].' update');
                 $updateResult = 'skipped';
             } else {
@@ -326,11 +344,16 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $result .= '<div class="ms-4">' . implode('<br>', $container['inspect'][0]['HostConfig']['Binds']) . '</div><br>';
             break;
         case '9': //-- REMOVE
-            $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
-            $apiResult = apiRequest('dockerRemoveContainer', [], ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
-            $result = 'Removed ' . $container['Names'] . '<br>';
+            if (skipContainerActions($image, $skipContainerActions)) {
+                logger(UI_LOG, 'skipping ' . $container['Names'].' remove request');
+                $result = 'Skipped ' . $container['Names'] . '<br>';
+            } else {
+                $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                $apiResult = apiRequest('dockerRemoveContainer', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                $result = 'Removed ' . $container['Names'] . '<br>';
+            }
             break;
         case '10': //-- GENERATE API CREATE
             $apiResult = apiRequest('dockerContainerCreateAPI', ['name' => $container['Names']]);
@@ -342,9 +365,6 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $result .= '<pre>' . json_encode($apiResult['payload'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</pre>';
             break;
         case '11': //-- CHECK FOR UPDATES
-            $image = $container['inspect'][0]['Config']['Image'];
-            logger(UI_LOG, 'image:' . $image);
-
             $apiResponse = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false]);
             logger(UI_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
             $inspectImage = json_decode($apiResponse['response']['docker'], true);

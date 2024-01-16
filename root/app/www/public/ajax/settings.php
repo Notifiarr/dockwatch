@@ -201,7 +201,7 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
-            <h4 class="mt-3">SSE</h4>
+            <h4 class="mt-3">Sockets</h4>
             <div class="table-responsive mt-2">
                 <table class="table">
                     <thead>
@@ -213,11 +213,25 @@ if ($_POST['m'] == 'init') {
                     </thead>
                     <tbody>
                         <tr>
-                            <th scope="row">Enabled</th>
+                            <th scope="row">Enabled<sup>2,3</sup></th>
                             <td>
-                                <input class="form-check-input" type="checkbox" id="globalSetting-useSSE" <?= ($globalSettings['useSSE'] ? 'checked' : '') ?>>
+                                <input class="form-check-input" type="checkbox" id="globalSetting-socketEnabled" <?= ($globalSettings['socketEnabled'] ? 'checked' : '') ?> disabled>
                             </td>
-                            <td>Server side events which will update the container list UI every minute with current status of Updates, State, Health, Added, CPU and Memory</td>
+                            <td>Websocket will update the container list UI every minute with current status of Updates, State, Health, Added, CPU and Memory</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Socket host</th>
+                            <td>
+                                <input class="form-control" type="text" id="globalSetting-socketHost" value="<?= ($globalSettings['socketHost'] ? $globalSettings['socketHost'] : SOCKET_HOST) ?>">
+                            </td>
+                            <td>The host for the socket to connect to (container host)</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Socket port</th>
+                            <td>
+                                <input class="form-control" type="text" id="globalSetting-socketPort" value="<?= ($globalSettings['socketPort'] ? $globalSettings['socketPort'] : SOCKET_PORT) ?>">
+                            </td>
+                            <td>The port used for the socket (9998 is default unless changed)</td>
                         </tr>
                     </tbody>
                 </table>
@@ -289,7 +303,9 @@ if ($_POST['m'] == 'init') {
                 </table>
             </div>
             <div align="center"><button type="button" class="btn btn-success m-2" onclick="saveGlobalSettings()">Save Changes</button></div>
-            <sup>1</sup> Checked every 5 minutes
+            <sup>1</sup> Checked every 5 minutes<br>
+            <sup>2</sup> Updates every minute<br>
+            <sup>3</sup> Requires a page reload to take effect<br>
         </div>
     </div>
     <?php

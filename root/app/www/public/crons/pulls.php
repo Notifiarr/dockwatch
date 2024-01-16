@@ -101,7 +101,7 @@ if ($updateSettings) {
                                             ];
 
                 //-- DONT AUTO UPDATE THIS CONTAINER, CHECK ONLY
-                if (skipContainerUpdates($image, $skipContainerUpdates)) {
+                if (skipContainerActions($image, $skipContainerActions)) {
                     if ($containerSettings['updates'] == 1) {
                         $containerSettings['updates'] = 2;
                     }

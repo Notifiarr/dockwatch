@@ -48,7 +48,9 @@ $serverList .= '</select>';
     <link href="css/style.css" rel="stylesheet">
 
     <script type="text/javascript">
-        const USE_SSE = <?= $settingsFile['global']['useSSE'] ? 'true' : 'false' ?>
+        const USE_SOCKET = <?= $settingsFile['global']['socketEnabled'] ? 'true' : 'false' ?>;
+        const SOCKET_HOST = '<?= $socketHost ?>';
+        const SOCKET_PORT = '<?= $socketPort ?>';
     </script>
 </head>
 

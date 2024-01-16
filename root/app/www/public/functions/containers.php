@@ -9,7 +9,7 @@
 
 function renderContainerRow($nameHash, $return)
 {
-    global $pullsFile, $settingsFile, $processList, $skipContainerUpdates, $groupHash;
+    global $pullsFile, $settingsFile, $processList, $skipContainerActions, $groupHash;
 
     if (!$pullsFile) {
         $pullsFile = getServerFile('pull');
@@ -33,6 +33,8 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
+    $skipActions = skipContainerActions($process['Image'], $skipContainerActions);
+
     $containerSettings  = $settingsFile['containers'][$nameHash];
     $logo               = getIcon($process['inspect']);
 
@@ -42,7 +44,11 @@ function renderContainerRow($nameHash, $return)
     } else {
         $control = '<i class="fas fa-play text-success container-start-btn" title="Start" style="cursor: pointer;" onclick="controlContainer(\'' . $nameHash . '\', \'start\')"></i>';
     }
- 
+
+    if ($skipActions) {
+        $control = '';
+    }
+
     $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
     if (intval($settingsFile['global']['cpuAmount']) > 0) {
         $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
@@ -131,14 +137,14 @@ function renderContainerRow($nameHash, $return)
                     <div class="col-sm-10">
                         <span id="menu-<?= $nameHash ?>" style="cursor: pointer;" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?= $process['Names'] ?></span>
                         <ul class="dropdown-menu dropdown-menu-dark p-2" role="menu" aria-labelledby="menu-<?= $nameHash ?>">
-                            <li><i class="fas fa-tools fa-fw text-muted me-1"></i> <a onclick="openEditContainer('<?= $nameHash ?>')" tabindex="-1" href="#" class="text-white">Edit</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-tools fa-fw text-muted me-1"></i> <a onclick="openEditContainer('<?= $nameHash ?>')" tabindex="-1" href="#" class="text-white">Edit</a></li>
+                            <li <?= ($skipActions ? 'class="d-none"' : '') ?>><hr class="dropdown-divider"></li>
                             <li class="dropdown-submenu">
                                 <i class="fas fa-ellipsis-v fa-fw text-muted me-1"></i> <a tabindex="-1" href="#" class="text-white">Actions</a>
                                 <ul class="dropdown-menu dropdown-menu-dark p-2">
                                     <li><i class="fas fa-cloud-download-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 4)" tabindex="-1" href="#" class="text-white">Pull</a></li>
-                                    <li><i class="fas fa-trash-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 9)" tabindex="-1" href="#" class="text-white">Remove</a></li>
-                                    <li><i class="fas fa-cloud-upload-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 7)" tabindex="-1" href="#" class="text-white">Update: Apply</a></li>
+                                    <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-trash-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 9)" tabindex="-1" href="#" class="text-white">Remove</a></li>
+                                    <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-cloud-upload-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 7)" tabindex="-1" href="#" class="text-white">Update: Apply</a></li>
                                     <li><i class="fas fa-cloud fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 11)" tabindex="-1" href="#" class="text-white">Update: Check</a></li>
                                 </ul>
                             </li>
@@ -166,9 +172,9 @@ function renderContainerRow($nameHash, $return)
             <td id="<?= $nameHash ?>-cpu" title="<?= $process['stats']['CPUPerc'] ?>"><?= $cpuUsage ?></td>
             <td id="<?= $nameHash ?>-mem"><?= $process['stats']['MemPerc'] ?></td>
             <td id="<?= $nameHash ?>-update-td">
-                <select id="containers-update-<?= $nameHash ?>" class="form-select container-updates">
+                <select id="containers-update-<?= $nameHash ?>" class="form-select container-updates" style="min-width: 150px;">
                     <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
-                    <?php if (!skipContainerUpdates($process['inspect'][0]['Config']['Image'], $skipContainerUpdates)) { ?>
+                    <?php if (!skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions)) { ?>
                     <option <?= ($containerSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
                     <?php } ?>
                     <option <?= ($containerSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
@@ -177,7 +183,7 @@ function renderContainerRow($nameHash, $return)
             <td id="<?= $nameHash ?>-frequency-td">
                 <?php
                 ?>
-                <input type="text" class="form-control container-frequency" id="containers-frequency-<?= $nameHash ?>" value="<?= $containerSettings['frequency'] ?>">
+                <input type="text" class="form-control container-frequency" id="containers-frequency-<?= $nameHash ?>" value="<?= $containerSettings['frequency'] ?>" style="min-width: 125px;">
                 <?php
                 //-- OLD FREQUENCY SETTINGS
                 if (strlen($containerSettings['frequency']) > 3) {
@@ -197,7 +203,7 @@ function renderContainerRow($nameHash, $return)
     }
 }
 
-function skipContainerUpdates($container, $containers)
+function skipContainerActions($container, $containers)
 {
     foreach ($containers as $skip) {
         if (str_contains($container, $skip)) {

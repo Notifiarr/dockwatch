@@ -10,13 +10,25 @@ $(document).ready(function () {
         backdrop: 'static'
     });
 
-    //-- DELAY THE CONNECTION SO IT DOESNT STALL THE UI ON PAGE LOAD
-    if (USE_SSE) {
-        setTimeout(function () {
-            sse();
-        }, 5000);
+    if (USE_SOCKET) {
+        console.log('Starting websocket on ' + SOCKET_HOST + ':' + SOCKET_PORT);
+		var websocket = new WebSocket('ws://' + SOCKET_HOST + ':' + SOCKET_PORT + '/socket.php');
+		websocket.onopen = function(event) { 
+			console.log('websocket connected');	
+		}
+		websocket.onmessage = function(event) {
+			var message = JSON.parse(event.data);
+			console.log('websocket message');	
+            console.log(message);
+		};
+		
+		websocket.onerror = function(event){
+			console.log('websocket error');
+		};
+		websocket.onclose = function(event){
+			console.log('websocket closed');
+		}; 
     }
-
 }).keyup(function (e) {
     if ($('#username').length) {
         if (e.keyCode === 13) {

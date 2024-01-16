@@ -23,6 +23,7 @@ $ignoreAutoloads    = ['header.php', 'footer.php'];
 
 foreach ($autoloads as $autoload) {
     $dir = ABSOLUTE_PATH . $autoload;
+
     if (is_dir($dir)) {
         $handle = opendir($dir);
         while ($file = readdir($handle)) {
@@ -50,7 +51,7 @@ define('ACTIVE_SERVER_NAME', $serversFile[$_SESSION['serverIndex']]['name']);
 define('ACTIVE_SERVER_URL', rtrim($serversFile[$_SESSION['serverIndex']]['url'], '/'));
 define('ACTIVE_SERVER_APIKEY', $serversFile[$_SESSION['serverIndex']]['apikey']);
 
-if (!str_contains($_SERVER['PHP_SELF'], '/api/')) {
+if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/', 'socket'])) {
     //-- CHECK IF SELECTED SERVER CAN BE TALKED TO
     $ping = apiRequest('ping');
     if (!is_array($ping) || $ping['code'] != 200) {
@@ -110,3 +111,7 @@ if (!str_contains($_SERVER['PHP_SELF'], '/api/')) {
         logger(SYSTEM_LOG, 'Init class: Notifications()');
     }
 }
+
+//-- SOCKET
+$socketHost = $settingsFile['global']['socketHost'] ? $settingsFile['global']['socketHost'] : SOCKET_HOST;
+$socketPort = $settingsFile['global']['socketPort'] ? $settingsFile['global']['socketPort'] : SOCKET_PORT;

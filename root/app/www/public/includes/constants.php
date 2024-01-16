@@ -13,6 +13,10 @@ define('APP_IMAGE', 'ghcr.io/notifiarr/dockwatch:main');
 define('ICON_REPO', 'Notifiarr/images');
 define('ICON_URL', 'https://gh.notifiarr.com/images/icons/');
 
+//-- SOCKET DEFAULTS
+define('SOCKET_HOST', $_SERVER['SERVER_NAME']);
+define('SOCKET_PORT', 9998);
+
 //-- CRON FREQUENCY
 define('DEFAULT_CRON', '0 0 * * *');
 
@@ -62,8 +66,9 @@ $getProc    = ['overview', 'containers', 'notifications'];
 $getInspect = ['overview', 'containers'];
 
 //-- SKIP UPDATING CONTAINERS THAT CAN BREAK THINGS
-$skipContainerUpdates   = [
-                            'dockwatch',    //-- IF THIS AUTO UPDATES, IT WILL STOP THE CONTAINER WHICH MEANS IT CAN NEVER FINISH
-                            'cloudflared',  //-- IF THIS AUTO UPDATES, IT WILL KILL THE NETWORK TRAFFIC TO DOCKWATCH
-                            'gluetun'       //-- IF THIS AUTO UPDATES, IT WILL KILL THE VPN NETWORK THAT CONTAINERS RELY ON
+$skipContainerActions   = [
+                            'dockwatch',    //-- IF THIS GOES DOWN, IT WILL STOP THE CONTAINER WHICH MEANS IT CAN NEVER FINISH
+                            'cloudflared',  //-- IF THIS GOES DOWN, IT WILL KILL THE NETWORK TRAFFIC TO DOCKWATCH
+                            'gluetun',      //-- IF THIS GOES DOWN, IT WILL KILL THE VPN NETWORK THAT CONTAINERS RELY ON
+                            'swag'          //-- IS THIS GOES DOWN, IT WILL KILL THE WEB SERVICE TO DOCKWATCH
                         ];
