@@ -62,6 +62,30 @@ function initPage(page)
         success: function (resultData) {
             $('#content-' + page).html(resultData);
             init = false;
+
+            if (page == 'containers') {
+                $('#container-table').dataTable({
+                    dom: 'lfBrtip',
+                    stateSave: true,
+                    stateSaveParams: function (settings, data) {
+                        data.search.search = '';
+                    },
+                    paging: false,
+                    ordering: false,
+                    buttons: [
+                        'colvis'
+                    ],
+                    initComplete: function () {
+                        $('.buttons-colvis').on('click', function () {
+                            $('.dt-button-collection').addClass('bg-secondary');
+                        });
+
+                        $('input[type=search]').on('keydown', function () {
+                            $('.container-group-row').show();
+                        });
+                    }
+                });
+            }
         }
     });
 

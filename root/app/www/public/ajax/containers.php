@@ -22,19 +22,19 @@ if ($_POST['m'] == 'init') {
                         Real time updates: <span class="small-text text-muted" title="<?= ($_SESSION['socketPID'] ? 'Process ID: ' . $_SESSION['socketPID'] : 'Make sure real time updates are enabled in the settings and you are not connected to a remote server') ?>"><?= ($_SESSION['socketPID'] ? 'every minute' : 'disabled') ?></span>
                     </span>
                 </div>
-                <table class="table">
+                <table class="table" id="container-table">
                     <thead>
                         <tr>
-                            <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.containers-check').prop('checked', $(this).prop('checked'));"></th>
-                            <th scope="col"></th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Updates</th>
-                            <th scope="col">State</th>
-                            <th scope="col">Health</th>
-                            <th scope="col">Mounts</th>
-                            <th scope="col">CPU</th>
-                            <th scope="col">Memory</th>
-                            <th scope="col">
+                            <th scope="col" class="noselect"><input type="checkbox" class="form-check-input" onclick="$('.containers-check').prop('checked', $(this).prop('checked'));"></th>
+                            <th scope="col" class="noselect"></th>
+                            <th scope="col" class="noselect">Name</th>
+                            <th scope="col" class="noselect">Updates</th>
+                            <th scope="col" class="noselect">State</th>
+                            <th scope="col" class="noselect">Health</th>
+                            <th scope="col" class="noselect">Mounts</th>
+                            <th scope="col" class="noselect">CPU</th>
+                            <th scope="col" class="noselect">Memory</th>
+                            <th scope="col" class="noselect">
                                 <span onclick="$('#container-updates-all').toggle()" class="text-info" style="cursor: pointer;">Updates</span>
                                 <select id="container-updates-all" style="display: none;" class="form-select" onchange="$('.container-updates').val($(this).val())">
                                     <option value="0">Ignore</option>
@@ -42,7 +42,7 @@ if ($_POST['m'] == 'init') {
                                     <option value="2">Check for updates</option>
                                 </select>
                             </th>
-                            <th scope="col" width="10%">
+                            <th scope="col" class="noselect">
                                 <span onclick="$('#frequency-all-div').toggle()" class="text-info" style="cursor: pointer;">Frequency</span>
                                 <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
                                 <div id="frequency-all-div" class="m-0 p-0" style="display: none;">
@@ -73,17 +73,21 @@ if ($_POST['m'] == 'init') {
                                     }
                                 }
                                 ?>
-                                <tr id="<?= $groupHash ?>" style="background-color: #1c2029;">
+                                <tr id="<?= $groupHash ?>" class="container-group" style="background-color: #1c2029;">
                                     <td><input type="checkbox" class="form-check-input containers-check" onclick="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></td>
                                     <td><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
                                     <td>
                                         <span class="text-info" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br>
                                         <span class="text-muted small-text">Containers: <?= count($containerGroup['containers']) ?></span>
                                     </td>
-                                    <td colspan="4"></td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
                                     <td><?= $groupCPU ?>%</td>
                                     <td><?= $groupMemory ?>%</td>
-                                    <td colspan="2"></td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
                                 </tr>
                                 <?php
 
@@ -126,7 +130,7 @@ if ($_POST['m'] == 'init') {
                         <tr>
                             <td colspan="6">
                                 With selected: 
-                                <select id="massContainerTrigger" class="form-control d-inline-block w-50">
+                                <select id="massContainerTrigger" class="form-select d-inline-block w-50">
                                     <option value="0">-- Select option --</option>
                                     <optgroup label="Control">
                                         <option value="1">Start</option>
@@ -146,7 +150,7 @@ if ($_POST['m'] == 'init') {
                                 </select>
                                 <button type="button" class="btn btn-outline-info" onclick="massApplyContainerTrigger()">Apply</button>
                             </td>
-                            <td colspan="7" align="right">
+                            <td colspan="5" class="text-right" align="right">
                                 <button type="button" class="btn btn-info" onclick="openContainerGroups()">Groups</button>
                                 <button type="button" class="btn btn-success" onclick="saveContainerSettings()">Save Changes</button>
                             </td>

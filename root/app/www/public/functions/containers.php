@@ -128,8 +128,8 @@ function renderContainerRow($nameHash, $return)
         return $return;
     } else {
         ?>
-        <tr id="<?= $nameHash ?>" <?= ($groupHash ? 'class="' . $groupHash . '" style="display: none; background-color: #232833;"' : '' ) ?>>
-            <td scope="row"><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check <?= ($groupHash ? 'group-' . $groupHash . '-check' : '') ?>"></td>
+        <tr id="<?= $nameHash ?>" <?= ($groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ) ?>>
+            <td><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check <?= ($groupHash ? 'group-' . $groupHash . '-check' : '') ?>"></td>
             <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '') ?></td>
             <td>
                 <div class="row m-0 p-0">

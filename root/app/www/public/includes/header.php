@@ -44,6 +44,9 @@ $serverList .= '</select>';
     <!-- Customized Bootstrap Stylesheet -->
     <link href="libraries/bootstrap/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Datatable Stylesheet -->
+    <link href="libraries/datatable/datatables.min.css" rel="stylesheet">
+
     <!-- Template Stylesheet -->
     <link href="css/style.css" rel="stylesheet">
 

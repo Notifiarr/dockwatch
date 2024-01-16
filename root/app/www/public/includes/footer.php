@@ -117,6 +117,7 @@
     <script src="libraries/jquery/jquery-3.4.1.min.js"></script>
     <script src="libraries/jquery/jquery-ui-1.13.2.min.js"></script>
     <script src="libraries/bootstrap/bootstrap.bundle.min.js"></script>
+    <script src="libraries/datatable/datatables.min.js"></script>
 
     <!-- Javascript -->
     <?= loadJS() ?>
