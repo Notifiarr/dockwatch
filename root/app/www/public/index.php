@@ -10,8 +10,13 @@
 require 'loader.php';
 require 'includes/header.php';
 
-$dockerPerms = apiRequest('dockerPermissionCheck');
-$dockerPerms = json_decode($dockerPerms['response']['docker'], true);
+if ($_SESSION['dockerPerms']) {
+    $dockerPerms = $_SESSION['dockerPerms'];
+} else {
+    $dockerPerms = apiRequest('dockerPermissionCheck');
+    $dockerPerms = json_decode($dockerPerms['response']['docker'], true);
+    $_SESSION['dockerPerms'] = $dockerPerms;
+}
 
 $loadError = '';
 if (!$serversFile) {

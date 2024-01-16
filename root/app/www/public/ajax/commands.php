@@ -85,7 +85,7 @@ if ($_POST['m'] == 'runCommand') {
 
             ?>
             <h4><?= $serverData['name'] ?></h4>
-            <pre style="max-height: 500px; overflow: auto;"><?= $apiResponse ?></pre>
+            <pre style="max-height: 500px; overflow: auto;"><?= htmlspecialchars($apiResponse) ?></pre>
             <?php
         }
     }

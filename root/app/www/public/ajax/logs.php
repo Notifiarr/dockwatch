@@ -102,7 +102,7 @@ if ($_POST['m'] == 'viewLog') {
         $error = 'Failed to get log from server ' . ACTIVE_SERVER_NAME;
     }
 
-    echo json_encode(['error' => $error, 'header' => $result['header'], 'log' => $result['log'], 'server' => ACTIVE_SERVER_NAME]);
+    echo json_encode(['error' => $error, 'header' => $result['header'], 'log' => htmlspecialchars($result['log']), 'server' => ACTIVE_SERVER_NAME]);
 }
 
 if ($_POST['m'] == 'purgeLogs') {
