@@ -17,13 +17,46 @@ RUN \
   fi && \
   apk add --no-cache \
     nginx==${NGINX_VERSION} \
+    nginx-mod-http-brotli==${NGINX_VERSION} \
+    nginx-mod-http-dav-ext==${NGINX_VERSION} \
     nginx-mod-http-echo==${NGINX_VERSION} \
+    nginx-mod-http-fancyindex==${NGINX_VERSION} \
+    nginx-mod-http-geoip==${NGINX_VERSION} \
+    nginx-mod-http-geoip2==${NGINX_VERSION} \
     nginx-mod-http-headers-more==${NGINX_VERSION} \
+    nginx-mod-http-image-filter==${NGINX_VERSION} \
     nginx-mod-http-perl==${NGINX_VERSION} \
+    nginx-mod-http-redis2==${NGINX_VERSION} \
+    nginx-mod-http-set-misc==${NGINX_VERSION} \
+    nginx-mod-http-upload-progress==${NGINX_VERSION} \
+    nginx-mod-http-xslt-filter==${NGINX_VERSION} \
+    nginx-mod-mail==${NGINX_VERSION} \
+    nginx-mod-rtmp==${NGINX_VERSION} \
+    nginx-mod-stream==${NGINX_VERSION} \
+    nginx-mod-stream-geoip==${NGINX_VERSION} \
+    nginx-mod-stream-geoip2==${NGINX_VERSION} \
     nginx-vim==${NGINX_VERSION} \
     php82-bcmath \
     php82-bz2 \
+    php82-dom \
+    php82-exif \
+    php82-ftp \
+    php82-gd \
+    php82-gmp \
+    php82-imap \
+    php82-intl \
+    php82-ldap \
+    php82-mysqli \
+    php82-mysqlnd \
+    php82-opcache \
+    php82-pdo_mysql \
+    php82-pdo_odbc \
+    php82-pdo_pgsql \
+    php82-pdo_sqlite \
     php82-pear \
+    php82-pecl-apcu \
+    php82-pecl-memcached \
+    php82-pecl-redis \
     php82-soap \
     php82-sockets \
     php82-tokenizer \
