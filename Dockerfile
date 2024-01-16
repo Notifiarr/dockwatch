@@ -15,6 +15,7 @@ RUN \
     NGINX_VERSION=$(curl -sL "http://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/APKINDEX.tar.gz" | tar -xz -C /tmp \
     && awk '/^P:nginx$/,/V:/' /tmp/APKINDEX | sed -n 2p | sed 's/^V://'); \
   fi && \
+
   apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community \
     php82-pecl-mcrypt && \
   echo "**** configure php-fpm to pass env vars ****" && \
@@ -22,17 +23,23 @@ RUN \
   grep -qxF 'clear_env = no' /etc/php82/php-fpm.d/www.conf || echo 'clear_env = no' >> /etc/php82/php-fpm.d/www.conf && \
   echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php82/php-fpm.conf
 
+# install sockets
+RUN apk add --no-cache \
+  php82-sockets
+
 # add regctl for container digest checks
 ARG TARGETARCH
 ARG REGCTL_VERSION=v0.5.6
 RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclient/releases/download/${REGCTL_VERSION}/regctl-linux-${TARGETARCH}" \
   && chmod +x /usr/local/bin/regctl
 
+# permissions
 ARG INSTALL_PACKAGES=docker gzip
 RUN apk add --update ${INSTALL_PACKAGES} && \
   addgroup -g 281 unraiddocker && \
   usermod -aG unraiddocker abc
 
+# healthchecks
 HEALTHCHECK --interval=60s --timeout=30s --start-period=180s --start-interval=10s --retries=5 \
   CMD curl -f http://localhost/ > /dev/null || exit 1
 
