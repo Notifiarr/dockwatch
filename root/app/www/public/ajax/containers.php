@@ -150,9 +150,11 @@ if ($_POST['m'] == 'init') {
                                 </select>
                                 <button type="button" class="btn btn-outline-info" onclick="massApplyContainerTrigger()">Apply</button>
                             </td>
-                            <td colspan="5" class="text-right" align="right">
-                                <button type="button" class="btn btn-info" onclick="openContainerGroups()">Groups</button>
-                                <button type="button" class="btn btn-success" onclick="saveContainerSettings()">Save Changes</button>
+                            <td colspan="5">
+                                <div style="float: right;">
+                                    <button type="button" class="btn btn-info" onclick="openContainerGroups()">Groups</button>
+                                    <button type="button" class="btn btn-success" onclick="saveContainerSettings()">Save Changes</button>
+                                </div>
                             </td>
                         </tr>
                     </tfoot>

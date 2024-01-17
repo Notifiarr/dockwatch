@@ -95,30 +95,38 @@ if (date('H') == 0 && date('i') <= 5) {
     }
 }
 
-//-- MAKE A BACKUP
-$settingsFile = str_replace(APP_DATA_PATH, '', SETTINGS_FILE);
-if (!file_exists(BACKUP_PATH . $settingsFile)) {
-    $dir = opendir(APP_DATA_PATH);
-    while ($item = readdir($dir)) {
-        if (str_contains($item, '.json')) {
-            $copy = false;
+//-- BACKUPS
+createDirectoryTree(BACKUP_PATH . date('Ymd'));
+$defines = get_defined_constants();
+foreach ($defines as $define => $defineValue) {
+    if (str_contains($define, '_FILE') && str_contains_all($defineValue, ['config/', '.json'])) {
+        $backupFiles[] = $defineValue;
+    }
+}
 
-            if (!file_exists(BACKUP_PATH . $item)) {
-                $copy = true;
-            } else {
-                $backupDate = date('Ymd', filemtime(BACKUP_PATH . $item));
-                if ($backupDate != date('Ymd')) {
-                    $copy = true;
-                }
-            }
+foreach ($backupFiles as $backupFile) {
+    $file = explode('/', $backupFile);
+    $file = end($file);
 
-            if ($copy) {
-                logger(CRON_HOUSEKEEPER_LOG, 'backup file \'' . APP_DATA_PATH . $item . '\' to \'' . BACKUP_PATH . $item . '\'');
-                copy(APP_DATA_PATH . $item, BACKUP_PATH . $item);
+    logger(CRON_HOUSEKEEPER_LOG, 'backup file \'' . APP_DATA_PATH . $file . '\' to \'' . BACKUP_PATH . $file . '\'');
+    copy(APP_DATA_PATH . $file, BACKUP_PATH . date('Ymd') . '/' .$file);
+}
+
+$dir = opendir(BACKUP_PATH);
+while ($backup = readdir($dir)) {
+    if (!is_dir(BACKUP_PATH . $backup)) {
+        logger(CRON_HOUSEKEEPER_LOG, 'removing backup: ' . BACKUP_PATH . $backup);
+        unlink(BACKUP_PATH . $backup);
+    } else {
+        if ($backup[0] != '.') {
+            $daysBetween = daysBetweenDates($backup, date('Ymd'));
+
+            if ($daysBetween > 3) {
+                logger(CRON_HOUSEKEEPER_LOG, 'removing backup: ' . BACKUP_PATH . $backup);
+                unlink(BACKUP_PATH . $backup);
             }
         }
     }
-    closedir($dir);
 }
 
 logger(CRON_HOUSEKEEPER_LOG, 'run <-');
