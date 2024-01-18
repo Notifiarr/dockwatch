@@ -376,6 +376,13 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $inspectImage = json_decode($apiResponse['response']['docker'], true);
             list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
 
+            foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
+                if (str_contains($label, 'image.version')) {
+                    $version = $val;
+                    break;
+                }
+            }
+
             logger(UI_LOG, 'Getting registry digest: ' . $image);
             $regctlDigest = trim(regctlCheck($image));
 
@@ -386,9 +393,9 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, '|__ regctl \'' . truncateMiddle(str_replace('sha256:', '', $regctlDigest), 30) . '\' image \'' . truncateMiddle(str_replace('sha256:', '', $imageDigest), 30) .'\'');
 
                 if ($regctlDigest != $imageDigest) {
-                    $result = 'Container ' . $container['Names'] . ': update available<br>';
+                    $result = 'Container ' . $container['Names'] . ': update available' . ($version ? ' (Current version: ' . $version . ')' : '') . '<br>';
                 } else {
-                    $result = 'Container ' . $container['Names'] . ': up to date<br>';
+                    $result = 'Container ' . $container['Names'] . ': up to date' . ($version ? ' (' . $version . ')' : '') . '<br>';
                 }
 
                 $pullsFile[md5($container['Names'])]    = [

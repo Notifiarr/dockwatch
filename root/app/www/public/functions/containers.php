@@ -127,6 +127,14 @@ function renderContainerRow($nameHash, $return)
 
         return $return;
     } else {
+        $version = '';
+        foreach ($process['inspect'][0]['Config']['Labels'] as $label => $val) {
+            if (str_contains($label, 'image.version')) {
+                $version = $val;
+                break;
+            }
+        }
+
         ?>
         <tr id="<?= $nameHash ?>" <?= ($groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ) ?>>
             <td><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check <?= ($groupHash ? 'group-' . $groupHash . '-check' : '') ?>"></td>
@@ -150,6 +158,9 @@ function renderContainerRow($nameHash, $return)
                             </li>
                             <li><hr class="dropdown-divider"></li>
                             <li class="text-center mb-1">Info</li>
+                            <?php if ($version) { ?>
+                            <li class="ms-1 small-text">Version: <?= $version ?></li>
+                            <?php } ?>
                             <li class="ms-1 small-text">Size: <?= $process['size'] ?></li>
                             <li class="ms-1 small-text">Network: <?= $process['inspect'][0]['HostConfig']['NetworkMode'] ?></li>
                         </ul>
