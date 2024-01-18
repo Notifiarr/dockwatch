@@ -376,27 +376,29 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $inspectImage = json_decode($apiResponse['response']['docker'], true);
             list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
 
-            logger(CRON_PULLS_LOG, 'Getting registry digest: ' . $image);
+            logger(UI_LOG, 'Getting registry digest: ' . $image);
             $regctlDigest = trim(regctlCheck($image));
 
             if (str_contains($regctlDigest, 'Error')) {
-                logger(CRON_PULLS_LOG, $regctlDigest, 'error');
+                logger(UI_LOG, $regctlDigest, 'error');
                 $result = 'Container ' . $container['Names'] . ': error fetching regctl<br>';
             } else {
+                logger(UI_LOG, '|__ regctl \'' . truncateMiddle(str_replace('sha256:', '', $regctlDigest), 30) . '\' image \'' . truncateMiddle(str_replace('sha256:', '', $imageDigest), 30) .'\'');
+
                 if ($regctlDigest != $imageDigest) {
                     $result = 'Container ' . $container['Names'] . ': update available<br>';
-
-                    $pullsFile[md5($container['Names'])]    = [
-                                                                'checked'       => time(),
-                                                                'name'          => $container['Names'],
-                                                                'regctlDigest'  => $regctlDigest,
-                                                                'imageDigest'   => $imageDigest
-                                                            ];
-
-                    setServerFile('pull', $pullsFile);
                 } else {
                     $result = 'Container ' . $container['Names'] . ': up to date<br>';
                 }
+
+                $pullsFile[md5($container['Names'])]    = [
+                    'checked'       => time(),
+                    'name'          => $container['Names'],
+                    'regctlDigest'  => $regctlDigest,
+                    'imageDigest'   => $imageDigest
+                ];
+
+                setServerFile('pull', $pullsFile);
             }
             break;
     }
