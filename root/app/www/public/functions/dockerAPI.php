@@ -33,10 +33,16 @@ function dockerCurlAPI($create, $method)
     file_put_contents(TMP_PATH . $filename, json_encode($payload, JSON_UNESCAPED_SLASHES));
 
     //-- BUILD THE CURL CALL
-    $version    = dockerVersionAPI();
     $headers    = '-H "Content-Type: application/json"';
     $cmd        = 'curl --silent ' . (strtolower($method) == 'post' ? '-X POST' : '');
-    $cmd        .= ' --unix-socket /var/run/docker.sock http://v'. $version . $endpoint;
+
+    if ($_SERVER['DOCKER_HOST']) {
+        $cmd        .= ' http://' . $_SERVER['DOCKER_HOST'] . $endpoint;
+    } else {
+        $version    = dockerVersionAPI();
+        $cmd        .= ' --unix-socket /var/run/docker.sock http://v'. $version . $endpoint;
+    }
+
     if ($headers) {
         $cmd .= ' ' . $headers . ' ';
     }

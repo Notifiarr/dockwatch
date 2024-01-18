@@ -376,8 +376,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $inspectImage = json_decode($apiResponse['response']['docker'], true);
             list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
 
-            $msg = 'Getting registry digest: ' . $image;
-            logger(CRON_PULLS_LOG, $msg);
+            logger(CRON_PULLS_LOG, 'Getting registry digest: ' . $image);
             $regctlDigest = trim(regctlCheck($image));
 
             if (str_contains($regctlDigest, 'Error')) {
@@ -388,11 +387,11 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     $result = 'Container ' . $container['Names'] . ': update available<br>';
 
                     $pullsFile[md5($container['Names'])]    = [
-                        'checked'       => time(),
-                        'name'          => $container['Names'],
-                        'regctlDigest'  => $regctlDigest,
-                        'imageDigest'   => $imageDigest
-                    ];
+                                                                'checked'       => time(),
+                                                                'name'          => $container['Names'],
+                                                                'regctlDigest'  => $regctlDigest,
+                                                                'imageDigest'   => $imageDigest
+                                                            ];
 
                     setServerFile('pull', $pullsFile);
                 } else {
