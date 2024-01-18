@@ -10,6 +10,9 @@
 // This will NOT report uninitialized variables
 error_reporting(E_ERROR | E_PARSE);
 
+//-- ADJUST THIS HERE
+$_SERVER['DOCKER_HOST'] = str_contains($_SERVER['DOCKER_HOST'], '://') ? $_SERVER['DOCKER_HOST'] : 'tcp://' . $_SERVER['DOCKER_HOST'];
+
 if (!defined('ABSOLUTE_PATH')) {
     define('ABSOLUTE_PATH', './');
 }
