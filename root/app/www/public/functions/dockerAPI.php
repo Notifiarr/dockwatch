@@ -13,6 +13,25 @@
         $apiResponse    = dockerCurlAPI($api, 'post');
 */
 
+function dockerCommunicateAPI()
+{
+    if ($_SERVER['DOCKER_HOST']) { //-- IF A DOCKER HOST IS PROVIDED, DONT EVEN TRY TO USE THE SOCK
+        $curl = curl('http://' . $_SERVER['DOCKER_HOST']);
+
+        if ($curl['code'] == 403) {
+            return true;
+        }
+
+        return false;
+    }
+
+    if (file_exists('/var/run/docker.sock')) {
+        return true;
+    }
+
+    return false;
+}
+
 function dockerVersionAPI()
 {
     $cmd = '/usr/bin/docker version | grep "API"';

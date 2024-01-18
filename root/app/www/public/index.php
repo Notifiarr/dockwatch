@@ -29,6 +29,14 @@ if (!file_exists(REGCTL_PATH . REGCTL_BINARY)) {
     $loadError = 'The required regctl binary is missing from \'' . REGCTL_PATH . REGCTL_BINARY . '\'';
 }
 
+if (!$dockerCommunicateAPI) {
+    $loadError = 'There is a problem talking to the docker API. You either did not mount <code>/var/run/docker.sock</code> or you are passing in a <code>DOCKER_HOST</code> that is not valid. Try using the IP instead of container name for the docker host variable.';
+
+    if ($_SERVER['DOCKER_HOST']) {
+        $loadError .= 'You can test the response if you SSH into the container and run <code>curl http://' . $_SERVER['DOCKER_HOST'] . '</code>. The expected response is a 403 error.';
+    }
+}
+
 if ($loadError) {
     ?>
     <div id="apiError">

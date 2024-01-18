@@ -102,6 +102,20 @@ if ($updateSettings) {
 
                 //-- DONT AUTO UPDATE THIS CONTAINER, CHECK ONLY
                 if (skipContainerActions($image, $skipContainerActions)) {
+                    $msg = 'Skipping container update: ' . $containerState['Names'] . ' (image is listed in skipContainerActions())';
+                    logger(CRON_PULLS_LOG, $msg);
+                    echo $msg . "\n";
+
+                    if ($containerSettings['updates'] == 1) {
+                        $containerSettings['updates'] = 2;
+                    }
+                }
+
+                if (!$dockerCommunicateAPI) {
+                    $msg = 'Skipping container update: ' . $containerState['Names'] . ' (docker engine api access is not available)';
+                    logger(CRON_PULLS_LOG, $msg);
+                    echo $msg . "\n";
+
                     if ($containerSettings['updates'] == 1) {
                         $containerSettings['updates'] = 2;
                     }

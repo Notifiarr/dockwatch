@@ -43,6 +43,8 @@ if (!$_SESSION) {
 
 automation();
 
+$dockerCommunicateAPI = dockerCommunicateAPI();
+
 //-- SERVERS
 $serversFile = getFile(SERVERS_FILE);
 $_SESSION['serverIndex'] = is_numeric($_SESSION['serverIndex']) ? $_SESSION['serverIndex'] : 0;

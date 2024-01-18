@@ -39,7 +39,11 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Mass select containers and generate a `docker-compose` for them
 - Mass select containers and do a mount compare for them
 - Mass select containers and start/restart/stop/pull/update
-- Memcached support (optional)
+
+## Socket proxy users
+If you use the docker socket proxy to control granular access to the docker sock then you do not need to add the path variable for `/var/run/docker.sock`
+
+You do need to add an environment variable for `DOCKER_HOST` and it needs to be the ip:port to the proxy. If you use a hostname, make sure it is on the same network as Dockwatch so it can communicate. The CONTAINERS variable in the proxy settings will need to be enabled as well.
 
 ## Permissions
 No matter how docker is installed (native, unraid, etc), it is required that the user running the container has permission to use the docker commands. View `root/app/www/public/functions/docker.php` to see what is used
