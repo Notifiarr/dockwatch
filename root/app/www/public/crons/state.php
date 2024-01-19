@@ -10,7 +10,7 @@
 define('ABSOLUTE_PATH', str_replace('crons', '', __DIR__));
 require ABSOLUTE_PATH . 'loader.php';
 
-logger(SYSTEM_LOG, 'Cron: running housekeeper');
+logger(SYSTEM_LOG, 'Cron: running state');
 logger(CRON_STATE_LOG, 'run ->');
 echo 'Cron run started: state' . "\n";
 
@@ -79,6 +79,18 @@ setServerFile('settings', $settingsFile);
 
 //-- CHECK FOR STATE CHANGED CONTAINERS
 foreach ($currentStates as $currentState) {
+    if (str_contains($currentState['Image'], 'dockwatch')) {
+        $running = $currentState['Status'];
+
+        if (str_contains($running, 'minutes')) {
+            $minutes = preg_replace("/[^0-9]/", "", $running);
+
+            if ($minutes <= 7) {
+                $notify['state']['changed'][] = ['container' => $currentState['Names'], 'previous' => 'Not running', 'current' => 'Started'];
+            }
+        }
+    }
+
     foreach ($previousStates as $previousState) {
         if ($settingsFile['notifications']['triggers']['stateChange']['active'] && $currentState['Names'] == $previousState['Names']) {
             if ($previousState['State'] != $currentState['State']) {

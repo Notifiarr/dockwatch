@@ -83,6 +83,8 @@ function initPage(page)
                         $('input[type=search]').on('keydown', function () {
                             $('.container-group-row').show();
                         });
+
+                        $('.dt-buttons').append($('#group-btn'));
                     }
                 });
             }

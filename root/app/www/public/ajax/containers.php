@@ -152,8 +152,8 @@ if ($_POST['m'] == 'init') {
                             </td>
                             <td colspan="5">
                                 <div style="float: right;">
-                                    <button type="button" class="btn btn-info" onclick="openContainerGroups()">Groups</button>
                                     <button type="button" class="btn btn-success" onclick="saveContainerSettings()">Save Changes</button>
+                                    <button id="group-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openContainerGroups()">Container groups</button>
                                 </div>
                             </td>
                         </tr>
