@@ -1,4 +1,6 @@
 let init = false;
+let containerTableDrawn = false;
+let restoreGroups = false;
 
 $(document).ready(function () {
     if ($('#menu-overview').length) {
@@ -64,14 +66,30 @@ function initPage(page)
             init = false;
 
             if (page == 'containers') {
+                containerTableDrawn = false;
                 $('#container-table').dataTable({
                     dom: 'lfBrtip',
                     stateSave: true,
                     stateSaveParams: function (settings, data) {
                         data.search.search = '';
+                        if (restoreGroups) {
+                            restoreGroups = false;
+                            data.order = '';
+                            initPage('containers');
+                        } else {
+                            if (data.order[0]) {
+                                $('.container-group-row').show()
+                                $('.container-group').hide();
+                                $('#group-restore-btn').show();
+                            }
+                        }
                     },
                     paging: false,
-                    ordering: false,
+                    ordering: true,
+                    columnDefs: [{
+                        targets: 'no-sort', 
+                        orderable: false 
+                    }],
                     buttons: [
                         'colvis'
                     ],
@@ -85,6 +103,15 @@ function initPage(page)
                         });
 
                         $('.dt-buttons').append($('#group-btn'));
+                        $('.dt-buttons').append($('#group-restore-btn'));
+                    },
+                    fnDrawCallback: function () {
+                        if (containerTableDrawn && $('.container-group').is(':visible')) {
+                            $('.container-group-row').show();
+                            $('.container-group').hide();
+                            $('#group-restore-btn').show();
+                        }
+                        containerTableDrawn = true;
                     }
                 });
             }

@@ -1,3 +1,10 @@
+function restoreContainerGroups()
+{
+    $('#group-restore-btn').hide();
+    restoreGroups = true;
+    initPage('containers');
+}
+// ---------------------------------------------------------------------------------------------
 function containerFrequencyHelp()
 {
     dialogOpen({

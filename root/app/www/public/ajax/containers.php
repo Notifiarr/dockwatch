@@ -25,16 +25,16 @@ if ($_POST['m'] == 'init') {
                 <table class="table" id="container-table">
                     <thead>
                         <tr>
-                            <th scope="col" class="noselect"><input type="checkbox" class="form-check-input" onclick="$('.containers-check').prop('checked', $(this).prop('checked'));"></th>
-                            <th scope="col" class="noselect"></th>
+                            <th scope="col" class="noselect no-sort"><input type="checkbox" class="form-check-input" onclick="$('.containers-check').prop('checked', $(this).prop('checked'));"></th>
+                            <th scope="col" class="noselect no-sort"></th>
                             <th scope="col" class="noselect">Name</th>
                             <th scope="col" class="noselect">Updates</th>
                             <th scope="col" class="noselect">State</th>
                             <th scope="col" class="noselect">Health</th>
-                            <th scope="col" class="noselect">Mounts</th>
+                            <th scope="col" class="noselect no-sort">Mounts</th>
                             <th scope="col" class="noselect">CPU</th>
                             <th scope="col" class="noselect">Memory</th>
-                            <th scope="col" class="noselect">
+                            <th scope="col" class="noselect no-sort">
                                 <span onclick="$('#container-updates-all').toggle()" class="text-info" style="cursor: pointer;">Updates</span>
                                 <select id="container-updates-all" style="display: none;" class="form-select" onchange="$('.container-updates').val($(this).val())">
                                     <option value="0">Ignore</option>
@@ -42,7 +42,7 @@ if ($_POST['m'] == 'init') {
                                     <option value="2">Check for updates</option>
                                 </select>
                             </th>
-                            <th scope="col" class="noselect">
+                            <th scope="col" class="noselect no-sort">
                                 <span onclick="$('#frequency-all-div').toggle()" class="text-info" style="cursor: pointer;">Frequency</span>
                                 <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
                                 <div id="frequency-all-div" class="m-0 p-0" style="display: none;">
@@ -77,7 +77,7 @@ if ($_POST['m'] == 'init') {
                                     <td><input type="checkbox" class="form-check-input containers-check" onclick="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></td>
                                     <td><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
                                     <td>
-                                        <span class="text-info" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br>
+                                        <span class="text-info container-group-label" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br>
                                         <span class="text-muted small-text">Containers: <?= count($containerGroup['containers']) ?></span>
                                     </td>
                                     <td>&nbsp;</td>
@@ -154,6 +154,7 @@ if ($_POST['m'] == 'init') {
                                 <div style="float: right;">
                                     <button type="button" class="btn btn-success" onclick="saveContainerSettings()">Save Changes</button>
                                     <button id="group-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openContainerGroups()">Container groups</button>
+                                    <button id="group-restore-btn" style="display: none;" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
                                 </div>
                             </td>
                         </tr>
