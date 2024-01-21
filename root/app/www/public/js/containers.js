@@ -1,3 +1,22 @@
+function updateContainerOption(option, hash)
+{
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/containers.php',
+        data: '&m=updateContainerOption&hash=' + hash + '&option=' + option + '&setting=' + ($('#' + option + '-' + hash).prop('checked') ? 1 : 0),
+        success: function (resultData) {
+            toast('Container option', 'The container option setting has been saved', 'success');
+
+            if (option == 'blacklist' && $('#' + option + '-' + hash).prop('checked')) {
+                $('#start-btn-' + hash + ', #restart-btn-' + hash + ', #stop-btn-' + hash).hide();
+            }
+            if (option == 'blacklist' && !$('#' + option + '-' + hash).prop('checked')) {
+                $('#restart-btn-' + hash + ', #stop-btn-' + hash).show();
+            }
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
 function restoreContainerGroups()
 {
     $('#group-restore-btn').hide();
@@ -100,8 +119,9 @@ function controlContainer(containerHash, action)
     });
 }
 // ---------------------------------------------------------------------------------------------
-function massApplyContainerTrigger()
+function massApplyContainerTrigger(dependencyTrigger = false)
 {
+    let dependencies = [];
     let selected = 0;
     $.each($('[id^=massTrigger-]'), function () {
         if ($(this).prop('checked')) {
@@ -121,7 +141,7 @@ function massApplyContainerTrigger()
     $('#massTrigger-modal').hide();
     $('#massTrigger-modal').modal('show');
 
-    $('#massTrigger-header').html('Containers to apply trigger to: ' + selected + '<br>');
+    $('#massTrigger-header').html((dependencyTrigger ? 'Dependency containers' : 'Containers') + ' to apply trigger to: ' + selected + '<br>');
     $('#massTrigger-spinner').show();
     $('#massTrigger-results').html('');
 
@@ -162,8 +182,10 @@ function massApplyContainerTrigger()
         let c = 0;
         function runTrigger()
         {
+            const massTriggerOption = $('#massContainerTrigger').val();
+
             if (c == selectedContainers.length) {
-                if ($('#massContainerTrigger').val() == 9) {
+                if (massTriggerOption == 9) {
                     initPage('containers');
                 } else {
                     $('#massContainerTrigger').val('0');
@@ -172,6 +194,23 @@ function massApplyContainerTrigger()
 
                 $('#massTrigger-close-btn').show();
                 $('#massTrigger-spinner').hide();
+                
+                if (dependencies.length) {
+                    $('#massTrigger-results').prepend("\n" + 'Found some dependencies, applying trigger to them...' + "\n\n");
+
+                    $.each(dependencies, function (index, dependency) {
+                        $('[data-name=' + dependency + ']').prop('checked', true);
+                    });
+
+                    setTimeout(function () {
+                        $('#massContainerTrigger').val(massTriggerOption);
+                        $('#massTrigger-close-btn').click();
+
+                        setTimeout(function () {
+                            massApplyContainerTrigger(true);
+                        }, 500);
+                    }, 1000);
+                }
                 return;
             }
 
@@ -192,6 +231,11 @@ function massApplyContainerTrigger()
                         $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + resultData.result);
                     }
 
+                    if (resultData.dependencies) {
+                        $.each(resultData.dependencies, function (index, dependency) {
+                            dependencies.push(dependency);
+                        });
+                    }
                     c++;
 
                     runTrigger();

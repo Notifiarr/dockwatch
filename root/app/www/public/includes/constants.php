@@ -66,9 +66,12 @@ $getProc    = ['overview', 'containers', 'notifications'];
 $getInspect = ['overview', 'containers'];
 
 //-- SKIP UPDATING CONTAINERS THAT CAN BREAK THINGS
+define('SKIP_OFF', 0);
+define('SKIP_FORCE', 1);
+define('SKIP_OPTIONAL', 2);
+
 $skipContainerActions   = [
                             'dockwatch',    //-- IF THIS GOES DOWN, IT WILL STOP THE CONTAINER WHICH MEANS IT CAN NEVER FINISH
                             'cloudflared',  //-- IF THIS GOES DOWN, IT WILL KILL THE NETWORK TRAFFIC TO DOCKWATCH
-                            'gluetun',      //-- IF THIS GOES DOWN, IT WILL KILL THE VPN NETWORK THAT CONTAINERS RELY ON
                             'swag'          //-- IS THIS GOES DOWN, IT WILL KILL THE WEB SERVICE TO DOCKWATCH
                         ];

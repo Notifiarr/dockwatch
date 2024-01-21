@@ -39,14 +39,10 @@ function renderContainerRow($nameHash, $return)
     $logo               = getIcon($process['inspect']);
 
     if ($process['State'] == 'running') {
-        $control = '<i class="fas fa-sync-alt text-success container-restart-btn" title="Restart" style="cursor: pointer;" onclick="controlContainer(\'' . $nameHash . '\', \'restart\')"></i><br>';
-        $control .= '<i class="fas fa-power-off text-danger container-stop-btn" title="Stop" style="cursor: pointer;" onclick="controlContainer(\'' . $nameHash . '\', \'stop\')"></i>';
+        $control = '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn" title="Restart" style="cursor: pointer;" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i><br>';
+        $control .= '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="stop-btn-' . $nameHash . '" class="fas fa-power-off text-danger container-stop-btn" title="Stop" style="cursor: pointer;" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"></i>';
     } else {
-        $control = '<i class="fas fa-play text-success container-start-btn" title="Start" style="cursor: pointer;" onclick="controlContainer(\'' . $nameHash . '\', \'start\')"></i>';
-    }
-
-    if ($skipActions) {
-        $control = '';
+        $control = '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="start-btn-' . $nameHash . '" class="fas fa-play text-success container-start-btn" title="Start" style="cursor: pointer;" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"></i>';
     }
 
     $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
@@ -60,13 +56,17 @@ function renderContainerRow($nameHash, $return)
         $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
     }
 
+    $usesHealth = false;
     $health = 'Not setup';
     if (str_contains($process['Status'], 'healthy')) {
-        $health = 'Healthy';
+        $usesHealth = true;
+        $health     = 'Healthy';
     } elseif (str_contains($process['Status'], 'unhealthy')) {
-        $health = 'Unhealthy';
+        $usesHealth = true;
+        $health     = 'Unhealthy';
     } elseif (str_contains($process['Status'], 'health:')) {
-        $health = 'Waiting';
+        $usesHealth = true;
+        $health     = 'Waiting';
     }
 
     if (str_contains($process['Status'], 'Exit')) {
@@ -135,6 +135,13 @@ function renderContainerRow($nameHash, $return)
             }
         }
 
+        $dependencies = dockerContainerDependenices($process['ID'], $processList);
+
+        $network = $process['inspect'][0]['HostConfig']['NetworkMode'];
+        if (str_contains($network, ':')) {
+            list($null, $containerId) = explode(':', $network);
+            $network = 'container:' . findContainerFromId($containerId);
+        }
         ?>
         <tr id="<?= $nameHash ?>" <?= ($groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ) ?>>
             <td><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check <?= ($groupHash ? 'group-' . $groupHash . '-check' : '') ?>"></td>
@@ -146,23 +153,39 @@ function renderContainerRow($nameHash, $return)
                         <span id="menu-<?= $nameHash ?>" style="cursor: pointer;" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?= $process['Names'] ?></span>
                         <ul class="dropdown-menu dropdown-menu-dark p-2" role="menu" aria-labelledby="menu-<?= $nameHash ?>">
                             <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-tools fa-fw text-muted me-1"></i> <a onclick="openEditContainer('<?= $nameHash ?>')" tabindex="-1" href="#" class="text-white">Edit</a></li>
+
                             <li <?= ($skipActions ? 'class="d-none"' : '') ?>><hr class="dropdown-divider"></li>
                             <li class="dropdown-submenu">
                                 <i class="fas fa-ellipsis-v fa-fw text-muted me-1"></i> <a tabindex="-1" href="#" class="text-white">Actions</a>
-                                <ul class="dropdown-menu dropdown-menu-dark p-2">
+                                <ul class="dropdown-menu dropdown-menu-dark p-2" style="width: 250px;">
                                     <li><i class="fas fa-cloud-download-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 4)" tabindex="-1" href="#" class="text-white">Pull</a></li>
                                     <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-trash-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 9)" tabindex="-1" href="#" class="text-white">Remove</a></li>
                                     <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-cloud-upload-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 7)" tabindex="-1" href="#" class="text-white">Update: Apply</a></li>
                                     <li><i class="fas fa-cloud fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 11)" tabindex="-1" href="#" class="text-white">Update: Check</a></li>
                                 </ul>
                             </li>
+
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="dropdown-submenu">
+                                <i class="fas fa-ellipsis-v fa-fw text-muted me-1"></i> <a tabindex="-1" href="#" class="text-white">Options</a>
+                                <ul class="dropdown-menu dropdown-menu-dark p-2" style="width: 300px;">
+                                    <li><input <?= ($skipActions == SKIP_FORCE ? 'disabled checked' : ($settingsFile['containers'][$nameHash]['blacklist'] ? 'checked' : '')) ?> type="checkbox" class="form-check-input" id="blacklist-<?= $nameHash ?>" onclick="updateContainerOption('blacklist', '<?= $nameHash ?>')"> Blacklist (no state changes)</li>
+                                    <?php if ($usesHealth) { ?>
+                                    <li><input <?= ($skipActions ? 'disabled' : ($settingsFile['containers'][$nameHash]['restartUnhealthy'] ? 'checked' : '')) ?> type="checkbox" class="form-check-input" id="restartUnhealthy-<?= $nameHash ?>" onclick="updateContainerOption('restartUnhealthy', '<?= $nameHash ?>')"> Restart when unhealthy</li>
+                                    <?php } ?>
+                                </ul>
+                            </li>
+
                             <li><hr class="dropdown-divider"></li>
                             <li class="text-center mb-1">Info</li>
                             <?php if ($version) { ?>
-                            <li class="ms-1 small-text">Version: <?= $version ?></li>
+                            <li class="ms-1 small-text"><span class="small-text">Version:</span> <?= $version ?></li>
                             <?php } ?>
-                            <li class="ms-1 small-text">Size: <?= $process['size'] ?></li>
-                            <li class="ms-1 small-text">Network: <?= $process['inspect'][0]['HostConfig']['NetworkMode'] ?></li>
+                            <li class="ms-1 small-text"><span class="small-text">Size:</span> <?= $process['size'] ?></li>
+                            <li class="ms-1 small-text"><span class="small-text">Network:</span> <?= $network ?></li>
+                            <?php if ($dependencies) { ?>
+                            <li class="ms-1 small-text"><span class="small-text">Dependencies:</span> <?= implode(', ', $dependencies) ?></li>
+                            <?php } ?>
                         </ul>
                         <br><span class="text-muted small-text" title="<?= isDockerIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 25) ?></span>
                     </div>
@@ -191,10 +214,10 @@ function renderContainerRow($nameHash, $return)
                     <option <?= ($containerSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
                 </select>
             </td>
-            <td id="<?= $nameHash ?>-frequency-td">
+            <td id="<?= $nameHash ?>-frequency-td" style="width: 135px;">
                 <?php
                 ?>
-                <input type="text" class="form-control container-frequency" id="containers-frequency-<?= $nameHash ?>" value="<?= $containerSettings['frequency'] ?>" style="min-width: 125px;">
+                <input type="text" class="form-control container-frequency" id="containers-frequency-<?= $nameHash ?>" value="<?= $containerSettings['frequency'] ?>">
                 <?php
                 //-- OLD FREQUENCY SETTINGS
                 if (strlen($containerSettings['frequency']) > 3) {
@@ -216,10 +239,27 @@ function renderContainerRow($nameHash, $return)
 
 function skipContainerActions($container, $containers)
 {
-    foreach ($containers as $skip) {
-        if (str_contains($container, $skip)) {
-            return true;
+    global $settingsFile;
+
+    $settingsFile = $settingsFile ? $settingsFile : getServerFile('settings');
+
+    if ($settingsFile['containers']) {
+        foreach ($settingsFile['containers'] as $containerHash => $containerSettings) {
+            if ($containerSettings['blacklist']) {
+                $containerState = findContainerFromHash($containerHash);
+
+                if (str_contains($containerState['Image'], $container)) {
+                    return SKIP_OPTIONAL;
+                }
+            }
         }
     }
-    return false;
+
+    foreach ($containers as $skip) {
+        if (str_contains($container, $skip)) {
+            return SKIP_FORCE;
+        }
+    }
+
+    return SKIP_OFF;
 }

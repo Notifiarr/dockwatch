@@ -81,6 +81,17 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect)
     return ['processList' => $processList, 'loadTimes' => $loadTimes];
 }
 
+function findContainerFromId($id)
+{
+    global $processList;
+
+    foreach ($processList as $process) {
+        if ($process['ID'] == $id) {
+            return $process['Names'];
+        }
+    }
+}
+
 function findContainerFromHash($hash)
 {
     global $stateFile;
@@ -193,10 +204,17 @@ function dockerContainerLogs($containerName, $log)
     }
 }
 
-function dockerStartContainer($containerName)
+function dockerStartContainer($containerName, $depends = false)
 {
     $cmd = '/usr/bin/docker start ' . $containerName;
-    return shell_exec($cmd . ' 2>&1');
+    $start = shell_exec($cmd . ' 2>&1');
+
+    //-- FIND ANY CONTAINERS THAT DEPEND ON THIS ONE AND RESTART THEM TOO
+    if ($depends) {
+
+    }
+
+    return $start;
 }
 
 function dockerRemoveContainer($containerName)
@@ -665,4 +683,23 @@ function isDockerIO($name)
     }
 
     return str_contains($name, '/') ? $name : 'library/' . $name;
+}
+
+function dockerContainerDependenices($parentId, $processList)
+{
+    $dependencies = [];
+
+    foreach ($processList as $process) {
+        $networkMode = $process['inspect'][0]['HostConfig']['NetworkMode'];
+
+        if (str_contains($networkMode, ':')) {
+            list($null, $networkContainer) = explode(':', $networkMode);
+
+            if ($networkContainer == $parentId) {
+                $dependencies[] = $process['Names'];
+            }
+        }
+    }
+
+    return $dependencies;
 }

@@ -145,27 +145,6 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
-            <h4>Health</h4>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th scope="col" width="15%">Name</th>
-                            <th scope="col" width="30%">Setting</th>
-                            <th scope="col" width="55%">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row">Restart unhealthly</th>
-                            <td>
-                                <input class="form-check-input" type="checkbox" id="globalSetting-restartUnhealthy" <?= ($globalSettings['restartUnhealthy'] ? 'checked' : '') ?>>
-                            </td>
-                            <td>Automatically try to stop/start an unhealthy container</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
             <h4 class="mt-3">Thresholds</h4>
             <div class="table-responsive">
                 <table class="table">

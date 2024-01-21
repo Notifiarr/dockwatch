@@ -204,6 +204,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     logger(UI_LOG, 'findContainerFromHash:' . json_encode($container));
     logger(UI_LOG, 'image:' . $image);
 
+    $dependencies = [];
     switch ($_POST['trigger']) {
         case '1': //-- START
             if (skipContainerActions($image, $skipContainerActions)) {
@@ -225,6 +226,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
                 $result = 'Restarted ' . $container['Names'] . '<br>';
+                $dependencies = dockerContainerDependenices($container['ID'], $processList);
             }
             break;
         case '3': //-- STOP
@@ -235,6 +237,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
                 $result = 'Stopped ' . $container['Names'] . '<br>';
+                $dependencies = dockerContainerDependenices($container['ID'], $processList);
             }
             break;
         case '4': //-- PULL
@@ -400,11 +403,11 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 }
 
                 $pullsFile[md5($container['Names'])]    = [
-                    'checked'       => time(),
-                    'name'          => $container['Names'],
-                    'regctlDigest'  => $regctlDigest,
-                    'imageDigest'   => $imageDigest
-                ];
+                                                            'checked'       => time(),
+                                                            'name'          => $container['Names'],
+                                                            'regctlDigest'  => $regctlDigest,
+                                                            'imageDigest'   => $imageDigest
+                                                        ];
 
                 setServerFile('pull', $pullsFile);
             }
@@ -416,7 +419,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
     $return = renderContainerRow($_POST['hash'], 'json');
     $return['result'] = $result;
-
+    $return['dependencies'] = $dependencies;
     logger(UI_LOG, 'massApplyContainerTrigger <-');
     echo json_encode($return);
 }
@@ -728,4 +731,9 @@ if ($_POST['m'] == 'openEditContainer') {
         </div>
     </div>
     <?php
+}
+
+if ($_POST['m'] == 'updateContainerOption') {
+    $settingsFile['containers'][$_POST['hash']][$_POST['option']] = $_POST['setting'];
+    $saveSettings = setServerFile('settings', $settingsFile);
 }

@@ -220,7 +220,7 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => dockerStartContainer($_POST['name'])];
+                $response = ['docker' => dockerStartContainer($_POST['name'], $_POST['depends'])];
                 break;
             case 'dockerStopContainer':
                 if (!$_POST['name']) {

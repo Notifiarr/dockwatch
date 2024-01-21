@@ -78,9 +78,11 @@ function initPage(page)
                             initPage('containers');
                         } else {
                             if (data.order[0]) {
-                                $('.container-group-row').show()
-                                $('.container-group').hide();
-                                $('#group-restore-btn').show();
+                                if ($('.container-group-row').length) {
+                                    $('.container-group-row').show()
+                                    $('.container-group').hide();
+                                    $('#group-restore-btn').show();
+                                }
                             }
                         }
                     },
@@ -106,7 +108,7 @@ function initPage(page)
                         $('.dt-buttons').append($('#group-restore-btn'));
                     },
                     fnDrawCallback: function () {
-                        if (containerTableDrawn && $('.container-group').is(':visible')) {
+                        if (containerTableDrawn && $('.container-group-row').length && $('.container-group').is(':visible')) {
                             $('.container-group-row').show();
                             $('.container-group').hide();
                             $('#group-restore-btn').show();
