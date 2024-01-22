@@ -53,7 +53,7 @@ function dockerCurlAPI($create, $method)
 
     //-- BUILD THE CURL CALL
     $headers    = '-H "Content-Type: application/json"';
-    $cmd        = 'curl ' . (strtolower($method) == 'post' ? '-X POST' : '');
+    $cmd        = 'curl --silent ' . (strtolower($method) == 'post' ? '-X POST' : '');
 
     if ($_SERVER['DOCKER_HOST']) {
         $cmd        .= ' ' . $_SERVER['DOCKER_HOST'] . $endpoint;
@@ -63,7 +63,7 @@ function dockerCurlAPI($create, $method)
     }
 
     if ($headers) {
-        $cmd .= ' ' . $headers . ' ';
+        $cmd .= ' ' . $headers;
     }
     if ($payload) {
         $cmd .= ' -d @' . TMP_PATH . $filename;
