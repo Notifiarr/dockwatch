@@ -56,7 +56,7 @@ function dockerCurlAPI($create, $method)
     $cmd        = 'curl ' . (strtolower($method) == 'post' ? '-X POST' : '');
 
     if ($_SERVER['DOCKER_HOST']) {
-        $cmd        .= $_SERVER['DOCKER_HOST'] . $endpoint;
+        $cmd        .= ' ' . $_SERVER['DOCKER_HOST'] . $endpoint;
     } else {
         $version    = dockerVersionAPI();
         $cmd        .= ' --unix-socket /var/run/docker.sock http://v'. $version . $endpoint;
