@@ -53,7 +53,7 @@ function dockerCurlAPI($create, $method)
 
     //-- BUILD THE CURL CALL
     $headers    = '-H "Content-Type: application/json"';
-    $cmd        = 'curl --silent ' . (strtolower($method) == 'post' ? '-X POST' : '');
+    $cmd        = 'curl ' . (strtolower($method) == 'post' ? '-X POST' : '');
 
     if ($_SERVER['DOCKER_HOST']) {
         $cmd        .= $_SERVER['DOCKER_HOST'] . $endpoint;
@@ -74,7 +74,10 @@ function dockerCurlAPI($create, $method)
         $shell = ['result' => 'failed', 'cmd' => $cmd, 'shell' => $shell];
     } else {
         $shell = json_decode($shell, true);
-        if ($shell['message']) {
+
+        if (!is_array($shell)) {
+            $shell = ['result' => 'failed', 'cmd' => $cmd, 'shell' => $shell];
+        } else {
             $shell['cmd'] = $cmd;
         }
     }
