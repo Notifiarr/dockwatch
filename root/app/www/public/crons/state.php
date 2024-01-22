@@ -84,7 +84,7 @@ foreach ($currentStates as $currentState) {
             $minutes = preg_replace("/[^0-9]/", "", $running);
 
             if ($minutes <= 5) {
-                $notify['state']['changed'][] = ['container' => $currentState['Names'], 'previous' => 'Not running', 'current' => 'Started'];
+                $notify['state']['changed'][] = ['container' => $currentState['Names'], 'previous' => '.....', 'current' => 'Started'];
             }
         }
     }

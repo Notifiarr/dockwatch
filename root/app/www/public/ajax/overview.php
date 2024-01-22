@@ -51,7 +51,13 @@ if ($_POST['m'] == 'init') {
                 $networks[$networkKey]++;
             }
         } else {
-            $networks[$process['inspect'][0]['HostConfig']['NetworkMode']]++;
+            $containerNetwork = $process['inspect'][0]['HostConfig']['NetworkMode'];
+            if (str_contains($containerNetwork, ':')) {
+                list($null, $containerId) = explode(':', $containerNetwork);
+                $containerNetwork = 'container:' . findContainerFromId($containerId);
+            }
+
+            $networks[$containerNetwork]++;
         }
 
         //-- GET USED PORTS
