@@ -361,3 +361,12 @@ pre {
               user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome, Edge, Opera and Firefox */
   }
+
+.no-sort::after { 
+    display: none !important; 
+}
+
+.no-sort { 
+    pointer-events: none !important; 
+    cursor: default !important; 
+}

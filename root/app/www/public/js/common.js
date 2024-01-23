@@ -77,7 +77,7 @@ function initPage(page)
                             data.order = '';
                             initPage('containers');
                         } else {
-                            if (data.order[0]) {
+                            if (data.order[0] > 1) {
                                 if ($('.container-group-row').length) {
                                     $('.container-group-row').show()
                                     $('.container-group').hide();
@@ -89,8 +89,8 @@ function initPage(page)
                     paging: false,
                     ordering: true,
                     columnDefs: [{
-                        targets: 'no-sort', 
-                        orderable: false 
+                        targets: 'no-sort',
+                        orderable: false
                     }],
                     buttons: [
                         'colvis'
@@ -106,6 +106,8 @@ function initPage(page)
 
                         $('.dt-buttons').append($('#group-btn'));
                         $('.dt-buttons').append($('#group-restore-btn'));
+
+                        $('.sorting_disabled').removeClass('sorting_asc');
                     },
                     fnDrawCallback: function () {
                         if (containerTableDrawn && $('.container-group-row').length && $('.container-group').is(':visible')) {
