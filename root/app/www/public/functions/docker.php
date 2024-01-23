@@ -89,10 +89,10 @@ function updateContainerDependencies($processList)
 
         if ($dependencies) {
             $dependencyList[$process['Names']] = ['id' => $process['ID'], 'containers' => $dependencies];
-        } 
-
-        setServerFile('dependencies', json_encode($dependencyList));
+        }
     }
+
+    setServerFile('dependencies', json_encode($dependencyList));
 
     return $dependencyList;
 }
