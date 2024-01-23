@@ -46,6 +46,7 @@ function dockerCurlAPI($create, $method)
     $payload    = $create['payload'];
     $endpoint   = $create['endpoint'];
     $container  = $create['container'];
+    $debug      = $create['debug'];
 
     //-- WRITE THE PAYLOAD TO A FILE
     $filename = $container . '_' . time() . '.json';
@@ -81,6 +82,8 @@ function dockerCurlAPI($create, $method)
             $shell['cmd'] = $cmd;
         }
     }
+
+    $shell['debug'] = $debug;
 
     return $shell;
 }
@@ -182,9 +185,21 @@ function dockerContainerCreateAPI($inspect = [])
         $payload['HostConfig']['LogConfig']['Config'] = null;
     }
 
-    if (str_contains($payload['HostConfig']['NetworkMode'], 'container:')) { //-- Remove conflicting payload values if it's a container network
-        $payload['Hostname'] = null;
-        $payload['ExposedPorts'] = null;
+    //-- PART OF A CONTAINER NETWORK
+    if (str_contains($payload['HostConfig']['NetworkMode'], 'container:')) {
+        $payload['Hostname']        = null;
+        $payload['ExposedPorts']    = null;
+
+        //-- MAKE SURE THE ID IS UPDATED
+        $dependencyFile = getServerFile('dependencies');
+        $dependencyFile = is_array($dependencyFile['file']) && !empty($dependencyFile['file']) ? $dependencyFile['file'] : [];
+
+        foreach ($dependencyFile as $parent => $parentSettings) {
+            if (in_array($containerName, $parentSettings['containers'])) {
+                $payload['HostConfig']['NetworkMode'] = 'container:' . $parentSettings['id'];
+                break;
+            }
+        }
     }
 
     if (empty($payload['HostConfig']['Mounts'])) {
@@ -214,7 +229,8 @@ function dockerContainerCreateAPI($inspect = [])
         }
     }
 
-    $endpoint = '/containers/create?name=' . $containerName;
+    $endpoint   = '/containers/create?name=' . $containerName;
+    $debug      = ['dependencyFile' => $dependencyFile];
 
-    return ['container' => $containerName, 'endpoint' => $endpoint, 'payload' => $payload];
+    return ['container' => $containerName, 'endpoint' => $endpoint, 'payload' => $payload, 'debug' => $debug];
 }

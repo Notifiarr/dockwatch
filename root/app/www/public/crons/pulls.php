@@ -149,8 +149,8 @@ if ($updateSettings) {
                             $msg = 'Updating container: ' . $containerState['Names'];
                             logger(CRON_PULLS_LOG, $msg);
                             echo $msg . "\n";
-                            $update = dockerUpdateContainer(json_decode($inspect, true));
-                            logger(CRON_PULLS_LOG, 'dockerUpdateContainer:' . trim(json_encode($update, JSON_UNESCAPED_SLASHES)));
+                            $update = dockerCreateContainer(json_decode($inspect, true));
+                            logger(CRON_PULLS_LOG, 'dockerCreateContainer:' . trim(json_encode($update, JSON_UNESCAPED_SLASHES)));
 
                             if (strlen($update['Id']) == 64) {
                                 $msg = 'Updating pull data: ' . $containerState['Names'];
@@ -188,6 +188,59 @@ if ($updateSettings) {
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
 
+                                $dependencyFile = getServerFile('dependencies');
+                                $dependencyFile = $dependencyFile['file'];
+                                $dependencies   = $dependencyFile[$containerState['Names']]['containers'];
+
+                                if (is_array($dependencies)) {
+                                    $msg = 'dependencies found ' . count($dependencies);
+                                    logger(CRON_PULLS_LOG, $msg);
+                                    echo $msg . "\n";
+
+                                    updateDependencyParentId($containerState['Names'], $update['Id']);
+
+                                    foreach ($dependencies as $dependencyContainer) {
+                                        $msg = '[dependency] dockerInspect: ' . $dependencyContainer;
+                                        logger(CRON_PULLS_LOG, $msg);
+                                        echo $msg . "\n";
+                                        $apiResponse = apiRequest('dockerInspect', ['name' => $dependencyContainer, 'useCache' => false, 'format' => true]);
+                                        logger(CRON_PULLS_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                                        $inspectImage = $apiResponse['response']['docker'];
+
+                                        $msg = '[dependency] dockerStopContainer: ' . $dependencyContainer;
+                                        logger(CRON_PULLS_LOG, $msg);
+                                        echo $msg . "\n";
+                                        $apiResult = apiRequest('dockerStopContainer', [], ['name' => $dependencyContainer]);
+                                        logger(CRON_PULLS_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+
+                                        $msg = '[dependency] dockerRemoveContainer: ' . $dependencyContainer;
+                                        logger(CRON_PULLS_LOG, $msg);
+                                        echo $msg . "\n";
+                                        $apiResult = apiRequest('dockerRemoveContainer', [], ['name' => $dependencyContainer]);
+                                        logger(CRON_PULLS_LOG, 'dockerRemoveContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+
+                                        $msg = '[dependency] dockerCreateContainer: ' . $dependencyContainer;
+                                        logger(CRON_PULLS_LOG, $msg);
+                                        echo $msg . "\n";
+                                        $apiResponse = apiRequest('dockerCreateContainer', [], ['inspect' => $inspectImage]);
+                                        logger(CRON_PULLS_LOG, 'dockerCreateContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                                        $update         = $apiResponse['response']['docker'];
+                                        $createResult   = 'failed';
+                        
+                                        if (strlen($update['Id']) == 64) {
+                                            $createResult = 'complete';
+
+                                            $msg = '[dependency] dockerStartContainer: ' . $dependencyContainer;
+                                            logger(CRON_PULLS_LOG, $msg);
+                                            echo $msg . "\n";
+                                            $apiResponse = apiRequest('dockerStartContainer', [], ['name' => $dependencyContainer]);
+                                            logger(CRON_PULLS_LOG, 'dockerStartContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                                        }
+
+                                        logger(CRON_PULLS_LOG, 'Container ' . $dependencyContainer . ' re-create: ' . $createResult);
+                                    }
+                                }
+
                                 if ($settingsFile['notifications']['triggers']['updated']['active']) {
                                     $notify['updated'][]    = [
                                                                 'container' => $containerState['Names'],
@@ -197,7 +250,7 @@ if ($updateSettings) {
                                                             ];
                                 }
                             } else {
-                                $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update);
+                                $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update['Id']);
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
 

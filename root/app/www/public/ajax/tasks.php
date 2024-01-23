@@ -95,6 +95,10 @@ if ($_POST['m'] == 'init') {
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('stateFile')"></i></td>
                             </tr>
                             <tr>
+                                <td>View dependency file</td>
+                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('dependencyFile')"></i></td>
+                            </tr>
+                            <tr>
                                 <td>View icon alias files</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('aliasFile')"></i></td>
                             </tr>

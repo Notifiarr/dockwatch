@@ -37,6 +37,7 @@ define('HEALTH_FILE', APP_DATA_PATH . 'health.json');
 define('INTERNAL_ICON_ALIAS_FILE', 'container-alias.json');
 define('EXTERNAL_ICON_ALIAS_FILE', APP_DATA_PATH . 'container-alias.json');
 define('STATS_FILE', APP_DATA_PATH . 'stats.json');
+define('DEPENDENCY_FILE', APP_DATA_PATH . 'dependencies.json');
 
 //-- LOG FILES
 define('SYSTEM_LOG', LOGS_PATH . 'system/app.log');

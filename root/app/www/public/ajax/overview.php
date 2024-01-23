@@ -10,6 +10,7 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
+    $dependencyFile = updateContainerDependencies($processList);
     $ports = $networks = [];
     $running = $stopped = $memory = $cpu = $network = $size = $updated = $outdated = $healthy = $unhealthy = $unknownhealth = 0;
 

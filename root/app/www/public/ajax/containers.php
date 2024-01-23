@@ -10,6 +10,7 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
+    $dependencyFile = updateContainerDependencies($processList);
     $pulls = is_array($pullsFile) ? $pullsFile : json_decode($pullsFile, true);
     array_sort_by_key($processList, 'Names');
 
@@ -133,11 +134,12 @@ if ($_POST['m'] == 'init') {
                                 <select id="massContainerTrigger" class="form-select d-inline-block w-50">
                                     <option value="0">-- Select option --</option>
                                     <optgroup label="Control">
+                                        <option value="4">Pull</option>
                                         <option value="1">Start</option>
                                         <option value="3">Stop</option>
                                         <option value="2">Restart</option>
                                         <option value="9">Remove</option>
-                                        <option value="4">Pull</option>
+                                        <option value="12">Re-create</option>
                                         <option value="7">Update: Apply</option>
                                         <option value="11">Update: Check</option>
                                     </optgroup>
@@ -195,13 +197,26 @@ if ($_POST['m'] == 'saveContainerSettings') {
     setServerFile('settings', $settingsFile);
 }
 
+if ($_POST['m'] == 'containerLogs') {
+    $apiResult = apiRequest('dockerLogs', ['name' => $_POST['container']]);
+    logger(UI_LOG, 'dockerLogs:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+    echo $apiResult['response']['docker'];
+}
+
 if ($_POST['m'] == 'massApplyContainerTrigger') {
     logger(UI_LOG, 'massApplyContainerTrigger ->');
+
+    $dependencyFile = getServerFile('dependencies');
+    if ($dependencyFile['code'] != 200) {
+        $apiError = $dependencyFile['file'];
+    }
+    $dependencyFile = $dependencyFile['file'];
+
     $container  = findContainerFromHash($_POST['hash']);
     $image      = $container['inspect'][0]['Config']['Image'];
 
     logger(UI_LOG, 'trigger:' . $_POST['trigger']);
-    logger(UI_LOG, 'findContainerFromHash:' . json_encode($container));
+    logger(UI_LOG, 'findContainerFromHash:' . json_encode($container, JSON_UNESCAPED_SLASHES));
     logger(UI_LOG, 'image:' . $image);
 
     $dependencies = [];
@@ -222,11 +237,11 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult));
+                logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
                 $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
                 $result = 'Restarted ' . $container['Names'] . '<br>';
-                $dependencies = dockerContainerDependenices($container['ID'], $processList);
+                $dependencies = $dependencyFile[$container['Names']]['containers'];
             }
             break;
         case '3': //-- STOP
@@ -237,7 +252,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
                 $result = 'Stopped ' . $container['Names'] . '<br>';
-                $dependencies = dockerContainerDependenices($container['ID'], $processList);
+                $dependencies = $dependencyFile[$container['Names']]['containers'];
             }
             break;
         case '4': //-- PULL
@@ -313,10 +328,10 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $apiResponse = apiRequest('dockerRemoveContainer', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
 
-                $apiResponse = apiRequest('dockerUpdateContainer', [], ['inspect' => $inspectImage]);
-                logger(UI_LOG, 'dockerUpdateContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                $apiResponse = apiRequest('dockerCreateContainer', [], ['inspect' => $inspectImage]);
+                logger(UI_LOG, 'dockerCreateContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
                 $update         = $apiResponse['response']['docker'];
-                $updateResult   = 'failed';
+                $createResult   = 'failed';
 
                 if (strlen($update['Id']) == 64) {
                     $inspectImage           = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
@@ -332,7 +347,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                         }
                     }
 
-                    $updateResult = 'complete';
+                    $createResult = 'complete';
                     $pullsFile[$_POST['hash']]  = [
                                                     'checked'       => time(),
                                                     'name'          => $container['Names'],
@@ -344,10 +359,15 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
                     $apiResponse = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
                     logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                    $dependencies = $dependencyFile[$container['Names']]['containers'];
+
+                    if ($dependencies) {
+                        updateDependencyParentId($container['Names'], $update['Id']);
+                    }
                 }
             }
 
-            $result = 'Container ' . $container['Names'] . ' update: ' . $updateResult . ($preVersion && $postVersion && $updateResult == 'complete' ? ' from \'' . $preVersion . '\' to \'' . $postVersion . '\'' : '') . '<br>';
+            $result = 'Container ' . $container['Names'] . ' update: ' . $createResult . ($preVersion && $postVersion && $updateResult == 'complete' ? ' from \'' . $preVersion . '\' to \'' . $postVersion . '\'' : '') . '<br>';
             break;
         case '8': //-- MOUNT COMPARE
             $result = $container['Names'] . '<br>';
@@ -410,6 +430,44 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                                                         ];
 
                 setServerFile('pull', $pullsFile);
+            }
+            break;
+        case '12': //-- RE-CREATE
+            if (skipContainerActions($image, $skipContainerActions)) {
+                logger(UI_LOG, 'skipping ' . $container['Names'].' re-create request');
+                $result = 'Skipped ' . $container['Names'] . '<br>';
+            } else {
+                $image = $container['inspect'][0]['Config']['Image'];
+                logger(UI_LOG, 'image:' . $image);
+
+                $apiResponse = apiRequest('dockerInspect', ['name' => $container['Names'], 'useCache' => false, 'format' => true]);
+                logger(UI_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                $inspectImage = $apiResponse['response']['docker'];
+
+                $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+
+                $apiResult = apiRequest('dockerRemoveContainer', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'dockerRemoveContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+
+                $apiResponse = apiRequest('dockerCreateContainer', [], ['inspect' => $inspectImage]);
+                logger(UI_LOG, 'dockerCreateContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                $update         = $apiResponse['response']['docker'];
+                $createResult   = 'failed';
+
+                if (strlen($update['Id']) == 64) {
+                    $createResult = 'complete';
+
+                    $apiResponse = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
+                    logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                    $dependencies = $dependencyFile[$container['Names']]['containers'];
+
+                    if ($dependencies) {
+                        updateDependencyParentId($container['Names'], $update['Id']);
+                    }
+                }
+
+                $result = 'Container ' . $container['Names'] . ' re-create: ' . $createResult . '<br>';
             }
             break;
     }

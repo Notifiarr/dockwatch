@@ -30,6 +30,10 @@ if ($currentStates) {
     logger(CRON_STATE_LOG, 'STATE_FILE update skipped, $currentStates empty');
 }
 
+//-- GET CURRENT SETTINGS FILE
+$settingsFile = getServerFile('settings');
+$settingsFile = $settingsFile['file'];
+
 logger(CRON_STATE_LOG, 'previousStates: ' . json_encode($previousStates, JSON_UNESCAPED_SLASHES));
 logger(CRON_STATE_LOG, 'currentStates: ' . json_encode($currentStates, JSON_UNESCAPED_SLASHES));
 

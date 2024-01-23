@@ -81,6 +81,30 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect)
     return ['processList' => $processList, 'loadTimes' => $loadTimes];
 }
 
+function updateContainerDependencies($processList)
+{
+    $dependencyList = [];
+    foreach ($processList as $process) {
+        $dependencies = dockerContainerDependenices($process['ID'], $processList);
+
+        if ($dependencies) {
+            $dependencyList[$process['Names']] = ['id' => $process['ID'], 'containers' => $dependencies];
+        } 
+
+        setServerFile('dependencies', json_encode($dependencyList));
+    }
+
+    return $dependencyList;
+}
+
+function updateDependencyParentId($container, $id)
+{
+    global $dependencyFile;
+
+    $dependencyFile[$container]['id'] = $id;
+    setServerFile('dependencies', json_encode($dependencyFile));
+}
+
 function findContainerFromId($id)
 {
     global $processList;
@@ -217,6 +241,15 @@ function dockerStartContainer($containerName, $depends = false)
     return $start;
 }
 
+function dockerLogs($containerName)
+{
+    $cmd    = '/usr/bin/docker logs ' . $containerName;
+    $shell  = shell_exec($cmd . ' 2>&1');
+    $in     = ["\n", '[36m', '[31m', '[0m'];
+    $out    = ['<br>', '', '', ''];
+    return str_replace($in, $out, $shell);
+}
+
 function dockerRemoveContainer($containerName)
 {
     $cmd = '/usr/bin/docker rm -f ' . $containerName;
@@ -235,7 +268,7 @@ function dockerPullContainer($image)
     return shell_exec($cmd . ' 2>&1');
 }
 
-function dockerUpdateContainer($inspect)
+function dockerCreateContainer($inspect)
 {
     $create     = dockerContainerCreateAPI($inspect);
     $apiRequest = dockerCurlAPI($create, 'post');

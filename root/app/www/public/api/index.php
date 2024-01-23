@@ -71,6 +71,13 @@ switch (true) {
 
                 $response = ['docker' => dockerInspect($_GET['name'], $_GET['useCache'], $_GET['format'], $_GET['params'])];
                 break;
+            case 'dockerLogs':
+                if (!$_GET['name']) {
+                    apiResponse(400, ['error' => 'Missing name parameter']);
+                }
+
+                $response = ['docker' => dockerLogs($_GET['name'])];
+                break;
             case 'dockerNetworks':
                 $response = ['docker' => dockerNetworks($_GET['params'])];
                 break;
@@ -119,6 +126,9 @@ switch (true) {
                 break;
             case 'servers':
                 $response = ['servers' => getFile(SERVERS_FILE)];
+                break;
+            case 'dependencies':
+                $response = ['dependencies' => getFile(DEPENDENCY_FILE)];
                 break;
             case 'viewLog':
                 $response = ['result' => viewLog($_GET['name'])];
@@ -179,6 +189,14 @@ switch (true) {
                 setFile(STATS_FILE, $_POST['contents']);
                 $response = ['result' => STATS_FILE . ' updated'];
                 break;
+            case 'dependencies':
+                if (!$_POST['contents']) {
+                    apiResponse(400, ['error' => 'Missing dependency object']);
+                }
+            
+                setFile(DEPENDENCY_FILE, $_POST['contents']);
+                $response = ['result' => DEPENDENCY_FILE . ' updated'];
+                break;
             //-- ACTIONS
             case 'deleteLog':
                 if (!$_POST['log']) {
@@ -229,12 +247,12 @@ switch (true) {
 
                 $response = ['docker' => dockerStopContainer($_POST['name'])];
                 break;         
-            case 'dockerUpdateContainer':
+            case 'dockerCreateContainer':
                 if (!$_POST['inspect']) {
                     apiResponse(400, ['error' => 'Missing inspect parameter']);
                 }
 
-                $response = ['docker' => dockerUpdateContainer(json_decode($_POST['inspect'], true))];
+                $response = ['docker' => dockerCreateContainer(json_decode($_POST['inspect'], true))];
                 break;
             case 'purgeLogs':
                 if (!$_POST['group']) {

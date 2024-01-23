@@ -91,7 +91,7 @@ if ($unhealthy) {
             $notify = true;
         }
 
-        $dependencies = dockerContainerDependenices($container['id'], $processList);
+        $dependencies = $dependencyFile[$container['name']]['containers'];
         logger(CRON_HEALTH_LOG, 'dependencies: ' . (count($dependencies) > 0 ? implode(', ', $dependencies) : 'none'));
 
         logger(CRON_HEALTH_LOG, 'restarting unhealthy \'' . $container['name'] . '\'');

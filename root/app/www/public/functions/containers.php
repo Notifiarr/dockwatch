@@ -158,6 +158,8 @@ function renderContainerRow($nameHash, $return)
                             <li class="dropdown-submenu">
                                 <i class="fas fa-ellipsis-v fa-fw text-muted me-1"></i> <a tabindex="-1" href="#" class="text-white">Actions</a>
                                 <ul class="dropdown-menu dropdown-menu-dark p-2" style="width: 250px;">
+                                    <li><i class="far fa-file-alt fa-fw text-muted me-1"></i> <a onclick="containerLogs('<?= $process['Names'] ?>')" tabindex="-1" href="#" class="text-white">View logs</a></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li><i class="fas fa-cloud-download-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 4)" tabindex="-1" href="#" class="text-white">Pull</a></li>
                                     <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-trash-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 9)" tabindex="-1" href="#" class="text-white">Remove</a></li>
                                     <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-cloud-upload-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 7)" tabindex="-1" href="#" class="text-white">Update: Apply</a></li>

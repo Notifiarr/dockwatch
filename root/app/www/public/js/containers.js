@@ -182,7 +182,7 @@ function massApplyContainerTrigger(dependencyTrigger = false)
         let c = 0;
         function runTrigger()
         {
-            const massTriggerOption = $('#massContainerTrigger').val();
+            let massTriggerOption = $('#massContainerTrigger').val();
 
             if (c == selectedContainers.length) {
                 if (massTriggerOption == 9) {
@@ -196,13 +196,18 @@ function massApplyContainerTrigger(dependencyTrigger = false)
                 $('#massTrigger-spinner').hide();
                 
                 if (dependencies.length) {
-                    $('#massTrigger-results').prepend("\n" + 'Found some dependencies, applying trigger to them...' + "\n\n");
+                    $('#massTrigger-results').prepend('Found some dependencies, applying trigger to them...<br>');
 
                     $.each(dependencies, function (index, dependency) {
                         $('[data-name=' + dependency + ']').prop('checked', true);
                     });
 
                     setTimeout(function () {
+                        //-- IF THE PARENT WAS UPDATED, RE-CREATE THE DEPENDENCIES
+                        if (massTriggerOption == '7') {
+                            massTriggerOption = '12';
+                        }
+
                         $('#massContainerTrigger').val(massTriggerOption);
                         $('#massTrigger-close-btn').click();
 
@@ -351,5 +356,25 @@ function hideContainerMounts(containerHash)
     // <td>
     $('#' + containerHash + '-cpu, #' + containerHash + '-mem, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').show();
     $('#' + containerHash + '-mounts-td').attr('colspan', 0);
+}
+// ---------------------------------------------------------------------------------------------
+function containerLogs(container)
+{
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/containers.php',
+        data: '&m=containerLogs&container=' + container,
+        success: function (resultData) {
+            dialogOpen({
+                id: 'containerLogs',
+                title: 'Container Logs',
+                size: 'xl',
+                body: resultData,
+                onOpen: function () {
+
+                }
+            });
+        }
+    });
 }
 // ---------------------------------------------------------------------------------------------
