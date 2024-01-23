@@ -200,10 +200,14 @@ function dockerContainerCreateAPI($inspect = [])
     if ($payload['NetworkSettings']['Networks']) {
         foreach ($payload['NetworkSettings']['Networks'] as $network => $networkSettings) {
             if ($networkSettings['Aliases']) {
-                foreach ($networkSettings['Aliases'] as $index => $alias) {
-                    //-- REMOVE ALIAS FROM PREVIOUS CONTAINER
-                    if ($alias == substr($inspect['Id'], 0, 12)) {
-                        unset($payload['NetworkSettings']['Networks'][$network]['Aliases'][$index]);
+                if ($payload['Hostname'] == $networkSettings['Aliases'][0] && count($networkSettings['Aliases']) == 1) { //-- REMOVE SELF ALIAS
+                    $networkSettings['Aliases'] = null;
+                    break;
+                } else { //-- REMOVE ALIAS FROM PREVIOUS CONTAINER ID
+                    foreach ($networkSettings['Aliases'] as $index => $alias) {
+                        if ($alias == substr($inspect['Id'], 0, 12)) {
+                            unset($payload['NetworkSettings']['Networks'][$network]['Aliases'][$index]);
+                        }
                     }
                 }
             }
