@@ -21,6 +21,10 @@ if ($settingsFile['tasks']['state']['disabled']) {
 }
 
 $notify = $added = $removed = $previousStates = $currentStates = $previousContainers = $currentContainers = [];
+
+$stateFile = getServerFile('state');
+$stateFile = $stateFile['file'];
+
 $previousStates = $stateFile;
 $currentStates  = dockerState();
 
