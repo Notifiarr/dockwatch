@@ -104,6 +104,7 @@ function initPage(page)
                             $('.container-group-row').show();
                         });
 
+                        $('.dt-buttons').prepend($('#check-all-btn'));
                         $('.dt-buttons').append($('#group-btn'));
                         $('.dt-buttons').append($('#group-restore-btn'));
 

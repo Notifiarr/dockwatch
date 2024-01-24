@@ -26,7 +26,7 @@ if ($_POST['m'] == 'init') {
                 <table class="table" id="container-table">
                     <thead>
                         <tr>
-                            <th scope="col" class="noselect no-sort"><input type="checkbox" class="form-check-input" onclick="$('.containers-check').prop('checked', $(this).prop('checked'));"></th>
+                            <th scope="col" class="noselect no-sort"></th>
                             <th scope="col" class="noselect no-sort"></th>
                             <th scope="col" class="noselect">Name</th>
                             <th scope="col" class="noselect">Updates</th>
@@ -155,6 +155,7 @@ if ($_POST['m'] == 'init') {
                             <td colspan="5">
                                 <div style="float: right;">
                                     <button type="button" class="btn btn-success" onclick="saveContainerSettings()">Save Changes</button>
+                                    <button id="check-all-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="$('.containers-check').prop('checked', $(this).prop('checked'));"></button>
                                     <button id="group-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openContainerGroups()">Container groups</button>
                                     <button id="group-restore-btn" style="display: none;" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
                                 </div>
