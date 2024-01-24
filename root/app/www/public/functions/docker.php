@@ -744,9 +744,9 @@ function dockerContainerLabelDependencies($containerName, $processList)
     foreach ($processList as $process) {
         $labels = $process['inspect'][0]['Config']['Labels'] ? $process['inspect'][0]['Config']['Labels'] : [];
 
-        foreach ($labels as $name => $keu) {
+        foreach ($labels as $name => $key) {
             if (str_contains($name, 'depends_on')) {
-                list($container, $condition) = explode(':', $name);
+                list($container, $condition) = explode(':', $key);
 
                 if ($container == $containerName) {
                     $dependencies[] = $process['Names'];
