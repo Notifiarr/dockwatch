@@ -87,6 +87,10 @@ if ($_POST['m'] == 'init') {
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('session')"></i></td>
                             </tr>
                             <tr>
+                                <td>View process list</td>
+                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('processList')"></i></td>
+                            </tr>
+                            <tr>
                                 <td>View pull file</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('pullFile')"></i></td>
                             </tr>

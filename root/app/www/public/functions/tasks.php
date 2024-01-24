@@ -9,9 +9,15 @@
 
 function executeTask($task)
 {
+    $getExpandedProcessList = getExpandedProcessList(true, true, true);
+    $processList            = $getExpandedProcessList['processList'];
+
     $return = '[]';
 
     switch ($task) {
+        case 'processList';
+            $return = json_encode($processList, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            break;
         case 'aliasFile':
             $external   = getFile(EXTERNAL_ICON_ALIAS_FILE);
             $internal   = getFile(ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE);
