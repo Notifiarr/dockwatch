@@ -39,10 +39,10 @@ function renderContainerRow($nameHash, $return)
     $logo               = getIcon($process['inspect']);
 
     if ($process['State'] == 'running') {
-        $control = '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn" title="Restart" style="cursor: pointer;" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i><br>';
-        $control .= '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="stop-btn-' . $nameHash . '" class="fas fa-power-off text-danger container-stop-btn" title="Stop" style="cursor: pointer;" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"></i>';
+        $control = '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i><br>';
+        $control .= '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="stop-btn-' . $nameHash . '" class="fas fa-power-off text-danger container-stop-btn" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"></i>';
     } else {
-        $control = '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="start-btn-' . $nameHash . '" class="fas fa-play text-success container-start-btn" title="Start" style="cursor: pointer;" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"></i>';
+        $control = '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="start-btn-' . $nameHash . '" class="fas fa-play text-success container-start-btn" title="Start" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"></i>';
     }
 
     $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
@@ -56,17 +56,25 @@ function renderContainerRow($nameHash, $return)
         $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
     }
 
+    $restartUnhealthy       = $settingsFile['containers'][$nameHash]['restartUnhealthy'];
+    $healthyRestartClass    = 'text-success';
+    $healthyRestartText     = 'Auto restart when unhealthy';
+
+    if (!$restartUnhealthy) {
+        $healthyRestartClass    = 'text-warning';
+        $healthyRestartText     = 'Not set to auto restart when unhealthy';
+    }
     $usesHealth = false;
     $health = 'Not setup';
     if (str_contains($process['Status'], 'healthy')) {
         $usesHealth = true;
-        $health     = 'Healthy';
+        $health     = 'Healthy <i class="fas fa-sync-alt ' . $healthyRestartClass . '" title="' . $healthyRestartText . '"></i>';
     } elseif (str_contains($process['Status'], 'unhealthy')) {
         $usesHealth = true;
-        $health     = 'Unhealthy';
+        $health     = 'Unhealthy <i class="fas fa-sync-alt ' . $healthyRestartClass . '" title="' . $healthyRestartText . '"></i>';
     } elseif (str_contains($process['Status'], 'health:')) {
         $usesHealth = true;
-        $health     = 'Waiting';
+        $health     = 'Waiting <i class="fas fa-sync-alt ' . $healthyRestartClass . '" title="' . $healthyRestartText . '"></i>';
     }
 
     if (str_contains($process['Status'], 'Exit')) {

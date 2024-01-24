@@ -40,6 +40,12 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Mass select containers and do a mount compare for them
 - Mass select containers and start/restart/stop/pull/update
 
+## Network dependencies
+If you have containers that depend on other container networks (Gluetun for example) then this will recognize that.
+- Restart Gluetun -> restart dependencies
+- Stop Gluetun -> stop dependencies
+- Update Gluetun -> re-create dependencies and update the network mode
+
 ## Socket proxy users
 If you use the docker socket proxy to control granular access to the docker sock then you do not need to add the path variable for `/var/run/docker.sock`
 
