@@ -85,7 +85,7 @@ function updateContainerDependencies($processList)
 {
     $dependencyList = [];
     foreach ($processList as $process) {
-        $dependencies = dockerContainerDependenices($process['ID'], $processList);
+        $dependencies = dockerContainerNetworkDependenices($process['ID'], $processList);
 
         if ($dependencies) {
             $dependencyList[$process['Names']] = ['id' => $process['ID'], 'containers' => $dependencies];
@@ -718,7 +718,7 @@ function isDockerIO($name)
     return str_contains($name, '/') ? $name : 'library/' . $name;
 }
 
-function dockerContainerDependenices($parentId, $processList)
+function dockerContainerNetworkDependenices($parentId, $processList)
 {
     $dependencies = [];
 
@@ -730,6 +730,27 @@ function dockerContainerDependenices($parentId, $processList)
 
             if ($networkContainer == $parentId) {
                 $dependencies[] = $process['Names'];
+            }
+        }
+    }
+
+    return $dependencies;
+}
+
+function dockerContainerLabelDependencies($containerName, $processList)
+{
+    $dependencies = [];
+
+    foreach ($processList as $process) {
+        $labels = $process['inspect'][0]['Config']['Labels'] ? $process['inspect'][0]['Config']['Labels'] : [];
+
+        foreach ($labels as $name => $keu) {
+            if (str_contains($name, 'depends_on')) {
+                list($container, $condition) = explode(':', $name);
+
+                if ($container == $containerName) {
+                    $dependencies[] = $process['Names'];
+                }
             }
         }
     }

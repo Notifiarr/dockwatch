@@ -135,7 +135,10 @@ function renderContainerRow($nameHash, $return)
             }
         }
 
-        $dependencies = dockerContainerDependenices($process['ID'], $processList);
+        $networkDependencies = dockerContainerNetworkDependenices($process['ID'], $processList);
+        if (!$networkDependencies) {
+            $labelDependencies = dockerContainerLabelDependencies($process['Names'], $processList);
+        }
 
         $network = $process['inspect'][0]['HostConfig']['NetworkMode'];
         if (str_contains($network, ':')) {
@@ -185,8 +188,10 @@ function renderContainerRow($nameHash, $return)
                             <?php } ?>
                             <li class="ms-1 small-text"><span class="small-text">Size:</span> <?= $process['size'] ?></li>
                             <li class="ms-1 small-text"><span class="small-text">Network:</span> <?= $network ?></li>
-                            <?php if ($dependencies) { ?>
-                            <li class="ms-1 small-text"><span class="small-text">Dependencies:</span> <?= implode(', ', $dependencies) ?></li>
+                            <?php if ($networkDependencies) { ?>
+                            <li class="ms-1 small-text"><span class="small-text">Dependencies:</span> <?= implode(', ', $networkDependencies) ?></li>
+                            <?php } elseif ($labelDependencies) { ?>
+                                <li class="ms-1 small-text"><span class="small-text">Dependencies:</span> <?= implode(', ', $labelDependencies) ?></li>
                             <?php } ?>
                         </ul>
                         <br><span class="text-muted small-text" title="<?= isDockerIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 25) ?></span>
