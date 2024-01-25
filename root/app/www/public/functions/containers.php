@@ -144,8 +144,41 @@ function renderContainerRow($nameHash, $return)
         }
 
         $networkDependencies = dockerContainerNetworkDependenices($process['ID'], $processList);
+        sort($networkDependencies);
+        $networkDependencyList = implode(', ', $networkDependencies);
+
+        if (count($networkDependencies) > 3) {
+            $show = array_slice($networkDependencies, 0, 3);
+            $networkDependencyList = implode(', ', $show);
+            $networkDependencyList .= '<span class="depenency-list-toggle">';
+            $networkDependencyList .= ' <br><input type="checkbox" class="depenency-list-toggle" onclick="$(\'.depenency-list-toggle\').toggle().prop(\'checked\', false);"> Show '. (count($networkDependencies) - 3) .' more';
+            $networkDependencyList .= '</span>';
+
+            $hide = array_slice($networkDependencies, 3, count($networkDependencies));
+            $networkDependencyList .= '<span class="depenency-list-toggle" style="display: none;">';
+            $networkDependencyList .= ', ' . implode(', ', $hide);
+            $networkDependencyList .= ' <br><input type="checkbox" class="depenency-list-toggle" style="display: none;" onclick="$(\'.depenency-list-toggle\').toggle().prop(\'checked\', false);"> Hide '. (count($networkDependencies) - 3) .' more';
+            $networkDependencyList .= '</span>';
+        }
+
         if (!$networkDependencies) {
             $labelDependencies = dockerContainerLabelDependencies($process['Names'], $processList);
+            sort($labelDependencies);
+            $labelDependencyList = implode(', ', $labelDependencies);
+
+            if (count($labelDependencies) > 3) {
+                $show = array_slice($labelDependencies, 0, 3);
+                $labelDependencyList = implode(', ', $show);
+                $labelDependencyList .= '<span class="depenency-list-toggle">';
+                $labelDependencyList .= ' <br><input type="checkbox" class="depenency-list-toggle" onclick="$(\'.depenency-list-toggle\').toggle().prop(\'checked\', false);"> Show '. (count($labelDependencies) - 3) .' more';
+                $labelDependencyList .= '</span>';
+    
+                $hide = array_slice($labelDependencies, 3, count($labelDependencies));
+                $labelDependencyList .= '<span class="depenency-list-toggle" style="display: none;">';
+                $labelDependencyList .= ', ' . implode(', ', $hide);
+                $labelDependencyList .= ' <br><input type="checkbox" class="depenency-list-toggle" style="display: none;" onclick="$(\'.depenency-list-toggle\').toggle().prop(\'checked\', false);"> Hide '. (count($labelDependencies) - 3) .' more';
+                $labelDependencyList .= '</span>';
+            }
         }
 
         $network = $process['inspect'][0]['HostConfig']['NetworkMode'];
@@ -162,7 +195,7 @@ function renderContainerRow($nameHash, $return)
                     <div class="col-sm-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
                     <div class="col-sm-10">
                         <span id="menu-<?= $nameHash ?>" style="cursor: pointer;" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?= $process['Names'] ?></span>
-                        <ul class="dropdown-menu dropdown-menu-dark p-2" role="menu" aria-labelledby="menu-<?= $nameHash ?>">
+                        <ul style="max-width: 200px" class="dropdown-menu dropdown-menu-dark p-2" role="menu" aria-labelledby="menu-<?= $nameHash ?>">
                             <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-tools fa-fw text-muted me-1"></i> <a onclick="openEditContainer('<?= $nameHash ?>')" tabindex="-1" href="#" class="text-white">Edit</a></li>
 
                             <li <?= ($skipActions ? 'class="d-none"' : '') ?>><hr class="dropdown-divider"></li>
@@ -197,9 +230,9 @@ function renderContainerRow($nameHash, $return)
                             <li class="ms-1 small-text"><span class="small-text">Size:</span> <?= $process['size'] ?></li>
                             <li class="ms-1 small-text"><span class="small-text">Network:</span> <?= $network ?></li>
                             <?php if ($networkDependencies) { ?>
-                            <li class="ms-1 small-text"><span class="small-text">Dependencies:</span> <?= implode(', ', $networkDependencies) ?></li>
+                            <li class="ms-1 small-text"><span class="small-text">Dependencies:</span> <?= $networkDependencyList ?></li>
                             <?php } elseif ($labelDependencies) { ?>
-                                <li class="ms-1 small-text"><span class="small-text">Dependencies:</span> <?= implode(', ', $labelDependencies) ?></li>
+                                <li class="ms-1 small-text"><span class="small-text">Dependencies:</span> <?= $labelDependencyList ?></li>
                             <?php } ?>
                         </ul>
                         <br><span class="text-muted small-text" title="<?= isDockerIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 25) ?></span>
