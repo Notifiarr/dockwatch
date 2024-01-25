@@ -68,13 +68,13 @@ function renderContainerRow($nameHash, $return)
     $health = 'Not setup';
     if (str_contains($process['Status'], 'healthy')) {
         $usesHealth = true;
-        $health     = 'Healthy <i class="fas fa-sync-alt ' . $healthyRestartClass . '" title="' . $healthyRestartText . '"></i>';
+        $health     = 'Healthy <i class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
     } elseif (str_contains($process['Status'], 'unhealthy')) {
         $usesHealth = true;
-        $health     = 'Unhealthy <i class="fas fa-sync-alt ' . $healthyRestartClass . '" title="' . $healthyRestartText . '"></i>';
+        $health     = 'Unhealthy <i class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
     } elseif (str_contains($process['Status'], 'health:')) {
         $usesHealth = true;
-        $health     = 'Waiting <i class="fas fa-sync-alt ' . $healthyRestartClass . '" title="' . $healthyRestartText . '"></i>';
+        $health     = 'Waiting <i class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
     }
 
     if (str_contains($process['Status'], 'Exit')) {

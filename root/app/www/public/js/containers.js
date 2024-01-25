@@ -13,6 +13,13 @@ function updateContainerOption(option, hash)
             if (option == 'blacklist' && !$('#' + option + '-' + hash).prop('checked')) {
                 $('#restart-btn-' + hash + ', #stop-btn-' + hash).show();
             }
+
+            if (option == 'restartUnhealthy' && $('#' + option + '-' + hash).prop('checked')) {
+                $('.restartUnhealthy-icon-' + hash).removeClass('text-warning').addClass('text-success');
+            }
+            if (option == 'restartUnhealthy' && !$('#' + option + '-' + hash).prop('checked')) {
+                $('.restartUnhealthy-icon-' + hash).removeClass('text-success').addClass('text-warning');
+            }
         }
     });
 }
