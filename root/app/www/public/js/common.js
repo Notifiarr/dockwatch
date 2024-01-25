@@ -104,9 +104,17 @@ function initPage(page)
                             $('.container-group-row').show();
                         });
 
-                        $('.dt-buttons').prepend($('#check-all-btn'));
-                        $('.dt-buttons').append($('#group-btn'));
-                        $('.dt-buttons').append($('#group-restore-btn'));
+                        $('.dt-buttons').
+                            prepend($('#check-all-btn')).
+                            append($('#group-btn')).
+                            append($('#group-restore-btn'));
+
+                        $('.dataTables_filter').
+                            addClass('dt-buttons').
+                            append($('#updates-btn')).
+                            append($('#frequency-btn')).
+                            append($('#frequency-all-div')).
+                            append($('#updates-all-div'));
 
                         $('.sorting_disabled').removeClass('sorting_asc');
                     },

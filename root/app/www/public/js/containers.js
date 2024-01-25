@@ -378,3 +378,14 @@ function containerLogs(container)
     });
 }
 // ---------------------------------------------------------------------------------------------
+function massChangeContainerUpdates()
+{
+    const selected = $('#container-updates-all').val();
+
+    $.each($('.container-updates'), function () {
+        if ($('option[value=' + selected + ']', this).length) {
+            $(this).val(selected);
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------

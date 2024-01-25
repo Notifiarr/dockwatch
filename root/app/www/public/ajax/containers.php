@@ -35,22 +35,8 @@ if ($_POST['m'] == 'init') {
                             <th scope="col" class="noselect no-sort">Mounts</th>
                             <th scope="col" class="noselect">CPU</th>
                             <th scope="col" class="noselect">Memory</th>
-                            <th scope="col" class="noselect no-sort">
-                                <span onclick="$('#container-updates-all').toggle()" class="text-info" style="cursor: pointer;">Updates</span>
-                                <select id="container-updates-all" style="display: none;" class="form-select" onchange="$('.container-updates').val($(this).val())">
-                                    <option value="0">Ignore</option>
-                                    <option value="1">Auto update</option>
-                                    <option value="2">Check for updates</option>
-                                </select>
-                            </th>
-                            <th scope="col" class="noselect no-sort">
-                                <span onclick="$('#frequency-all-div').toggle()" class="text-info" style="cursor: pointer;">Frequency</span>
-                                <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
-                                <div id="frequency-all-div" class="m-0 p-0" style="display: none;">
-                                    <input id="container-frequency-all" type="text" class="form-control d-inline-block w-75" value="<?= DEFAULT_CRON ?>">
-                                    <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="$('.container-frequency').val($('#container-frequency-all').val())"></i>
-                                </div>
-                            </th>
+                            <th scope="col" class="noselect no-sort">Updates</th>
+                            <th scope="col" class="noselect no-sort">Frequency</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -158,6 +144,22 @@ if ($_POST['m'] == 'init') {
                                     <button id="check-all-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="$('.containers-check').prop('checked', $(this).prop('checked'));"></button>
                                     <button id="group-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openContainerGroups()">Container groups</button>
                                     <button id="group-restore-btn" style="display: none;" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
+
+                                    <button id="updates-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="$('#updates-all-div').toggle(); $('#frequency-all-div').hide();">Updates</button>
+                                    <button id="frequency-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="$('#frequency-all-div').toggle(); $('#updates-all-div').hide();">Frequency</button>
+                                    <div id="frequency-all-div" class="m-0 p-0" style="display: none;">
+                                        <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
+                                        <input id="container-frequency-all" type="text" class="form-control d-inline-block w-50" value="<?= DEFAULT_CRON ?>">
+                                        <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="$('.container-frequency').val($('#container-frequency-all').val())"></i>
+                                    </div>
+                                    <div id="updates-all-div" class="m-0 p-0" style="display: none;">
+                                        <select id="container-updates-all" class="form-select d-inline-block w-50" onchange="massChangeContainerUpdates()">
+                                            <option value="-1">-- Select Option --</option>
+                                            <option value="0">Ignore</option>
+                                            <option value="1">Auto update</option>
+                                            <option value="2">Check for updates</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -188,10 +190,9 @@ if ($_POST['m'] == 'saveContainerSettings') {
             $frequency = DEFAULT_CRON;
         }
 
-        $newSettings[$hash]    = [
-                                    'updates'   => $val,
-                                    'frequency' => $frequency
-                                ];
+        $newSettings[$hash]['updates']          = $val;
+        $newSettings[$hash]['frequency']        = $frequency;
+        $newSettings[$hash]['restartUnhealthy'] = $settingsFile['containers'][$hash]['restartUnhealthy'];
     }
 
     $settingsFile['containers'] = $newSettings;
