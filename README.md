@@ -1,7 +1,7 @@
 ![Logo](https://repository-images.githubusercontent.com/718854440/29604111-7881-4c70-82e5-58710371e1eb)
 
 
-# Docker Watcher
+# Dockwatch
 
 ## Purpose
 Simple UI driven way to manage updates & notifications for containers. As this is meant to be simple, there is no db container required or setup. This will save things it needs to files in the `/config` mount instead.
@@ -15,7 +15,6 @@ Simple UI driven way to manage updates & notifications for containers. As this i
 - Notify when an update is applied
 - Notify when images are pruned
 - Notify when volumes are pruned
-- Notify when images/volumes have been pruned
 - Notify if memory is > n%
 - Notify if CPU is > n%
 

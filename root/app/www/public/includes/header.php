@@ -24,7 +24,7 @@ $serverList .= '</select>';
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Docker Watcher</title>
+    <title>Dockwatch<?= ($settingsFile['global']['serverName'] ? ' - ' . $settingsFile['global']['serverName'] : '') ?></title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
