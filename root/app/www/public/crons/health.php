@@ -92,6 +92,7 @@ if ($unhealthy) {
         }
 
         $dependencies = $dependencyFile[$container['name']]['containers'];
+        $dependencies = is_array($dependencies) ? $dependencies : [];
         logger(CRON_HEALTH_LOG, 'dependencies: ' . (count($dependencies) > 0 ? implode(', ', $dependencies) : 'none'));
 
         logger(CRON_HEALTH_LOG, 'restarting unhealthy \'' . $container['name'] . '\'');
