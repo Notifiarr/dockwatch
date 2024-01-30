@@ -359,10 +359,14 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
                     setServerFile('pull', $pullsFile);
 
-                    $apiResponse = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
-                    logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
-                    $dependencies = $dependencyFile[$container['Names']]['containers'];
+                    if (str_contains($container['State'], 'running')) {
+                        $apiResponse = apiRequest('dockerStartContainer', [], ['name' => $container['Names']]);
+                        logger(UI_LOG, 'dockerStartContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                    } else {
+                        logger(UI_LOG, 'container was not running, not starting it');
+                    }
 
+                    $dependencies = $dependencyFile[$container['Names']]['containers'];
                     if ($dependencies) {
                         updateDependencyParentId($container['Names'], $update['Id']);
                     }

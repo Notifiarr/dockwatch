@@ -163,11 +163,15 @@ if ($updateSettings) {
                                                                 'imageDigest'   => $regctlDigest
                                                             ];
 
-                                $msg = 'Starting container: ' . $containerState['Names'];
-                                logger(CRON_PULLS_LOG, $msg);
-                                echo $msg . "\n";
-                                $restart = dockerStartContainer($containerState['Names']);
-                                logger(CRON_PULLS_LOG, 'dockerStartContainer:' . trim($restart));
+                                if (str_contains($containerState['State'], 'running')) {
+                                    $msg = 'Starting container: ' . $containerState['Names'];
+                                    logger(CRON_PULLS_LOG, $msg);
+                                    echo $msg . "\n";
+                                    $restart = dockerStartContainer($containerState['Names']);
+                                    logger(CRON_PULLS_LOG, 'dockerStartContainer:' . trim($restart));
+                                } else {
+                                    logger(CRON_PULLS_LOG, 'container was not running, not starting it');
+                                }
 
                                 $msg = 'Inspecting image: ' . $image;
                                 logger(CRON_PULLS_LOG, $msg);
@@ -229,15 +233,18 @@ if ($updateSettings) {
                         
                                         if (strlen($update['Id']) == 64) {
                                             $createResult = 'complete';
+                                            logger(CRON_PULLS_LOG, 'Container ' . $dependencyContainer . ' re-create: ' . $createResult);
 
-                                            $msg = '[dependency] dockerStartContainer: ' . $dependencyContainer;
-                                            logger(CRON_PULLS_LOG, $msg);
-                                            echo $msg . "\n";
-                                            $apiResponse = apiRequest('dockerStartContainer', [], ['name' => $dependencyContainer]);
-                                            logger(CRON_PULLS_LOG, 'dockerStartContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                                            if (str_contains($containerState['State'], 'running')) {
+                                                $msg = '[dependency] dockerStartContainer: ' . $dependencyContainer;
+                                                logger(CRON_PULLS_LOG, $msg);
+                                                echo $msg . "\n";
+                                                $apiResponse = apiRequest('dockerStartContainer', [], ['name' => $dependencyContainer]);
+                                                logger(CRON_PULLS_LOG, 'dockerStartContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                                            } else {
+                                                logger(CRON_PULLS_LOG, 'container was not running, not starting it');
+                                            }
                                         }
-
-                                        logger(CRON_PULLS_LOG, 'Container ' . $dependencyContainer . ' re-create: ' . $createResult);
                                     }
                                 }
 
