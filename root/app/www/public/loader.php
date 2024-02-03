@@ -17,7 +17,15 @@ if ($_SERVER['DOCKER_HOST']) {
 }
 
 if (!defined('ABSOLUTE_PATH')) {
-    define('ABSOLUTE_PATH', './');
+    if (file_exists('loader.php')) {
+        define('ABSOLUTE_PATH', './');
+    }
+    if (file_exists('../loader.php')) {
+        define('ABSOLUTE_PATH', '../');
+    }
+    if (file_exists('../../loader.php')) {
+        define('ABSOLUTE_PATH', '../../');
+    }
 }
 
 $loadTimes = [];
