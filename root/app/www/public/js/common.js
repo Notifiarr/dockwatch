@@ -367,3 +367,27 @@ function dialogClose(elm)
 
 }
 // -------------------------------------------------------------------------------------------
+function dockwatchWarning()
+{
+    dialogOpen({
+        id: 'dockwatchWarning',
+        title: 'Important Information',
+        size: 'lg',
+        body: $('#dockwatchWarningText').html(),
+        onOpen: function () {
+
+        }
+    });
+}
+// -------------------------------------------------------------------------------------------
+function dockwatchMaintenance(action)
+{
+    toast('Dockwatch Maintenance', 'The ' + action + ' request has been sent, please wait to refresh...', 'info');
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/maintenance.php',
+        data: '&m=dockwatchMaintenance&action=' + action
+    });
+}
+// -------------------------------------------------------------------------------------------

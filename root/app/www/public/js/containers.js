@@ -1,3 +1,9 @@
+function toggleAllContainers()
+{
+    $('.containers-check').prop('checked', $('#containers-toggle-all').prop('checked'));
+    $('[attr-dockwatch=true]').prop('checked', false);
+}
+// ---------------------------------------------------------------------------------------------
 function updateContainerOption(option, hash)
 {
     $.ajax({

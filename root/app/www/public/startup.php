@@ -13,17 +13,19 @@ $settingsFile = getFile(SETTINGS_FILE);
 //-- INITIALIZE THE NOTIFY CLASS
 $notifications = new Notifications();
 
-echo 'Container init (Start/Restart)' . "\n";
-logger(SYSTEM_LOG, 'Container init (Start/Restart)');
+logger(STARTUP_LOG, 'Container init (Start/Restart) ->');
 
-$notify['state']['changed'][] = ['container' => $currentState['Names'], 'previous' => '.....', 'current' => 'Started/Restarted'];
+$name = file_exists(TMP_PATH . 'restart.txt') || file_exists(TMP_PATH . 'restart.txt') ? 'dockwatch-maintenance' : 'dockwatch';
 
-echo 'Checking if state change notifications are enabled' . "\n";
-
+//-- STARTUP NOTIFICATION
+$notify['state']['changed'][] = ['container' => $name, 'previous' => '.....', 'current' => 'Started/Restarted'];
 if ($settingsFile['notifications']['triggers']['stateChange']['platform']) {
-	echo 'Sending dockwatch started notification' . "\n";
-
 	$payload = ['event' => 'state', 'changes' => $notify['state']['changed']];
 	$notifications->notify($settingsFile['notifications']['triggers']['stateChange']['platform'], $payload);
-	logger(SYSTEM_LOG, 'Sending dockwatch started notification');
+	logger(STARTUP_LOG, 'Sending dockwatch started notification');
 }
+
+//-- MAINTENANCE CHECK
+maintenanceStartupCheck();
+
+logger(STARTUP_LOG, 'Container init (Start/Restart) <-');

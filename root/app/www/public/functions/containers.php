@@ -186,9 +186,17 @@ function renderContainerRow($nameHash, $return)
             list($null, $containerId) = explode(':', $network);
             $network = 'container:' . findContainerFromId($containerId);
         }
+
+        $isDockwatch = false;
+        $dockwatchWarning = '';
+        if (isDockwatchContainer($process)) {
+            $isDockwatch        = true;
+            $dockwatchWarning   = ' <i class="fas fa-exclamation-circle text-danger" title="Dockwatch warning, click for more information" style="cursor: pointer;" onclick="dockwatchWarning()"></i>';
+        }
+
         ?>
         <tr id="<?= $nameHash ?>" <?= ($groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ) ?>>
-            <td><input id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check <?= ($groupHash ? 'group-' . $groupHash . '-check' : '') ?>"></td>
+            <td><input <?= ($isDockwatch ? 'attr-dockwatch="true"' : '') ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check <?= ($groupHash ? 'group-' . $groupHash . '-check' : '') ?>"></td>
             <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '') ?></td>
             <td>
                 <div class="row m-0 p-0">
@@ -235,6 +243,7 @@ function renderContainerRow($nameHash, $return)
                                 <li class="ms-1 small-text"><span class="small-text">Dependencies:</span> <?= $labelDependencyList ?></li>
                             <?php } ?>
                         </ul>
+                        <?= $dockwatchWarning ?>
                         <br><span class="text-muted small-text" title="<?= isDockerIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 25) ?></span>
                     </div>
                 </div>

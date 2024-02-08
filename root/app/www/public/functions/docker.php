@@ -7,47 +7,91 @@
 ----------------------------------
 */
 
-function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect)
+function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $maintenance = false)
 {
+    if ($maintenance) {
+        logger(MAINTENANCE_LOG, '$fetchProc=' . $fetchProc);
+        logger(MAINTENANCE_LOG, '$fetchStats=' . $fetchStats);
+        logger(MAINTENANCE_LOG, '$fetchInspect=' . $fetchInspect);
+    }
+
     $processList = $loadTimes = [];
 
     if ($fetchProc) {
-        $loadTimes[]    = trackTime('dockerProcessList ->');
-        $processList    = apiRequest('dockerProcessList', ['format' => true]);
-        $processList    = json_decode($processList['response']['docker'], true);
-        $loadTimes[]    = trackTime('dockerProcessList <-');
-    
-        $loadTimes[]    = trackTime('dockerImageSizes ->');
-        $imageSizes     = apiRequest('dockerImageSizes');
-        $imageSizes     = json_decode($imageSizes['response']['docker'], true);
-        $loadTimes[]    = trackTime('dockerImageSizes <-');
+        $loadTimes[] = trackTime('dockerProcessList ->');
+        if ($maintenance) {
+            logger(MAINTENANCE_LOG, 'dockerProcessList ->');
+            $processList = dockerProcessList(false);
+            logger(MAINTENANCE_LOG, json_encode(json_decode($processList)));
+            $processList = json_decode($processList, true);
+            logger(MAINTENANCE_LOG, 'dockerProcessList <-');
+        } else {
+            $processList = apiRequest('dockerProcessList', ['format' => true]);
+            $processList = json_decode($processList['response']['docker'], true);
+        }
+        $loadTimes[] = trackTime('dockerProcessList <-');
+
+        $loadTimes[] = trackTime('dockerImageSizes ->');
+        if ($maintenance) {
+            logger(MAINTENANCE_LOG, 'dockerImageSizes ->');
+            $imageSizes = dockerImageSizes();
+            logger(MAINTENANCE_LOG, json_encode(json_decode($imageSizes)));
+            $imageSizes = json_decode($imageSizes, true);
+            logger(MAINTENANCE_LOG, 'dockerImageSizes <-');
+        } else {
+            $imageSizes = apiRequest('dockerImageSizes');
+            $imageSizes = json_decode($imageSizes['response']['docker'], true);
+        }
+        $loadTimes[] = trackTime('dockerImageSizes <-');
     }
 
-    if ($fetchStats) {
+    if ($fetchStats) {    
         $loadTimes[] = trackTime('dockerStats ->');
-        $dockerStats = apiRequest('stats');
-    
-        if (!$dockerStats['response']['state']) { //-- NOT WRITTEN YET
-            $dockerStats = apiRequest('dockerStats');
-            $dockerStats = json_decode($dockerStats['response']['docker'], true);
+
+        if ($maintenance) {
+            logger(MAINTENANCE_LOG, 'dockerStats ->');
+            $dockerStats = getFile(STATS_FILE);
+            logger(MAINTENANCE_LOG, json_encode($dockerStats, JSON_UNESCAPED_SLASHES));
+            logger(MAINTENANCE_LOG, 'dockerStats <-');
         } else {
-            $dockerStats = $dockerStats['response']['state'];
+            $dockerStats    = apiRequest('stats');
+            $dockerStats    = $dockerStats['response']['state'];
         }
-    
+
+        if (!$dockerStats) { //-- NOT WRITTEN YET
+            if ($maintenance) {
+                $dockerStats = dockerStats(false);
+                logger(MAINTENANCE_LOG, $dockerStats);
+                $dockerStats = json_decode($dockerStats, true);
+            } else {
+                $dockerStats = apiRequest('dockerStats');
+                $dockerStats = json_decode($dockerStats['response']['docker'], true);
+            }
+        }
+
         $loadTimes[] = trackTime('dockerStats <-');
     }
-    
+
     if (!empty($processList)) {
         $loadTimes[] = trackTime('dockerInspect ->');
         //-- GATHER ALL CONTAINERS FOR A SINGLE INSPECT
-        $inspectResults = [];
+        $inspectResults = $inspectContainers = [];
         if ($fetchInspect) {
             foreach ($processList as $index => $process) {
                 $inspectContainers[] = $process['Names'];
             }
 
-            $inspect        = apiRequest('dockerInspect', ['name' => implode(' ', $inspectContainers), 'format' => true]);
-            $inspectResults = json_decode($inspect['response']['docker'], true);
+            if ($maintenance) {
+                logger(MAINTENANCE_LOG, 'dockerInspect ->');
+                logger(MAINTENANCE_LOG, 'inspecting: ' . implode(' ', $inspectContainers));
+                $inspect        = dockerInspect(implode(' ', $inspectContainers));
+                $inspectResults = json_decode($inspect, true);
+                logger(MAINTENANCE_LOG, 'dockerInspect() ' . json_encode(json_decode($inspect)));
+                logger(MAINTENANCE_LOG, 'dockerInspect <-');
+            } else {
+                $inspect        = apiRequest('dockerInspect', ['name' => implode(' ', $inspectContainers), 'format' => true]);
+                $inspectResults = json_decode($inspect['response']['docker'], true);
+            }
         }
 
         //-- ADD INSPECT AND STATS TO PROCESS LIST
@@ -177,7 +221,6 @@ function dockerProcessList($useCache = true, $format = true, $params = '')
 
     logger(SYSTEM_LOG, '$cmd=' . $cmd);
     $shell  = shell_exec($cmd . ' 2>&1');
-    logger(SYSTEM_LOG, '$shell=' . $shell);
     logger(SYSTEM_LOG, 'dockerProcessList <-');
     return $shell;
 }

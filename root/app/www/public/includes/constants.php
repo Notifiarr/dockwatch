@@ -9,6 +9,7 @@
 
 define('APP_NAME', 'DockWatch');
 define('APP_IMAGE', 'ghcr.io/notifiarr/dockwatch:main');
+define('APP_MAINTENANCE_IMAGE', 'ghcr.io/notifiarr/dockwatch:develop');
 
 define('ICON_REPO', 'Notifiarr/images');
 define('ICON_URL', 'https://gh.notifiarr.com/images/icons/');
@@ -43,6 +44,8 @@ define('DEPENDENCY_FILE', APP_DATA_PATH . 'dependencies.json');
 define('SYSTEM_LOG', LOGS_PATH . 'system/app.log');
 define('UI_LOG', LOGS_PATH . 'system/ui.log');
 define('API_LOG', LOGS_PATH . 'system/api.log');
+define('MAINTENANCE_LOG', LOGS_PATH . 'system/maintenance.log');
+define('STARTUP_LOG', LOGS_PATH . 'system/startup.log');
 define('CRON_HOUSEKEEPER_LOG', LOGS_PATH . 'crons/housekeeper.log');
 define('CRON_PRUNE_LOG', LOGS_PATH . 'crons/prune.log');
 define('CRON_PULLS_LOG', LOGS_PATH . 'crons/pulls.log');

@@ -113,6 +113,32 @@
         </ul>
     </div>
 
+    <!-- Warning -->
+    <div id="dockwatchWarningText" style="display: none;">
+        Dockwatch has a different method for updating and restarting its self, for this reason it is ignored in the check all action. It will clone its self and create a container named <code>dockwatch-maintenance</code> since it can not do things to its self.<br><br>
+        Dockwatch manual/auto update:
+        <ul>
+            <li>dockwatch pulls current container</li>
+            <li>dockwatch creates/starts dockwatch-maintenance</li>
+            <li>dockwatch-maintenance stops/removes/creates/starts dockwatch</li>
+            <li>dockwatch stops/removes dockwatch-maintenance</li>
+        </ul>
+        Dockwatch restart (unhealthy):
+        <ul>
+            <li>dockwatch pulls current container</li>
+            <li>dockwatch creates/starts dockwatch-maintenance</li>
+            <li>dockwatch-maintenance stops/starts dockwatch</li>
+            <li>dockwatch stops/removes dockwatch-maintenance</li>
+        </ul>
+        <br>
+        Consider not running the dockwatch update time at the same time as other containers. When dockwatch starts its update process, everything after it will be ignored since it is stopping its self!<hr>
+        Wait 30-45 seconds after using these buttons and refresh the page so the process outlined above can complete.<br><br>
+        <center>
+            <button onclick="dockwatchMaintenance('restart')" class="btn btn-outline-info">Restart Dockwatch</button>
+            <button onclick="dockwatchMaintenance('update')" class="btn btn-outline-info">Update Dockwatch</button>
+        </center>
+    </div>
+
     <!-- JavaScript Libraries -->
     <script src="libraries/jquery/jquery-3.4.1.min.js"></script>
     <script src="libraries/jquery/jquery-ui-1.13.2.min.js"></script>

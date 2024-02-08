@@ -7,6 +7,16 @@
 ----------------------------------
 */
 
+function isDockwatchContainer($container)
+{
+    $imageMatch = str_replace(':main', '', APP_IMAGE);
+    if (str_contains($container['inspect'][0]['Config']['Image'], $imageMatch) && $container['Names'] != 'dockwatch-maintenance') {
+        return true;
+    }
+
+    return false;
+}
+
 function automation()
 {
     if (!file_exists(SERVERS_FILE)) {

@@ -36,6 +36,13 @@ if ($_POST['m'] == 'init') {
                             </td>
                             <td>The name of this server, also passed in the notification payload</td>
                         </tr>
+                        <tr>
+                            <th scope="row">Maintenance port</th>
+                            <td>
+                                <input class="form-control" type="text" id="globalSetting-maintenancePort" value="<?= ($globalSettings['maintenancePort'] ? $globalSettings['maintenancePort'] : 9998) ?>">
+                            </td>
+                            <td>This port is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this port and after it has updated/restarted Dockwatch it will be removed.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
