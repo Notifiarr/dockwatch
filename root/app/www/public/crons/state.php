@@ -85,18 +85,6 @@ if ($added || $removed) {
 
 //-- CHECK FOR STATE CHANGED CONTAINERS
 foreach ($currentStates as $currentState) {
-    if (str_contains($currentState['Image'], 'dockwatch')) {
-        $running = $currentState['Status'];
-
-        if (str_contains($running, 'minutes')) {
-            $minutes = preg_replace("/[^0-9]/", "", $running);
-
-            if ($minutes <= 5) {
-                $notify['state']['changed'][] = ['container' => $currentState['Names'], 'previous' => '.....', 'current' => 'Started'];
-            }
-        }
-    }
-
     foreach ($previousStates as $previousState) {
         if ($settingsFile['notifications']['triggers']['stateChange']['active'] && $currentState['Names'] == $previousState['Names']) {
             if ($previousState['State'] != $currentState['State']) {
