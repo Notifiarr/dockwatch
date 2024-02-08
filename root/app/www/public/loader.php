@@ -67,7 +67,7 @@ define('ACTIVE_SERVER_NAME', $serversFile[$_SESSION['serverIndex']]['name']);
 define('ACTIVE_SERVER_URL', rtrim($serversFile[$_SESSION['serverIndex']]['url'], '/'));
 define('ACTIVE_SERVER_APIKEY', $serversFile[$_SESSION['serverIndex']]['apikey']);
 
-if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/', 'socket'])) {
+if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/', 'socket']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
     //-- CHECK IF SELECTED SERVER CAN BE TALKED TO
     $ping = apiRequest('ping');
     if (!is_array($ping) || $ping['code'] != 200) {
