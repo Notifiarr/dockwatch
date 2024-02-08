@@ -1,4 +1,6 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
 
-php -r "require '/app/www/public/startup.php';" 2>/dev/null
+echo 's6-overlay init require(/app/www/public/startup.php) ->';
+php -r "require '/app/www/public/startup.php';"
+echo 's6-overlay init require(/app/www/public/startup.php) <-';
