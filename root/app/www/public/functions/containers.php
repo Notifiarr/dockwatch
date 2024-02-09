@@ -38,6 +38,8 @@ function renderContainerRow($nameHash, $return)
     $containerSettings  = $settingsFile['containers'][$nameHash];
     $logo               = getIcon($process['inspect']);
 
+    $notificationIcon = $containerSettings['disableNotifications'] ? '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container"></i> ' : '';
+
     if ($process['State'] == 'running') {
         $control = '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i><br>';
         $control .= '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="stop-btn-' . $nameHash . '" class="fas fa-power-off text-danger container-stop-btn" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"></i>';
@@ -202,7 +204,7 @@ function renderContainerRow($nameHash, $return)
                 <div class="row m-0 p-0">
                     <div class="col-sm-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
                     <div class="col-sm-10">
-                        <span id="menu-<?= $nameHash ?>" style="cursor: pointer;" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?= $process['Names'] ?></span>
+                        <span id="menu-<?= $nameHash ?>" style="cursor: pointer;" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?= $notificationIcon . $process['Names'] ?></span>
                         <ul style="max-width: 200px" class="dropdown-menu dropdown-menu-dark p-2" role="menu" aria-labelledby="menu-<?= $nameHash ?>">
                             <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-tools fa-fw text-muted me-1"></i> <a onclick="openEditContainer('<?= $nameHash ?>')" tabindex="-1" href="#" class="text-white">Edit</a></li>
 
@@ -223,6 +225,7 @@ function renderContainerRow($nameHash, $return)
                             <li class="dropdown-submenu">
                                 <i class="fas fa-ellipsis-v fa-fw text-muted me-1"></i> <a tabindex="-1" href="#" class="text-white">Options</a>
                                 <ul class="dropdown-menu dropdown-menu-dark p-2" style="width: 300px;">
+                                <li><input <?= ($settingsFile['containers'][$nameHash]['disableNotifications'] ? 'checked' : '') ?> type="checkbox" class="form-check-input" id="disableNotifications-<?= $nameHash ?>" onclick="updateContainerOption('disableNotifications', '<?= $nameHash ?>')"> Disable notifications</li>
                                     <li><input <?= ($skipActions == SKIP_FORCE ? 'disabled checked' : ($settingsFile['containers'][$nameHash]['blacklist'] ? 'checked' : '')) ?> type="checkbox" class="form-check-input" id="blacklist-<?= $nameHash ?>" onclick="updateContainerOption('blacklist', '<?= $nameHash ?>')"> Blacklist (no state changes)</li>
                                     <?php if ($usesHealth) { ?>
                                     <li><input <?= ($skipActions ? 'disabled' : ($settingsFile['containers'][$nameHash]['restartUnhealthy'] ? 'checked' : '')) ?> type="checkbox" class="form-check-input" id="restartUnhealthy-<?= $nameHash ?>" onclick="updateContainerOption('restartUnhealthy', '<?= $nameHash ?>')"> Restart when unhealthy</li>

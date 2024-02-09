@@ -114,6 +114,11 @@ if ($unhealthy) {
             }
         }
 
+        if ($settingsFile['containers'][$nameHash]['disableNotifications']) {
+            logger(CRON_HEALTH_LOG, 'skipping notification for \'' . $container['name'] . '\', container set to not notify');
+            $notify = false;
+        }
+
         if ($notify) {
             logger(CRON_HEALTH_LOG, 'sending notification for \'' . $container['name'] . '\'');
             $payload = ['event' => 'health', 'container' => $container['name'], 'restarted' => $unhealthy[$nameHash]['restart']];

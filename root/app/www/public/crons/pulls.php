@@ -248,7 +248,7 @@ if ($updateSettings) {
                                     }
                                 }
 
-                                if ($settingsFile['notifications']['triggers']['updated']['active']) {
+                                if ($settingsFile['notifications']['triggers']['updated']['active'] && !$settingsFile['containers'][$containerHash]['disableNotifications']) {
                                     $notify['updated'][]    = [
                                                                 'container' => $containerState['Names'],
                                                                 'image'     => $image,
@@ -261,13 +261,13 @@ if ($updateSettings) {
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
 
-                                if ($settingsFile['notifications']['triggers']['updated']['active']) {
+                                if ($settingsFile['notifications']['triggers']['updated']['active'] && !$settingsFile['containers'][$containerHash]['disableNotifications']) {
                                     $notify['failed'][] = ['container' => $containerState['Names']];
                                 }
                             }
                             break;
                         case 2: //-- Check for updates
-                            if ($settingsFile['notifications']['triggers']['updates']['active'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
+                            if ($settingsFile['notifications']['triggers']['updates']['active'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image'] && !$settingsFile['containers'][$containerHash]['disableNotifications']) {
                                 $notify['available'][] = ['container' => $containerState['Names']];
                             }
                             break;

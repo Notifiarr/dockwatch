@@ -55,10 +55,15 @@ logger(CRON_STATE_LOG, 'currentContainers: ' . json_encode($currentContainers, J
 //-- CHECK FOR ADDED CONTAINERS
 foreach ($currentContainers as $currentContainer) {
     if (!in_array($currentContainer, $previousContainers)) {
-        $added[]    = ['container' => $currentContainer];
+        $containerHash = md5($currentContainer);
+
         $updates    = is_array($settingsFile['global']) && array_key_exists('updates', $settingsFile['global']) ? $settingsFile['global']['updates'] : 3; //-- CHECK ONLY FALLBACK
         $frequency  = is_array($settingsFile['global']) && array_key_exists('updatesFrequency', $settingsFile['global']) ? $settingsFile['global']['updatesFrequency'] : DEFAULT_CRON; //-- DAILY FALLBACK
-        $settingsFile['containers'][md5($currentContainer)] = ['updates' => $updates, 'frequency' => $frequency];
+        $settingsFile['containers'][$containerHash] = ['updates' => $updates, 'frequency' => $frequency];
+
+        if (!$settingsFile['containers'][$containerHash]['disableNotifications']) {
+            $added[] = ['container' => $currentContainer];
+        }
     }
 }
 if ($added && $settingsFile['notifications']['triggers']['added']['active']) {
@@ -69,8 +74,13 @@ logger(CRON_STATE_LOG, 'Added containers: ' . json_encode($added, JSON_UNESCAPED
 //-- CHECK FOR REMOVED CONTAINERS
 foreach ($previousContainers as $previousContainer) {
     if (!in_array($previousContainer, $currentContainers)) {
-        $removed[] = ['container' => $previousContainer];
-        unset($settingsFile['containers'][md5($currentContainer)]);
+        $containerHash = md5($previousContainer);
+
+        unset($settingsFile['containers'][$containerHash]);
+
+        if (!$settingsFile['containers'][$containerHash]['disableNotifications']) {
+            $removed[] = ['container' => $previousContainer];
+        }
     }
 }
 if ($removed && $settingsFile['notifications']['triggers']['removed']['active']) {
@@ -86,7 +96,9 @@ if ($added || $removed) {
 //-- CHECK FOR STATE CHANGED CONTAINERS
 foreach ($currentStates as $currentState) {
     foreach ($previousStates as $previousState) {
-        if ($settingsFile['notifications']['triggers']['stateChange']['active'] && $currentState['Names'] == $previousState['Names']) {
+        $containerHash = md5($currentState['Names']);
+
+        if ($settingsFile['notifications']['triggers']['stateChange']['active'] && $currentState['Names'] == $previousState['Names'] && !$settingsFile['containers'][$containerHash]['disableNotifications']) {
             if ($previousState['State'] != $currentState['State']) {
                 $notify['state']['changed'][] = ['container' => $currentState['Names'], 'previous' => $previousState['State'], 'current' => $currentState['State']];
             }
@@ -96,8 +108,10 @@ foreach ($currentStates as $currentState) {
 logger(CRON_STATE_LOG, 'State changed containers: ' . json_encode($notify['state']['changed'], JSON_UNESCAPED_SLASHES));
 
 foreach ($currentStates as $currentState) {
+    $containerHash = md5($currentState['Names']);
+
     //-- CHECK FOR HIGH CPU USAGE CONTAINERS
-    if ($settingsFile['notifications']['triggers']['cpuHigh']['active'] && floatval($settingsFile['global']['cpuThreshold']) > 0) {
+    if ($settingsFile['notifications']['triggers']['cpuHigh']['active'] && floatval($settingsFile['global']['cpuThreshold']) > 0 && !$settingsFile['containers'][$containerHash]['disableNotifications']) {
         if ($currentState['stats']['CPUPerc']) {
             $cpu        = floatval(str_replace('%', '', $currentState['stats']['CPUPerc']));
             $cpuAmount  = intval($settingsFile['global']['cpuAmount']);
@@ -113,9 +127,10 @@ foreach ($currentStates as $currentState) {
     }
 
     //-- CHECK FOR HIGH MEMORY USAGE CONTAINERS
-    if ($settingsFile['notifications']['triggers']['memHigh']['active'] && floatval($settingsFile['global']['memThreshold']) > 0) {
+    if ($settingsFile['notifications']['triggers']['memHigh']['active'] && floatval($settingsFile['global']['memThreshold']) > 0 && !$settingsFile['containers'][$containerHash]['disableNotifications']) {
         if ($currentState['stats']['MemPerc']) {
             $mem = floatval(str_replace('%', '', $currentState['stats']['MemPerc']));
+
             if ($mem > floatval($settingsFile['global']['memThreshold'])) {
                 $notify['usage']['mem'][] = ['container' => $currentState['Names'], 'usage' => $mem];
             }

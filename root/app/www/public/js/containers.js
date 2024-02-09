@@ -13,18 +13,28 @@ function updateContainerOption(option, hash)
         success: function (resultData) {
             toast('Container option', 'The container option setting has been saved', 'success');
 
-            if (option == 'blacklist' && $('#' + option + '-' + hash).prop('checked')) {
-                $('#start-btn-' + hash + ', #restart-btn-' + hash + ', #stop-btn-' + hash).hide();
-            }
-            if (option == 'blacklist' && !$('#' + option + '-' + hash).prop('checked')) {
-                $('#restart-btn-' + hash + ', #stop-btn-' + hash).show();
+            if (option == 'blacklist') {
+                if ($('#' + option + '-' + hash).prop('checked')) {
+                    $('#start-btn-' + hash + ', #restart-btn-' + hash + ', #stop-btn-' + hash).hide();
+                } else {
+                    $('#restart-btn-' + hash + ', #stop-btn-' + hash).show();
+                }
             }
 
-            if (option == 'restartUnhealthy' && $('#' + option + '-' + hash).prop('checked')) {
-                $('.restartUnhealthy-icon-' + hash).removeClass('text-warning').addClass('text-success');
+            if (option == 'restartUnhealthy') {
+                if ($('#' + option + '-' + hash).prop('checked')) {
+                    $('.restartUnhealthy-icon-' + hash).removeClass('text-warning').addClass('text-success');
+                } else {
+                    $('.restartUnhealthy-icon-' + hash).removeClass('text-success').addClass('text-warning');
+                }
             }
-            if (option == 'restartUnhealthy' && !$('#' + option + '-' + hash).prop('checked')) {
-                $('.restartUnhealthy-icon-' + hash).removeClass('text-success').addClass('text-warning');
+
+            if (option == 'disableNotifications') {
+                if ($('#disableNotifications-' + hash).prop('checked')) {
+                    $('#disableNotifications-icon-' + hash).show();
+                } else {
+                    $('#disableNotifications-icon-' + hash).hide();
+                }
             }
         }
     });
