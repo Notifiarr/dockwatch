@@ -116,6 +116,7 @@
     <!-- Warning -->
     <div id="dockwatchWarningText" style="display: none;">
         Dockwatch has a different method for updating and restarting its self, for this reason it is ignored in the check all action. It will clone its self and create a container named <code>dockwatch-maintenance</code> since it can not do things to its self.<br><br>
+        The <code>dockwatch-maintenance</code> container needs a port, by default it is <code>9998</code> but you can change it in the settings. If you use a static ip for your containers, make sure and set an ip for it as well.<br><br>
         Dockwatch manual/auto update:
         <ul>
             <li>dockwatch pulls current container</li>

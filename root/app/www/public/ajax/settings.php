@@ -37,6 +37,13 @@ if ($_POST['m'] == 'init') {
                             <td>The name of this server, also passed in the notification payload</td>
                         </tr>
                         <tr>
+                            <th scope="row">Maintenance IP</th>
+                            <td>
+                                <input class="form-control" type="text" id="globalSetting-maintenanceIP" value="<?= $globalSettings['maintenanceIP'] ?>">
+                            </td>
+                            <td>This IP is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this IP and after it has updated/restarted Dockwatch it will be removed. This is only required if you do static IP assignment for your containers.</td>
+                        </tr>
+                        <tr>
                             <th scope="row">Maintenance port</th>
                             <td>
                                 <input class="form-control" type="text" id="globalSetting-maintenancePort" value="<?= ($globalSettings['maintenancePort'] ? $globalSettings['maintenancePort'] : 9998) ?>">

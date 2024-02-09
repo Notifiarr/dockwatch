@@ -33,7 +33,7 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
-    $skipActions = skipContainerActions($process['Image'], $skipContainerActions);
+    $skipActions = skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions);
 
     $containerSettings  = $settingsFile['containers'][$nameHash];
     $logo               = getIcon($process['inspect']);

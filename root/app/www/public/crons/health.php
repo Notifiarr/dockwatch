@@ -47,14 +47,14 @@ $unhealthy = !empty($healthFile) ? $healthFile : [];
 logger(CRON_HEALTH_LOG, '$unhealthy=' . json_encode($unhealthy, JSON_UNESCAPED_SLASHES));
 
 foreach ($processList as $process) {
-    $nameHash = md5($process['Names']);
+    $nameHash = md5($process['inspect'][0]['Config']['Image']);
 
     if (str_contains($process['Status'], 'unhealthy')) {
-        logger(CRON_HEALTH_LOG, 'container \'' . $process['Names'] . '\' (' . $nameHash . ') is unhealthy');
+        logger(CRON_HEALTH_LOG, 'container \'' . $process['inspect'][0]['Config']['Image'] . '\' (' . $nameHash . ') is unhealthy');
 
         if (!$unhealthy[$nameHash]) {
-            logger(CRON_HEALTH_LOG, 'container \'' . $process['Names'] . '\' has not been restarted or notified for yet');
-            $unhealthy[$nameHash] = ['name' => $process['Names'], 'image' => $process['Image'], 'id' => $process['ID']];
+            logger(CRON_HEALTH_LOG, 'container \'' . $process['inspect'][0]['Config']['Image'] . '\' has not been restarted or notified for yet');
+            $unhealthy[$nameHash] = ['name' => $process['inspect'][0]['Config']['Image'], 'image' => $process['Image'], 'id' => $process['ID']];
         }
     } else {
         unset($unhealthy[$nameHash]);
@@ -71,7 +71,7 @@ if ($unhealthy) {
             continue;
         }
 
-        $skipActions = skipContainerActions($container['id'], $skipContainerActions);
+        $skipActions = skipContainerActions($container['name'], $skipContainerActions);
 
         if ($skipActions) {
             logger(CRON_HEALTH_LOG, 'skipping: ' . $container['name'] . ', blacklisted (no state changes) container');

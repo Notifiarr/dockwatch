@@ -14,7 +14,7 @@ function initiaiteMaintenance($action)
     switch ($action) {
         case 'restart':
             file_put_contents(TMP_PATH . 'restart.txt', 'restart');
-            createMaintenanceContainer('restart', $globalSettings['maintenancePort']);
+            createMaintenanceContainer('restart', $globalSettings['maintenanceIP'], $globalSettings['maintenancePort']);
             break;
     }
 }
@@ -70,7 +70,7 @@ function pullMaintenanceContainer()
     logger(MAINTENANCE_LOG, 'pullMaintenanceContainer() <-');
 }
 
-function createMaintenanceContainer($action, $port)
+function createMaintenanceContainer($action, $ip, $port)
 {
     $getExpandedProcessList = getExpandedProcessList(true, true, true);
     $processList            = $getExpandedProcessList['processList'];
@@ -98,6 +98,20 @@ function createMaintenanceContainer($action, $port)
     $inspectImage[0]['Config']['Image']                                     = APP_MAINTENANCE_IMAGE;
     $inspectImage[0]['HostConfig']['PortBindings']['80/tcp'][0]['HostPort'] = strval($port);
     $inspectImage[0]['NetworkSettings']['Ports']['80/tcp'][0]['HostPort']   = strval($port);
+
+    //-- STATIC IP CHECK
+    if ($ip) {
+        if ($inspectImage[0]['NetworkSettings']['Networks']) {
+            $network = array_keys($inspectImage[0]['NetworkSettings']['Networks'])[0];
+
+            if ($inspectImage[0]['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv4Address']) {
+                $inspectImage[0]['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv4Address'] = $ip;
+            }
+            if ($inspectImage[0]['NetworkSettings']['Networks'][$network]['IPAddress']) {
+                $inspectImage[0]['NetworkSettings']['Networks'][$network]['IPAddress'] = $ip;
+            }
+        }
+    }
 
     removeMaintenanceContainer();
 
