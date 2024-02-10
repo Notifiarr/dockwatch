@@ -18,7 +18,7 @@ foreach ($serversFile as $serverIndex => $serverDetails) {
     $link = $_SESSION['serverIndex'] == $serverIndex ? $serverDetails['url'] : $link;
 }
 $serverList .= '</select>';
-$serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title="Open this server in a new tab"><i class="fas fa-external-link-alt" style="display: ' . ($_SESSION['serverIndex'] == 0 ? 'none' : 'inline-block') . ';"></i></a>';
+$serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title="Open this server in a new tab"><i class="fas fa-external-link-alt fa-lg" style="display: ' . ($_SESSION['serverIndex'] == 0 ? 'none' : 'inline-block') . ';"></i></a>';
 ?>
 
 <!DOCTYPE html>
