@@ -7,7 +7,7 @@
 ----------------------------------
 */
 
-$serverList = '<select class="form-select w-75" id="activeServer" onchange="updateServerIndex()">';
+$serverList = '<select class="form-select w-75 d-inline-block" id="activeServer" onchange="updateServerIndex()">';
 foreach ($serversFile as $serverIndex => $serverDetails) {
     $ping = curl($serverDetails['url'] . '/api/?request=ping', ['x-api-key: ' . $serverDetails['apikey']]);
     $disabled = '';
@@ -15,9 +15,10 @@ foreach ($serversFile as $serverIndex => $serverDetails) {
         $disabled = ' [HTTP: ' . $ping['code'] . ']';
     }
     $serverList .= '<option ' . ($disabled ? 'disabled ' : '') . ($_SESSION['serverIndex'] == $serverIndex ? 'selected' : '') . ' value="' . $serverIndex . '">' . $serverDetails['name'] . $disabled . '</option>';
+    $link = $_SESSION['serverIndex'] == $serverIndex ? $serverDetails['url'] : $link;
 }
 $serverList .= '</select>';
-
+$serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title="Open this server in a new tab"><i class="fas fa-external-link-alt" style="display: ' . ($_SESSION['serverIndex'] == 0 ? 'none' : 'inline-block') . ';"></i></a>';
 ?>
 
 <!DOCTYPE html>

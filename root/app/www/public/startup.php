@@ -13,9 +13,12 @@ $settingsFile = getFile(SETTINGS_FILE);
 //-- INITIALIZE THE NOTIFY CLASS
 $notifications = new Notifications();
 
+//-- INITIALIZE THE MAINTENANCE CLASS
+$maintenance = new Maintenance();
+
 logger(STARTUP_LOG, 'Container init (Start/Restart) ->');
 
-$name = file_exists(TMP_PATH . 'restart.txt') || file_exists(TMP_PATH . 'restart.txt') ? 'dockwatch-maintenance' : 'dockwatch';
+$name = file_exists(TMP_PATH . 'restart.txt') || file_exists(TMP_PATH . 'update.txt') ? 'dockwatch-maintenance' : 'dockwatch';
 
 //-- STARTUP NOTIFICATION
 $notify['state']['changed'][] = ['container' => $name, 'previous' => '.....', 'current' => 'Started/Restarted'];
@@ -26,6 +29,6 @@ if ($settingsFile['notifications']['triggers']['stateChange']['platform']) {
 }
 
 //-- MAINTENANCE CHECK
-maintenanceStartupCheck();
+$maintenance->startup();
 
 logger(STARTUP_LOG, 'Container init (Start/Restart) <-');

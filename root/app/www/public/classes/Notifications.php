@@ -7,7 +7,6 @@
 ----------------------------------
 */
 
-
 //-- BRING IN THE TRAITS
 $traits     = ABSOLUTE_PATH . 'classes/traits/Notifications/';
 $traitsDir  = opendir($traits);

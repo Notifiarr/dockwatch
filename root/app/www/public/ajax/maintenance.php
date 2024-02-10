@@ -9,6 +9,9 @@
 
 require 'shared.php';
 
+//-- INITIALIZE THE MAINTENANCE CLASS
+$maintenance = new Maintenance();
+
 if ($_POST['m'] == 'dockwatchMaintenance') {
-    initiaiteMaintenance($_POST['action']);
+    $maintenance->apply($_POST['action']);
 }
