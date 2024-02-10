@@ -33,6 +33,13 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
+    $isDockwatch = false;
+    $dockwatchWarning = '';
+    if (isDockwatchContainer($process)) {
+        $isDockwatch        = true;
+        $dockwatchWarning   = ' <i class="fas fa-exclamation-circle text-danger" title="Dockwatch warning, click for more information" style="cursor: pointer;" onclick="dockwatchWarning()"></i>';
+    }
+
     $skipActions = skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions);
 
     $containerSettings  = $settingsFile['containers'][$nameHash];
@@ -189,13 +196,6 @@ function renderContainerRow($nameHash, $return)
             $network = 'container:' . findContainerFromId($containerId);
         }
 
-        $isDockwatch = false;
-        $dockwatchWarning = '';
-        if (isDockwatchContainer($process)) {
-            $isDockwatch        = true;
-            $dockwatchWarning   = ' <i class="fas fa-exclamation-circle text-danger" title="Dockwatch warning, click for more information" style="cursor: pointer;" onclick="dockwatchWarning()"></i>';
-        }
-
         ?>
         <tr id="<?= $nameHash ?>" <?= ($groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ) ?>>
             <td><input <?= ($isDockwatch ? 'attr-dockwatch="true"' : '') ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check <?= ($groupHash ? 'group-' . $groupHash . '-check' : '') ?>"></td>
@@ -268,7 +268,7 @@ function renderContainerRow($nameHash, $return)
             <td id="<?= $nameHash ?>-update-td">
                 <select id="containers-update-<?= $nameHash ?>" class="form-select container-updates" style="min-width: 150px;">
                     <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
-                    <?php if (!skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions)) { ?>
+                    <?php if ($isDockwatch || !skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions)) { ?>
                     <option <?= ($containerSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
                     <?php } ?>
                     <option <?= ($containerSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
