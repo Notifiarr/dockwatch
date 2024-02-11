@@ -45,7 +45,7 @@ function renderContainerRow($nameHash, $return)
     $containerSettings  = $settingsFile['containers'][$nameHash];
     $logo               = getIcon($process['inspect']);
 
-    $notificationIcon = $containerSettings['disableNotifications'] ? '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container"></i> ' : '';
+    $notificationIcon = '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container" style="display: ' . ($containerSettings['disableNotifications'] ? 'inline-block' : 'none') . '"></i> ';
 
     if ($process['State'] == 'running') {
         $control = '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i><br>';

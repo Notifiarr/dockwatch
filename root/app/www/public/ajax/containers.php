@@ -190,9 +190,10 @@ if ($_POST['m'] == 'saveContainerSettings') {
             $frequency = DEFAULT_CRON;
         }
 
-        $newSettings[$hash]['updates']          = $val;
-        $newSettings[$hash]['frequency']        = $frequency;
-        $newSettings[$hash]['restartUnhealthy'] = $settingsFile['containers'][$hash]['restartUnhealthy'];
+        $newSettings[$hash]['updates']              = $val;
+        $newSettings[$hash]['frequency']            = $frequency;
+        $newSettings[$hash]['restartUnhealthy']     = $settingsFile['containers'][$hash]['restartUnhealthy'];
+        $newSettings[$hash]['disableNotifications'] = $settingsFile['containers'][$hash]['disableNotifications'];
     }
 
     $settingsFile['containers'] = $newSettings;
