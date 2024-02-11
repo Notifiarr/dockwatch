@@ -50,13 +50,13 @@ ARG COMMIT=unknown
 ARG COMMITS=0
 ARG BRANCH=unknown
 ARG COMMIT_MSG=unknown
-RUN echo "" >> /app/www/public/includes/constants.php \
-    && echo "//-- DOCKERFILE DEFINES"                          >> /app/www/public/includes/constants.php \
+RUN echo -e "\n//-- DOCKERFILE DEFINES"                        >> /app/www/public/includes/constants.php \
     && echo "define('DOCKWATCH_BUILD_DATE', '${BUILD_DATE}');" >> /app/www/public/includes/constants.php \
     && echo "define('DOCKWATCH_COMMIT', '${COMMIT}');"         >> /app/www/public/includes/constants.php \
     && echo "define('DOCKWATCH_COMMITS', '${COMMITS}');"       >> /app/www/public/includes/constants.php \
     && echo "define('DOCKWATCH_BRANCH', '${BRANCH}');"         >> /app/www/public/includes/constants.php \
-    && echo "define('DOCKWATCH_COMMIT_MSG', '${COMMIT_MSG}');" >> /app/www/public/includes/constants.php \
+    && echo "define('DOCKWATCH_COMMIT_MSG', <<< END"           >> /app/www/public/includes/constants.php \
+    && echo -e "${COMMIT_MSG}\nEND\n);"                        >> /app/www/public/includes/constants.php \
     && echo "//-- END DOCKERFILE DEFINES"                      >> /app/www/public/includes/constants.php
 
 # ports and volumes
