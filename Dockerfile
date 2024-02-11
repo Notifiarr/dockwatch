@@ -49,7 +49,9 @@ COPY root/ /
 ARG COMMIT=unknown
 ARG BRANCH=unknown
 ARG COMMIT_MSG=unknown
-RUN echo "define('DOCKWATCH_COMMIT', '${COMMIT}');" >> /app/www/public/includes/constants.php && \
+RUN echo "" >> /app/www/public/includes/constants.php && \
+	echo "//-- DOCKERFILE DEFINES" >> /app/www/public/includes/constants.php && \
+	echo "define('DOCKWATCH_COMMIT', '${COMMIT}');" >> /app/www/public/includes/constants.php && \
     echo "define('DOCKWATCH_BRANCH', '${BRANCH}');" >> /app/www/public/includes/constants.php && \
     echo "define('DOCKWATCH_COMMIT_MSG', '${COMMIT_MSG}');" >> /app/www/public/includes/constants.php
 
