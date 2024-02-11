@@ -55,8 +55,8 @@ RUN echo -e "\n//-- DOCKERFILE DEFINES"                        >> /app/www/publi
     && echo "define('DOCKWATCH_COMMIT', '${COMMIT}');"         >> /app/www/public/includes/constants.php \
     && echo "define('DOCKWATCH_COMMITS', '${COMMITS}');"       >> /app/www/public/includes/constants.php \
     && echo "define('DOCKWATCH_BRANCH', '${BRANCH}');"         >> /app/www/public/includes/constants.php \
-    && echo "define('DOCKWATCH_COMMIT_MSG', <<< END"           >> /app/www/public/includes/constants.php \
-    && echo -e "${COMMIT_MSG}\nEND\n);"                        >> /app/www/public/includes/constants.php \
+    && echo "define('DOCKWATCH_COMMIT_MSG', <<< END_COMMITMSG" >> /app/www/public/includes/constants.php \
+    && echo -e "${COMMIT_MSG}\nEND_COMMITMSG\n);"              >> /app/www/public/includes/constants.php \
     && echo "//-- END DOCKERFILE DEFINES"                      >> /app/www/public/includes/constants.php
 
 # ports and volumes
