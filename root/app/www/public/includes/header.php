@@ -96,7 +96,7 @@ $serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title
                 </div>
             </nav>
             <div class="w-100 text-center small-text" style="position: absolute; bottom: 0;">
-                Branch: <?= gitBranch() ?>, Hash: <?= substr(gitHash(), 0, 10) ?><br>
+                Branch: <?= gitBranch() ?>, Hash: <a href="https://github.com/Notifiarr/dockwatch/commit/<?= gitHash() ?>" target="_blank" class="text-info"><?= substr(gitHash(), 0, 7) ?></a><br>
                 <span class="text-muted">Theme By <a href="https://htmlcodex.com" target="_blank">HTML Codex</a> | <i class="fas fa-stopwatch" onclick="$('#loadtime-debug').toggle()"></i></span>
             </div>
         </div>
