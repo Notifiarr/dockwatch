@@ -72,4 +72,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            VERSION=v{{version}}
+            BRANCH=${{ github.head_ref }}
+            COMMIT=${{ github.sha }}
+            COMMIT_MSG=${{ github.event.head_commit.message }}
