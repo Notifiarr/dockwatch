@@ -135,6 +135,16 @@ if ($updateSettings) {
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo $msg . "\n";
 
+                                $pullsFile[$containerHash]  = [
+                                                                'checked'       => time(),
+                                                                'name'          => $containerState['Names'],
+                                                                'regctlDigest'  => $regctlDigest,
+                                                                'imageDigest'   => $regctlDigest
+                                                            ];
+
+                                //-- UPDATE THE PULLS FILE BEFORE THIS CALL SINCE THIS STOPS THE PROCESS
+                                setServerFile('pull', $pullsFile);
+
                                 $maintenance = new Maintenance();
                                 $maintenance->apply('update');
                             } else {
