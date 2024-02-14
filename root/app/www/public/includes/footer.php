@@ -44,7 +44,7 @@
         <div class="modal-dialog" style="max-width: 1000px">
             <div class="modal-content bg-dark" style="border: grey solid 1px;">
                 <div class="modal-header" style="border: grey solid 1px;">
-                    <h5 class="modal-title text-primary"><div id="massTrigger-spinner" class="spinner-border text-primary" style="margin-right: 1em;"></div> Mass Trigger</h5>
+                    <h5 class="modal-title text-primary"><div id="massTrigger-spinner" class="spinner-border text-primary" style="margin-right: 1em;"></div> Mass Trigger: <span id="triggerAction"></span></h5>
                 </div>
                 <div class="modal-body" style="border: grey solid 1px;">
                     <div id="massTrigger-header"></div>

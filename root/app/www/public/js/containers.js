@@ -168,6 +168,8 @@ function massApplyContainerTrigger(dependencyTrigger = false)
     $('#massTrigger-spinner').show();
     $('#massTrigger-results').html('');
 
+    $('#triggerAction').html($('#massContainerTrigger option:selected').text());
+
     //-- DO COMPOSE ALL AT ONCE
     if (parseInt($('#massContainerTrigger').val()) == 6) {
         let hashes = '';
