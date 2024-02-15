@@ -61,6 +61,7 @@ if ($updateSettings) {
                 logger(CRON_PULLS_LOG, $msg);
                 echo $msg . "\n";
                 $inspectImage = dockerInspect($image, false);
+                logger(CRON_PULLS_LOG, '$inspectImage=' . $inspectImage);
                 $inspectImage = json_decode($inspectImage, true);
                 list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
 

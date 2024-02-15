@@ -13,10 +13,16 @@ if ($_POST['m'] == 'init') {
     $dependencyFile = updateContainerDependencies($processList);
     $pulls = is_array($pullsFile) ? $pullsFile : json_decode($pullsFile, true);
     array_sort_by_key($processList, 'Names');
+    $pullsNotice = empty($pullsFile) ? true : false;
 
     ?>
     <div class="container-fluid pt-4 px-4 mb-5">
         <div class="bg-secondary rounded h-100 p-4">
+            <?php if ($pullsNotice) { ?>
+                <div class="rounded m-2 p-2" style="background-color: var(--primary);">
+                    There is currently no pull data available to show the Updates state. If the Updates column is set to Ignore then no checks will be made for that container. If you want current data, please set all the Update Options to Check for updates or Auto update and click save at the bottom. Once that is done you can click the check all and select Update: Check or Pull from the list. This will take a minute or two as it has to check every image.
+                </div>
+            <?php } ?>
             <div class="table-responsive">
                 <div class="text-end mb-2">
                     <span class="small-text text-muted">
@@ -35,7 +41,7 @@ if ($_POST['m'] == 'init') {
                             <th scope="col" class="noselect no-sort">Mounts</th>
                             <th scope="col" class="noselect">CPU</th>
                             <th scope="col" class="noselect">Memory</th>
-                            <th scope="col" class="noselect no-sort">Updates</th>
+                            <th scope="col" class="noselect no-sort">Update Option</th>
                             <th scope="col" class="noselect no-sort">Frequency</th>
                         </tr>
                     </thead>
