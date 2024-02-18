@@ -43,7 +43,7 @@ if ($updateSettings) {
             } catch (Exception $e) {
                 $msg = 'Skipping: ' . $containerState['Names'] . ' frequency setting is not a valid cron syntax \'' . $containerSettings['frequency'] . '\'';
                 logger(CRON_PULLS_LOG, $msg);
-                echo $msg . "\n";
+                echo date('c') . ' ' . $msg . "\n";
                 continue;
             }
 
@@ -53,13 +53,13 @@ if ($updateSettings) {
                 if (!$image) {
                     $msg = 'Skipping local (has no Config.Image): ' . $containerState['Names'];
                     logger(CRON_PULLS_LOG, $msg, 'error');
-                    echo $msg . "\n";
+                    echo date('c') . ' ' . $msg . "\n";
                     continue;
                 }
 
                 $msg = 'Inspecting image: ' . $image;
                 logger(CRON_PULLS_LOG, $msg);
-                echo $msg . "\n";
+                echo date('c') . ' ' . $msg . "\n";
                 $inspectImage = dockerInspect($image, false);
                 logger(CRON_PULLS_LOG, '$inspectImage=' . $inspectImage);
                 $inspectImage = json_decode($inspectImage, true);
@@ -76,24 +76,24 @@ if ($updateSettings) {
 
                 $msg = 'Pre image version: ' . $preVersion;
                 logger(CRON_PULLS_LOG, $msg);
-                echo $msg . "\n";
+                echo date('c') . ' ' . $msg . "\n";
 
                 $msg = 'Getting registry digest: ' . $image;
                 logger(CRON_PULLS_LOG, $msg);
-                echo $msg . "\n";
+                echo date('c') . ' ' . $msg . "\n";
                 $regctlDigest = trim(regctlCheck($image));
 
                 if (!$regctlDigest || str_contains($regctlDigest, 'Error')) {
                     $msg = 'Skipping checks (regctl failed): \'' . $regctlDigest . '\'';
                     logger(CRON_PULLS_LOG, $msg, 'error');
-                    echo $msg . "\n";
+                    echo date('c') . ' ' . $msg . "\n";
                     continue;
                 }
 
                 $msg = 'Updating pull data: ' . $containerState['Names'] . "\n";
                 $msg .= '|__ regctl \'' . truncateMiddle(str_replace('sha256:', '', $regctlDigest), 30) . '\' image \'' . truncateMiddle(str_replace('sha256:', '', $imageDigest), 30) .'\'';
                 logger(CRON_PULLS_LOG, $msg);
-                echo $msg . "\n";
+                echo date('c') . ' ' . $msg . "\n";
 
                 $pullsFile[$containerHash]  = [
                                                 'checked'       => time(),
@@ -115,13 +115,13 @@ if ($updateSettings) {
                     }
 
                     logger(CRON_PULLS_LOG, $msg);
-                    echo $msg . "\n";
+                    echo date('c') . ' ' . $msg . "\n";
                 }
 
                 if (!$dockerCommunicateAPI) {
                     $msg = 'Skipping container update: ' . $containerState['Names'] . ' (docker engine api access is not available)';
                     logger(CRON_PULLS_LOG, $msg);
-                    echo $msg . "\n";
+                    echo date('c') . ' ' . $msg . "\n";
 
                     if ($containerSettings['updates'] == 1) {
                         $containerSettings['updates'] = 2;
@@ -134,7 +134,7 @@ if ($updateSettings) {
                             if ($isDockwatch) {
                                 $msg = '$maintenance->apply(), check the maintenance log for update details';
                                 logger(CRON_PULLS_LOG, $msg);
-                                echo $msg . "\n";
+                                echo date('c') . ' ' . $msg . "\n";
 
                                 $pullsFile[$containerHash]  = [
                                                                 'checked'       => time(),
@@ -151,36 +151,36 @@ if ($updateSettings) {
                             } else {
                                 $msg = 'Inspecting container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
-                                echo $msg . "\n";
+                                echo date('c') . ' ' . $msg . "\n";
                                 $inspect = dockerInspect($containerState['Names'], false);
 
                                 $msg = 'Pulling image: ' . $image;
                                 logger(CRON_PULLS_LOG, $msg);
-                                echo $msg . "\n";
+                                echo date('c') . ' ' . $msg . "\n";
                                 dockerPullContainer($image);
 
                                 $msg = 'Stopping container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
-                                echo $msg . "\n";
+                                echo date('c') . ' ' . $msg . "\n";
                                 $stop = dockerStopContainer($containerState['Names']);
                                 logger(CRON_PULLS_LOG, trim($stop));
 
                                 $msg = 'Removing container: ' . $containerState['Names'] . ' (' . $containerState['ID'] . ')';
                                 logger(CRON_PULLS_LOG, $msg);
-                                echo $msg . "\n";
+                                echo date('c') . ' ' . $msg . "\n";
                                 $remove = dockerRemoveContainer($containerState['Names']);
                                 logger(CRON_PULLS_LOG, trim($remove));
 
                                 $msg = 'Updating container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
-                                echo $msg . "\n";
+                                echo date('c') . ' ' . $msg . "\n";
                                 $update = dockerCreateContainer(json_decode($inspect, true));
                                 logger(CRON_PULLS_LOG, 'dockerCreateContainer:' . trim(json_encode($update, JSON_UNESCAPED_SLASHES)));
 
                                 if (strlen($update['Id']) == 64) {
                                     $msg = 'Updating pull data: ' . $containerState['Names'];
                                     logger(CRON_PULLS_LOG, $msg);
-                                    echo $msg . "\n";
+                                    echo date('c') . ' ' . $msg . "\n";
                                     $pullsFile[$containerHash]  = [
                                                                     'checked'       => time(),
                                                                     'name'          => $containerState['Names'],
@@ -191,7 +191,7 @@ if ($updateSettings) {
                                     if (str_contains($containerState['State'], 'running')) {
                                         $msg = 'Starting container: ' . $containerState['Names'];
                                         logger(CRON_PULLS_LOG, $msg);
-                                        echo $msg . "\n";
+                                        echo date('c') . ' ' . $msg . "\n";
                                         $restart = dockerStartContainer($containerState['Names']);
                                         logger(CRON_PULLS_LOG, 'dockerStartContainer:' . trim($restart));
                                     } else {
@@ -200,7 +200,7 @@ if ($updateSettings) {
 
                                     $msg = 'Inspecting image: ' . $image;
                                     logger(CRON_PULLS_LOG, $msg);
-                                    echo $msg . "\n";
+                                    echo date('c') . ' ' . $msg . "\n";
                                     $inspectImage   = dockerInspect($image, false);
                                     $inspectImage   = json_decode($inspectImage, true);
 
@@ -215,7 +215,7 @@ if ($updateSettings) {
 
                                     $msg = 'Post image version: ' . $postVersion;
                                     logger(CRON_PULLS_LOG, $msg);
-                                    echo $msg . "\n";
+                                    echo date('c') . ' ' . $msg . "\n";
 
                                     $dependencyFile = getServerFile('dependencies');
                                     $dependencyFile = $dependencyFile['file'];
@@ -224,33 +224,33 @@ if ($updateSettings) {
                                     if (is_array($dependencies)) {
                                         $msg = 'dependencies found ' . count($dependencies);
                                         logger(CRON_PULLS_LOG, $msg);
-                                        echo $msg . "\n";
+                                        echo date('c') . ' ' . $msg . "\n";
 
                                         updateDependencyParentId($containerState['Names'], $update['Id']);
 
                                         foreach ($dependencies as $dependencyContainer) {
                                             $msg = '[dependency] dockerInspect: ' . $dependencyContainer;
                                             logger(CRON_PULLS_LOG, $msg);
-                                            echo $msg . "\n";
+                                            echo date('c') . ' ' . $msg . "\n";
                                             $apiResponse = apiRequest('dockerInspect', ['name' => $dependencyContainer, 'useCache' => false, 'format' => true]);
                                             logger(CRON_PULLS_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
                                             $inspectImage = $apiResponse['response']['docker'];
 
                                             $msg = '[dependency] dockerStopContainer: ' . $dependencyContainer;
                                             logger(CRON_PULLS_LOG, $msg);
-                                            echo $msg . "\n";
+                                            echo date('c') . ' ' . $msg . "\n";
                                             $apiResult = apiRequest('dockerStopContainer', [], ['name' => $dependencyContainer]);
                                             logger(CRON_PULLS_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
 
                                             $msg = '[dependency] dockerRemoveContainer: ' . $dependencyContainer;
                                             logger(CRON_PULLS_LOG, $msg);
-                                            echo $msg . "\n";
+                                            echo date('c') . ' ' . $msg . "\n";
                                             $apiResult = apiRequest('dockerRemoveContainer', [], ['name' => $dependencyContainer]);
                                             logger(CRON_PULLS_LOG, 'dockerRemoveContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
 
                                             $msg = '[dependency] dockerCreateContainer: ' . $dependencyContainer;
                                             logger(CRON_PULLS_LOG, $msg);
-                                            echo $msg . "\n";
+                                            echo date('c') . ' ' . $msg . "\n";
                                             $apiResponse = apiRequest('dockerCreateContainer', [], ['inspect' => $inspectImage]);
                                             logger(CRON_PULLS_LOG, 'dockerCreateContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
                                             $update         = $apiResponse['response']['docker'];
@@ -263,7 +263,7 @@ if ($updateSettings) {
                                                 if (str_contains($containerState['State'], 'running')) {
                                                     $msg = '[dependency] dockerStartContainer: ' . $dependencyContainer;
                                                     logger(CRON_PULLS_LOG, $msg);
-                                                    echo $msg . "\n";
+                                                    echo date('c') . ' ' . $msg . "\n";
                                                     $apiResponse = apiRequest('dockerStartContainer', [], ['name' => $dependencyContainer]);
                                                     logger(CRON_PULLS_LOG, 'dockerStartContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
                                                 } else {
@@ -284,7 +284,7 @@ if ($updateSettings) {
                                 } else {
                                     $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update['Id']);
                                     logger(CRON_PULLS_LOG, $msg);
-                                    echo $msg . "\n";
+                                    echo date('c') . ' ' . $msg . "\n";
 
                                     if ($settingsFile['notifications']['triggers']['updated']['active'] && !$settingsFile['containers'][$containerHash]['disableNotifications']) {
                                         $notify['failed'][] = ['container' => $containerState['Names']];
@@ -302,7 +302,7 @@ if ($updateSettings) {
             } else {
                 $msg = 'Skipping: ' . $containerState['Names'] . ', frequency setting will run: ' . $cron->getNextRunDate()->format('Y-m-d H:i:s');
                 logger(CRON_PULLS_LOG, $msg);
-                echo $msg . "\n";                    
+                echo date('c') . ' ' . $msg . "\n";                    
             }
         }
     }
