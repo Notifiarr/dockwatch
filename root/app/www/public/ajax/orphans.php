@@ -93,7 +93,7 @@ if ($_POST['m'] == 'init') {
                         foreach ($networks as $network) {
                             ?>
                             <tr id="network-<?= $network['ID'] ?>">
-                                <th scope="row"><input id="orphanNetwork-<?= $network['ID'] ?>" type="checkbox" class="form-check-input orphanImages-check orphan"></th>
+                                <th scope="row"><input id="orphanNetwork-<?= $network['ID'] ?>" type="checkbox" class="form-check-input orphanNetworks-check orphan"></th>
                                 <td><?= $network['ID'] ?></td>
                                 <td><?= $network['Name'] ?></td>
                                 <td><?= $network['Driver'] ?></td>
