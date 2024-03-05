@@ -24,6 +24,8 @@ function removeOrphans()
                 type = 'image';
             } else if (split[0] == 'orphanVolume') {
                 type = 'volume';
+            } else if (split[0] == 'orphanNetwork') {
+                type = 'network';
             }
 
             selectedOrphans.push({'orphan': split[1], 'type': type});
