@@ -87,7 +87,7 @@ if ($networkPrune) {
     logger(CRON_PRUNE_LOG, 'result: ' . $prune);
 }
 
-if ($settingsFile['notifications']['triggers']['prune']['active'] && (count($volumePrune) > 0 || count($imagePrune) > 0)) {
+if ($settingsFile['notifications']['triggers']['prune']['active'] && (count($volumePrune) > 0 || count($imagePrune) > 0 || count($networkPrune) > 0)) {
     $payload = ['event' => 'prune', 'network' => count($networkPrune), 'volume' => count($volumePrune), 'image' => count($imagePrune), 'imageList' => $imageList];
     logger(CRON_PRUNE_LOG, 'Notification payload: ' . json_encode($payload));
     $notifications->notify($settingsFile['notifications']['triggers']['prune']['platform'], $payload);
