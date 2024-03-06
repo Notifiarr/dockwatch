@@ -4,7 +4,9 @@
 # Dockwatch
 
 ## Purpose
-Simple UI driven way to manage updates & notifications for containers. As this is meant to be simple, there is no db container required or setup. This will save things it needs to files in the `/config` mount instead.
+Simple UI driven way to manage updates & notifications for containers.
+This is meant to be simple, so there is no db required. 
+All settings and files are stored in the `/config` mount instead.
 
 ## Notification triggers
 - Notify when a container is added
