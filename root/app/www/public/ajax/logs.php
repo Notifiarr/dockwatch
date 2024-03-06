@@ -63,7 +63,7 @@ if ($_POST['m'] == 'init') {
 
                                     $logHash = md5($log['name']);
                                     ?>
-                                    <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<span class="text-danger" style="cursor:pointer;"><?= byteConversion($log['size']) ?></span>) <i class="far fa-trash-alt" style="display: inline; color: red; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i></li>
+                                    <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i></li>
                                     <?php
                                 }
 
@@ -72,7 +72,7 @@ if ($_POST['m'] == 'init') {
                                     foreach ($rotated as $log) {
                                         $logHash = md5($log['name']);
                                         ?>
-                                        <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<span class="text-danger" style="cursor:pointer;"><?= byteConversion($log['size']) ?></span>) <i class="far fa-trash-alt" style="display: inline; color: red; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i></li>
+                                        <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i></li>
                                         <?php
                                     }
                                 }
