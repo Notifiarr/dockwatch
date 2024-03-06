@@ -45,7 +45,7 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
         $loadTimes[] = trackTime('dockerImageSizes <-');
     }
 
-    if ($fetchStats) {    
+    if ($fetchStats) {
         $loadTimes[] = trackTime('dockerStats ->');
 
         if ($maintenance) {
@@ -330,6 +330,12 @@ function dockerGetOrphanVolumes()
     return shell_exec($cmd . ' 2>&1');
 }
 
+function dockerGetOrphanNetworks()
+{
+    $cmd = '/usr/bin/docker network ls -qf dangling=true --format="{{json . }}" | jq -s --tab .';
+    return shell_exec($cmd . ' 2>&1');
+}
+
 function dockerRemoveImage($id)
 {
     $cmd = '/usr/bin/docker rmi ' . $id;
@@ -351,6 +357,18 @@ function dockerRemoveVolume($name)
 function dockerPruneVolume()
 {
     $cmd = '/usr/bin/docker volume prune -af';
+    return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerRemoveNetwork($id)
+{
+    $cmd = '/usr/bin/docker network rm ' . $id;
+    return shell_exec($cmd . ' 2>&1');
+}
+
+function dockerPruneNetwork()
+{
+    $cmd = '/usr/bin/docker network prune -af';
     return shell_exec($cmd . ' 2>&1');
 }
 
@@ -436,7 +454,7 @@ function dockerAutoRun($container)
                                 'Runtime'       => 'runtime',
                                 'UTSMode'       => 'uts'
                             ];
-    
+
     foreach ($hostConfigPairFields as $fieldLabel => $fieldKey) {
         if ($containerArray['HostConfig'][$fieldLabel]) {
             $runCommand[] = $indent . '--' . $fieldKey . ' "' . $containerArray['HostConfig'][$fieldLabel] . '" \\';
@@ -650,7 +668,7 @@ function dockerAutoRun($container)
 
     //-- HEALTHCHECK
     if ($containerArray['Config']['Healthcheck']) {
-        $healthCommand = []; 
+        $healthCommand = [];
 
         if ($containerArray['Config']['Healthcheck']['Test']) {
             foreach ($containerArray['Config']['Healthcheck']['Test'] as $cmd) {
@@ -665,7 +683,7 @@ function dockerAutoRun($container)
             if ($containerArray['Config']['Healthcheck']['Interval']) {
                 $runCommand[] = $indent . '--health-interval "' . convertDockerTimestamp($containerArray['Config']['Healthcheck']['Interval']) . '" \\';
             }
-    
+
             if ($containerArray['Config']['Healthcheck']['Timeout']) {
                 $runCommand[] = $indent . '--health-timeout "' . convertDockerTimestamp($containerArray['Config']['Healthcheck']['Timeout']) . '" \\';
             }

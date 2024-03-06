@@ -14,6 +14,8 @@ if ($_POST['m'] == 'init') {
     $images     = json_decode($images['response']['docker'], true);
     $volumes    = apiRequest('dockerGetOrphanVolumes');
     $volumes    = json_decode($volumes['response']['docker'], true);
+    $networks    = apiRequest('dockerGetOrphanNetworks');
+    $networks    = json_decode($networks['response']['docker'], true);
 
     ?>
     <div class="container-fluid pt-4 px-4 mb-5">
@@ -72,10 +74,38 @@ if ($_POST['m'] == 'init') {
                         }
                         ?>
                     </tbody>
+                </table>
+            </div>
+            <h4 class="mt-3 mb-0">Networks</h4>
+            <span class="small-text text-muted">docker network ls -qf dangling=true</span>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.orphanNetworks-check').prop('checked', $(this).prop('checked'));"></th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        foreach ($networks as $network) {
+                            ?>
+                            <tr id="network-<?= $network['ID'] ?>">
+                                <th scope="row"><input id="orphanNetwork-<?= $network['ID'] ?>" type="checkbox" class="form-check-input orphanNetworks-check orphan"></th>
+                                <td><?= $network['ID'] ?></td>
+                                <td><?= $network['Name'] ?></td>
+                                <td><?= $network['Driver'] ?></td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                    </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="2">
-                                With selected: 
+                                With selected:
                                 <select id="massOrphanTrigger" class="form-control d-inline-block w-50">
                                     <option value="0">-- Select option --</option>
                                     <option value="1">Remove</option>
@@ -104,6 +134,13 @@ if ($_POST['m'] == 'removeOrphans') {
             }
             if ($_POST['type'] == 'volume') {
                 $remove = apiRequest('dockerRemoveVolume', [], ['name' => $_POST['orphan']]);
+                $remove = $remove['response']['docker'];
+                if (stripos($remove, 'error') !== false || stripos($remove, 'help') !== false) {
+                    echo $remove;
+                }
+            }
+            if ($_POST['type'] == 'network') {
+                $remove = apiRequest('dockerRemoveNetwork', [], ['id' => $_POST['orphan']]);
                 $remove = $remove['response']['docker'];
                 if (stripos($remove, 'error') !== false || stripos($remove, 'help') !== false) {
                     echo $remove;

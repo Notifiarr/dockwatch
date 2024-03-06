@@ -12,11 +12,11 @@ require ABSOLUTE_PATH . 'loader.php';
 
 logger(SYSTEM_LOG, 'Cron: running housekeeper');
 logger(CRON_HOUSEKEEPER_LOG, 'run ->');
-echo 'Cron run started: housekeeper' . "\n";
+echo date('c') . ' Cron run started: housekeeper' . "\n";
 
 if ($settingsFile['tasks']['housekeeping']['disabled']) {
     logger(CRON_HOUSEKEEPER_LOG, 'Cron run stopped: disabled in tasks menu');
-    echo 'Cron run cancelled: disabled in tasks menu' . "\n";
+    echo date('c') . ' Cron run cancelled: disabled in tasks menu' . "\n";
     exit();
 }
 

@@ -45,7 +45,7 @@ if ($_POST['m'] == 'init') {
                             <?php 
                             foreach ($logFiles as $group => $groupLogs) { 
                                 ?>
-                                <i class="far fa-trash-alt" style="display: inline; color: red; cursor: pointer;" title="Delete all <?= $group ?> log files" onclick="purgeLogs('<?= $group ?>')"></i> <h4 style="display: inline;" class="mt-3 mb-0"><?= $group ?></h4><br>
+                                <h4 style="display: inline;" class="mt-3 mb-0"><?= $group ?></h4> <i class="far fa-trash-alt" style="display: inline; color: red; cursor: pointer;" title="Delete all <?= $group ?> log files" onclick="purgeLogs('<?= $group ?>')"></i><br>
                                 <span class="small-text text-muted"><?= LOGS_PATH . $group ?>/</span>
                                 <div class="mb-3" style="max-height: 300px; overflow: auto;">
                                 <?php
@@ -63,7 +63,7 @@ if ($_POST['m'] == 'init') {
 
                                     $logHash = md5($log['name']);
                                     ?>
-                                    <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<span class="text-danger" style="cursor:pointer;" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"><?= byteConversion($log['size']) ?></span>)</li>
+                                    <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i></li>
                                     <?php
                                 }
 
@@ -72,7 +72,7 @@ if ($_POST['m'] == 'init') {
                                     foreach ($rotated as $log) {
                                         $logHash = md5($log['name']);
                                         ?>
-                                        <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<span class="text-danger" style="cursor:pointer;" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"><?= byteConversion($log['size']) ?></span>)</li>
+                                        <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i></li>
                                         <?php
                                     }
                                 }

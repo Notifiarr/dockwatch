@@ -61,6 +61,9 @@ switch (true) {
             case 'dockerGetOrphanVolumes':
                 $response = ['docker' => dockerGetOrphanVolumes()];
                 break;
+            case 'dockerGetOrphanNetworks':
+                $response = ['docker' => dockerGetOrphanNetworks()];
+                break;
             case 'dockerImageSizes':
                 $response = ['docker' => dockerImageSizes()];
                 break;
@@ -99,6 +102,9 @@ switch (true) {
                 break;
             case 'dockerPruneVolume':
                 $response = ['docker' => dockerPruneVolume()];
+                break;
+            case 'dockerPruneNetwork':
+                $response = ['docker' => dockerPruneNetwork()];
                 break;
             case 'dockerState':
                 $response = ['docker' => dockerState()];
@@ -145,7 +151,7 @@ switch (true) {
                 if (!$_POST['contents']) {
                     apiResponse(400, ['error' => 'Missing settings object']);
                 }
-            
+
                 setFile(HEALTH_FILE, $_POST['contents']);
                 $response = ['result' => HEALTH_FILE . ' updated'];
                 break;
@@ -153,7 +159,7 @@ switch (true) {
                 if (!$_POST['contents']) {
                     apiResponse(400, ['error' => 'Missing pull object']);
                 }
-            
+
                 setFile(PULL_FILE, $_POST['contents']);
                 $response = ['result' => PULL_FILE . ' updated'];
                 break;
@@ -161,7 +167,7 @@ switch (true) {
                 if (!$_POST['contents']) {
                     apiResponse(400, ['error' => 'Missing settings object']);
                 }
-            
+
                 setFile(SETTINGS_FILE, $_POST['contents']);
                 $response = ['result' => SETTINGS_FILE . ' updated'];
                 break;
@@ -169,7 +175,7 @@ switch (true) {
                 if (!$_POST['contents']) {
                     apiResponse(400, ['error' => 'Missing servers object']);
                 }
-            
+
                 setFile(SERVERS_FILE, $_POST['contents']);
                 $response = ['result' => SERVERS_FILE . ' updated'];
                 break;
@@ -177,7 +183,7 @@ switch (true) {
                 if (!$_POST['contents']) {
                     apiResponse(400, ['error' => 'Missing state object']);
                 }
-            
+
                 setFile(STATE_FILE, $_POST['contents']);
                 $response = ['result' => STATE_FILE . ' updated'];
                 break;
@@ -185,7 +191,7 @@ switch (true) {
                 if (!$_POST['contents']) {
                     apiResponse(400, ['error' => 'Missing stats object']);
                 }
-            
+
                 setFile(STATS_FILE, $_POST['contents']);
                 $response = ['result' => STATS_FILE . ' updated'];
                 break;
@@ -193,7 +199,7 @@ switch (true) {
                 if (!$_POST['contents']) {
                     apiResponse(400, ['error' => 'Missing dependency object']);
                 }
-            
+
                 setFile(DEPENDENCY_FILE, $_POST['contents']);
                 $response = ['result' => DEPENDENCY_FILE . ' updated'];
                 break;
@@ -233,6 +239,13 @@ switch (true) {
 
                 $response = ['docker' => dockerRemoveVolume($_POST['name'])];
                 break;
+            case 'dockerRemoveNetwork':
+                if (!$_POST['id']) {
+                    apiResponse(400, ['error' => 'Missing id parameter']);
+                }
+
+                $response = ['docker' => dockerRemoveNetwork($_POST['id'])];
+                break;
             case 'dockerStartContainer':
                 if (!$_POST['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
@@ -246,7 +259,7 @@ switch (true) {
                 }
 
                 $response = ['docker' => dockerStopContainer($_POST['name'])];
-                break;         
+                break;
             case 'dockerCreateContainer':
                 if (!$_POST['inspect']) {
                     apiResponse(400, ['error' => 'Missing inspect parameter']);
@@ -270,11 +283,11 @@ switch (true) {
                 break;
             case 'testNotify':
                 $testNotification = sendTestNotification($_POST['platform']);
-            
+
                 if ($testNotification) {
                     $code = '400';
                 }
-            
+
                 $response = ['result' => $testNotification];
                 break;
             default:

@@ -16,13 +16,13 @@ echo 'Cron run started: health' . "\n";
 
 if ($settingsFile['tasks']['health']['disabled']) {
     logger(CRON_HEALTH_LOG, 'Cron run stopped: disabled in tasks menu');
-    echo 'Cron run cancelled: disabled in tasks menu' . "\n";
+    echo date('c') . ' Cron run cancelled: disabled in tasks menu' . "\n";
     exit();
 }
 
 if (!$settingsFile['global']['restartUnhealthy'] && !$settingsFile['notifications']['triggers']['health']['active']) {
     logger(CRON_HEALTH_LOG, 'Cron run stopped: restart and notify disabled');
-    echo 'Cron run stopped: restart and notify disabled' . "\n";
+    echo date('c') . ' Cron run stopped: restart and notify disabled' . "\n";
     exit();
 }
 
@@ -39,7 +39,7 @@ $healthFile = $healthFile['file'];
 
 if ($apiError) {
     logger(CRON_HEALTH_LOG, 'Cron run stopped: error fetching health file (' . $apiError . ')');
-    echo 'Cron run stopped: error fetching health file (' . $apiError . ')' . "\n";
+    echo date('c') . ' Cron run stopped: error fetching health file (' . $apiError . ')' . "\n";
     exit();
 }
 

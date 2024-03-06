@@ -64,7 +64,7 @@ if ($_POST['m'] == 'init') {
                         </tr>
                     </thead>
                     <tbody>
-                    <?php 
+                    <?php
                     if ($_SESSION['serverIndex'] != 0) {
                         ?>
                         <tr>
@@ -78,7 +78,7 @@ if ($_POST['m'] == 'init') {
                             <td><input class="form-control" type="text" id="globalSetting-serverList-url-0" value="<?= $serversFile[0]['url'] ?>"></td>
                             <td><?= $serversFile[0]['apikey'] ?><input type="hidden" id="globalSetting-serverList-apikey-0" value="<?= $serversFile[0]['apikey'] ?>"></td>
                         </tr>
-                        <?php 
+                        <?php
                         if (count($serversFile) > 1) {
                             foreach ($serversFile as $serverIndex => $serverSettings) {
                                 if ($serverIndex == 0) {
@@ -155,6 +155,13 @@ if ($_POST['m'] == 'init') {
                                 <input class="form-check-input" type="checkbox" id="globalSetting-autoPruneVolumes" <?= ($globalSettings['autoPruneVolumes'] ? 'checked' : '') ?>>
                             </td>
                             <td>Automatically try to prune all orphan volumes daily</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Orphan networks</th>
+                            <td>
+                                <input class="form-check-input" type="checkbox" id="globalSetting-autoPruneNetworks" <?= ($globalSettings['autoPruneNetworks'] ? 'checked' : '') ?>>
+                            </td>
+                            <td>Automatically try to prune all orphan networks daily</td>
                         </tr>
                     </tbody>
                 </table>

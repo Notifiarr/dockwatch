@@ -12,11 +12,11 @@ require ABSOLUTE_PATH . 'loader.php';
 
 logger(SYSTEM_LOG, 'Cron: running state');
 logger(CRON_STATE_LOG, 'run ->');
-echo 'Cron run started: state' . "\n";
+echo date('c') . ' Cron run started: state' . "\n";
 
 if ($settingsFile['tasks']['state']['disabled']) {
     logger(CRON_STATE_LOG, 'Cron run stopped: disabled in tasks menu');
-    echo 'Cron run cancelled: disabled in tasks menu' . "\n";
+    echo date('c') . ' Cron run cancelled: disabled in tasks menu' . "\n";
     exit();
 }
 
