@@ -23,11 +23,14 @@ if ($settingsFile['tasks']['prune']['disabled']) {
 }
 
 $imagePrune = $imageList = $volumePrune = [];
+$networkPrune = [];
 $images     = json_decode(dockerGetOrphanContainers(), true);
 $volumes    = json_decode(dockerGetOrphanVolumes(), true);
+$networks    = json_decode(dockerGetOrphanNetworks(), true);
 
 logger(CRON_PRUNE_LOG, 'images=' . json_encode($images));
 logger(CRON_PRUNE_LOG, 'volumes=' . json_encode($volumes));
+logger(CRON_PRUNE_LOG, 'networks=' . json_encode($networks));
 
 if ($settingsFile['global']['autoPruneImages']) {
     if ($images) {
@@ -50,6 +53,16 @@ if ($settingsFile['global']['autoPruneVolumes']) {
     logger(CRON_PRUNE_LOG, 'Auto prune volumes disabled');
 }
 
+if ($settingsFile['global']['autoPruneNetworks']) {
+    if ($networks) {
+        foreach ($networks as $network) {
+            $networkPrune[] = $network['ID'];
+        }
+    }
+} else {
+    logger(CRON_PRUNE_LOG, 'Auto prune networks disabled');
+}
+
 if ($imagePrune) {
     logger(CRON_PRUNE_LOG, 'Attempting auto image prune, images: ' . count($imagePrune));
     $images = implode(' ', $imagePrune);
@@ -66,8 +79,16 @@ if ($volumePrune) {
     logger(CRON_PRUNE_LOG, 'result: ' . $prune);
 }
 
-if ($settingsFile['notifications']['triggers']['prune']['active'] && (count($volumePrune) > 0 || count($imagePrune) > 0)) {
-    $payload = ['event' => 'prune', 'volume' => count($volumePrune), 'image' => count($imagePrune), 'imageList' => $imageList];
+if ($networkPrune) {
+    logger(CRON_PRUNE_LOG, 'Attempting auto network prune, networks: ' . count($networkPrune));
+    $volumes = implode(' ', $networkPrune);
+    logger(CRON_PRUNE_LOG, 'networks: ' . $networks);
+    $prune = dockerPruneNetwork();
+    logger(CRON_PRUNE_LOG, 'result: ' . $prune);
+}
+
+if ($settingsFile['notifications']['triggers']['prune']['active'] && (count($volumePrune) > 0 || count($imagePrune) > 0 || count($networkPrune) > 0)) {
+    $payload = ['event' => 'prune', 'network' => count($networkPrune), 'volume' => count($volumePrune), 'image' => count($imagePrune), 'imageList' => $imageList];
     logger(CRON_PRUNE_LOG, 'Notification payload: ' . json_encode($payload));
     $notifications->notify($settingsFile['notifications']['triggers']['prune']['platform'], $payload);
 }
