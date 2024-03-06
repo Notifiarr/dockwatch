@@ -117,7 +117,8 @@ function dockerContainerStopAPI($name)
 //-- https://docs.docker.com/engine/api/v1.42/#tag/Container/operation/ContainerCreate
 function dockerContainerCreateAPI($inspect = [])
 {
-    $inspect = $inspect[0] ? $inspect[0] : $inspect;
+    $inspect    = $inspect[0] ? $inspect[0] : $inspect;
+    $image      = $inspect['Config']['Image'];
 
     $containerName = '';
     if ($inspect['Name']) {

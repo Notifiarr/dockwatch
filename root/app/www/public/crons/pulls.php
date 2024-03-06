@@ -24,8 +24,11 @@ if ($settingsFile['tasks']['pulls']['disabled']) {
 
 $updateSettings = $settingsFile['containers'];
 $notify         = [];
+$startStamp     = time();
 
 if ($updateSettings) {
+    $imagesUpdated = [];
+
     foreach ($updateSettings as $containerHash => $containerSettings) {
         //-- SET TO IGNORE
         if (!$containerSettings['updates']) {
@@ -47,7 +50,7 @@ if ($updateSettings) {
                 continue;
             }
 
-            if ($cron->isDue()) {
+            if ($cron->isDue($startStamp)) {
                 $image = isDockerIO($containerState['inspect'][0]['Config']['Image']);
 
                 if (!$image) {
@@ -128,7 +131,9 @@ if ($updateSettings) {
                     }
                 }
 
-                if ($regctlDigest != $imageDigest) {
+                if (in_array($image, $imagesUpdated) || $regctlDigest != $imageDigest) {
+                    $imagesUpdated[] = $image; //-- THIS IS TO TRACK WHAT UPDATES SO MULTIPLE CONTAINERS ON THE SAME IMAGE ALL UPDATE
+
                     switch ($containerSettings['updates']) {
                         case 1: //-- Auto update
                             if ($isDockwatch) {
@@ -175,7 +180,7 @@ if ($updateSettings) {
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo date('c') . ' ' . $msg . "\n";
                                 $update = dockerCreateContainer(json_decode($inspect, true));
-                                logger(CRON_PULLS_LOG, 'dockerCreateContainer:' . trim(json_encode($update, JSON_UNESCAPED_SLASHES)));
+                                logger(CRON_PULLS_LOG, 'dockerCreateContainer: ' . trim(json_encode($update, JSON_UNESCAPED_SLASHES)));
 
                                 if (strlen($update['Id']) == 64) {
                                     $msg = 'Updating pull data: ' . $containerState['Names'];
@@ -192,8 +197,8 @@ if ($updateSettings) {
                                         $msg = 'Starting container: ' . $containerState['Names'];
                                         logger(CRON_PULLS_LOG, $msg);
                                         echo date('c') . ' ' . $msg . "\n";
-                                        $restart = dockerStartContainer($containerState['Names']);
-                                        logger(CRON_PULLS_LOG, 'dockerStartContainer:' . trim($restart));
+                                        $start = dockerStartContainer($containerState['Names']);
+                                        logger(CRON_PULLS_LOG, 'dockerStartContainer:' . trim($start));
                                     } else {
                                         logger(CRON_PULLS_LOG, 'container was not running, not starting it');
                                     }
