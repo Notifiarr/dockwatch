@@ -84,4 +84,3 @@ jobs:
             "COMMITS=${{ env.COMMITS }}"
             "BRANCH=${{ github.ref_name }}"
             "COMMIT=${{ github.sha }}"
-            "COMMIT_MSG=${{ github.event.head_commit.message }}"
