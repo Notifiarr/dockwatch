@@ -24,7 +24,7 @@ if ($settingsFile['tasks']['pulls']['disabled']) {
 
 $updateSettings = $settingsFile['containers'];
 $notify         = [];
-$startStamp     = time();
+$startStamp     = new DateTime();
 
 if ($updateSettings) {
     $imagesUpdated = [];
@@ -111,7 +111,7 @@ if ($updateSettings) {
                         $msg = '[BYPASS] Skipping container update: ' . $containerState['Names'] . ' (image is listed in skipContainerActions())';
                     } else {
                         $msg = 'Skipping container update: ' . $containerState['Names'] . ' (image is listed in skipContainerActions())';
-    
+
                         if ($containerSettings['updates'] == 1) {
                             $containerSettings['updates'] = 2;
                         }
@@ -282,7 +282,7 @@ if ($updateSettings) {
                                         $notify['updated'][]    = [
                                                                     'container' => $containerState['Names'],
                                                                     'image'     => $image,
-                                                                    'pre'       => ['digest' => str_replace('sha256:', '', $imageDigest), 'version' => $preVersion], 
+                                                                    'pre'       => ['digest' => str_replace('sha256:', '', $imageDigest), 'version' => $preVersion],
                                                                     'post'      => ['digest' => str_replace('sha256:', '', $regctlDigest), 'version' => $postVersion]
                                                                 ];
                                     }
@@ -307,7 +307,7 @@ if ($updateSettings) {
             } else {
                 $msg = 'Skipping: ' . $containerState['Names'] . ', frequency setting will run: ' . $cron->getNextRunDate()->format('Y-m-d H:i:s');
                 logger(CRON_PULLS_LOG, $msg);
-                echo date('c') . ' ' . $msg . "\n";                    
+                echo date('c') . ' ' . $msg . "\n";
             }
         }
     }
