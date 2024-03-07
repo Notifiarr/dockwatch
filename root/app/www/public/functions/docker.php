@@ -332,8 +332,25 @@ function dockerGetOrphanVolumes()
 
 function dockerGetOrphanNetworks()
 {
-    $cmd = '/usr/bin/docker network ls -qf dangling=true --format="{{json . }}" | jq -s --tab .';
-    return shell_exec($cmd . ' 2>&1');
+    $orphans = [];
+
+    $cmd = '/usr/bin/docker network ls -q --format="{{json . }}" | jq -s --tab .';
+    $networks = json_decode(shell_exec($cmd . ' 2>&1'), true);
+
+    foreach ($networks as $network) {
+        if($network['Name'] == 'bridge' || $network['Name'] == 'host' || $network['Name'] == 'none') {
+            continue;
+        }
+
+        $cmd = '/usr/bin/docker network inspect '.$network['ID'].' --format="{{json . }}" | jq -s --tab .';
+        $inspect = json_decode(shell_exec($cmd . ' 2>&1'), true);
+
+        if(empty($inspect[0]['Containers'])) {
+            $orphans[] = $network;
+        }
+    }
+
+    return json_encode($orphans);
 }
 
 function dockerRemoveImage($id)
