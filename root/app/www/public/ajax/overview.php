@@ -83,7 +83,6 @@ if ($_POST['m'] == 'init') {
         $network += bytesFromString($netUsed);
     }
 
-    $cpu = $cpu > 0 ? number_format((($running + $stopped) * 100) / $cpu, 2) : 0;
     if (intval($settingsFile['global']['cpuAmount']) > 0) {
         $cpuActual = number_format(($cpu / intval($settingsFile['global']['cpuAmount'])), 2);
     }
@@ -136,7 +135,7 @@ if ($_POST['m'] == 'init') {
                     </div>
                     <div class="col-sm-12 col-lg-8 text-end">
                         Disk:  <?= byteConversion($size) ?><br>
-                        CPU: <?= $cpu ?>%<?= ($cpuActual ? ' (' . $cpuActual . '%)' : '') ?><br>
+                        CPU: <span title="Docker reported CPU"><?= $cpu ?>%</span><?= ($cpuActual ? ' <span title="Calculated CPU">(' . $cpuActual . '%)</span>' : '') ?><br>
                         Memory: <?= $memory ?>%<br>
                         Network I/O: <?= byteConversion($network) ?>
                     </div>
