@@ -91,6 +91,25 @@
         </div>
     </div>
 
+    <!-- Loading modal -->
+    <div class="modal fade" id="loading-modal" style="z-index: 9999 !important;" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Loading</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <div class="spinner-border text-primary" style="margin-right: 1em;"></div>
+                        I'm gathering everything needed to complete the request, give me just a moment...
+                    </p>
+                </div>
+                <div class="modal-footer">&nbsp;</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Frequency helper information -->
     <div id="containerFrequencyHelpDiv" style="display: none;">
         There are 5 parts to a cron (6 with the optional year which is not used here). Below shows each section:<br>

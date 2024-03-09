@@ -53,7 +53,7 @@ function initPage(page)
 
     init = true;
     $('[id^=content-]').hide();
-    $('#content-' + page).html('Loading ' + page + '...').show();
+    $('#content-' + page).html('Loading ' + page + ' page...').show();
     $('[id^=menu-]').removeClass('active');
     $('#menu-' + page).addClass('active');
 
@@ -389,5 +389,36 @@ function dockwatchMaintenance(action)
         url: '../ajax/maintenance.php',
         data: '&m=dockwatchMaintenance&action=' + action
     });
+}
+// -------------------------------------------------------------------------------------------
+function fixedEncodeURIComponent(str) 
+{
+    return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+        return '%' + c.charCodeAt(0).toString(16);
+    });
+}
+// -------------------------------------------------------------------------------------------
+function pageLoadingStart()
+{
+    $('#loading-modal').modal({
+        keyboard: false,
+        backdrop: 'static'
+    });
+
+    $('#loading-modal .btn-close').hide();
+    $('#loading-modal').modal('show');
+
+    $('#loading-modal .modal-header').dblclick(function () {
+        $('#loading-modal .btn-close').show();
+    });
+
+}
+// -------------------------------------------------------------------------------------------
+function pageLoadingStop()
+{
+    setTimeout(function () {
+        $('#loading-modal').modal('hide');
+    }, 500);
+
 }
 // -------------------------------------------------------------------------------------------
