@@ -66,7 +66,6 @@ if ($updateSettings) {
                 $inspectImage = dockerInspect($image, false);
                 logger(CRON_PULLS_LOG, '$inspectImage=' . $inspectImage);
                 $inspectImage = json_decode($inspectImage, true);
-                list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
 
                 if ($inspectImage) {
                     foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
@@ -91,6 +90,15 @@ if ($updateSettings) {
                     logger(CRON_PULLS_LOG, $msg, 'error');
                     echo date('c') . ' ' . $msg . "\n";
                     continue;
+                }
+
+                //-- LOOP ALL IMAGE DIGESTS, STOP AT A MATCH
+                foreach ($inspectImage[0]['RepoDigests'] as $digest) {
+                    $imageDigest = $digest;
+
+                    if ($imageDigest == $regctlDigest) {
+                        break;
+                    }
                 }
 
                 $msg = 'Updating pull data: ' . $containerState['Names'] . "\n";
