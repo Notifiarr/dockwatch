@@ -411,7 +411,6 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $apiResponse = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false]);
             logger(UI_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
             $inspectImage = json_decode($apiResponse['response']['docker'], true);
-            list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
 
             foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
                 if (str_contains($label, 'image.version')) {
@@ -422,6 +421,15 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
             logger(UI_LOG, 'Getting registry digest: ' . $image);
             $regctlDigest = trim(regctlCheck($image));
+
+            //-- LOOP ALL IMAGE DIGESTS, STOP AT A MATCH
+            foreach ($inspectImage[0]['RepoDigests'] as $digest) {
+                list($cr, $imageDigest) = explode('@', $digest);
+
+                if ($imageDigest == $regctlDigest) {
+                    break;
+                }
+            }
 
             if (str_contains($regctlDigest, 'Error')) {
                 logger(UI_LOG, $regctlDigest, 'error');
