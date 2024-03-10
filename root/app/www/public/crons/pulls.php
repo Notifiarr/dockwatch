@@ -94,7 +94,7 @@ if ($updateSettings) {
 
                 //-- LOOP ALL IMAGE DIGESTS, STOP AT A MATCH
                 foreach ($inspectImage[0]['RepoDigests'] as $digest) {
-                    $imageDigest = $digest;
+                    list($cr, $imageDigest) = explode('@', $digest);
 
                     if ($imageDigest == $regctlDigest) {
                         break;
