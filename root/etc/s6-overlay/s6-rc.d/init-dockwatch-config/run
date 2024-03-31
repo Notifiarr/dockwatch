@@ -4,3 +4,7 @@
 echo 's6-overlay init require(/app/www/public/startup.php) ->';
 php -r "require '/app/www/public/startup.php';"
 echo 's6-overlay init require(/app/www/public/startup.php) <-';
+
+# permissions
+lsiown -R abc:abc \
+    /config
