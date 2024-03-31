@@ -271,10 +271,11 @@ function massApplyContainerTrigger(dependencyTrigger = false)
                     runTrigger();
                 },
                 error: function(jqhdr, textStatus, errorThrown) {
-                    $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + containerName + ' ajax error (' + errorThrown + ')<br>');
-                    c++;
+                    $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + containerName + ' ajax error (' + (errorThrown ? errorThrown : 'timeout') + ', check the console for more information using F12) ... Retrying in 5s<br>');
 
-                    runTrigger();
+                    setTimeout(function () {
+                        runTrigger();
+                    }, 5000);
                 }
             });
         }
