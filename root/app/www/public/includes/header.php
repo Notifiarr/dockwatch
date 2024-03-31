@@ -9,7 +9,7 @@
 
 $serverList = '<select class="form-select w-75 d-inline-block" id="activeServer" onchange="updateServerIndex()">';
 foreach ($serversFile as $serverIndex => $serverDetails) {
-    $ping = curl($serverDetails['url'] . '/api/?request=ping', ['x-api-key: ' . $serverDetails['apikey']]);
+    $ping = curl($serverDetails['url'] . '/api/?request=ping', ['x-api-key: ' . $serverDetails['apikey']], 'GET', '', [], 5);
     $disabled = '';
     if ($ping['code'] != 200) {
         $disabled = ' [HTTP: ' . $ping['code'] . ']';

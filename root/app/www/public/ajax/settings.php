@@ -53,6 +53,34 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
+            <h4>Login Failures</h4>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col" width="15%">Name</th>
+                            <th scope="col" width="30%">Setting</th>
+                            <th scope="col" width="55%">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Allowed failures</th>
+                            <td>
+                                <input class="form-control" type="text" id="globalSetting-loginFailures" value="<?= LOGIN_FAILURE_LIMIT ?>">
+                            </td>
+                            <td>How many failures before blocking logins</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Timeout length</th>
+                            <td>
+                                <input class="form-control" type="number" id="globalSetting-loginTimeout" value="<?= LOGIN_FAILURE_TIMEOUT ?>">
+                            </td>
+                            <td>How long to block logins after the limit is reached (minutes)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
             <h4>Server list</h4>
             <div class="table-responsive">
                 <table class="table">

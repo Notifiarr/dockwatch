@@ -10,12 +10,18 @@
 function viewLog($log)
 {
     $error = $header = $content = '';
-    if (file_exists(LOGS_PATH . $log)) {
-        $log        = file(LOGS_PATH . $log);
-        $header     = 'Lines: ' . count($log);
-        
-        foreach ($log as $index => $line) {
-            $content .= str_pad(($index + 1), strlen(count($log)), ' ', STR_PAD_RIGHT) .' | '. $line;
+    $path = str_contains_any($log, ['login_failures']) ? APP_DATA_PATH . $log : LOGS_PATH . $log;
+
+    if (file_exists($path)) {
+        if (str_contains_any($log, ['login_failures'])) {
+            $content = json_encode(json_decode(file_get_contents($path), true), JSON_PRETTY_PRINT);
+        } else {
+            $log        = file($path);
+            $header     = 'Lines: ' . count($log);
+            
+            foreach ($log as $index => $line) {
+                $content .= str_pad(($index + 1), strlen(count($log)), ' ', STR_PAD_RIGHT) .' | '. $line;
+            }
         }
     } else {
         $error = 'Selected log file not found';
@@ -26,31 +32,49 @@ function viewLog($log)
 
 function deleteLog($log)
 {
+    $path = str_contains_any($log, ['login_failures']) ? APP_DATA_PATH . $log : LOGS_PATH . $log;
+
     logger(UI_LOG, 'deleteLog() ->');
-    logger(UI_LOG, '$log: \''. $log .'\'');
-    logger(UI_LOG, 'removing \''. LOGS_PATH . $log .'\'');
-    unlink(LOGS_PATH . $log);
+    logger(UI_LOG, '$log: \''. $path .'\'');
+    logger(UI_LOG, 'removing \''. $path .'\'');
+    unlink($path);
     logger(UI_LOG, 'deleteLog() <-');
 
-    return json_encode(['deleted' => LOGS_PATH . $log]);
+    return json_encode(['deleted' => $path]);
 }
 
 function purgeLogs($group)
 {
     logger(UI_LOG, 'purgeLogs() ->');
-    logger(UI_LOG, '$group: \''. $group .'\'');
     $removedFiles = [];
-    $logDir = LOGS_PATH . $group .'/';
-    $dir = opendir($logDir);
-    while ($log = readdir($dir)) {
-        if ($log[0] == '.' || is_dir($logDir . $log)) {
-            continue;
+
+    if (str_contains($group, 'login failures')) {
+        $dir = opendir(APP_DATA_PATH);
+        while ($log = readdir($dir)) {
+            if (!str_contains($log, 'login_failures')) {
+                continue;
+            }
+
+            logger(UI_LOG, 'removing \'' . APP_DATA_PATH . $log . '\'');
+            $removedFiles[] = APP_DATA_PATH . $log;
+            unlink(APP_DATA_PATH . $log);
         }
-        logger(UI_LOG, 'removing \''. $logDir . $log .'\'');
-        $removedFiles[] = $logDir . $log;
-        unlink($logDir . $log);
+        closedir($dir);
+    } else {
+        logger(UI_LOG, '$group: \'' . $group . '\'');
+        $logDir = LOGS_PATH . $group .'/';
+        $dir = opendir($logDir);
+        while ($log = readdir($dir)) {
+            if ($log[0] == '.' || is_dir($logDir . $log)) {
+                continue;
+            }
+            logger(UI_LOG, 'removing \'' . $logDir . $log . '\'');
+            $removedFiles[] = $logDir . $log;
+            unlink($logDir . $log);
+        }
+        closedir($dir);
     }
-    closedir($dir);
+
     logger(UI_LOG, 'purgeLogs() <-');
 
     return json_encode(['deleted' => $removedFiles]);

@@ -146,9 +146,14 @@ function login()
         type: 'POST',
         url: '../ajax/login.php',
         data: '&m=login&user=' + $('#username').val() + '&pass=' + $('#password').val(),
+        dataType: 'json',
         success: function (resultData) {
-            if (resultData) {
-                toast('Login', 'Error: ' + resultData, 'error');
+            if (resultData.timeout) {
+                reload();
+            }
+
+            if (resultData.error) {
+                toast('Login', 'Error: ' + resultData.error, 'error');
                 loadingStop();
                 return;
             }

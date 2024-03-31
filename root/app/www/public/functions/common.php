@@ -287,3 +287,12 @@ function str_contains_all(string $haystack, array $needles): bool
 {
     return array_reduce($needles, fn($a, $n) => $a && str_contains($haystack, $n), true);
 }
+
+function str_compare($str1, $str2, $case = false): bool
+{
+    if ($case) {
+        return $str1 == $str2;
+    } else {
+        return strtolower($str1) == strtolower($str2);
+    }
+}

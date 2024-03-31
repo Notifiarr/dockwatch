@@ -87,6 +87,10 @@ if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/', 'socket']) && !str_contain
     }
     $settingsFile = $settingsFile['file'];
 
+    //-- LOGIN, DEFINE AFTER LOADING SETTINGS
+    define('LOGIN_FAILURE_LIMIT', ($settingsFile['global']['loginFailures'] ? $settingsFile['global']['loginFailures']: 10));
+    define('LOGIN_FAILURE_TIMEOUT', ($settingsFile['global']['loginFailures'] ? $settingsFile['global']['loginTimeout']: 10)); //-- MINUTES TO DISABLE LOGINS
+
     //-- STATE
     $stateFile = getServerFile('state');
     if ($stateFile['code'] != 200) {

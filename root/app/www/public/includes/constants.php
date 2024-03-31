@@ -31,6 +31,7 @@ define('COMPOSE_PATH', APP_DATA_PATH . 'compose/');
 //-- DATA FILES
 define('SERVERS_FILE', APP_DATA_PATH . 'servers.json');
 define('LOGIN_FILE', APP_DATA_PATH . 'logins');
+define('LOGIN_FAILURE_FILE', APP_DATA_PATH . 'login_failures');
 define('SETTINGS_FILE', APP_DATA_PATH . 'settings.json');
 define('STATE_FILE', APP_DATA_PATH . 'state.json');
 define('PULL_FILE', APP_DATA_PATH . 'pull.json');
