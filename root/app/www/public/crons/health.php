@@ -26,8 +26,8 @@ if (!$settingsFile['global']['restartUnhealthy'] && !$settingsFile['notification
     exit();
 }
 
-$processList = apiRequest('dockerProcessList', ['format' => true]);
-$processList = json_decode($processList['response']['docker'], true);
+$processList = getExpandedProcessList(true, true, true);
+$processList = $processList['processList'];
 
 $healthFile = getServerFile('health');
 logger(CRON_HEALTH_LOG, '$healthFile=' . json_encode($healthFile, JSON_UNESCAPED_SLASHES));
@@ -47,14 +47,14 @@ $unhealthy = !empty($healthFile) ? $healthFile : [];
 logger(CRON_HEALTH_LOG, '$unhealthy=' . json_encode($unhealthy, JSON_UNESCAPED_SLASHES));
 
 foreach ($processList as $process) {
-    $nameHash = md5($process['inspect'][0]['Config']['Image']);
+    $nameHash = md5($process['Names']);
 
     if (str_contains($process['Status'], 'unhealthy')) {
-        logger(CRON_HEALTH_LOG, 'container \'' . $process['inspect'][0]['Config']['Image'] . '\' (' . $nameHash . ') is unhealthy');
+        logger(CRON_HEALTH_LOG, 'container \'' . $process['Names'] . '\' (' . $nameHash . ') is unhealthy');
 
         if (!$unhealthy[$nameHash]) {
             logger(CRON_HEALTH_LOG, 'container \'' . $process['inspect'][0]['Config']['Image'] . '\' has not been restarted or notified for yet');
-            $unhealthy[$nameHash] = ['name' => $process['inspect'][0]['Config']['Image'], 'image' => $process['Image'], 'id' => $process['ID']];
+            $unhealthy[$nameHash] = ['name' => $process['Names'], 'image' => $process['inspect'][0]['Config']['Image'], 'id' => $process['ID']];
         }
     } else {
         unset($unhealthy[$nameHash]);

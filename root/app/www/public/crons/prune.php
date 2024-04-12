@@ -26,7 +26,7 @@ $imagePrune = $imageList = $volumePrune = [];
 $networkPrune = [];
 $images     = json_decode(dockerGetOrphanContainers(), true);
 $volumes    = json_decode(dockerGetOrphanVolumes(), true);
-$networks    = json_decode(dockerGetOrphanNetworks(), true);
+$networks   = json_decode(dockerGetOrphanNetworks(), true);
 
 logger(CRON_PRUNE_LOG, 'images=' . json_encode($images));
 logger(CRON_PRUNE_LOG, 'volumes=' . json_encode($volumes));
