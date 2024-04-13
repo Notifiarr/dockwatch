@@ -29,7 +29,7 @@ if (!$settingsFile['global']['restartUnhealthy'] && !$settingsFile['notification
 $processList = getExpandedProcessList(true, true, true);
 $processList = $processList['processList'];
 
-$healthFile = getServerFile('health');
+$healthFile = getFile(APP_DATA_PATH . 'health.json');
 logger(CRON_HEALTH_LOG, '$healthFile=' . json_encode($healthFile, JSON_UNESCAPED_SLASHES));
 
 if ($healthFile['code'] != 200) {
@@ -58,6 +58,7 @@ foreach ($processList as $process) {
         }
     } else {
         unset($unhealthy[$nameHash]);
+        logger(CRON_HEALTH_LOG, 'container \'' . $process['inspect'][0]['Config']['Image'] . '\' has not been removed from the unhealthy list');
     }
 }
 
@@ -128,10 +129,10 @@ if ($unhealthy) {
     }
 
     logger(CRON_HEALTH_LOG, 'updating health file with unhealthy containers');
-    setServerFile('health', $unhealthy);
+    setFile(APP_DATA_PATH . 'health.json', $unhealthy);
 } else {
     logger(CRON_HEALTH_LOG, 'no unhealthly containers, empty the file');
-    setServerFile('health', []);
+    setFile(APP_DATA_PATH . 'health.json', []);
 }
 
 logger(CRON_HEALTH_LOG, 'run <-');
