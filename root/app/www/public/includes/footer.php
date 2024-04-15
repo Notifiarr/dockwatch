@@ -132,6 +132,15 @@
         </ul>
     </div>
 
+    <!-- Frequency cron editor -->
+    <div id="frequencyCronEditorDiv" style="display: none;">
+        <div id="cron"></div>
+        <span class="text-danger">NOTES:</span>
+        <ul>
+            <li>If the cron output does not meet your requirements, you can enter your own by overwriting the output box.</li>
+        </ul>
+    </div>
+
     <!-- Warning -->
     <div id="dockwatchWarningText" style="display: none;">
         Dockwatch has a different method for updating and restarting its self, for this reason it is ignored in the check all action. It will clone its self and create a container named <code>dockwatch-maintenance</code> since it can not do things to its self.<br><br>

@@ -87,7 +87,7 @@ if ($_POST['m'] == 'init') {
                                 foreach ($containerGroup['containers'] as $containerHash) {
                                     foreach ($processList as $process) {
                                         $nameHash = md5($process['Names']);
-    
+
                                         if ($nameHash == $containerHash) {
                                             renderContainerRow($nameHash, 'html');
                                             break;
@@ -122,7 +122,7 @@ if ($_POST['m'] == 'init') {
                     <tfoot>
                         <tr>
                             <td colspan="6">
-                                With selected: 
+                                With selected:
                                 <select id="massContainerTrigger" class="form-select d-inline-block w-50">
                                     <option value="0">-- Select option --</option>
                                     <optgroup label="Control">
@@ -155,8 +155,8 @@ if ($_POST['m'] == 'init') {
                                     <button id="frequency-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="$('#frequency-all-div').toggle(); $('#updates-all-div').hide();">Frequency</button>
                                     <div id="frequency-all-div" class="m-0 p-0" style="display: none;">
                                         <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
-                                        <input id="container-frequency-all" type="text" class="form-control d-inline-block w-50" value="<?= DEFAULT_CRON ?>">
-                                        <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="$('.container-frequency').val($('#container-frequency-all').val())"></i>
+                                        <input id="containers-frequency-all" type="text" class="form-control d-inline-block w-50" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
+                                        <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="$('.container-frequency').val($('#containers-frequency-all').val())"></i>
                                     </div>
                                     <div id="updates-all-div" class="m-0 p-0" style="display: none;">
                                         <select id="container-updates-all" class="form-select d-inline-block w-50" onchange="massChangeContainerUpdates()">
@@ -188,7 +188,7 @@ if ($_POST['m'] == 'saveContainerSettings') {
         $hash = str_replace('containers-update-', '', $key);
 
         list($minute, $hour, $dom, $month, $dow) = explode(' ', $_POST['containers-frequency-' . $hash]);
-        $frequency = '0 ' . $hour . ' ' . $dom . ' ' . $month . ' ' . $dow;
+        $frequency = $minute . ' ' . $hour . ' ' . $dom . ' ' . $month . ' ' . $dow;
 
         try {
             $cron = Cron\CronExpression::factory($frequency);
@@ -346,7 +346,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     $inspectImage           = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
                     $inspectImage           = json_decode($inspectImage['response']['docker'], true);
                     list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
-            
+
                     if ($inspectImage) {
                         foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
                             if (str_contains($label, 'image.version')) {
@@ -549,12 +549,12 @@ if ($_POST['m'] == 'openContainerGroups') {
                     <td>
                         <select class="form-select" id="groupSelection" onchange="loadContainerGroup()">
                             <option value="1">New Group</option>
-                            <?php 
+                            <?php
                             if ($settingsFile['containerGroups']) {
                                 foreach ($settingsFile['containerGroups'] as $groupHash => $groupDetails) {
                                     ?><option value="<?= $groupHash ?>"><?= $groupDetails['name'] ?></option><?php
                                 }
-                            } 
+                            }
                             ?>
                         </select>
                     </td>
@@ -648,16 +648,16 @@ if ($_POST['m'] == 'saveContainerGroup') {
 
         if (!$error) {
             $containers = [];
-    
+
             foreach ($_POST as $key => $val) {
                 if (!str_contains($key, 'groupContainer')) {
                     continue;
                 }
-        
+
                 list($junk, $containerHash) = explode('-', $key);
                 $containers[] = $containerHash;
             }
-        
+
             $settingsFile['containerGroups'][$groupHash] = ['name' => $groupName, 'containers' => $containers];
         }
     }
@@ -739,7 +739,7 @@ if ($_POST['m'] == 'openEditContainer') {
                             <div style="float: right;"><i class="fas fa-plus-circle text-success"></i></div>
                         </td>
                     </tr>
-                    <?php 
+                    <?php
                     if ($container['inspect'][0]['Mounts']) {
                         foreach ($container['inspect'][0]['Mounts'] as $mount) {
                             if ($mount['Type'] != 'bind') {
@@ -769,7 +769,7 @@ if ($_POST['m'] == 'openEditContainer') {
                             </tr>
                             <?php
                         }
-                    } 
+                    }
                     ?>
                     <tr>
                         <td colspan="2">

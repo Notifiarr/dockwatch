@@ -152,7 +152,7 @@ if ($_POST['m'] == 'init') {
                                     <option <?= ($globalSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
                                     <option <?= ($globalSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
                                 </select>
-                                <input type="text" class="form-control d-inline-block w-25" id="globalSetting-updatesFrequency" value="<?= $globalSettings['updatesFrequency'] ?>"> <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
+                                <input type="text" class="form-control d-inline-block w-25" id="globalSetting-updatesFrequency" onclick="frequencyCronEditor(this.value, 'global', 'global')" value="<?= $globalSettings['updatesFrequency'] ?>"> <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
                             </td>
                             <td>What settings to use for new containers that are added</td>
                         </tr>

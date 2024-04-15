@@ -362,11 +362,19 @@ pre {
                                     supported by Chrome, Edge, Opera and Firefox */
   }
 
-.no-sort::after { 
-    display: none !important; 
+.no-sort::after {
+    display: none !important;
 }
 
-.no-sort { 
-    pointer-events: none !important; 
-    cursor: default !important; 
+.no-sort {
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
+/* Disabled inputs */
+.form-control:disabled,
+.form-control:read-only {
+    background-color: #000;
+    opacity: 1;
+    cursor: pointer;
 }

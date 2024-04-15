@@ -57,6 +57,30 @@ function containerFrequencyHelp()
     });
 }
 // ---------------------------------------------------------------------------------------------
+function frequencyCronEditor(frequency, hash, name)
+{
+    dialogOpen({
+        id: "frequencyCronEditor",
+        title: `Frequency Cron Editor (${name})`,
+        size: "lg",
+        body: $("#frequencyCronEditorDiv").html(),
+    });
+
+    $(`.modal-body #cron`).cron({
+        expression: frequency,
+        hash: hash,
+        name: name,
+        onChange: function (expression) {
+            if (hash == "global") {
+                $(`#globalSetting-updatesFrequency`).val(expression);
+                return;
+            }
+
+            $(`#containers-frequency-${hash}`).val(expression);
+        },
+    });
+}
+// ---------------------------------------------------------------------------------------------
 function openEditContainer(hash)
 {
     $.ajax({
@@ -219,7 +243,7 @@ function massApplyContainerTrigger(dependencyTrigger = false)
 
                 $('#massTrigger-close-btn').show();
                 $('#massTrigger-spinner').hide();
-                
+
                 if (dependencies.length) {
                     $('#massTrigger-results').prepend('Found some dependencies, applying trigger to them...<br>');
 

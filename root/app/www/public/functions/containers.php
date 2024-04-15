@@ -277,7 +277,7 @@ function renderContainerRow($nameHash, $return)
             <td id="<?= $nameHash ?>-frequency-td" style="width: 135px;">
                 <?php
                 ?>
-                <input type="text" class="form-control container-frequency" id="containers-frequency-<?= $nameHash ?>" value="<?= $containerSettings['frequency'] ?>">
+                <input type="text" class="form-control container-frequency" id="containers-frequency-<?= $nameHash ?>" value="<?= $containerSettings['frequency'] ?>" onclick="frequencyCronEditor(this.value, '<?= $nameHash ?>', '<?= $process['Names'] ?>')" readonly>
                 <?php
                 //-- OLD FREQUENCY SETTINGS
                 if (strlen($containerSettings['frequency']) > 3) {
