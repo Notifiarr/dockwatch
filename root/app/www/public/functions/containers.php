@@ -303,10 +303,6 @@ function skipContainerActions($container, $containers)
 
     $settingsFile = $settingsFile ? $settingsFile : getServerFile('settings');
 
-    if ($settingsFile['global']['overrideBlacklist'] == 1) {
-        return SKIP_OFF;
-    }
-
     if ($settingsFile['containers']) {
         foreach ($settingsFile['containers'] as $containerHash => $containerSettings) {
             if ($containerSettings['blacklist']) {
@@ -319,9 +315,11 @@ function skipContainerActions($container, $containers)
         }
     }
 
-    foreach ($containers as $skip) {
-        if (str_contains($container, $skip)) {
-            return SKIP_FORCE;
+    if ($settingsFile['global']['overrideBlacklist'] == 0) {
+        foreach ($containers as $skip) {
+            if (str_contains($container, $skip)) {
+                return SKIP_FORCE;
+            }
         }
     }
 
