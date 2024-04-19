@@ -181,7 +181,7 @@ function renderContainerRow($nameHash, $return)
                 $labelDependencyList .= '<span class="depenency-list-toggle">';
                 $labelDependencyList .= ' <br><input type="checkbox" class="depenency-list-toggle" onclick="$(\'.depenency-list-toggle\').toggle().prop(\'checked\', false);"> Show '. (count($labelDependencies) - 3) .' more';
                 $labelDependencyList .= '</span>';
-    
+
                 $hide = array_slice($labelDependencies, 3, count($labelDependencies));
                 $labelDependencyList .= '<span class="depenency-list-toggle" style="display: none;">';
                 $labelDependencyList .= ', ' . implode(', ', $hide);
@@ -302,6 +302,10 @@ function skipContainerActions($container, $containers)
     global $settingsFile;
 
     $settingsFile = $settingsFile ? $settingsFile : getServerFile('settings');
+
+    if ($settingsFile['global']['overrideBlacklist'] == 1) {
+        return SKIP_OFF;
+    }
 
     if ($settingsFile['containers']) {
         foreach ($settingsFile['containers'] as $containerHash => $containerSettings) {

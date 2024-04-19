@@ -327,6 +327,13 @@ if ($_POST['m'] == 'init') {
                             </td>
                             <td>Location of webroot, requires a container restart after changing. Do not change this without working files externally!</td>
                         </tr>
+                        <tr>
+                            <th scope="row">Override Blacklist</th>
+                            <td>
+                                <input class="form-check-input" type="checkbox" id="globalSetting-overrideBlacklist" <?= ($globalSettings['overrideBlacklist'] ? 'checked' : '') ?>>
+                            </td>
+                            <td>Generally not recommended, it's at your own risk.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
