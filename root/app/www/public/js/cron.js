@@ -70,7 +70,7 @@
             $("#cronFreqEditor-applyExpression").off("click");
             $("#cronFreqEditor-hourCheckbox").off("click");
             $("#cronFreqEditor-dropdownCheckbox").off("click");
-            $("#cron .weekDaysButtons button").off("click");
+            $(".weekDaysButtons").off("click");
             $("#cronFreqEditor-hourInput").off("change");
             $("#cronFreqEditor-minuteInput").off("change");
             $("#cronFreqEditor-hourDropdown").off("change");
@@ -105,117 +105,47 @@
 
             for (let i = 0; i <= 6; i++) {
                 let randomId = (Math.random() + 1).toString(36).substring(7);
-                weekDaysButtons.push(`<button id='${randomId}' type="button">${i < 6 ? weekDays[i + 1] : weekDays[0]}</button>`);
+                weekDaysButtons.push(`<input type="checkbox" class="btn-check weekDaysButtons" id="${randomId}" autocomplete="off" data-day="${i < 6 ? weekDays[i + 1] : weekDays[0]}"><label class="btn btn-outline-primary" for="${randomId}">${i < 6 ? weekDays[i + 1] : weekDays[0]}</label>`);
             }
 
-            // stylesheet
             content.push(`
-                <style>
-                    #cron .container {
-                        display: flex;
-                        margin-bottom: 25px;
-                    }
-                    #cron .p-15 {
-                        padding-right: 15px;
-                    }
-                    #cron .w-144 {
-                        width: 144px;
-                    }
-                    #cron .mb-10 {
-                        margin-bottom: 10px;
-                    }
-                    #cron p {
-                        display: inline;
-                    }
-                    #cron .hourDropdown,
-                    #cron .hourInput {
-                        width: 50px !important;
-                        display: inline;
-                        border-color: var(--primary);
-                        background-color: #000;
-                    }
-                    #cron .minuteDropdown,
-                    #cron .minuteInput {
-                        width: 50px !important;
-                        display: inline;
-                        border-color: var(--primary);
-                        background-color: #000;
-                    }
-                    #cron .weekDaysButtons button {
-                        margin: 0;
-                        border: none;
-                        width: 50px;
-                        height: 50px;
-                        font-size: 12px;
-                        background-color: #1e1e1e;
-                        color: var(--primary);
-                        transition: 0.2s;
-                        z-index: 1;
-                        position: relative;
-                    }
-                    #cron .weekDaysButtons button:first-child,
-                    #cron .weekDaysButtons button:last-child {
-                        border-radius: 5px;
-                        margin: 0 -3px 0;
-                        z-index: 0;
-                    }
-                    #cron .weekDaysButtons button:hover {
-                        background-color: #151515;
-                    }
-                    #cron .weekDaysButtons .disabled {
-                        color: white;
-                        background-color: var(--primary) !important;
-                    }
-                    #cron .result {
-                        width: 150px !important;
-                        display: block;
-                        border-color: var(--primary);
-                        margin-bottom: 10px;
-                    }
-
-                    #cron .form-check-input {
-                        border: 1px solid var(--primary);
-                        margin-top: .75em;
-                    }
-                </style>
-            `);
-
-            // html
-            content.push(`
-                <div class="container">
-                    <div class="w-144">
-                        <label class="p-15" for="pickTime">Period of task</label>
-                    </div>
-                    <div>
-                        <div class="mb-10">
-                            <input type="radio" class="form-check-input" name="cronFreqEditor-period" id="cronFreqEditor-hourCheckbox">
-                            <label for="cronFreqEditor-hourCheckbox">Time of the day</label>
-                            <select class="form-control hourInput" id="cronFreqEditor-hourInput">${hourOptions.join("\n")}</select>
-                            <p>:</p>
-                            <select class="form-control minuteInput" id="cronFreqEditor-minuteInput">${minuteOptions.join("\n")}</select>
-                        </div>
-                        <div>
-                            <input type="radio" class="form-check-input" name="cronFreqEditor-period" id="cronFreqEditor-dropdownCheckbox">
-                            <label for="cronFreqEditor-dropdownCheckbox">Every</label>
-                            <select class="form-control hourDropdown" id="cronFreqEditor-hourDropdown">${hourOptions.join("\n")}</select>
-                            <label>hours at minute</label>
-                            <select class="form-control minuteDropdown" id="cronFreqEditor-minuteDropdown">${minuteOptions.join("\n")}</select>
+                <div class="bg-secondary rounded pt-4 px-4 mb-4">
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Period of task</div>
+                        <div class="col-sm-9">
+                            <div class="mb-2">
+                                <input type="radio" class="form-check-input" name="cronFreqEditor-period" id="cronFreqEditor-hourCheckbox">
+                                <label for="cronFreqEditor-hourCheckbox">Time of the day</label>
+                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-hourInput">${hourOptions.join("\n")}</select> : 
+                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-minuteInput">${minuteOptions.join("\n")}</select>
+                            </div>
+                            <div>
+                                <input type="radio" class="form-check-input" name="cronFreqEditor-period" id="cronFreqEditor-dropdownCheckbox">
+                                <label for="cronFreqEditor-dropdownCheckbox">Every</label>
+                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-hourDropdown">${hourOptions.join("\n")}</select>
+                                hour(s) at minute
+                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-minuteDropdown">${minuteOptions.join("\n")}</select>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="container">
-                    <div class="w-144">
-                        <label for="repeat">Day of the week</label>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Day of the week</div>
+                        <div class="col-sm-9">
+                            <div class="btn-group" role="group">${weekDaysButtons.join("")}</div>
+                        </div>
                     </div>
-                    <div class="weekDaysButtons">${weekDaysButtons.join("")}</div>
-                </div>
-                <div class="container">
-                    <div class="w-144">
-                        <label for="output">Cron output</label>
+                    <div class="row mb-3">
+                        <div class="col-sm-3">Cron output</div>
+                        <div class="col-sm-9">
+                            <input class="form-control d-inline-block result me-2 w-25" type="text" id="cronFreqEditor-result" value="0 23 * * 0" placeholder="0 23 * * 0">
+                        </div>
                     </div>
-                    <div>
-                        <input class="form-control result" type="text" id="cronFreqEditor-result" value="0 23 * * 0">
-                        <button type="button" id="cronFreqEditor-applyExpression" class="btn btn-success">Apply</button>
+                    <div class="row">
+                        <div class="col-sm-12 mb-3">
+                            <div class="d-flex justify-content-center">
+                                <button type="button" id="cronFreqEditor-applyExpression" class="btn btn-outline-info mt-2">Apply</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `);
@@ -236,28 +166,20 @@
             }
 
             function toggleDay(e) {
-                const el = `#${e.target.id}`;
-                const day = weekDays.indexOf($(el).text());
+                const day = weekDays.indexOf(e.target.dataset.day);
 
                 if (selectedWeekDays.includes(day)) {
                     selectedWeekDays = selectedWeekDays.filter((v) => v !== day);
                 } else {
-                    selectedWeekDays.push(day);
+                    selectedWeekDays.push(Number(day));
                 }
 
-                if (selectedWeekDays.length <= 0) {
-                    expression[4] = "*";
-                } else {
+                expression[4] = "*";
+                if (selectedWeekDays.length > 0) {
                     expression[4] = selectedWeekDays.join(",");
                 }
 
                 $("#cronFreqEditor-result").val(expression.join(" "));
-
-                if ($(el).hasClass("disabled")) {
-                    $(el).removeClass("disabled");
-                } else {
-                    $(el).addClass("disabled");
-                }
             }
 
             // parse expression - todo: allow ranges and step values 0-50../2..etc
@@ -280,26 +202,14 @@
                 $(`#cronFreqEditor-minuteInput option[value='${expression[0]}']`).attr("selected", "selected");
             }
 
-            $.each($("#cron .weekDaysButtons").children(), function () {
-                const el = `#${this.id}`;
-                let days = expression[4].split(",");
-
-                for (let i = 0; i < days.length; i++) {
-                    days[i] = Number(days[i]);
+            let days = expression[4].split(',');
+            if (days.length && days[0] != '*') {
+                for (let d = 0; d < days.length; d++) {
+                    $('[data-day="' + weekDays[days[d]] + '"]').prop('checked', true);
+                    selectedWeekDays.push(Number(days[d]));
                 }
+            }
 
-                if (days.length > 0 && days[0] !== "*") {
-                    for (let i = 0; i < days.length; i++) {
-                        if (days[i] == weekDays.indexOf($(el).text())) {
-                            $(el).addClass("disabled");
-
-                            if (!selectedWeekDays.includes(days[i])) {
-                                selectedWeekDays.push(days[i]);
-                            }
-                        }
-                    }
-                }
-            });
             $("#cronFreqEditor-result").attr("value", expression.join(" "));
 
             // events
@@ -323,7 +233,7 @@
             $("#cronFreqEditor-dropdownCheckbox").on("click", function () {
                 toggleCheckbox(false);
             });
-            $("#cron .weekDaysButtons button").on("click", function (e) {
+            $(".weekDaysButtons").on("click", function (e) {
                 toggleDay(e);
             });
             $("#cronFreqEditor-hourInput").on("change", function (e) {
