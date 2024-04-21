@@ -13,8 +13,8 @@ trait Maint
     {
         logger(MAINTENANCE_LOG, '$maintenance->startMaintenance() ->');
 
-        $docker = dockerStartContainer($this->maintenanceContainerName);
-        logger(MAINTENANCE_LOG, 'dockerStartContainer() ' . trim($docker));
+        $startContainer = $this->docker->startContainer($this->maintenanceContainerName);
+        logger(MAINTENANCE_LOG, '$docker->startContainer() ' . trim($startContainer));
     
         logger(MAINTENANCE_LOG, '$maintenance->startMaintenance() <-');
     }
@@ -31,11 +31,9 @@ trait Maint
 
     public function removeMaintenance()
     {
-        global $docker;
-
         logger(MAINTENANCE_LOG, '$maintenance->removeMaintenance() ->');
 
-        $removeContainer = $docker->removeContainer($this->maintenanceContainerName);
+        $removeContainer = $this->docker->removeContainer($this->maintenanceContainerName);
         logger(MAINTENANCE_LOG, '$docker->removeContainer() ' . trim($removeContainer));
     
         logger(MAINTENANCE_LOG, '$maintenance->removeMaintenance() <-');

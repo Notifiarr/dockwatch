@@ -55,7 +55,7 @@ if ($_POST['m'] == 'init') {
             $containerNetwork = $process['inspect'][0]['HostConfig']['NetworkMode'];
             if (str_contains($containerNetwork, ':')) {
                 list($null, $containerId) = explode(':', $containerNetwork);
-                $containerNetwork = 'container:' . findContainerFromId($containerId);
+                $containerNetwork = 'container:' . $docker->findContainer(['id' => $containerId, 'data' => $processList]);
             }
 
             $networks[$containerNetwork]++;

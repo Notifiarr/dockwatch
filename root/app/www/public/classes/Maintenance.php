@@ -27,6 +27,7 @@ class Maintenance
     use Host;
     use Maint;
 
+    public $docker;
     protected $maintenanceContainerName = 'dockwatch-maintenance';
     protected $maintenancePort;
     protected $maintenanceIP;
@@ -37,7 +38,7 @@ class Maintenance
 
     public function __construct()
     {
-        global $settingsFile;
+        global $docker, $settingsFile;
 
         logger(MAINTENANCE_LOG, '$maintenance->__construct() ->');
 
@@ -46,6 +47,7 @@ class Maintenance
             $settingsFile = $settingsFile['file'];
         }
 
+        $this->docker           = $docker;
         $this->settingsFile     = $settingsFile;
         $this->maintenancePort  = $settingsFile['global']['maintenancePort'];
         $this->maintenanceIP    = $settingsFile['global']['maintenanceIP'];

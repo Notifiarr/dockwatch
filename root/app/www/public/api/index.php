@@ -79,7 +79,7 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => dockerLogs($_GET['name'])];
+                $response = ['docker' => $docker->logs($_GET['name'])];
                 break;
             case 'dockerNetworks':
                 $response = ['docker' => dockerNetworks($_GET['params'])];
@@ -226,11 +226,11 @@ switch (true) {
                 $response = ['docker' => $docker->removeContainer($_POST['name'])];
                 break;
             case 'dockerRemoveImage':
-                if (!$_POST['id']) {
-                    apiResponse(400, ['error' => 'Missing id parameter']);
+                if (!$_POST['image']) {
+                    apiResponse(400, ['error' => 'Missing image parameter']);
                 }
 
-                $response = ['docker' => dockerRemoveImage($_POST['id'])];
+                $response = ['docker' => $docker->removeImage($_POST['image'])];
                 break;
             case 'dockerRemoveVolume':
                 if (!$_POST['name']) {
@@ -251,7 +251,7 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => dockerStartContainer($_POST['name'], $_POST['depends'])];
+                $response = ['docker' => $docker->startContainer($_POST['name'], $_POST['depends'])];
                 break;
             case 'dockerStopContainer':
                 if (!$_POST['name']) {

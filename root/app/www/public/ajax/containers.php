@@ -221,9 +221,9 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     }
     $dependencyFile = $dependencyFile['file'];
 
-    $container          = findContainerFromHash($_POST['hash']);
-    $image              = isDockerIO($container['inspect'][0]['Config']['Image']);
-    $currentImageHash   = $container['inspect'][0]['Image'];
+    $container      = $docker->findContainer(['hash' => $_POST['hash'], 'data' => $stateFile]);
+    $image          = isDockerIO($container['inspect'][0]['Config']['Image']);
+    $currentImageID = $container['ID'];
 
     logger(UI_LOG, 'trigger:' . $_POST['trigger']);
     logger(UI_LOG, 'findContainerFromHash:' . json_encode($container, JSON_UNESCAPED_SLASHES));
@@ -297,7 +297,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $containers     = explode(',', $_POST['hash']);
 
             foreach ($containers as $selectedContainer) {
-                $thisContainer  = findContainerFromHash($selectedContainer);
+                $thisContainer  = $docker->findContainer(['hash' => $selectedContainer, 'data' => $stateFile]);
                 $containerList .= $thisContainer['Names'] . ' ';
             }
 
@@ -345,7 +345,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
                 if (strlen($update['Id']) == 64) {
                     // REMOVE THE IMAGE AFTER UPDATE
-                    $docker->removeImage($currentImageHash);
+                    $removeImage = apiRequest('removeImage', ['image' => $currentImageID]);
+                    logger(UI_LOG, 'removeImage:' . json_encode($removeImage, JSON_UNESCAPED_SLASHES));
 
                     $inspectImage           = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
                     $inspectImage           = json_decode($inspectImage['response']['docker'], true);
@@ -508,7 +509,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 }
 
 if ($_POST['m'] == 'controlContainer') {
-    $container = findContainerFromHash($_POST['hash']);
+    $container = $docker->findContainer(['hash' => $_POST['hash'], 'data' => $stateFile]);
 
     if ($_POST['action'] == 'stop' || $_POST['action'] == 'restart') {
         apiRequest('dockerStopContainer', [], ['name' => $container['Names']]);
@@ -674,7 +675,7 @@ if ($_POST['m'] == 'saveContainerGroup') {
 }
 
 if ($_POST['m'] == 'openEditContainer') {
-    $container      = findContainerFromHash($_POST['hash']);
+    $container      = $docker->findContainer(['hash' => $_POST['hash'], 'data' => $stateFile]);
     $inspectImage   = apiRequest('dockerInspect', ['name' => $container['Image'], 'useCache' => false, 'format' => true]);
     $inspectImage   = json_decode($inspectImage['response']['docker'], true);
     $inspectImage   = $inspectImage[0];

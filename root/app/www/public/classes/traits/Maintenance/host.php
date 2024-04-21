@@ -23,19 +23,17 @@ trait Host
     {
         logger(MAINTENANCE_LOG, '$maintenance->startHost() ->');
 
-        $docker = dockerStartContainer($this->hostContainer['Names']);
-        logger(MAINTENANCE_LOG, 'dockerStartContainer() ' . trim($docker));
+        $startContainer = $this->docker->startContainer($this->hostContainer['Names']);
+        logger(MAINTENANCE_LOG, '$docker->startContainer() ' . trim($startContainer));
     
         logger(MAINTENANCE_LOG, '$maintenance->startHost() <-');
     }
 
     public function removeHost()
     {
-        global $docker;
-
         logger(MAINTENANCE_LOG, '$maintenance->removeHost() ->');
 
-        $removeContainer = $docker->removeContainer($this->hostContainer['Names']);
+        $removeContainer = $this->docker->removeContainer($this->hostContainer['Names']);
         logger(MAINTENANCE_LOG, '$docker->removeContainer() ' . trim($removeContainer));
 
         logger(MAINTENANCE_LOG, '$maintenance->removeHost() <-');

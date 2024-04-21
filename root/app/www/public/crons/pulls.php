@@ -35,7 +35,7 @@ if ($updateSettings) {
             continue;
         }
 
-        $containerState = findContainerFromHash($containerHash);
+        $containerState = $docker->findContainer(['hash' => $containerHash, 'data' => $stateFile]);
         $preVersion = $postVersion = $cron = '';
         if ($containerState) {
             $isDockwatch = isDockwatchContainer($containerState) ? true : false;
@@ -51,8 +51,8 @@ if ($updateSettings) {
             }
 
             if ($cron->isDue($startStamp)) {
-                $image              = isDockerIO($containerState['inspect'][0]['Config']['Image']);
-                $currentImageHash   = $containerState['inspect'][0]['Image'];
+                $image          = isDockerIO($containerState['inspect'][0]['Config']['Image']);
+                $currentImageID = $containerState['ID'];
 
                 if (!$image) {
                     $msg = 'Skipping local (has no Config.Image): ' . $containerState['Names'];
@@ -193,7 +193,11 @@ if ($updateSettings) {
 
                                 if (strlen($update['Id']) == 64) {
                                     // REMOVE THE IMAGE AFTER UPDATE
-                                    $docker->removeImage($currentImageHash);
+                                    $msg = 'Removing old image: ' . $currentImageID;
+                                    logger(CRON_PULLS_LOG, $msg);
+                                    echo date('c') . ' ' . $msg . "\n";
+                                    $removeImage = $docker->removeImage($currentImageID);
+                                    logger(CRON_PULLS_LOG, '$docker->removeImage: ' . trim(json_encode($removeImage, JSON_UNESCAPED_SLASHES)));
 
                                     $msg = 'Updating pull data: ' . $containerState['Names'];
                                     logger(CRON_PULLS_LOG, $msg);
@@ -209,7 +213,7 @@ if ($updateSettings) {
                                         $msg = 'Starting container: ' . $containerState['Names'];
                                         logger(CRON_PULLS_LOG, $msg);
                                         echo date('c') . ' ' . $msg . "\n";
-                                        $start = dockerStartContainer($containerState['Names']);
+                                        $start = $docker->startContainer($containerState['Names']);
                                         logger(CRON_PULLS_LOG, 'dockerStartContainer:' . trim($start));
                                     } else {
                                         logger(CRON_PULLS_LOG, 'container was not running, not starting it');

@@ -9,7 +9,7 @@
 
 function renderContainerRow($nameHash, $return)
 {
-    global $pullsFile, $settingsFile, $processList, $skipContainerActions, $groupHash;
+    global $docker, $pullsFile, $settingsFile, $processList, $skipContainerActions, $groupHash;
 
     if (!$pullsFile) {
         $pullsFile = getServerFile('pull');
@@ -193,7 +193,7 @@ function renderContainerRow($nameHash, $return)
         $network = $process['inspect'][0]['HostConfig']['NetworkMode'];
         if (str_contains($network, ':')) {
             list($null, $containerId) = explode(':', $network);
-            $network = 'container:' . findContainerFromId($containerId);
+            $network = 'container:' . $docker->findContainer(['id' => $containerId, 'data' => $processList]);
         }
 
         ?>
@@ -306,7 +306,7 @@ function skipContainerActions($container, $containers)
     if ($settingsFile['containers']) {
         foreach ($settingsFile['containers'] as $containerHash => $containerSettings) {
             if ($containerSettings['blacklist']) {
-                $containerState = findContainerFromHash($containerHash);
+                $containerState = $docker->findContainer(['hash' => $containerHash, 'data' => $stateFile]);
 
                 if (str_contains($containerState['Image'], $container)) {
                     return SKIP_OPTIONAL;

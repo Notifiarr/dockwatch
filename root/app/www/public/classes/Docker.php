@@ -60,10 +60,21 @@ class Docker
 
         return $shell;
     }
+
+    public function logs($container)
+    {
+        $cmd    = sprintf(DockerSock::LOGS, $container);
+        $shell  = shell_exec($cmd . ' 2>&1');
+        $in     = ["\n", '[36m', '[31m', '[0m'];
+        $out    = ['<br>', '', '', ''];
+
+        return str_replace($in, $out, $shell);
+    }
 }
 
 interface DockerSock
 {
+    public const LOGS = '/usr/bin/docker logs %s';
     public const PROCESSLIST_FORMAT = '/usr/bin/docker ps --all --no-trunc --size=false --format="{{json . }}" | jq -s --tab .';
     public const PROCESSLIST_CUSTOM = '/usr/bin/docker ps %s';
     public const STATS_FORMAT = '/usr/bin/docker stats --all --no-trunc --no-stream --format="{{json . }}" | jq -s --tab .';
@@ -71,4 +82,5 @@ interface DockerSock
     public const INSPECT_CUSTOM = '/usr/bin/docker inspect %s %s';
     public const REMOVE_CONTAINER = '/usr/bin/docker rm -f %s';
     public const REMOVE_IMAGE = '/usr/bin/docker image rm %s';
+    public const START_CONTAINER = '/usr/bin/docker start %s';
 }

@@ -151,33 +151,6 @@ function updateDependencyParentId($container, $id)
     setServerFile('dependencies', json_encode($dependencyFile));
 }
 
-function findContainerFromId($id)
-{
-    global $processList;
-
-    foreach ($processList as $process) {
-        if ($process['ID'] == $id) {
-            return $process['Names'];
-        }
-    }
-}
-
-function findContainerFromHash($hash)
-{
-    global $stateFile;
-
-    if (!$stateFile) {
-        $stateFile = getServerFile('state');
-        $stateFile = $stateFile['file'];
-    }
-
-    foreach ($stateFile as $container) {
-        if (md5($container['Names']) == $hash) {
-            return $container;
-        }
-    }
-}
-
 function dockerState()
 {
     $processList = apiRequest('dockerProcessList', ['format' => true, 'useCache' => false]);
@@ -228,28 +201,6 @@ function dockerContainerLogs($containerName, $log)
         $cmd = '/usr/bin/docker logs ' . $containerName;
         return shell_exec($cmd . ' 2>&1');
     }
-}
-
-function dockerStartContainer($containerName, $depends = false)
-{
-    $cmd = '/usr/bin/docker start ' . $containerName;
-    $start = shell_exec($cmd . ' 2>&1');
-
-    //-- FIND ANY CONTAINERS THAT DEPEND ON THIS ONE AND RESTART THEM TOO
-    if ($depends) {
-
-    }
-
-    return $start;
-}
-
-function dockerLogs($containerName)
-{
-    $cmd    = '/usr/bin/docker logs ' . $containerName;
-    $shell  = shell_exec($cmd . ' 2>&1');
-    $in     = ["\n", '[36m', '[31m', '[0m'];
-    $out    = ['<br>', '', '', ''];
-    return str_replace($in, $out, $shell);
 }
 
 function dockerStopContainer($containerName)
@@ -304,12 +255,6 @@ function dockerGetOrphanNetworks()
     }
 
     return json_encode($orphans);
-}
-
-function dockerRemoveImage($id)
-{
-    $cmd = '/usr/bin/docker rmi ' . $id;
-    return shell_exec($cmd . ' 2>&1');
 }
 
 function dockerPruneImage()
