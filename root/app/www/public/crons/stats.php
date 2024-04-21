@@ -20,7 +20,7 @@ if ($settingsFile['tasks']['stats']['disabled']) {
     exit();
 }
 
-$dockerStats = dockerStats(false);
+$dockerStats = $docker->stats(false);
 setServerFile('stats', $dockerStats);
 
 logger(CRON_STATS_LOG, 'run <-');

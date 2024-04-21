@@ -63,7 +63,7 @@ if ($updateSettings) {
                 $msg = 'Inspecting image: ' . $image;
                 logger(CRON_PULLS_LOG, $msg);
                 echo date('c') . ' ' . $msg . "\n";
-                $inspectImage = dockerInspect($image, false);
+                $inspectImage = $docker->inspect($image, false);
                 logger(CRON_PULLS_LOG, '$inspectImage=' . $inspectImage);
                 $inspectImage = json_decode($inspectImage, true);
 
@@ -165,7 +165,7 @@ if ($updateSettings) {
                                 $msg = 'Inspecting container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo date('c') . ' ' . $msg . "\n";
-                                $inspect = dockerInspect($containerState['Names'], false);
+                                $inspect = $docker->inspect($containerState['Names'], false);
 
                                 $msg = 'Pulling image: ' . $image;
                                 logger(CRON_PULLS_LOG, $msg);
@@ -181,7 +181,7 @@ if ($updateSettings) {
                                 $msg = 'Removing container: ' . $containerState['Names'] . ' (' . $containerState['ID'] . ')';
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo date('c') . ' ' . $msg . "\n";
-                                $remove = dockerRemoveContainer($containerState['Names']);
+                                $remove = $docker->removeContainer($containerState['Names']);
                                 logger(CRON_PULLS_LOG, trim($remove));
 
                                 $msg = 'Updating container: ' . $containerState['Names'];
@@ -191,6 +191,9 @@ if ($updateSettings) {
                                 logger(CRON_PULLS_LOG, 'dockerCreateContainer: ' . trim(json_encode($update, JSON_UNESCAPED_SLASHES)));
 
                                 if (strlen($update['Id']) == 64) {
+                                    // REMOVE THE IMAGE AFTER UPDATE
+                                    $docker->removeImage($image);
+
                                     $msg = 'Updating pull data: ' . $containerState['Names'];
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo date('c') . ' ' . $msg . "\n";
@@ -214,7 +217,7 @@ if ($updateSettings) {
                                     $msg = 'Inspecting image: ' . $image;
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo date('c') . ' ' . $msg . "\n";
-                                    $inspectImage   = dockerInspect($image, false);
+                                    $inspectImage   = $docker->inspect($image, false);
                                     $inspectImage   = json_decode($inspectImage, true);
 
                                     if ($inspectImage) {

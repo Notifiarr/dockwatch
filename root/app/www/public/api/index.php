@@ -48,7 +48,7 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $inspect = json_decode(dockerInspect($_GET['name'], false, true), true);
+                $inspect = json_decode($docker->inspect($_GET['name'], false, true), true);
                 if (!$inspect) {
                     apiResponse(400, ['error' => 'Failed to get inspect for container: ' . $_GET['name']]);
                 }
@@ -72,7 +72,7 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => dockerInspect($_GET['name'], $_GET['useCache'], $_GET['format'], $_GET['params'])];
+                $response = ['docker' => $docker->inspect($_GET['name'], $_GET['useCache'], $_GET['format'], $_GET['params'])];
                 break;
             case 'dockerLogs':
                 if (!$_GET['name']) {
@@ -95,7 +95,7 @@ switch (true) {
                 $response = ['docker' => dockerPort($_GET['name'], $_GET['params'])];
                 break;
             case 'dockerProcessList':
-                $response = ['docker' => dockerProcessList($_GET['useCache'], $_GET['format'], $_GET['params'])];
+                $response = ['docker' => $docker->processList($_GET['useCache'], $_GET['format'], $_GET['params'])];
                 break;
             case 'dockerPruneImage':
                 $response = ['docker' => dockerPruneImage()];
@@ -110,7 +110,7 @@ switch (true) {
                 $response = ['docker' => dockerState()];
                 break;
             case 'dockerStats':
-                $response = ['docker' => dockerStats($_GET['useCache'])];
+                $response = ['docker' => $docker->stats($_GET['useCache'])];
                 break;
             case 'health':
                 $response = ['health' => getFile(HEALTH_FILE)];
@@ -223,7 +223,7 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => dockerRemoveContainer($_POST['name'])];
+                $response = ['docker' => $docker->removeContainer($_POST['name'])];
                 break;
             case 'dockerRemoveImage':
                 if (!$_POST['id']) {

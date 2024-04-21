@@ -31,10 +31,12 @@ trait Maint
 
     public function removeMaintenance()
     {
+        global $docker;
+
         logger(MAINTENANCE_LOG, '$maintenance->removeMaintenance() ->');
 
-        $docker = dockerRemoveContainer($this->maintenanceContainerName);
-        logger(MAINTENANCE_LOG, 'dockerRemoveContainer() ' . trim($docker));
+        $removeContainer = $docker->removeContainer($this->maintenanceContainerName);
+        logger(MAINTENANCE_LOG, '$docker->removeContainer() ' . trim($removeContainer));
     
         logger(MAINTENANCE_LOG, '$maintenance->removeMaintenance() <-');
     }

@@ -9,6 +9,8 @@
 
 function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $maintenance = false)
 {
+    global $docker;
+
     if ($maintenance) {
         logger(MAINTENANCE_LOG, '$fetchProc=' . $fetchProc);
         logger(MAINTENANCE_LOG, '$fetchStats=' . $fetchStats);
@@ -21,7 +23,7 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
         $loadTimes[] = trackTime('dockerProcessList ->');
         if ($maintenance) {
             logger(MAINTENANCE_LOG, 'dockerProcessList ->');
-            $processList = dockerProcessList(false);
+            $processList = $docker->processList(false);
             logger(MAINTENANCE_LOG, json_encode(json_decode($processList)));
             $processList = json_decode($processList, true);
             logger(MAINTENANCE_LOG, 'dockerProcessList <-');
@@ -60,7 +62,7 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
 
         if (!$dockerStats) { //-- NOT WRITTEN YET
             if ($maintenance) {
-                $dockerStats = dockerStats(false);
+                $dockerStats = $docker->stats(false);
                 logger(MAINTENANCE_LOG, $dockerStats);
                 $dockerStats = json_decode($dockerStats, true);
             } else {
@@ -84,9 +86,9 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
             if ($maintenance) {
                 logger(MAINTENANCE_LOG, 'dockerInspect ->');
                 logger(MAINTENANCE_LOG, 'inspecting: ' . implode(' ', $inspectContainers));
-                $inspect        = dockerInspect(implode(' ', $inspectContainers));
+                $inspect        = $docker->inspect(implode(' ', $inspectContainers));
                 $inspectResults = json_decode($inspect, true);
-                logger(MAINTENANCE_LOG, 'dockerInspect() ' . json_encode(json_decode($inspect)));
+                logger(MAINTENANCE_LOG, '$docker->inspect ' . json_encode(json_decode($inspect)));
                 logger(MAINTENANCE_LOG, 'dockerInspect <-');
             } else {
                 $inspect        = apiRequest('dockerInspect', ['name' => implode(' ', $inspectContainers), 'format' => true]);
@@ -210,49 +212,6 @@ function dockerPermissionCheck()
     return empty(json_decode($response['response']['docker'], true)) ? false : true;
 }
 
-function dockerProcessList($useCache = true, $format = true, $params = '')
-{
-    logger(SYSTEM_LOG, 'dockerProcessList ->');
-    if ($format) {
-        $cmd = '/usr/bin/docker ps --all --no-trunc --size=false --format="{{json . }}" | jq -s --tab .';
-    } else {
-        $cmd = '/usr/bin/docker ps ' . $params;
-    }
-
-    logger(SYSTEM_LOG, '$cmd=' . $cmd);
-    $shell  = shell_exec($cmd . ' 2>&1');
-    logger(SYSTEM_LOG, 'dockerProcessList <-');
-    return $shell;
-}
-
-function dockerStats($useCache = true)
-{
-    if (file_exists(STATS_FILE)) {
-        $statsFile = file_get_contents(STATS_FILE);
-    }
-
-    if ($statsFile && $useCache) {
-        return $statsFile;
-    } else {
-        $cmd    = '/usr/bin/docker stats --all --no-trunc --no-stream --format="{{json . }}" | jq -s --tab .';
-        $shell  = shell_exec($cmd . ' 2>&1');
-        setServerFile('stats', $shell);
-        return $shell;
-    }
-}
-
-function dockerInspect($containerName, $useCache = true, $format = true, $params = '')
-{
-    if ($format) {
-        $cmd = '/usr/bin/docker inspect ' . $containerName . ' --format="{{json . }}" | jq -s --tab .';
-    } else {
-        $cmd = '/usr/bin/docker inspect ' . $containerName . ' ' . $params;
-    }
-
-    $shell  = shell_exec($cmd . ' 2>&1');
-    return $shell;
-}
-
 function dockerContainerLogs($containerName, $log)
 {
     if ($log != 'docker' && file_exists('/appdata/' . $containerName . '/logs/' . $log . '.log')) {
@@ -291,12 +250,6 @@ function dockerLogs($containerName)
     $in     = ["\n", '[36m', '[31m', '[0m'];
     $out    = ['<br>', '', '', ''];
     return str_replace($in, $out, $shell);
-}
-
-function dockerRemoveContainer($containerName)
-{
-    $cmd = '/usr/bin/docker rm -f ' . $containerName;
-    return shell_exec($cmd . ' 2>&1');
 }
 
 function dockerStopContainer($containerName)

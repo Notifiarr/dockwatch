@@ -51,6 +51,9 @@ foreach ($autoloads as $autoload) {
 
 $loadTimes[] = trackTime('page ->', $start);
 
+//-- INIT THE CLASS
+$docker = new Docker();
+
 if (!$_SESSION) {
     session_start();
 }
