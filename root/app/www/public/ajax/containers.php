@@ -343,6 +343,9 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $createResult   = 'failed';
 
                 if (strlen($update['Id']) == 64) {
+                    // REMOVE THE IMAGE AFTER UPDATE
+                    //$docker->removeImage($image);
+
                     $inspectImage           = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
                     $inspectImage           = json_decode($inspectImage['response']['docker'], true);
                     list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);

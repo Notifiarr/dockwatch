@@ -192,7 +192,7 @@ if ($updateSettings) {
 
                                 if (strlen($update['Id']) == 64) {
                                     // REMOVE THE IMAGE AFTER UPDATE
-                                    $docker->removeImage($image);
+                                    //$docker->removeImage($image);
 
                                     $msg = 'Updating pull data: ' . $containerState['Names'];
                                     logger(CRON_PULLS_LOG, $msg);
