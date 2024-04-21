@@ -221,8 +221,9 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     }
     $dependencyFile = $dependencyFile['file'];
 
-    $container  = findContainerFromHash($_POST['hash']);
-    $image      = $container['inspect'][0]['Config']['Image'];
+    $container          = findContainerFromHash($_POST['hash']);
+    $image              = isDockerIO($container['inspect'][0]['Config']['Image']);
+    $currentImageHash   = $container['inspect'][0]['Image'];
 
     logger(UI_LOG, 'trigger:' . $_POST['trigger']);
     logger(UI_LOG, 'findContainerFromHash:' . json_encode($container, JSON_UNESCAPED_SLASHES));
@@ -344,7 +345,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
                 if (strlen($update['Id']) == 64) {
                     // REMOVE THE IMAGE AFTER UPDATE
-                    //$docker->removeImage($image);
+                    $docker->removeImage($currentImageHash);
 
                     $inspectImage           = apiRequest('dockerInspect', ['name' => $image, 'useCache' => false, 'format' => true]);
                     $inspectImage           = json_decode($inspectImage['response']['docker'], true);

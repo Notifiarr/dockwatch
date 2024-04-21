@@ -51,7 +51,8 @@ if ($updateSettings) {
             }
 
             if ($cron->isDue($startStamp)) {
-                $image = isDockerIO($containerState['inspect'][0]['Config']['Image']);
+                $image              = isDockerIO($containerState['inspect'][0]['Config']['Image']);
+                $currentImageHash   = $containerState['inspect'][0]['Image'];
 
                 if (!$image) {
                     $msg = 'Skipping local (has no Config.Image): ' . $containerState['Names'];
@@ -192,7 +193,7 @@ if ($updateSettings) {
 
                                 if (strlen($update['Id']) == 64) {
                                     // REMOVE THE IMAGE AFTER UPDATE
-                                    //$docker->removeImage($image);
+                                    $docker->removeImage($currentImageHash);
 
                                     $msg = 'Updating pull data: ' . $containerState['Names'];
                                     logger(CRON_PULLS_LOG, $msg);
