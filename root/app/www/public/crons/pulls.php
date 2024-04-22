@@ -171,12 +171,12 @@ if ($updateSettings) {
                                 $msg = 'Pulling image: ' . $image;
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo date('c') . ' ' . $msg . "\n";
-                                dockerPullContainer($image);
+                                $docker->pullImage($image);
 
                                 $msg = 'Stopping container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo date('c') . ' ' . $msg . "\n";
-                                $stop = dockerStopContainer($containerState['Names']);
+                                $stop = $docker->stopContainer($containerState['Names']);
                                 logger(CRON_PULLS_LOG, trim($stop));
 
                                 $msg = 'Removing container: ' . $containerState['Names'] . ' (' . $containerState['ID'] . ')';

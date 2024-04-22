@@ -1,6 +1,7 @@
 let init = false;
 let containerTableDrawn = false;
 let restoreGroups = false;
+let currentPage = 'overview';
 
 $(document).ready(function () {
     if ($('#menu-overview').length) {
@@ -51,6 +52,7 @@ function initPage(page)
         return;
     }
 
+    currentPage = page;
     init = true;
     $('[id^=content-]').hide();
     $('#content-' + page).html('Loading ' + page + ' page...').show();
@@ -245,32 +247,31 @@ function updateServerIndex()
         url: '../ajax/settings.php',
         data: '&m=updateServerIndex&index=' + $('#activeServer').val(),
         success: function (resultData) {
-            reload();
+            initPage(currentPage);
         }
     });
 }
 // -------------------------------------------------------------------------------------------
 function dialogOpen(p)
 {
-    const id     = p.id;
-    const title  = p.title ? p.title : '&nbsp;';
-    const body   = p.body ? p.body : '&nbsp;';
-    const footer = p.footer ? p.footer : '&nbsp;';
-    const close  = typeof p.close === 'undefined' ? true : p.close;
-    // -- sm, lg, xl
-    const size     = p.size ? p.size : '';
-    const escape   = typeof p.escape === 'undefined' ? false : p.escape;
-    const minimize = typeof p.minimize === 'undefined' ? false : p.minimize;
+    const id        = p.id;
+    const title     = p.title ? p.title : '&nbsp;';
+    const body      = p.body ? p.body : '&nbsp;';
+    const footer    = p.footer ? p.footer : '&nbsp;';
+    const close     = typeof p.close === 'undefined' ? true : p.close;
+    const size      = p.size ? p.size : ''; //-- sm, lg, xl
+    const escape    = typeof p.escape === 'undefined' ? false : p.escape;
+    const minimize  = typeof p.minimize === 'undefined' ? false : p.minimize;
 
     if (typeof id === 'undefined') {
         console.log('Error: Called dialogOpen with no id parameter');
         return;
     }
 
-    // -- CLONE IT
+    //-- CLONE IT
     $('#dialog-modal').clone().appendTo('#dialog-modal-container').prop('id', id);
 
-    // -- USE THE CLONE
+    //-- USE THE CLONE
     $('#' + id).modal({
         keyboard: false,
         backdrop: 'static'
@@ -378,10 +379,7 @@ function dockwatchWarning()
         id: 'dockwatchWarning',
         title: 'Important Information',
         size: 'lg',
-        body: $('#dockwatchWarningText').html(),
-        onOpen: function () {
-
-        }
+        body: $('#dockwatchWarningText').html()
     });
 }
 // -------------------------------------------------------------------------------------------

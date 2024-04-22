@@ -23,8 +23,8 @@ trait Maint
     {
         logger(MAINTENANCE_LOG, '$maintenance->stopMaintenance() ->');
 
-        $docker = dockerStopContainer($this->maintenanceContainerName);
-        logger(MAINTENANCE_LOG, 'dockerStopContainer() ' . trim($docker));
+        $stopContainer = $this->docker->stopContainer($this->maintenanceContainerName);
+        logger(MAINTENANCE_LOG, '$docker->stopContainer() ' . trim($stopContainer));
     
         logger(MAINTENANCE_LOG, '$maintenance->stopMaintenance() <-');
     }
@@ -43,8 +43,8 @@ trait Maint
     {
         logger(MAINTENANCE_LOG, '$maintenance->pullMaintenance() ->');
 
-        $docker = dockerPullContainer(APP_MAINTENANCE_IMAGE);
-        logger(MAINTENANCE_LOG, 'dockerPullContainer() ' . trim($docker));
+        $pullImage = $this->docker->pullImage(APP_MAINTENANCE_IMAGE);
+        logger(MAINTENANCE_LOG, '$docker->pullImage() ' . trim($pullImage));
     
         logger(MAINTENANCE_LOG, '$maintenance->pullMaintenance() <-');
     }

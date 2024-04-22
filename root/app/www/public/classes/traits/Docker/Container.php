@@ -9,15 +9,27 @@
 
 trait Container
 {
-    public function removeContainer($containerName)
+    public function removeContainer($container)
     {
-        $cmd = sprintf(DockerSock::REMOVE_CONTAINER, $containerName);
+        $cmd = sprintf(DockerSock::REMOVE_CONTAINER, $container);
         return shell_exec($cmd . ' 2>&1');
     }
 
-    public function startContainer($containerName, $dependencies = false)
+    public function startContainer($container)
     {
-        $cmd = sprintf(DockerSock::START_CONTAINER, $containerName);    
+        $cmd = sprintf(DockerSock::START_CONTAINER, $container);    
+        return shell_exec($cmd . ' 2>&1');
+    }
+
+    public function stopContainer($container)
+    {
+        $cmd = sprintf(DockerSock::STOP_CONTAINER, $container);    
+        return shell_exec($cmd . ' 2>&1');
+    }
+
+    public function getOrphanContainers()
+    {
+        $cmd = DockerSock::ORPHAN_CONTAINERS;    
         return shell_exec($cmd . ' 2>&1');
     }
 

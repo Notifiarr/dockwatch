@@ -13,8 +13,8 @@ trait Host
     {
         logger(MAINTENANCE_LOG, '$maintenance->stopHost() ->');
 
-        $docker = dockerStopContainer($this->hostContainer['Names']);
-        logger(MAINTENANCE_LOG, 'dockerStopContainer() ' . trim($docker));
+        $stopContainer = $this->docker->stopContainer($this->hostContainer['Names']);
+        logger(MAINTENANCE_LOG, '$docker->stopContainer() ' . trim($stopContainer));
     
         logger(MAINTENANCE_LOG, '$maintenance->stopHost() <-');
     }
@@ -43,8 +43,8 @@ trait Host
     {
         logger(MAINTENANCE_LOG, '$maintenance->pullHost() ->');
 
-        $docker = dockerPullContainer($this->hostContainer['inspect'][0]['Config']['Image']);
-        logger(MAINTENANCE_LOG, 'dockerPullContainer() ' . trim($docker));
+        $pullImage = $this->docker->pullImage($this->hostContainer['inspect'][0]['Config']['Image']);
+        logger(MAINTENANCE_LOG, '$docker->pullImage() ' . trim($pullImage));
     
         logger(MAINTENANCE_LOG, '$maintenance->pullHost() <-');
     }

@@ -203,58 +203,11 @@ function dockerContainerLogs($containerName, $log)
     }
 }
 
-function dockerStopContainer($containerName)
-{
-    $cmd = '/usr/bin/docker stop ' . $containerName;
-    return shell_exec($cmd . ' 2>&1');
-}
-
-function dockerPullContainer($image)
-{
-    $cmd = '/usr/bin/docker pull ' . $image;
-    return shell_exec($cmd . ' 2>&1');
-}
-
 function dockerCreateContainer($inspect)
 {
     $create     = dockerContainerCreateAPI($inspect);
     $apiRequest = dockerCurlAPI($create, 'post');
     return $apiRequest;
-}
-
-function dockerGetOrphanContainers()
-{
-    $cmd = '/usr/bin/docker images -f dangling=true --format="{{json . }}" | jq -s --tab .';
-    return shell_exec($cmd . ' 2>&1');
-}
-
-function dockerGetOrphanVolumes()
-{
-    $cmd = '/usr/bin/docker volume ls -qf dangling=true --format="{{json . }}" | jq -s --tab .';
-    return shell_exec($cmd . ' 2>&1');
-}
-
-function dockerGetOrphanNetworks()
-{
-    $orphans = [];
-
-    $cmd = '/usr/bin/docker network ls -q --format="{{json . }}" | jq -s --tab .';
-    $networks = json_decode(shell_exec($cmd . ' 2>&1'), true);
-
-    foreach ($networks as $network) {
-        if($network['Name'] == 'bridge' || $network['Name'] == 'host' || $network['Name'] == 'none') {
-            continue;
-        }
-
-        $cmd = '/usr/bin/docker network inspect '.$network['ID'].' --format="{{json . }}" | jq -s --tab .';
-        $inspect = json_decode(shell_exec($cmd . ' 2>&1'), true);
-
-        if(empty($inspect[0]['Containers'])) {
-            $orphans[] = $network;
-        }
-    }
-
-    return json_encode($orphans);
 }
 
 function dockerPruneImage()

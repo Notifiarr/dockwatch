@@ -72,15 +72,27 @@ class Docker
     }
 }
 
+//-- https://docs.docker.com/reference/cli/docker
 interface DockerSock
 {
+    //-- GENERAL
     public const LOGS = '/usr/bin/docker logs %s';
     public const PROCESSLIST_FORMAT = '/usr/bin/docker ps --all --no-trunc --size=false --format="{{json . }}" | jq -s --tab .';
     public const PROCESSLIST_CUSTOM = '/usr/bin/docker ps %s';
     public const STATS_FORMAT = '/usr/bin/docker stats --all --no-trunc --no-stream --format="{{json . }}" | jq -s --tab .';
     public const INSPECT_FORMAT = '/usr/bin/docker inspect %s --format="{{json . }}" | jq -s --tab .';
     public const INSPECT_CUSTOM = '/usr/bin/docker inspect %s %s';
-    public const REMOVE_CONTAINER = '/usr/bin/docker rm -f %s';
+    //-- CONTAINER SPECIFIC
+    public const REMOVE_CONTAINER = '/usr/bin/docker container rm -f %s';
+    public const START_CONTAINER = '/usr/bin/docker container start %s';
+    public const STOP_CONTAINER = '/usr/bin/docker container stop %s';
+    public const ORPHAN_CONTAINERS = '/usr/bin/docker images -f dangling=true --format="{{json . }}" | jq -s --tab .';
+    //-- IMAGE SPECIFIC
     public const REMOVE_IMAGE = '/usr/bin/docker image rm %s';
-    public const START_CONTAINER = '/usr/bin/docker start %s';
+    public const PULL_IMAGE = '/usr/bin/docker image pull %s';
+    //-- VOLUME SPECIFIC
+    public const ORPHAN_VOLUMES = '/usr/bin/docker volume ls -qf dangling=true --format="{{json . }}" | jq -s --tab .';
+    //-- NETWORK SPECIFIC
+    public const ORPHAN_NETWORKS = '/usr/bin/docker network ls -q --format="{{json . }}" | jq -s --tab .';
+    public const INSPECT_NETWORK = '/usr/bin/docker network inspect %s --format="{{json . }}" | jq -s --tab .';
 }

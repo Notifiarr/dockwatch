@@ -24,9 +24,9 @@ if ($settingsFile['tasks']['prune']['disabled']) {
 
 $imagePrune = $imageList = $volumePrune = [];
 $networkPrune = [];
-$images     = json_decode(dockerGetOrphanContainers(), true);
-$volumes    = json_decode(dockerGetOrphanVolumes(), true);
-$networks   = json_decode(dockerGetOrphanNetworks(), true);
+$images     = json_decode($docker->getOrphanContainers(), true);
+$volumes    = json_decode($docker->getOrphanVolumes(), true);
+$networks   = json_decode($docker->getOrphanNetworks(), true);
 
 logger(CRON_PRUNE_LOG, 'images=' . json_encode($images));
 logger(CRON_PRUNE_LOG, 'volumes=' . json_encode($volumes));

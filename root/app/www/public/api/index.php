@@ -56,13 +56,13 @@ switch (true) {
                 $response = ['docker' => json_encode(dockerContainerCreateAPI($inspect))];
                 break;
             case 'dockerGetOrphanContainers':
-                $response = ['docker' => dockerGetOrphanContainers()];
+                $response = ['docker' => $docker->getOrphanContainers()];
                 break;
             case 'dockerGetOrphanVolumes':
-                $response = ['docker' => dockerGetOrphanVolumes()];
+                $response = ['docker' => $docker->getOrphanVolumes()];
                 break;
             case 'dockerGetOrphanNetworks':
-                $response = ['docker' => dockerGetOrphanNetworks()];
+                $response = ['docker' => $docker->getOrphanNetworks()];
                 break;
             case 'dockerImageSizes':
                 $response = ['docker' => dockerImageSizes()];
@@ -216,7 +216,7 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => dockerPullContainer($_POST['name'])];
+                $response = ['docker' => $docker->pullImage($_POST['name'])];
                 break;
             case 'dockerRemoveContainer':
                 if (!$_POST['name']) {
@@ -258,7 +258,7 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => dockerStopContainer($_POST['name'])];
+                $response = ['docker' => $docker->stopContainer($_POST['name'])];
                 break;
             case 'dockerCreateContainer':
                 if (!$_POST['inspect']) {
