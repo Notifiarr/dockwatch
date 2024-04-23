@@ -66,6 +66,9 @@ define('MEMCACHE_DOCKER_INSPECT', 10);
 define('REGCTL_PATH', '/usr/local/bin/');
 define('REGCTL_BINARY', 'regctl');
 
+//-- AVAILABLE PAGES
+$pages      = ['overview', 'containers', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs'];
+
 //-- WHAT DATA TO GET WHEN VIEWING A PAGE
 $getStats   = ['overview', 'containers'];
 $getProc    = ['overview', 'containers', 'notifications'];

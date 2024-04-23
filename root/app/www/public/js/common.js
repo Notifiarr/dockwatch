@@ -5,7 +5,7 @@ let currentPage = 'overview';
 
 $(document).ready(function () {
     if ($('#menu-overview').length) {
-        initPage('overview');
+        initPage(USE_EXTERNAL_LOADING);
     }
 
     $('#loading-modal').modal({
@@ -16,21 +16,21 @@ $(document).ready(function () {
     if (USE_SOCKET) {
         console.log('Starting websocket on ' + SOCKET_HOST + ':' + SOCKET_PORT);
 		var websocket = new WebSocket('ws://' + SOCKET_HOST + ':' + SOCKET_PORT + '/socket.php');
-		websocket.onopen = function(event) { 
-			console.log('websocket connected');	
+		websocket.onopen = function(event) {
+			console.log('websocket connected');
 		}
 		websocket.onmessage = function(event) {
 			var message = JSON.parse(event.data);
-			console.log('websocket message');	
+			console.log('websocket message');
             console.log(message);
 		};
-		
+
 		websocket.onerror = function(event){
 			console.log('websocket error');
 		};
 		websocket.onclose = function(event){
 			console.log('websocket closed');
-		}; 
+		};
     }
 }).keyup(function (e) {
     if ($('#username').length) {
@@ -394,7 +394,7 @@ function dockwatchMaintenance(action)
     });
 }
 // -------------------------------------------------------------------------------------------
-function fixedEncodeURIComponent(str) 
+function fixedEncodeURIComponent(str)
 {
     return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
         return '%' + c.charCodeAt(0).toString(16);

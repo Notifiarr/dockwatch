@@ -334,6 +334,16 @@ if ($_POST['m'] == 'init') {
                             </td>
                             <td>Generally not recommended, it's at your own risk.</td>
                         </tr>
+                        <tr>
+                            <th scope="row">Page Loading</th>
+                            <td>
+                                <select class="form-select" id="globalSetting-externalLoading">
+                                    <option <?= ($globalSettings['externalLoading'] == 0 ? 'selected' : '') ?> value="0">Internal</option>
+                                    <option <?= ($globalSettings['externalLoading'] == 1 ? 'selected' : '') ?> value="1">External</option>
+                                </select>
+                            </td>
+                            <td>Internal: On a full page refresh you will go back to the overview. (state lost)<br>External: On a full page refresh you will stay on this current page. (state saved in URL)</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

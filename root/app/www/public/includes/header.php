@@ -36,8 +36,8 @@ $serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet"> 
-    
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+
     <!-- Icon Font Stylesheet -->
     <link href="libraries/fontawesome/all.min.css" rel="stylesheet">
     <link href="libraries/bootstrap/bootstrap-icons.css" rel="stylesheet">
@@ -52,6 +52,7 @@ $serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title
     <link href="css/style.css" rel="stylesheet">
 
     <script type="text/javascript">
+        const USE_EXTERNAL_LOADING = '<?= $settingsFile['global']['externalLoading'] == 1 && in_array($_GET['page'], $pages) ? $_GET['page'] : 'overview' ?>';
         const USE_SOCKET = <?= $settingsFile['global']['socketEnabled'] ? 'true' : 'false' ?>;
         const SOCKET_HOST = '<?= $socketHost ?>';
         const SOCKET_PORT = '<?= $socketPort ?>';
@@ -77,18 +78,18 @@ $serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title
                 <div class="mb-4 w-100" align="center"><?= $serverList ?></div>
                 <?php if ($_SESSION['authenticated']) { ?>
                 <div class="navbar-nav w-100">
-                    <a id="menu-overview" onclick="initPage('overview')" style="cursor: pointer;" class="nav-item nav-link active"><i class="fas fa-heartbeat me-2"></i>Overview</a>
-                    <a id="menu-containers" onclick="initPage('containers')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Containers</a>
-                    <a id="menu-compose" onclick="initPage('compose')" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-octopus-deploy me-2"></i>Compose</a>
-                    <a id="menu-orphans" onclick="initPage('orphans')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Orphans</a>
-                    <a id="menu-notification" onclick="initPage('notification')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-comment-dots me-2"></i>Notifications</a>
-                    <a id="menu-settings" onclick="initPage('settings')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tools me-2"></i>Settings</a>
-                    <a id="menu-tasks" onclick="initPage('tasks')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tasks me-2"></i>Tasks</a>
-                    <a id="menu-commands" onclick="initPage('commands')" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-docker me-2"></i>Commands</a>
-                    <a id="menu-logs" onclick="initPage('logs')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-file-code me-2"></i>Logs</a>
+                    <a id="menu-overview" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=overview\'' : 'initPage(\'overview\')' ?> style="cursor: pointer;" class="nav-item nav-link active"><i class="fas fa-heartbeat me-2"></i>Overview</a>
+                    <a id="menu-containers" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=containers\'' : 'initPage(\'containers\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Containers</a>
+                    <a id="menu-compose" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=compose\'' : 'initPage(\'compose\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-octopus-deploy me-2"></i>Compose</a>
+                    <a id="menu-orphans" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=orphans\'' : 'initPage(\'orphans\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Orphans</a>
+                    <a id="menu-notification" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=notification\'' : 'initPage(\'notification\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-comment-dots me-2"></i>Notifications</a>
+                    <a id="menu-settings" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=settings\'' : 'initPage(\'settings\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tools me-2"></i>Settings</a>
+                    <a id="menu-tasks" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=tasks\'' : 'initPage(\'tasks\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tasks me-2"></i>Tasks</a>
+                    <a id="menu-commands" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=commands\'' : 'initPage(\'commands\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-docker me-2"></i>Commands</a>
+                    <a id="menu-logs" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=logs\'' : 'initPage(\'logs\')' ?>style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-file-code me-2"></i>Logs</a>
                     <?php if (USE_AUTH) { ?>
                     <a onclick="logout()" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-                    <?php } ?> 
+                    <?php } ?>
                 </div>
                 <?php } ?>
                 <div class="navbar-brand w-100 mb-1 text-center">
