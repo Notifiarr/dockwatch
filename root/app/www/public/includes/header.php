@@ -7,18 +7,31 @@
 ----------------------------------
 */
 
-$serverList = '<select class="form-select w-75 d-inline-block" id="activeServer" onchange="updateServerIndex()">';
-foreach ($serversFile as $serverIndex => $serverDetails) {
-    $ping = curl($serverDetails['url'] . '/api/?request=ping', ['x-api-key: ' . $serverDetails['apikey']], 'GET', '', [], 5);
-    $disabled = '';
-    if ($ping['code'] != 200) {
-        $disabled = ' [HTTP: ' . $ping['code'] . ']';
-    }
-    $serverList .= '<option ' . ($disabled ? 'disabled ' : '') . ($_SESSION['serverIndex'] == $serverIndex ? 'selected' : '') . ' value="' . $serverIndex . '">' . $serverDetails['name'] . $disabled . '</option>';
-    $link = $_SESSION['serverIndex'] == $serverIndex ? $serverDetails['url'] : $link;
+$fetchServers = false;
+if (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300) < time()) {
+    $fetchServers = true;
 }
-$serverList .= '</select>';
-$serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title="Open this server in a new tab"><i class="fas fa-external-link-alt fa-lg" style="display: ' . ($_SESSION['serverIndex'] == 0 ? 'none' : 'inline-block') . ';"></i></a>';
+
+if ($fetchServers) {
+    $serverList = '<select class="form-select w-75 d-inline-block" id="activeServer" onchange="updateServerIndex()">';
+    foreach ($serversFile as $serverIndex => $serverDetails) {
+        $ping = curl($serverDetails['url'] . '/api/?request=ping', ['x-api-key: ' . $serverDetails['apikey']], 'GET', '', [], 5);
+        $disabled = '';
+        if ($ping['code'] != 200) {
+            $disabled = ' [HTTP: ' . $ping['code'] . ']';
+        }
+        $serverList .= '<option ' . ($disabled ? 'disabled ' : '') . ($_SESSION['serverIndex'] == $serverIndex ? 'selected' : '') . ' value="' . $serverIndex . '">' . $serverDetails['name'] . $disabled . '</option>';
+        $link = $_SESSION['serverIndex'] == $serverIndex ? $serverDetails['url'] : $link;
+    }
+    $serverList .= '</select>';
+    $serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title="Open this server in a new tab"><i class="fas fa-external-link-alt fa-lg" style="display: ' . ($_SESSION['serverIndex'] == 0 ? 'none' : 'inline-block') . ';"></i></a>';
+
+    $_SESSION['serverList']         = $serverList;
+    $_SESSION['serverListUpdated']  = time();
+} else {
+    $serverList = $_SESSION['serverList'];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -52,7 +65,7 @@ $serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title
     <link href="css/style.css" rel="stylesheet">
 
     <script type="text/javascript">
-        const USE_EXTERNAL_LOADING = '<?= $settingsFile['global']['externalLoading'] == 1 && in_array($_GET['page'], $pages) ? $_GET['page'] : 'overview' ?>';
+        const USE_EXTERNAL_LOADING = '<?= $settingsFile['global']['externalLoading'] && in_array($_GET['page'], $pages) ? $_GET['page'] : 'overview' ?>';
         const USE_SOCKET = <?= $settingsFile['global']['socketEnabled'] ? 'true' : 'false' ?>;
         const SOCKET_HOST = '<?= $socketHost ?>';
         const SOCKET_PORT = '<?= $socketPort ?>';
@@ -78,15 +91,15 @@ $serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title
                 <div class="mb-4 w-100" align="center"><?= $serverList ?></div>
                 <?php if ($_SESSION['authenticated']) { ?>
                 <div class="navbar-nav w-100">
-                    <a id="menu-overview" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=overview\'' : 'initPage(\'overview\')' ?> style="cursor: pointer;" class="nav-item nav-link active"><i class="fas fa-heartbeat me-2"></i>Overview</a>
-                    <a id="menu-containers" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=containers\'' : 'initPage(\'containers\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Containers</a>
-                    <a id="menu-compose" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=compose\'' : 'initPage(\'compose\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-octopus-deploy me-2"></i>Compose</a>
-                    <a id="menu-orphans" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=orphans\'' : 'initPage(\'orphans\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Orphans</a>
-                    <a id="menu-notification" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=notification\'' : 'initPage(\'notification\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-comment-dots me-2"></i>Notifications</a>
-                    <a id="menu-settings" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=settings\'' : 'initPage(\'settings\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tools me-2"></i>Settings</a>
-                    <a id="menu-tasks" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=tasks\'' : 'initPage(\'tasks\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tasks me-2"></i>Tasks</a>
-                    <a id="menu-commands" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=commands\'' : 'initPage(\'commands\')' ?> style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-docker me-2"></i>Commands</a>
-                    <a id="menu-logs" onclick=<?= $settingsFile['global']['externalLoading'] == 1 ? 'window.location.href=\'\/?page=logs\'' : 'initPage(\'logs\')' ?>style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-file-code me-2"></i>Logs</a>
+                    <a id="menu-overview" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=overview'" : "initPage('overview')" ?>" style="cursor: pointer;" class="nav-item nav-link active"><i class="fas fa-heartbeat me-2"></i>Overview</a>
+                    <a id="menu-containers" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=containers'" : "initPage('containers')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Containers</a>
+                    <a id="menu-compose" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=compose'" : "initPage('compose')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-octopus-deploy me-2"></i>Compose</a>
+                    <a id="menu-orphans" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=orphans'" : "initPage('orphans')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Orphans</a>
+                    <a id="menu-notification" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=notification'" : "initPage('notification')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-comment-dots me-2"></i>Notifications</a>
+                    <a id="menu-settings" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=settings'" : "initPage('settings')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tools me-2"></i>Settings</a>
+                    <a id="menu-tasks" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=tasks'" : "initPage('tasks')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tasks me-2"></i>Tasks</a>
+                    <a id="menu-commands" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=commands'" : "initPage('commands')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-docker me-2"></i>Commands</a>
+                    <a id="menu-logs" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=logs'" : "initPage('logs')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-file-code me-2"></i>Logs</a>
                     <?php if (USE_AUTH) { ?>
                     <a onclick="logout()" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
                     <?php } ?>

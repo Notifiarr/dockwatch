@@ -335,7 +335,7 @@ if ($_POST['m'] == 'init') {
                             <td>Generally not recommended, it's at your own risk.</td>
                         </tr>
                         <tr>
-                            <th scope="row">Page Loading</th>
+                            <th scope="row">Page Loading<sup>3</sup></th>
                             <td>
                                 <select class="form-select" id="globalSetting-externalLoading">
                                     <option <?= ($globalSettings['externalLoading'] == 0 ? 'selected' : '') ?> value="0">Internal</option>
@@ -350,7 +350,7 @@ if ($_POST['m'] == 'init') {
             <div align="center"><button type="button" class="btn btn-success m-2" onclick="saveGlobalSettings()">Save Changes</button></div>
             <sup>1</sup> Checked every 5 minutes<br>
             <sup>2</sup> Updates every minute<br>
-            <sup>3</sup> Requires a page reload to take effect<br>
+            <sup>3</sup> Requires a page reload (F5) to take effect<br>
         </div>
     </div>
     <?php

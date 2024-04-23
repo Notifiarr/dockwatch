@@ -92,6 +92,7 @@ trait Maint
         logger(MAINTENANCE_LOG, 'dockerCreateContainer() <-');
 
         if (strlen($docker['Id']) == 64) {
+            $this->docker->removeImage($inspectImage['Id']);
             $this->startMaintenance();
         }
 

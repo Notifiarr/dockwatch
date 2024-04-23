@@ -32,7 +32,7 @@ $notify['state']['changed'][] = ['container' => $name, 'previous' => '.....', 'c
 if ($settingsFile['notifications']['triggers']['stateChange']['platform']) {
 	$payload = ['event' => 'state', 'changes' => $notify['state']['changed']];
 	$notifications->notify($settingsFile['notifications']['triggers']['stateChange']['platform'], $payload);
-	logger(STARTUP_LOG, 'Sending dockwatch started notification');
+	logger(STARTUP_LOG, 'Sending ' . $name . ' started notification');
 }
 
 //-- MAINTENANCE CHECK
