@@ -38,6 +38,12 @@ if ($_POST['m'] == 'init') {
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('state')"></i></td>
                             </tr>
                             <tr>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('pulls', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['pulls']['disabled'] ? 'checked' : '') ?>></td>
+                                <td>Pulls</td>
+                                <td>5m</td>
+                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('pulls')"></i></td>
+                            </tr>
+                            <tr>
                                 <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('housekeeping', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['housekeeping']['disabled'] ? 'checked' : '') ?>></td>
                                 <td>Housekeeping</td>
                                 <td>10m</td>
@@ -48,12 +54,6 @@ if ($_POST['m'] == 'init') {
                                 <td>Health</td>
                                 <td>15m</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('health')"></i></td>
-                            </tr>
-                            <tr>
-                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('pulls', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['pulls']['disabled'] ? 'checked' : '') ?>></td>
-                                <td>Pulls</td>
-                                <td>1h</td>
-                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('pulls')"></i></td>
                             </tr>
                             <tr>
                                 <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('prune', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['prune']['disabled'] ? 'checked' : '') ?>></td>
@@ -80,31 +80,31 @@ if ($_POST['m'] == 'init') {
                         <tbody>
                             <tr>
                                 <td>View server variables</td>
-                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('server')"></i></td>
+                                <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('server')"></i></td>
                             </tr>
                             <tr>
                                 <td>View session variables</td>
-                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('session')"></i></td>
+                                <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('session')"></i></td>
                             </tr>
                             <tr>
                                 <td>View process list</td>
-                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('processList')"></i></td>
+                                <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('processList')"></i></td>
                             </tr>
                             <tr>
                                 <td>View pull file</td>
-                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('pullFile')"></i></td>
+                                <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('pullFile')"></i></td>
                             </tr>
                             <tr>
                                 <td>View state file</td>
-                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('stateFile')"></i></td>
+                                <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('stateFile')"></i></td>
                             </tr>
                             <tr>
                                 <td>View dependency file</td>
-                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('dependencyFile')"></i></td>
+                                <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('dependencyFile')"></i></td>
                             </tr>
                             <tr>
                                 <td>View icon alias files</td>
-                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('aliasFile')"></i></td>
+                                <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('aliasFile')"></i></td>
                             </tr>
                         </tbody>
                     </table>
