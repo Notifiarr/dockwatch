@@ -126,7 +126,7 @@ if ($_POST['m'] == 'removeOrphans') {
     switch ($_POST['action']) {
         case 'remove':
             if ($_POST['type'] == 'image') {
-                $remove = apiRequest('dockerRemoveImage', [], ['id' => $_POST['orphan']]);
+                $remove = apiRequest('dockerRemoveImage', [], ['image' => $_POST['orphan']]);
                 $remove = $remove['response']['docker'];
                 if (stripos($remove, 'error') !== false || stripos($remove, 'help') !== false) {
                     echo $remove;
