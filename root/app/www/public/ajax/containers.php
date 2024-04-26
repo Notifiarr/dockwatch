@@ -155,16 +155,19 @@ if ($_POST['m'] == 'init') {
                                     <button id="frequency-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="$('#frequency-all-div').toggle(); $('#updates-all-div').hide();">Frequency</button>
                                     <div id="frequency-all-div" class="m-0 p-0" style="display: none;">
                                         <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
-                                        <input id="containers-frequency-all" type="text" class="form-control d-inline-block w-50" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
-                                        <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="$('.container-frequency').val($('#containers-frequency-all').val())"></i>
+                                        <input id="containers-frequency-all" type="text" class="form-control d-inline-block w-25" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
+                                        <i class="fas fa-angle-down ms-1 me-1" style="cursor: pointer;" onclick="massChangeFrequency(1)" title="Apply to selected containers"></i>
+                                        <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="massChangeFrequency(2)" title="Apply to all containers"></i>
                                     </div>
                                     <div id="updates-all-div" class="m-0 p-0" style="display: none;">
-                                        <select id="container-updates-all" class="form-select d-inline-block w-50" onchange="massChangeContainerUpdates()">
+                                        <select id="container-updates-all" class="form-select d-inline-block w-50">
                                             <option value="-1">-- Select Option --</option>
                                             <option value="0">Ignore</option>
                                             <option value="1">Auto update</option>
                                             <option value="2">Check for updates</option>
                                         </select>
+                                        <i class="fas fa-angle-down ms-1 me-1" style="cursor: pointer;" onclick="massChangeContainerUpdates(1)" title="Apply to selected containers"></i>
+                                        <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="massChangeContainerUpdates(2)" title="Apply to all containers"></i>
                                     </div>
                                 </div>
                             </td>

@@ -428,14 +428,45 @@ function containerLogs(container)
     });
 }
 // ---------------------------------------------------------------------------------------------
-function massChangeContainerUpdates()
+function massChangeContainerUpdates(option)
 {
     const selected = $('#container-updates-all').val();
 
-    $.each($('.container-updates'), function () {
-        if ($('option[value=' + selected + ']', this).length) {
-            $(this).val(selected);
-        }
-    });
+    switch (option) {
+        case 1: //-- SELECTED
+            $.each($('.containers-check'), function () {
+                if ($(this).prop('checked')) {
+                    const hash = $(this).attr('id').replace('massTrigger-', '');
+                    $('#containers-update-' + hash).val(selected)        
+                }
+            });
+            break;
+        case 2: //-- ALL
+            $.each($('.container-updates'), function () {
+                if ($('option[value=' + selected + ']', this).length) {
+                    $(this).val(selected);
+                }
+            });
+            break;
+    }
+}
+// ---------------------------------------------------------------------------------------------
+function massChangeFrequency(option)
+{
+    const frequency = $('#containers-frequency-all').val();
+
+    switch (option) {
+        case 1: //-- SELECTED
+            $.each($('.containers-check'), function () {
+                if ($(this).prop('checked')) {
+                    const hash = $(this).attr('id').replace('massTrigger-', '');
+                    $('#containers-frequency-' + hash).val(frequency)        
+                }
+            });
+            break;
+        case 2: //-- ALL
+            $('.container-frequency').val(frequency)
+            break;
+    }
 }
 // ---------------------------------------------------------------------------------------------

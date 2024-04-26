@@ -1,7 +1,7 @@
-# min   hour    day     month   weekday command
-*       *       *       *       *       /usr/bin/php /app/www/public/crons/stats.php
-*/5     *       *       *       *       /usr/bin/php /app/www/public/crons/state.php
-*/5     *       *       *       *       /usr/bin/php /app/www/public/crons/pulls.php
-*/10    *       *       *       *       /usr/bin/php /app/www/public/crons/housekeeper.php
-*/15    *       *       *       *       /usr/bin/php /app/www/public/crons/health.php
-0       12      *       *       *       /usr/bin/php /app/www/public/crons/prune.php
+# min                                hour    day     month   weekday command
+*                                     *       *       *       *       /usr/bin/php /app/www/public/crons/stats.php
+0,5,10,15,20,25,30,35,40,45,50,55     *       *       *       *       /usr/bin/php /app/www/public/crons/state.php
+0,5,10,15,20,25,30,35,40,45,50,55     *       *       *       *       /usr/bin/php /app/www/public/crons/pulls.php
+0,10,20,30,40,50                      *       *       *       *       /usr/bin/php /app/www/public/crons/housekeeper.php
+0,15,30,45                            *       *       *       *       /usr/bin/php /app/www/public/crons/health.php
+0                                     12      *       *       *       /usr/bin/php /app/www/public/crons/prune.php
