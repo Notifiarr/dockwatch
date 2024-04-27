@@ -33,8 +33,8 @@ ARG REGCTL_VERSION=v0.5.6
 RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclient/releases/download/${REGCTL_VERSION}/regctl-linux-${TARGETARCH}" \
   && chmod +x /usr/local/bin/regctl
 
-# permissions
-ARG INSTALL_PACKAGES=docker docker-compose gzip
+# permissions & docker packages
+ARG INSTALL_PACKAGES="docker docker-compose"
 RUN apk add --update ${INSTALL_PACKAGES} && \
   addgroup -g 281 unraiddocker && \
   usermod -aG unraiddocker abc
