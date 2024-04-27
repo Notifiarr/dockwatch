@@ -36,7 +36,7 @@ class Docker
         if (file_exists(STATS_FILE)) {
             $statsFile = file_get_contents(STATS_FILE);
         }
-    
+
         if ($statsFile && $useCache) {
             return $statsFile;
         }
@@ -55,7 +55,7 @@ class Docker
         } else {
             $cmd = sprintf(DockerSock::INSPECT_CUSTOM, $what, $params);
         }
-    
+
         $shell  = shell_exec($cmd . ' 2>&1');
 
         return $shell;
@@ -82,6 +82,7 @@ interface DockerSock
     public const STATS_FORMAT = '/usr/bin/docker stats --all --no-trunc --no-stream --format="{{json . }}" | jq -s --tab .';
     public const INSPECT_FORMAT = '/usr/bin/docker inspect %s --format="{{json . }}" | jq -s --tab .';
     public const INSPECT_CUSTOM = '/usr/bin/docker inspect %s %s';
+    public const IMAGE_SIZES = '/usr/bin/docker images --format=\'{"ID":"{{ .ID }}", "Size": "{{ .Size }}"}\' | jq -s --tab .';
     //-- CONTAINER SPECIFIC
     public const REMOVE_CONTAINER = '/usr/bin/docker container rm -f %s';
     public const START_CONTAINER = '/usr/bin/docker container start %s';
@@ -93,7 +94,11 @@ interface DockerSock
     public const PRUNE_IMAGE = '/usr/bin/docker image prune -af';
     //-- VOLUME SPECIFIC
     public const ORPHAN_VOLUMES = '/usr/bin/docker volume ls -qf dangling=true --format="{{json . }}" | jq -s --tab .';
+    public const PRUNE_VOLUME = '/usr/bin/docker volume prune -af';
+    public const REMOVE_VOLUME = '/usr/bin/docker volume rm %s';
     //-- NETWORK SPECIFIC
     public const ORPHAN_NETWORKS = '/usr/bin/docker network ls -q --format="{{json . }}" | jq -s --tab .';
     public const INSPECT_NETWORK = '/usr/bin/docker network inspect %s --format="{{json . }}" | jq -s --tab .';
+    public const PRUNE_NETWORK = '/usr/bin/docker network prune -af';
+    public const REMOVE_NETWORK = '/usr/bin/docker network rm %s';
 }

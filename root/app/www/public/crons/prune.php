@@ -75,7 +75,7 @@ if ($volumePrune) {
     logger(CRON_PRUNE_LOG, 'Attempting auto volume prune, volumes: ' . count($volumePrune));
     $volumes = implode(' ', $volumePrune);
     logger(CRON_PRUNE_LOG, 'volumes: ' . $volumes);
-    $prune = dockerPruneVolume();
+    $prune = $docker->pruneVolume();
     logger(CRON_PRUNE_LOG, 'result: ' . $prune);
 }
 
@@ -83,7 +83,7 @@ if ($networkPrune) {
     logger(CRON_PRUNE_LOG, 'Attempting auto network prune, networks: ' . count($networkPrune));
     $volumes = implode(' ', $networkPrune);
     logger(CRON_PRUNE_LOG, 'networks: ' . $networks);
-    $prune = dockerPruneNetwork();
+    $prune = $docker->pruneNetwork();
     logger(CRON_PRUNE_LOG, 'result: ' . $prune);
 }
 

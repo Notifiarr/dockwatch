@@ -34,7 +34,7 @@ RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclien
   && chmod +x /usr/local/bin/regctl
 
 # permissions & docker packages
-ARG INSTALL_PACKAGES="docker docker-compose"
+ARG INSTALL_PACKAGES="docker docker-cli-compose"
 RUN apk add --update ${INSTALL_PACKAGES} && \
   addgroup -g 281 unraiddocker && \
   usermod -aG unraiddocker abc

@@ -36,7 +36,7 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
         $loadTimes[] = trackTime('dockerImageSizes ->');
         if ($maintenance) {
             logger(MAINTENANCE_LOG, 'dockerImageSizes ->');
-            $imageSizes = dockerImageSizes();
+            $imageSizes = $docker->getImageSizes();
             logger(MAINTENANCE_LOG, json_encode(json_decode($imageSizes)));
             $imageSizes = json_decode($imageSizes, true);
             logger(MAINTENANCE_LOG, 'dockerImageSizes <-');

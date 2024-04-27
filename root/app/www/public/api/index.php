@@ -65,7 +65,7 @@ switch (true) {
                 $response = ['docker' => $docker->getOrphanNetworks()];
                 break;
             case 'dockerImageSizes':
-                $response = ['docker' => dockerImageSizes()];
+                $response = ['docker' => $docker->getImageSizes()];
                 break;
             case 'dockerInspect':
                 if (!$_GET['name']) {
@@ -101,10 +101,10 @@ switch (true) {
                 $response = ['docker' => $docker->pruneImage()];
                 break;
             case 'dockerPruneVolume':
-                $response = ['docker' => dockerPruneVolume()];
+                $response = ['docker' => $docker->pruneVolume()];
                 break;
             case 'dockerPruneNetwork':
-                $response = ['docker' => dockerPruneNetwork()];
+                $response = ['docker' => $docker->pruneNetwork()];
                 break;
             case 'dockerState':
                 $response = ['docker' => dockerState()];
@@ -237,14 +237,14 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => dockerRemoveVolume($_POST['name'])];
+                $response = ['docker' => $docker->removeVolume($_POST['name'])];
                 break;
             case 'dockerRemoveNetwork':
                 if (!$_POST['id']) {
                     apiResponse(400, ['error' => 'Missing id parameter']);
                 }
 
-                $response = ['docker' => dockerRemoveNetwork($_POST['id'])];
+                $response = ['docker' => $docker->removeNetwork($_POST['id'])];
                 break;
             case 'dockerStartContainer':
                 if (!$_POST['name']) {

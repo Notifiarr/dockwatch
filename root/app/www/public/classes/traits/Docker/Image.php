@@ -26,4 +26,10 @@ trait Image
         $cmd = DockerSock::PRUNE_IMAGE;
         return shell_exec($cmd . ' 2>&1');
     }
+
+    public function getImageSizes()
+    {
+        $cmd = DockerSock::IMAGE_SIZES;
+        return shell_exec($cmd . ' 2>&1');
+    }
 }
