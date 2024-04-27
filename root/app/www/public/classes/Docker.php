@@ -90,6 +90,7 @@ interface DockerSock
     //-- IMAGE SPECIFIC
     public const REMOVE_IMAGE = '/usr/bin/docker image rm %s';
     public const PULL_IMAGE = '/usr/bin/docker image pull %s';
+    public const PRUNE_IMAGE = '/usr/bin/docker image prune -af';
     //-- VOLUME SPECIFIC
     public const ORPHAN_VOLUMES = '/usr/bin/docker volume ls -qf dangling=true --format="{{json . }}" | jq -s --tab .';
     //-- NETWORK SPECIFIC

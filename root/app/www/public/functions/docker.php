@@ -210,12 +210,6 @@ function dockerCreateContainer($inspect)
     return $apiRequest;
 }
 
-function dockerPruneImage()
-{
-    $cmd = '/usr/bin/docker image prune -af';
-    return shell_exec($cmd . ' 2>&1');
-}
-
 function dockerRemoveVolume($name)
 {
     $cmd = '/usr/bin/docker volume rm ' . $name;

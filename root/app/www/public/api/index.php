@@ -98,7 +98,7 @@ switch (true) {
                 $response = ['docker' => $docker->processList($_GET['useCache'], $_GET['format'], $_GET['params'])];
                 break;
             case 'dockerPruneImage':
-                $response = ['docker' => dockerPruneImage()];
+                $response = ['docker' => $docker->pruneImage()];
                 break;
             case 'dockerPruneVolume':
                 $response = ['docker' => dockerPruneVolume()];

@@ -17,7 +17,13 @@ trait Image
 
     public function pullImage($image)
     {
-        $cmd = sprintf(DockerSock::PULL_IMAGE, $image);    
+        $cmd = sprintf(DockerSock::PULL_IMAGE, $image);
+        return shell_exec($cmd . ' 2>&1');
+    }
+
+    public function pruneImage()
+    {
+        $cmd = DockerSock::PRUNE_IMAGE;
         return shell_exec($cmd . ' 2>&1');
     }
 }

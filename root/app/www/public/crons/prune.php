@@ -67,7 +67,7 @@ if ($imagePrune) {
     logger(CRON_PRUNE_LOG, 'Attempting auto image prune, images: ' . count($imagePrune));
     $images = implode(' ', $imagePrune);
     logger(CRON_PRUNE_LOG, 'images: ' . $images);
-    $prune = dockerPruneImage();
+    $prune = $docker->pruneImage();
     logger(CRON_PRUNE_LOG, 'result: ' . $prune);
 }
 
