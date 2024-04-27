@@ -53,7 +53,7 @@ switch (true) {
                     apiResponse(400, ['error' => 'Failed to get inspect for container: ' . $_GET['name']]);
                 }
 
-                $response = ['docker' => json_encode(dockerContainerCreateAPI($inspect))];
+                $response = ['docker' => json_encode($docker->apiCreateContainer($inspect))];
                 break;
             case 'dockerGetOrphanContainers':
                 $response = ['docker' => $docker->getOrphanContainers()];
@@ -82,7 +82,7 @@ switch (true) {
                 $response = ['docker' => $docker->logs($_GET['name'])];
                 break;
             case 'dockerNetworks':
-                $response = ['docker' => dockerNetworks($_GET['params'])];
+                $response = ['docker' => $docker->getNetworks($_GET['params'])];
                 break;
             case 'dockerPermissionCheck':
                 $response = ['docker' => dockerPermissionCheck()];
@@ -92,7 +92,7 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => dockerPort($_GET['name'], $_GET['params'])];
+                $response = ['docker' => $docker->getContainerPort($_GET['name'], $_GET['params'])];
                 break;
             case 'dockerProcessList':
                 $response = ['docker' => $docker->processList($_GET['useCache'], $_GET['format'], $_GET['params'])];
@@ -251,7 +251,7 @@ switch (true) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $response = ['docker' => $docker->startContainer($_POST['name'], $_POST['depends'])];
+                $response = ['docker' => $docker->startContainer($_POST['name'])];
                 break;
             case 'dockerStopContainer':
                 if (!$_POST['name']) {

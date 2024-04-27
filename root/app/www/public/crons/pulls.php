@@ -51,7 +51,7 @@ if ($updateSettings) {
             }
 
             if ($cron->isDue($startStamp)) {
-                $image          = isDockerIO($containerState['inspect'][0]['Config']['Image']);
+                $image          = $docker->isIO($containerState['inspect'][0]['Config']['Image']);
                 $currentImageID = $containerState['ID'];
 
                 if (!$image) {

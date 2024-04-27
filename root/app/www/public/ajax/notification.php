@@ -13,39 +13,48 @@ $triggers   = [
                 [
                     'name'  => 'updated', 
                     'label' => 'Updated', 
-                    'desc'  => 'Send a notification when a container has had an update applied, updates event'
+                    'desc'  => 'Send a notification when a container has had an update applied',
+                    'event' => 'updates'
                 ],[
                     'name'  => 'updates', 
                     'label' => 'Updates', 
-                    'desc'  => 'Send a notification when a container has an update available, updates event'
+                    'desc'  => 'Send a notification when a container has an update available',
+                    'event' => 'updates'
                 ],[
                     'name'  => 'stateChange', 
                     'label' => 'State change', 
-                    'desc'  => 'Send a notification when a container has a state change (running -> down), state event' 
+                    'desc'  => 'Send a notification when a container has a state change (running -> down)',
+                    'event' => 'state'
                 ],[
                     'name'  => 'added', 
                     'label' => 'Added', 
-                    'desc'  => 'Send a notification when a container is added, state event' 
+                    'desc'  => 'Send a notification when a container is added',
+                    'event' => 'state'
                 ],[
                     'name'  => 'removed', 
                     'label' => 'Removed', 
-                    'desc'  => 'Send a notification when a container is removed, state event' 
+                    'desc'  => 'Send a notification when a container is removed',
+                    'event' => 'state'
                 ],[
                     'name'  => 'prune', 
                     'label' => 'Prune', 
-                    'desc'  => 'Send a notification when an image or volume is pruned, prune event' 
+                    'desc'  => 'Send a notification when an image or volume is pruned',
+                    'event' => 'prune'
                 ],[
                     'name'  => 'cpuHigh', 
                     'label' => 'CPU usage', 
-                    'desc'  => 'Send a notification when container CPU usage exceeds threshold (set in Settings), usage event' 
+                    'desc'  => 'Send a notification when container CPU usage exceeds threshold (set in Settings)',
+                    'event' => 'usage'
                 ],[
                     'name'  => 'memHigh', 
                     'label' => 'Memory usage', 
-                    'desc'  => 'Send a notification when container memory usage exceeds threshold (set in Settings), usage event' 
+                    'desc'  => 'Send a notification when container memory usage exceeds threshold (set in Settings)',
+                    'event' => 'usage'
                 ],[
                     'name'  => 'health', 
                     'label' => 'Health change', 
-                    'desc'  => 'Send a notification when container becomes unhealthy, health event' 
+                    'desc'  => 'Send a notification when container becomes unhealthy',
+                    'event' => 'health'
                 ]
             ];
 
@@ -62,6 +71,7 @@ if ($_POST['m'] == 'init') {
                             <th scope="col"><input type="checkbox" class="form-check-input" onchange="$('.notification-check').prop('checked', $(this).prop('checked'))"></th>
                             <th scope="col">Notification</th>
                             <th scope="col">Description</th>
+                            <th scope="col">Webhook Event</th>
                             <th scope="col">Platform</th>
                         </tr>
                     </thead>
@@ -74,6 +84,7 @@ if ($_POST['m'] == 'init') {
                                 <th scope="row"><input type="checkbox" <?= ($notificationSetting['active'] ? 'checked' : '') ?> class="form-check-input notification-check" id="notifications-name-<?= $trigger['name'] ?>"></th>
                                 <td><?= $trigger['label'] ?></td>
                                 <td><?= $trigger['desc'] ?></td>
+                                <td><?= $trigger['event'] ?></td>
                                 <td>
                                     <select class="form-select" id="notifications-platform-<?= $trigger['name'] ?>">
                                         <option value="0">-- Select one --</option>

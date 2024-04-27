@@ -9,6 +9,12 @@
 
 trait Container
 {
+    public function getContainerPort($container, $params = '')
+    {
+        $cmd = sprintf(DockerSock::CONTAINER_PORT, $container, $params);
+        return shell_exec($cmd . ' 2>&1');
+    }
+
     public function removeContainer($container)
     {
         $cmd = sprintf(DockerSock::REMOVE_CONTAINER, $container);
@@ -56,4 +62,61 @@ trait Container
             }
         }
     }
+
+    public function getContainerNetworkDependencies($parentId, $processList)
+    {
+        $dependencies = [];
+
+        foreach ($processList as $process) {
+            $networkMode = $process['inspect'][0]['HostConfig']['NetworkMode'];
+    
+            if (str_contains($networkMode, ':')) {
+                list($null, $networkContainer) = explode(':', $networkMode);
+    
+                if ($networkContainer == $parentId) {
+                    $dependencies[] = $process['Names'];
+                }
+            }
+        }
+    
+        return $dependencies;
+    }
+
+    public function getContainerLabelDependencies($containerName, $processList)
+    {
+        $dependencies = [];
+
+        foreach ($processList as $process) {
+            $labels = $process['inspect'][0]['Config']['Labels'] ? $process['inspect'][0]['Config']['Labels'] : [];
+    
+            foreach ($labels as $name => $key) {
+                if (str_contains($name, 'depends_on')) {
+                    list($container, $condition) = explode(':', $key);
+    
+                    if ($container == $containerName) {
+                        $dependencies[] = $process['Names'];
+                    }
+                }
+            }
+        }
+    
+        return $dependencies;
+    }
+
+    public function setContainerDependencies($processList)
+    {
+        $dependencyList = [];
+        foreach ($processList as $process) {
+            $dependencies = $this->getContainerNetworkDependencies($process['ID'], $processList);
+    
+            if ($dependencies) {
+                $dependencyList[$process['Names']] = ['id' => $process['ID'], 'containers' => $dependencies];
+            }
+        }
+    
+        setServerFile('dependencies', json_encode($dependencyList));
+    
+        return $dependencyList;
+    }
+
 }

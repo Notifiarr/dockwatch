@@ -152,7 +152,7 @@ function renderContainerRow($nameHash, $return)
             }
         }
 
-        $networkDependencies = dockerContainerNetworkDependenices($process['ID'], $processList);
+        $networkDependencies = $docker->getContainerNetworkDependencies($process['ID'], $processList);
         sort($networkDependencies);
         $networkDependencyList = implode(', ', $networkDependencies);
 
@@ -171,7 +171,7 @@ function renderContainerRow($nameHash, $return)
         }
 
         if (!$networkDependencies) {
-            $labelDependencies = dockerContainerLabelDependencies($process['Names'], $processList);
+            $labelDependencies = $docker->getContainerLabelDependencies($process['Names'], $processList);
             sort($labelDependencies);
             $labelDependencyList = implode(', ', $labelDependencies);
 
@@ -247,7 +247,7 @@ function renderContainerRow($nameHash, $return)
                             <?php } ?>
                         </ul>
                         <?= $dockwatchWarning ?>
-                        <br><span class="text-muted small-text" title="<?= isDockerIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle(isDockerIO($process['inspect'][0]['Config']['Image']), 25) ?></span>
+                        <br><span class="text-muted small-text" title="<?= $docker->isIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle($docker->isIO($process['inspect'][0]['Config']['Image']), 25) ?></span>
                     </div>
                 </div>
             </td>

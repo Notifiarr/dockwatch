@@ -127,22 +127,6 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
     return ['processList' => $processList, 'loadTimes' => $loadTimes];
 }
 
-function updateContainerDependencies($processList)
-{
-    $dependencyList = [];
-    foreach ($processList as $process) {
-        $dependencies = dockerContainerNetworkDependenices($process['ID'], $processList);
-
-        if ($dependencies) {
-            $dependencyList[$process['Names']] = ['id' => $process['ID'], 'containers' => $dependencies];
-        }
-    }
-
-    setServerFile('dependencies', json_encode($dependencyList));
-
-    return $dependencyList;
-}
-
 function updateDependencyParentId($container, $id)
 {
     global $dependencyFile;
@@ -185,76 +169,19 @@ function dockerPermissionCheck()
     return empty(json_decode($response['response']['docker'], true)) ? false : true;
 }
 
-function dockerContainerLogs($containerName, $log)
-{
-    if ($log != 'docker' && file_exists('/appdata/' . $containerName . '/logs/' . $log . '.log')) {
-        $logFile    = file('/appdata/' . $containerName . '/logs/' . $log . '.log');
-        $return     = '';
-        foreach ($logFile as $line) {
-            $line = json_decode($line, true);
-            $return .= '[' . $line['timestamp'] . '] {' . $line['level'] . '} ' . $line['message'] . "\n";
-        }
-        return $return;
-    }
-
-    if ($log == 'docker') {
-        $cmd = '/usr/bin/docker logs ' . $containerName;
-        return shell_exec($cmd . ' 2>&1');
-    }
-}
-
 function dockerCreateContainer($inspect)
 {
-    $create     = dockerContainerCreateAPI($inspect);
-    $apiRequest = dockerCurlAPI($create, 'post');
+    global $docker;
+
+    $create     = $docker->apiCreateContainer($inspect);
+    $apiRequest = $docker->apiCurl($create, 'post');
+
     return $apiRequest;
-}
-
-function dockerRemoveVolume($name)
-{
-    $cmd = '/usr/bin/docker volume rm ' . $name;
-    return shell_exec($cmd . ' 2>&1');
-}
-
-function dockerPruneVolume()
-{
-    $cmd = '/usr/bin/docker volume prune -af';
-    return shell_exec($cmd . ' 2>&1');
-}
-
-function dockerRemoveNetwork($id)
-{
-    $cmd = '/usr/bin/docker network rm ' . $id;
-    return shell_exec($cmd . ' 2>&1');
-}
-
-function dockerPruneNetwork()
-{
-    $cmd = '/usr/bin/docker network prune -af';
-    return shell_exec($cmd . ' 2>&1');
-}
-
-function dockerNetworks($params = '')
-{
-    $cmd = '/usr/bin/docker network ' . $params;
-    return shell_exec($cmd . ' 2>&1');
-}
-
-function dockerPort($containerName, $params = '')
-{
-    $cmd = '/usr/bin/docker port ' . $containerName . ' ' . $params;
-    return shell_exec($cmd . ' 2>&1');
-}
-
-function dockerImageSizes()
-{
-    $cmd = '/usr/bin/docker images --format=\'{"ID":"{{ .ID }}", "Size": "{{ .Size }}"}\' | jq -s --tab .';
-    return shell_exec($cmd . ' 2>&1');
 }
 
 function dockerAutoCompose($containerName)
 {
-    $cmd        = '/usr/bin/docker run --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $containerName;
+    $cmd        = sprintf(DockerSock::RUN, '--rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $containerName);
     $compose    = shell_exec($cmd . ' 2>&1');
     $lines      = explode("\n", $compose);
     $skip       = true;
@@ -281,13 +208,13 @@ function dockerAutoRun($container)
 {
     $indent         = '  ';
     $glue           = "\n";
-    $cmd            = '/usr/bin/docker inspect ' . $container . ' --format="{{json . }}" | jq -s --tab .';
+    $cmd            = sprintf(DockerSock::INSPECT_FORMAT, $container);
     $containerJson  = shell_exec($cmd . ' 2>&1');
     $containerArray = json_decode($containerJson, true);
     $containerArray = $containerArray[0];
     $image          = $containerArray['Config']['Image'];
 
-    $cmd            = '/usr/bin/docker inspect ' . $image . ' --format="{{json . }}" | jq -s --tab .';
+    $cmd            = sprintf(DockerSock::INSPECT_FORMAT, $image);
     $imageJson      = shell_exec($cmd . ' 2>&1');
     $imageArray     = json_decode($imageJson, true);
     $imageArray     = $imageArray[0];
@@ -313,8 +240,8 @@ function dockerAutoRun($container)
 
     //-- <key>:<val> FIELDS
     $hostConfigPairFields   = [
-                                'Runtime'       => 'runtime',
-                                'UTSMode'       => 'uts'
+                                'Runtime'   => 'runtime',
+                                'UTSMode'   => 'uts'
                             ];
 
     foreach ($hostConfigPairFields as $fieldLabel => $fieldKey) {
@@ -620,6 +547,7 @@ function dockerRunFieldValue($field, $imageVal, $containerVal)
             if ($containerVal != $imageVal) {
                 return trim($containerVal);
             }
+
             return trim($imageVal);
         //-- RETURN NOTHING IF THEY ARE THE SAME
         case 'User':
@@ -628,55 +556,7 @@ function dockerRunFieldValue($field, $imageVal, $containerVal)
             } elseif ($containerVal != $imageVal) {
                 return trim($containerVal);
             }
+
             return trim($imageVal);
     }
-}
-
-function isDockerIO($name)
-{
-    if (!$name) {
-        return;
-    }
-
-    return str_contains($name, '/') ? $name : 'library/' . $name;
-}
-
-function dockerContainerNetworkDependenices($parentId, $processList)
-{
-    $dependencies = [];
-
-    foreach ($processList as $process) {
-        $networkMode = $process['inspect'][0]['HostConfig']['NetworkMode'];
-
-        if (str_contains($networkMode, ':')) {
-            list($null, $networkContainer) = explode(':', $networkMode);
-
-            if ($networkContainer == $parentId) {
-                $dependencies[] = $process['Names'];
-            }
-        }
-    }
-
-    return $dependencies;
-}
-
-function dockerContainerLabelDependencies($containerName, $processList)
-{
-    $dependencies = [];
-
-    foreach ($processList as $process) {
-        $labels = $process['inspect'][0]['Config']['Labels'] ? $process['inspect'][0]['Config']['Labels'] : [];
-
-        foreach ($labels as $name => $key) {
-            if (str_contains($name, 'depends_on')) {
-                list($container, $condition) = explode(':', $key);
-
-                if ($container == $containerName) {
-                    $dependencies[] = $process['Names'];
-                }
-            }
-        }
-    }
-
-    return $dependencies;
 }

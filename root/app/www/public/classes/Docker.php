@@ -70,12 +70,49 @@ class Docker
 
         return str_replace($in, $out, $shell);
     }
+
+    public function getDockerLogs($container, $log)
+    {
+        if ($log != 'docker' && file_exists('/appdata/' . $container . '/logs/' . $log . '.log')) {
+            $logFile    = file('/appdata/' . $container . '/logs/' . $log . '.log');
+            $return     = '';
+
+            foreach ($logFile as $line) {
+                $line = json_decode($line, true);
+                $return .= '[' . $line['timestamp'] . '] {' . $line['level'] . '} ' . $line['message'] . "\n";
+            }
+
+            return $return;
+        }
+    
+        if ($log == 'docker') {
+            return $this->logs($container);
+        }
+    }
+
+    public function isIO($name)
+    {
+        if (!$name) {
+            return;
+        }
+    
+        return str_contains($name, '/') ? $name : 'library/' . $name;
+    }
+}
+
+interface DockerApi
+{
+    //-- CONTAINER SPECIFIC
+    public const STOP_CONTAINER = '/containers/%s/stop';
+    public const CREATE_CONTAINER = '/containers/create?name=%s';
 }
 
 //-- https://docs.docker.com/reference/cli/docker
 interface DockerSock
 {
     //-- GENERAL
+    public const VERSION = '/usr/bin/docker version %s';
+    public const RUN = '/usr/bin/docker run %s';
     public const LOGS = '/usr/bin/docker logs %s';
     public const PROCESSLIST_FORMAT = '/usr/bin/docker ps --all --no-trunc --size=false --format="{{json . }}" | jq -s --tab .';
     public const PROCESSLIST_CUSTOM = '/usr/bin/docker ps %s';
@@ -88,6 +125,7 @@ interface DockerSock
     public const START_CONTAINER = '/usr/bin/docker container start %s';
     public const STOP_CONTAINER = '/usr/bin/docker container stop %s';
     public const ORPHAN_CONTAINERS = '/usr/bin/docker images -f dangling=true --format="{{json . }}" | jq -s --tab .';
+    public const CONTAINER_PORT = '/usr/bin/docker port %s %s';
     //-- IMAGE SPECIFIC
     public const REMOVE_IMAGE = '/usr/bin/docker image rm %s';
     public const PULL_IMAGE = '/usr/bin/docker image pull %s';
@@ -101,4 +139,5 @@ interface DockerSock
     public const INSPECT_NETWORK = '/usr/bin/docker network inspect %s --format="{{json . }}" | jq -s --tab .';
     public const PRUNE_NETWORK = '/usr/bin/docker network prune -af';
     public const REMOVE_NETWORK = '/usr/bin/docker network rm %s';
+    public const GET_NETWORKS = '/usr/bin/docker network %s';
 }

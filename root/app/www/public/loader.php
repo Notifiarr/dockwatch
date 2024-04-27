@@ -60,7 +60,7 @@ if (!$_SESSION) {
 
 automation();
 
-$dockerCommunicateAPI = dockerCommunicateAPI();
+$dockerCommunicateAPI = $docker->apiIsAvailable();
 
 //-- SERVERS
 $serversFile = getFile(SERVERS_FILE);

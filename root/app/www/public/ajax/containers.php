@@ -10,7 +10,7 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $dependencyFile = updateContainerDependencies($processList);
+    $dependencyFile = $docker->setContainerDependencies($processList);
     $pulls = is_array($pullsFile) ? $pullsFile : json_decode($pullsFile, true);
     array_sort_by_key($processList, 'Names');
     $pullsNotice = empty($pullsFile) ? true : false;
@@ -225,7 +225,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     $dependencyFile = $dependencyFile['file'];
 
     $container      = $docker->findContainer(['hash' => $_POST['hash'], 'data' => $stateFile]);
-    $image          = isDockerIO($container['inspect'][0]['Config']['Image']);
+    $image          = $docker->isIO($container['inspect'][0]['Config']['Image']);
     $currentImageID = $container['ID'];
 
     logger(UI_LOG, 'trigger:' . $_POST['trigger']);

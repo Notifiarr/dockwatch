@@ -168,6 +168,7 @@ function controlContainer(containerHash, action)
 // ---------------------------------------------------------------------------------------------
 function massApplyContainerTrigger(dependencyTrigger = false)
 {
+    let retries = 0;
     let dependencies = [];
     let selected = 0;
     $.each($('[id^=massTrigger-]'), function () {
@@ -278,6 +279,7 @@ function massApplyContainerTrigger(dependencyTrigger = false)
                 dataType: 'json',
                 timeout: 600000,
                 success: function (resultData) {
+                    retries = 0;
                     if (parseInt($('#massContainerTrigger').val()) == 5) {
                         $('#massTrigger-results').prepend(resultData.result + "\n");
                     } else {
@@ -297,9 +299,12 @@ function massApplyContainerTrigger(dependencyTrigger = false)
                 error: function(jqhdr, textStatus, errorThrown) {
                     $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + containerName + ' ajax error (' + (errorThrown ? errorThrown : 'timeout') + ', check the console for more information using F12) ... Retrying in 5s<br>');
 
-                    setTimeout(function () {
-                        runTrigger();
-                    }, 5000);
+                    if (retries < 3) {
+                        setTimeout(function () {
+                            retries++;
+                            runTrigger();
+                        }, 5000);
+                    }
                 }
             });
         }
