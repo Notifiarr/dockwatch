@@ -6,4 +6,4 @@ s6-setuidgid abc php -r "require '/app/www/public/startup.php';"
 echo 's6-overlay init require(/app/www/public/startup.php) <-';
 
 # permissions
-lsiown -R abc /config
+find /config ! -user abc -exec chown abc {} +
