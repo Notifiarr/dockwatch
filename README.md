@@ -1,73 +1,102 @@
 ![Logo](https://repository-images.githubusercontent.com/718854440/29604111-7881-4c70-82e5-58710371e1eb)
 
-
 # Dockwatch
 
 ## Purpose
-Simple UI driven way to manage updates & notifications for containers.
-This is meant to be simple, so there is no db required. 
-All settings and files are stored in the `/config` mount instead.
+
+Simple UI driven way to manage updates & notifications for Docker containers.  
+No database required. All settings are stored locally in a volume mount.
 
 ## Notification triggers
-- Notify when a container is added
-- Notify when a container is removed
-- Notify when a container changes state (running -> stopped)
-- Notify when a container is unhealthy
-- Notify when an update is available
-- Notify when an update is applied
-- Notify when images are pruned
-- Notify when volumes are pruned
-- Notify if memory is > n%
-- Notify if CPU is > n%
+
+**Notify when:**
+
+-   Container (re-)created/removed
+-   Container state changes (running -> stopped or healthy -> unhealthy)
+-   Update for container image tag is available
+-   Update for container image tag has been applied
+-   Orphan images, volumes & networks are pruned
+-   Memory and CPU usage is over a set limit
 
 ## Notification platforms
-- Notifiarr
+
+-   Notifiarr
 
 ## Update options
-- Ignore
-- Auto update
-- Check for updates
 
-## Some features
-- Link and control multiple servers
-- Try to find/match icons for non unraid usage
-- Setup update schedules on a container by container basis
-- Setup notify only or update on a container by container basis
-- Automatically try to restart unhealthy containers
-- Mass prune/remove orphan images and volumes
-- Add container groups for easier management
-- Mass select containers and generate `docker run` commands
-- Mass select containers and generate a `docker-compose` for them
-- Mass select containers and do a mount compare for them
-- Mass select containers and start/restart/stop/pull/update
+-   Ignore
+-   Auto update
+-   Check for updates
+
+## Additional features
+
+-   Link and control multiple servers
+-   Automatically locate and match container icons for non Unraid usage\*
+-   Update schedules for container image tags by a container basis
+-   Notifications by a container basis
+-   Automatically try to restart unhealthy containers
+-   Mass prune orphan images, volumes & networks
+-   Mass actions for containers [(re-)start/stop, pull, update]\*\*
+-   Group containers in a table view for easier management
+
+\*If icon is available at [Notifiarr/images](https://github.com/Notifiarr/images).  
+\*\*Also includes generating a `docker run` command, `docker-compose.yml` and comparing mounts.
+
+## Icons
+
+**Unraid:**
+
+-   Icons show up automatically using unraid labels
+
+**Non-Unraid:**
+
+-   It tries to match the container image to an icon from <https://github.com/Notifiarr/images> (Feel free to add more icons to that repo for others to use)
+-   If the icon name is not the same as the official image or the app has multiple images then an alias would be used:
+    -   Internal alias file: <https://github.com/Notifiarr/dockwatch/blob/main/root/app/www/public/container-alias.json> - This can be modified to add more links to official images as needed
+    -   If you have your own custom images that you want to point to an icon:
+        -   Create `/config/container-alias.json` and use the same format as the internal file
 
 ## Network dependencies
-If you have containers that depend on other container networks (Gluetun for example) then this will recognize that.
-- Restart Gluetun -> restart dependencies
-- Stop Gluetun -> stop dependencies
-- Update Gluetun -> re-create dependencies and update the network mode
 
-## Socket proxy users
-If you use the docker socket proxy to control granular access to the docker sock then you do not need to add the path variable for `/var/run/docker.sock`
+Dockwatch can automatically recognize if containers depend on specific network containers, for example Gluetun.
 
-You do need to add an environment variable for `DOCKER_HOST` and it needs to be the ip:port to the proxy. If you use a hostname, make sure it is on the same network as Dockwatch so it can communicate. The CONTAINERS variable in the proxy settings will need to be enabled as well.
+-   Restart Gluetun -> restart dependencies
+-   Stop Gluetun -> stop dependencies
+-   Update Gluetun -> re-create dependencies with updated network mode attached
 
-## Permissions
-No matter how docker is installed (native, unraid, etc), it is required that the user running the container has permission to use the docker commands. View `root/app/www/public/functions/docker.php` to see what is used
+## Docker Socket Proxy
 
-Unraid: This is built into the container with
-```
-addgroup -g 281 unraiddocker && \
-usermod -aG unraiddocker abc
-```
+Dockwatch is compatible with a Socket proxy, all you need to do is enable the `CONTAINERS` variable in the proxy settings and add a `DOCKER_HOST` env variable with the value `IP:PORT` to your compose.
 
-Ubuntu: This is an example to get the group id to use
+**Make sure the socket proxy runs on the same network as Dockwatch**
+
+## Pre-requirements
+
+Dockwatch heavily relies on the Docker API to work.
+
+**Dependencies:**
+
+-   Docker v25 or later
+-   Docker-Compose v2.27 or later
+
+**Getting the values of PUID and PGID:**
+
+-   Get the group id that docker uses with the following command:
+
 ```
 grep docker /etc/group
 ```
 
+-   Get the user id from the user you want to run Dockwatch as with the following command:
+
+```
+id -u <username>
+```
+
 ## Run
-This is just an example; change the TZ, PGID, network and volume paths accordingly
+
+**Docker:**
+
 ```
 docker run \
   -d \
@@ -78,38 +107,41 @@ docker run \
   --publish "9999:80/tcp" \
   --network "bridge" \
   --env "TZ=America/New_York" \
-  --env "PGID=122" \
+  --env "PUID=1001" \
+  --env "PGID=999" \
   "ghcr.io/notifiarr/dockwatch:main"
 ```
 
-## Compose
-This is an example, adjust paths and settings for your setup
+**Docker Compose:**
+
 ```
-version: "2.1"
 services:
   dockwatch:
     container_name: dockwatch
     image: ghcr.io/notifiarr/dockwatch:main
+    restart: unless-stopped
     ports:
       - 9999:80/tcp
     environment:
+      #-DOCKER_HOST=127.0.0.1:2375 # Uncomment and adjust accordingly if you use a socket proxy
+      - PUID=1001
       - PGID=999
       - TZ=America/New_York
     volumes:
       - /home/dockwatch/config:/config
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock # Comment this line if you use a socket proxy
 ```
 
-## Manual
+**Manual:**
+
 `docker pull ghcr.io/notifiarr/dockwatch:main`
 
-## ENV
-These are my settings, adjust them to fit your setup!!
+## Environment variables
 
 Volumes
 | Name | Host | Container |
 | ----- | ----- | ----- |
-| App Config | /mnt/disk1/appdata/dockwatch/config | /config |
+| App config | /mnt/disk1/appdata/dockwatch/config | /config |
 | Docker sock | /var/run/docker.sock | /var/run/docker.sock |
 
 Ports
@@ -120,46 +152,42 @@ Ports
 Variables
 | Name | Key | Value |
 | ----- | ----- | ----- |
+| DOCKER_HOST (optional: only for socket proxy) | DOCKER_HOST | ip:port |
 | PUID | PUID | 1001 |
-| PGID | PGID | 100 |
+| PGID | PGID | 999 |
+| TZ | TZ | America/New_York |
 
 ## Login
-There is support for a simple login mechanism but i would recomment using something like a reverse proxy with authentication
-- Add a file `logins` to `/config`
-- Add `admin:password` to the file and save it
-- Reload
-- Multiple logins, drop a line and add another `admin:password`
+
+Dockwatch has basic functionality for protecting the UI with a username and password.  
+**It is strongly recommended to use a reverse proxy with authentication instead.**
+
+-   Create file `logins` in `/config`
+-   Append `admin:password` to the file and save it
+-   For multiple logins, drop a line and add another `admin:password`
 
 ## Development
-Firstly i **am not** a docker expert so there are likely other/better ways to do this. What i list below is just how i work on it without having to rebuild the container for every change and a reminder for me on what i did. Since this involves messing with the contents of the container, if an update is applied these steps will need re-applied
 
-Option 1:
-- Fork the repo
-- Open the `Dockerfile` and comment out the `COPY root/ /` line at the bottom
-- Copy the files from `root/app/www/public/*` to `/config/www/*`
-- Copy the cron feom `root/etc/crontabs/abc` to `/config/crontabs/abc` (You'll need to add an ENV variable for `DOCKER_MODS=linuxserver/mods:universal-cron`)
-- Copy the ini from `root/etc/php82/conf.d/dockwatch.ini` to `/config/php/php-local.ini`
-- This should allow you to run the container while making changes to the files in `/config` and when done, just copy the files back into the `root/` directories and push your fork so it builds a new container
+**Option 1:**
 
-Option 2:
-- SSH into the container as root
-- Run `chown -R abc:abc /app/www`
-- Open the UI to Settings -> Development and change the environment from Internal to External & save
-- Restart the container and it is now looking at `/config/www` for the working files so make sure you copy the files to there!
+-   Fork the repo
+-   Create a directory symlink of the forked repo to `/config/www`.
+    -   Linux example: `ln -s /home/user/dockwatch-git /home/user/config/www`
+    -   Windows example: `mklink /D "C:\dockwatch-git" "C:\dockwatch-config\www"`
+-   Open the UI, Navigate to Settings->Development and set environment from Internal to External
+-   Save and restart Dockwatch container
 
-## Icons
-Unraid:
-- Icons show up automatically using unraid labels
+**Option 2:**
 
-Non-Unraid:
-- It tries to match the container image to an icon from <https://github.com/Notifiarr/images> (Feel free to add more icons to that repo for others to use)
-- If the icon name is not the same as the official image or the app has multiple images then an alias would be used:
-	- Internal alias file: <https://github.com/Notifiarr/dockwatch/blob/main/root/app/www/public/container-alias.json>
-  		- This can be modified to add more links to official images as needed
-	- If you have your own custom images that you want to point to an icon:
-		- Create `/config/container-alias.json` and use the same format as the internal file
+-   Fork the repo
+-   Open the `Dockerfile` and comment out the `COPY root/ /` line at the bottom
+-   Copy the files from `root/app/www/public/*` to `/config/www/*`
+-   Copy the cron from `root/etc/crontabs/abc` to `/config/crontabs/abc` (You'll need to add an ENV variable for `DOCKER_MODS=linuxserver/mods:universal-cron`)
+-   Copy the ini from `root/etc/php82/conf.d/dockwatch.ini` to `/config/php/php-local.ini`
+-   This should allow you to run the container while making changes to the files in `/config` and when done, just copy the files back into the `root/` directories and push your fork so it builds a new container
 
 ## Screenshots
+
 UI
 
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/87fc88d0-3430-43ba-a636-9c89992c7f59)
