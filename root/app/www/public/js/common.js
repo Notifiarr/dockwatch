@@ -13,25 +13,7 @@ $(document).ready(function () {
         backdrop: 'static'
     });
 
-    if (USE_SOCKET) {
-        console.log('Starting websocket on ' + SOCKET_HOST + ':' + SOCKET_PORT);
-		var websocket = new WebSocket('ws://' + SOCKET_HOST + ':' + SOCKET_PORT + '/socket.php');
-		websocket.onopen = function(event) {
-			console.log('websocket connected');
-		}
-		websocket.onmessage = function(event) {
-			var message = JSON.parse(event.data);
-			console.log('websocket message');
-            console.log(message);
-		};
-
-		websocket.onerror = function(event){
-			console.log('websocket error');
-		};
-		websocket.onclose = function(event){
-			console.log('websocket closed');
-		};
-    }
+    initializeSSE();
 }).keyup(function (e) {
     if ($('#username').length) {
         if (e.keyCode === 13) {
@@ -68,6 +50,8 @@ function initPage(page)
             init = false;
 
             if (page == 'containers') {
+                $('#sse-timer').html(sseCountdown);
+
                 containerTableDrawn = false;
                 $('#container-table').dataTable({
                     dom: 'lfBrtip',

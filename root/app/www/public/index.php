@@ -10,8 +10,6 @@
 require 'loader.php';
 require 'includes/header.php';
 
-startSocket($socketPort);
-
 if ($_SESSION['dockerPerms']) {
     $dockerPerms = $_SESSION['dockerPerms'];
 } else {

@@ -136,6 +136,9 @@ switch (true) {
             case 'dependencies':
                 $response = ['dependencies' => getFile(DEPENDENCY_FILE)];
                 break;
+            case 'sse':
+                $response = ['sse' => getFile(SSE_FILE)];
+                break;
             case 'viewLog':
                 $response = ['result' => viewLog($_GET['name'])];
                 break;
@@ -194,6 +197,14 @@ switch (true) {
 
                 setFile(STATS_FILE, $_POST['contents']);
                 $response = ['result' => STATS_FILE . ' updated'];
+                break;
+            case 'sse':
+                if (!$_POST['contents']) {
+                    apiResponse(400, ['error' => 'Missing sse object']);
+                }
+
+                setFile(SSE_FILE, $_POST['contents']);
+                $response = ['result' => SSE_FILE . ' updated'];
                 break;
             case 'dependencies':
                 if (!$_POST['contents']) {

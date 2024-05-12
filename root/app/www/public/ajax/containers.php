@@ -26,7 +26,7 @@ if ($_POST['m'] == 'init') {
             <div class="table-responsive">
                 <div class="text-end mb-2">
                     <span class="small-text text-muted">
-                        Real time updates: <span class="small-text text-muted" title="<?= ($_SESSION['socketPID'] ? 'Process ID: ' . $_SESSION['socketPID'] : 'Make sure real time updates are enabled in the settings and you are not connected to a remote server') ?>"><?= ($_SESSION['socketPID'] ? 'every minute' : 'disabled') ?></span>
+                        Real time updates: <span class="small-text text-muted" title="<?= ($settingsFile['global']['sseEnabled'] ? 'SSE is enabled and updating' : 'SSE is disabled in your settings') ?>"><?= ($settingsFile['global']['sseEnabled'] ? 'every minute (<span class="small-text text-muted" id="sse-timer">60</span>)' : 'disabled') ?></span>
                     </span>
                 </div>
                 <table class="table" id="container-table">

@@ -122,7 +122,7 @@ function renderContainerRow($nameHash, $return)
 
         if ($mounts) {
             $mountList = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-mount-btn-' . $nameHash . '" onclick="hideContainerMounts(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-mount-btn-' . $nameHash . '" onclick="showContainerMounts(\'' . $nameHash . '\')"></i> ';
-            $mountList .= '<span id="mount-list-preview-' . $nameHash . '">' . truncateMiddle($mounts[0], 40) . '</span><br>';
+            $mountList .= '<span id="mount-list-preview-' . $nameHash . '">' . truncateMiddle($mounts[0], 37) . '</span><br>';
             $mountList .= '<div id="mount-list-full-' . $nameHash . '" style="display: none;">';
             $mountList .= implode('<br>', $mounts);
             $mountList .= '</div>';

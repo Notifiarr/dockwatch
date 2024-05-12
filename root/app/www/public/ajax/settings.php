@@ -229,7 +229,7 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
-            <h4 class="mt-3">Sockets</h4>
+            <h4 class="mt-3">SSE</h4>
             <div class="table-responsive mt-2">
                 <table class="table">
                     <thead>
@@ -243,23 +243,9 @@ if ($_POST['m'] == 'init') {
                         <tr>
                             <th scope="row">Enabled<sup>2,3</sup></th>
                             <td>
-                                <input class="form-check-input" type="checkbox" id="globalSetting-socketEnabled" <?= ($globalSettings['socketEnabled'] ? 'checked' : '') ?> disabled>
+                                <input class="form-check-input" type="checkbox" id="globalSetting-sseEnabled" <?= ($globalSettings['sseEnabled'] ? 'checked' : '') ?>>
                             </td>
-                            <td>Websocket will update the container list UI every minute with current status of Updates, State, Health, Added, CPU and Memory</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Socket host</th>
-                            <td>
-                                <input class="form-control" type="text" id="globalSetting-socketHost" value="<?= ($globalSettings['socketHost'] ? $globalSettings['socketHost'] : SOCKET_HOST) ?>">
-                            </td>
-                            <td>The host for the socket to connect to (container host)</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Socket port</th>
-                            <td>
-                                <input class="form-control" type="text" id="globalSetting-socketPort" value="<?= ($globalSettings['socketPort'] ? $globalSettings['socketPort'] : SOCKET_PORT) ?>">
-                            </td>
-                            <td>The port used for the socket (9998 is default unless changed)</td>
+                            <td>SSE will update the container list UI every minute with current status of Updates, State, Health, CPU and Memory</td>
                         </tr>
                     </tbody>
                 </table>

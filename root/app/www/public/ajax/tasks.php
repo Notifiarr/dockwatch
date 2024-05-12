@@ -32,6 +32,12 @@ if ($_POST['m'] == 'init') {
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('stats')"></i></td>
                             </tr>
                             <tr>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('sse', ($(this).prop('checked') ? 1 : 0))" <?= (!$settingsFile['global']['sseEnabled'] ? 'checked' : '') ?>></td>
+                                <td>SSE</td>
+                                <td>1m</td>
+                                <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('sse')"></i></td>
+                            </tr>
+                            <tr>
                                 <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('state', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['state']['disabled'] ? 'checked' : '') ?>></td>
                                 <td>State changes</td>
                                 <td>5m</td>
@@ -131,9 +137,14 @@ if ($_POST['m'] == 'runTask') {
 }
 
 if ($_POST['m'] == 'updateTaskDisabled') {
-    $settingsFile['tasks'][$_POST['task']] = ['disabled' => intval($_POST['disabled'])];
-    $saveSettings = setServerFile('settings', $settingsFile);
+    if ($_POST['task'] == 'sse') {
+        $settingsFile['global']['sseEnabled'] = !intval($_POST['disabled']);
+    } else {
+        $settingsFile['tasks'][$_POST['task']] = ['disabled' => intval($_POST['disabled'])];
+    }
 
+    $saveSettings = setServerFile('settings', $settingsFile);
+    
     if ($saveSettings['code'] != 200) {
         $error = 'Error saving task settings on server ' . ACTIVE_SERVER_NAME;
     }

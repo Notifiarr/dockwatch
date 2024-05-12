@@ -14,10 +14,6 @@ define('APP_MAINTENANCE_IMAGE', 'ghcr.io/notifiarr/dockwatch:develop');
 define('ICON_REPO', 'Notifiarr/images');
 define('ICON_URL', 'https://gh.notifiarr.com/images/icons/');
 
-//-- SOCKET DEFAULTS
-define('SOCKET_HOST', $_SERVER['SERVER_NAME']);
-define('SOCKET_PORT', 9998);
-
 //-- CRON FREQUENCY
 define('DEFAULT_CRON', '0 0 * * *');
 
@@ -41,6 +37,7 @@ define('INTERNAL_ICON_ALIAS_FILE', 'container-alias.json');
 define('EXTERNAL_ICON_ALIAS_FILE', APP_DATA_PATH . 'container-alias.json');
 define('STATS_FILE', APP_DATA_PATH . 'stats.json');
 define('DEPENDENCY_FILE', APP_DATA_PATH . 'dependencies.json');
+define('SSE_FILE', APP_DATA_PATH . 'sse.json');
 
 //-- LOG FILES
 define('SYSTEM_LOG', LOGS_PATH . 'system/app.log');
@@ -54,6 +51,7 @@ define('CRON_PULLS_LOG', LOGS_PATH . 'crons/pulls.log');
 define('CRON_STATE_LOG', LOGS_PATH . 'crons/state.log');
 define('CRON_STATS_LOG', LOGS_PATH . 'crons/stats.log');
 define('CRON_HEALTH_LOG', LOGS_PATH . 'crons/health.log');
+define('CRON_SSE_LOG', LOGS_PATH . 'crons/sse.log');
 define('LOG_ROTATE_SIZE', 2); //-- MB UNTIL ROTATE
 
 //-- MEMCACHE

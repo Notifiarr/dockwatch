@@ -66,9 +66,7 @@ if ($fetchServers) {
 
     <script type="text/javascript">
         const USE_EXTERNAL_LOADING = '<?= $settingsFile['global']['externalLoading'] && in_array($_GET['page'], $pages) ? $_GET['page'] : 'overview' ?>';
-        const USE_SOCKET = <?= $settingsFile['global']['socketEnabled'] ? 'true' : 'false' ?>;
-        const SOCKET_HOST = '<?= $socketHost ?>';
-        const SOCKET_PORT = '<?= $socketPort ?>';
+        const USE_SSE = <?= $settingsFile['global']['sseEnabled'] ? 'true' : 'false' ?>;
     </script>
 </head>
 

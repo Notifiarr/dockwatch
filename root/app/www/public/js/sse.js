@@ -1,31 +1,43 @@
-function sse(reconnectDelay = 60)
+const sseTimer = 57;
+const sseInterval = 3;
+let sseCountdown = 57;
+let sseUpdated = 0;
+let sseSource = '';
+
+function initializeSSE()
 {
-    console.log('SSE connection started');
-    var es = new EventSource('sse.php');
-    es.addEventListener('message', function (e) {
-        let sseResponse = JSON.parse(e.data);
+    if (!USE_SSE) {
+        console.log('SSE: Disabled');
+    }
 
-        if (sseResponse) {
-            let message = sseResponse.message;
-            let title   = sseResponse.title;
+    console.log('SSE: Starting...');
+    sseSource = new EventSource('sse.php');
+    console.log('SSE: Started');
+    $('#sse-timer').html(sseTimer);
 
-            if (title == 'dockerProcessList' && $('#menu-containers').hasClass('active')) {
-                $.each(message, function (index, container) {
-                    updateContainerRowText(container.hash, container.row);
+    sseSource.onmessage = (event) => {
+        const processList = JSON.parse(event.data);
+
+        if (processList['updated'] != sseUpdated) {
+            if (sseUpdated == 0) {
+                sseUpdated = processList['updated'];
+            } else {
+                console.log('SSE: Changes found, updating');
+
+                $.each(processList, function (hash, processData) {
+                    if (hash != 'updated' && hash != 'pushed') {
+                        updateContainerRowText(hash, processData);
+                        sseCountdown = sseTimer;
+                        $('#sse-timer').html(sseTimer);
+                    }
                 });
             }
+        } else {
+            if (sseCountdown > 0) {
+                sseCountdown = sseCountdown - sseInterval;
+                $('#sse-timer').html(sseCountdown);
+            }
         }
-    }, false);
-
-    es.addEventListener('error', function (e) {
-        setTimeout(function () {
-            console.log('SSE connection closed, retry in ' + reconnectDelay);
-            console.log(e);
-            es.close();
-            sse(reconnectDelay);
-            return;
-        }, (reconnectDelay * 1000));
-    }, false);
-
+    };
 }
-// ---------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
