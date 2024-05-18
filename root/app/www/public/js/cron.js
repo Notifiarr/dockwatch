@@ -116,7 +116,7 @@
                             <div class="mb-2">
                                 <input type="radio" class="form-check-input" name="cronFreqEditor-period" id="cronFreqEditor-hourCheckbox">
                                 <label for="cronFreqEditor-hourCheckbox">Time of the day</label>
-                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-hourInput">${hourOptions.join("\n")}</select> : 
+                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-hourInput">${hourOptions.join("\n")}</select> :
                                 <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-minuteInput">${minuteOptions.join("\n")}</select>
                             </div>
                             <div>
@@ -182,9 +182,9 @@
                 $("#cronFreqEditor-result").val(expression.join(" "));
             }
 
-            // parse expression - todo: allow ranges and step values 0-50../2..etc
+            // parse expression
             let expression = this.opts.expression;
-            if (typeof this.opts.expression == "undefined") {
+            if (typeof expression !== "string" || expression == "") {
                 expression = "0 23 * * 0";
             }
             expression = expression.split(" "); // split into array
