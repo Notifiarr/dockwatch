@@ -3,7 +3,7 @@
 /*
 ----------------------------------
  ------  Created: 112923   ------
- ------  Austin Best	   ------
+ ------  Austin Best       ------
 ----------------------------------
 */
 
@@ -104,6 +104,7 @@ function renderContainerRow($nameHash, $return)
     $length = implode(' ', $length);
 
     $mountList = '';
+    $previewMount = '';
     if ($process['inspect'][0]['Mounts']) {
         $mounts = [];
 
@@ -118,11 +119,14 @@ function renderContainerRow($nameHash, $return)
             }
 
             $mounts[] = $mount['Destination'] . ' ' . $arrow . ' ' . $mount['Source'] . ($mount['Mode'] ? ':' . $mount['Mode'] : '');
+            if (!$previewMount) {
+                 $previewMount = truncateEnd($mount['Destination'], 18) . ' ' . $arrow . ' ' . truncateEnd($mount['Source'], 18) . ($mount['Mode'] ? ':' . $mount['Mode'] : '');
+            }
         }
 
         if ($mounts) {
             $mountList = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-mount-btn-' . $nameHash . '" onclick="hideContainerMounts(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-mount-btn-' . $nameHash . '" onclick="showContainerMounts(\'' . $nameHash . '\')"></i> ';
-            $mountList .= '<span id="mount-list-preview-' . $nameHash . '">' . truncateMiddle($mounts[0], 37) . '</span><br>';
+            $mountList .= '<span id="mount-list-preview-' . $nameHash . '">' . $previewMount . '</span><br>';
             $mountList .= '<div id="mount-list-full-' . $nameHash . '" style="display: none;">';
             $mountList .= implode('<br>', $mounts);
             $mountList .= '</div>';
