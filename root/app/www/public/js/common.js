@@ -226,6 +226,11 @@ function loadingStop()
 // -------------------------------------------------------------------------------------------
 function updateServerIndex()
 {
+    $('#external-server-icon').hide();
+    if ($('#activeServer').val() != '0') {
+        $('#external-server-icon').show();
+    }
+
     $.ajax({
         type: 'POST',
         url: '../ajax/settings.php',

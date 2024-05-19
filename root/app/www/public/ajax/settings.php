@@ -444,4 +444,5 @@ if ($_POST['m'] == 'saveGlobalSettings') {
 //-- CALLED FROM THE NAV MENU SELECT
 if ($_POST['m'] == 'updateServerIndex') {
     $_SESSION['serverIndex'] = intval($_POST['index']);
+    $_SESSION['serverList'] = '';
 }
