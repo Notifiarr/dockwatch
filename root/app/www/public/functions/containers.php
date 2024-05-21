@@ -303,9 +303,10 @@ function renderContainerRow($nameHash, $return)
 
 function skipContainerActions($container, $containers)
 {
-    global $settingsFile;
+    global $docker, $settingsFile, $stateFile;
 
-    $settingsFile = $settingsFile ? $settingsFile : getServerFile('settings');
+    $settingsFile   = $settingsFile ? $settingsFile : getServerFile('settings');
+    $stateFile      = $stateFile ? $stateFile : getServerFile('state');
 
     if ($settingsFile['containers']) {
         foreach ($settingsFile['containers'] as $containerHash => $containerSettings) {
