@@ -305,13 +305,13 @@ function skipContainerActions($container, $containers)
 {
     global $docker, $settingsFile, $stateFile;
 
-    $settingsFile   = $settingsFile ? $settingsFile : getServerFile('settings');
-    $stateFile      = $stateFile ? $stateFile : getServerFile('state');
+    $settingsFileData   = $settingsFile ? $settingsFile : getServerFile('settings');
+    $stateFileData      = $stateFile ? $stateFile : getServerFile('state');
 
-    if ($settingsFile['containers']) {
-        foreach ($settingsFile['containers'] as $containerHash => $containerSettings) {
+    if ($settingsFileData['containers']) {
+        foreach ($settingsFileData['containers'] as $containerHash => $containerSettings) {
             if ($containerSettings['blacklist']) {
-                $containerState = $docker->findContainer(['hash' => $containerHash, 'data' => $stateFile]);
+                $containerState = $docker->findContainer(['hash' => $containerHash, 'data' => $stateFileData]);
 
                 if (str_contains($containerState['Image'], $container)) {
                     return SKIP_OPTIONAL;
@@ -320,7 +320,7 @@ function skipContainerActions($container, $containers)
         }
     }
 
-    if ($settingsFile['global']['overrideBlacklist'] == 0) {
+    if ($settingsFileData['global']['overrideBlacklist'] == 0) {
         foreach ($containers as $skip) {
             if (str_contains($container, $skip)) {
                 return SKIP_FORCE;
