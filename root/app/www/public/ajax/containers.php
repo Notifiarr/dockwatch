@@ -344,7 +344,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $apiResponse = apiRequest('dockerCreateContainer', [], ['inspect' => $inspectImage]);
                 logger(UI_LOG, 'dockerCreateContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
                 $update         = $apiResponse['response']['docker'];
-                $createResult   = 'failed';
+                $updateResult   = 'failed';
 
                 if (strlen($update['Id']) == 64) {
                     // REMOVE THE IMAGE AFTER UPDATE
@@ -364,7 +364,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                         }
                     }
 
-                    $createResult = 'complete';
+                    $updateResult = 'complete';
                     $pullsFile[$_POST['hash']]  = [
                                                     'checked'       => time(),
                                                     'name'          => $container['Names'],
@@ -388,7 +388,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 }
             }
 
-            $result = 'Container ' . $container['Names'] . ' update: ' . $createResult . ($preVersion && $postVersion && $updateResult == 'complete' ? ' from \'' . $preVersion . '\' to \'' . $postVersion . '\'' : '') . '<br>';
+            $result = 'Container ' . $container['Names'] . ' update: ' . $updateResult . ($preVersion && $postVersion && $updateResult == 'complete' ? ' from \'' . $preVersion . '\' to \'' . $postVersion . '\'' : '') . '<br>';
             break;
         case '8': //-- MOUNT COMPARE
             $result = $container['Names'] . '<br>';
