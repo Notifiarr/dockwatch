@@ -92,10 +92,7 @@ function openEditContainer(hash)
                 id: 'openEditContainer',
                 title: 'Edit Container',
                 size: 'xl',
-                body: resultData,
-                onOpen: function () {
-
-                }
+                body: resultData
             });
         }
     });
@@ -108,17 +105,19 @@ function applyContainerAction(hash, action)
     massApplyContainerTrigger();
 }
 // ---------------------------------------------------------------------------------------------
-function updateContainerRowText(hash, data, refresh = false)
+function updateContainerRowText(hash, data)
 {
-    $('#' + hash + '-control').html((refresh ? 'Updating' : data.control));
-    $('#' + hash + '-update').html((refresh ? 'Updating' : data.update));
-    $('#' + hash + '-state').html((refresh ? 'Updating' : data.state));
-    $('#' + hash + '-mounts').html((refresh ? 'Updating' : data.mounts));
-    $('#' + hash + '-length').html((refresh ? 'Updating' : data.length));
-    $('#' + hash + '-cpu').html((refresh ? 'Updating' : data.cpu));
-    $('#' + hash + '-cpu').prop('title', (refresh ? 'Updating' : data.cpu));
-    $('#' + hash + '-mem').html((refresh ? 'Updating' : data.mem));
-    $('#' + hash + '-health').html((refresh ? 'Updating' : data.health));
+    $('#' + hash + '-control').html(data.control);
+    $('#' + hash + '-update').html(data.update);
+    $('#' + hash + '-state').html(data.state);
+    $('#' + hash + '-mounts').html( data.mounts);
+    $('#' + hash + '-length').html(data.length);
+    $('#' + hash + '-cpu').html(data.cpu);
+    $('#' + hash + '-cpu').prop('title', data.cpuTitle);
+    $('#' + hash + '-mem').html(data.mem);
+    $('#' + hash + '-health').html(data.health);
+
+    hideContainerMounts(hash);
 }
 // ---------------------------------------------------------------------------------------------
 function saveContainerSettings()

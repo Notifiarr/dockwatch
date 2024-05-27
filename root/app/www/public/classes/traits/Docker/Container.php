@@ -114,7 +114,7 @@ trait Container
             }
         }
     
-        setServerFile('dependencies', json_encode($dependencyList));
+        setServerFile('dependency', json_encode($dependencyList));
     
         return $dependencyList;
     }

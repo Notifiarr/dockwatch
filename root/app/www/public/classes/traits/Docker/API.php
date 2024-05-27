@@ -183,7 +183,7 @@ trait API
             $payload['ExposedPorts']    = null;
     
             //-- MAKE SURE THE ID IS UPDATED
-            $dependencyFile = getServerFile('dependencies');
+            $dependencyFile = getServerFile('dependency');
             $dependencyFile = is_array($dependencyFile['file']) && !empty($dependencyFile['file']) ? $dependencyFile['file'] : [];
     
             foreach ($dependencyFile as $parent => $parentSettings) {

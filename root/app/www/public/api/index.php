@@ -133,8 +133,8 @@ switch (true) {
             case 'servers':
                 $response = ['servers' => getFile(SERVERS_FILE)];
                 break;
-            case 'dependencies':
-                $response = ['dependencies' => getFile(DEPENDENCY_FILE)];
+            case 'dependency':
+                $response = ['dependency' => getFile(DEPENDENCY_FILE)];
                 break;
             case 'sse':
                 $response = ['sse' => getFile(SSE_FILE)];
@@ -206,7 +206,7 @@ switch (true) {
                 setFile(SSE_FILE, $_POST['contents']);
                 $response = ['result' => SSE_FILE . ' updated'];
                 break;
-            case 'dependencies':
+            case 'dependency':
                 if (!$_POST['contents']) {
                     apiResponse(400, ['error' => 'Missing dependency object']);
                 }

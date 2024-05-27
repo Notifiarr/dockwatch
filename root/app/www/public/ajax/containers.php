@@ -218,7 +218,7 @@ if ($_POST['m'] == 'containerLogs') {
 if ($_POST['m'] == 'massApplyContainerTrigger') {
     logger(UI_LOG, 'massApplyContainerTrigger ->');
 
-    $dependencyFile = getServerFile('dependencies');
+    $dependencyFile = getServerFile('dependency');
     if ($dependencyFile['code'] != 200) {
         $apiError = $dependencyFile['file'];
     }

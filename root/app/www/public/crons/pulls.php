@@ -238,7 +238,7 @@ if ($updateSettings) {
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo date('c') . ' ' . $msg . "\n";
 
-                                    $dependencyFile = getServerFile('dependencies');
+                                    $dependencyFile = getServerFile('dependency');
                                     $dependencyFile = $dependencyFile['file'];
                                     $dependencies   = $dependencyFile[$containerState['Names']]['containers'];
 

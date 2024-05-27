@@ -132,7 +132,7 @@ function updateDependencyParentId($container, $id)
     global $dependencyFile;
 
     $dependencyFile[$container]['id'] = $id;
-    setServerFile('dependencies', json_encode($dependencyFile));
+    setServerFile('dependency', json_encode($dependencyFile));
 }
 
 function dockerState()
