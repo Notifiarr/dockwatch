@@ -66,7 +66,15 @@ Dockwatch can automatically recognize if containers depend on specific network c
 
 ## Docker Socket Proxy
 
-Dockwatch is compatible with a Socket proxy, all you need to do is enable the `CONTAINERS` variable in the proxy settings and add a `DOCKER_HOST` env variable with the value `IP:PORT` to your compose.
+Dockwatch is compatible with a Socket proxy + tested with LSIO and Tecnativa. You need to enable the following:
+```
+    - CONTAINERS=1
+    - IMAGES=1
+    - PORTS=1
+    - NETWORKS=1
+    - VOLUMES=1
+```
+proxy env settings and add a `DOCKER_HOST` env variable with the example value `http://socket-proxy:2375` (this points to your socket-proxy container) to your compose.
 
 **Make sure the socket proxy runs on the same network as Dockwatch**
 
