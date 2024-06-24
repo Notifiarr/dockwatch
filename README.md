@@ -51,10 +51,18 @@ No database required. All settings are stored locally in a volume mount.
 **Non-Unraid:**
 
 -   It tries to match the container image to an icon from <https://github.com/Notifiarr/images> (Feel free to add more icons to that repo for others to use)
--   If the icon name is not the same as the official image or the app has multiple images then an alias would be used:
+-   If the icon name is not the same as the official container image or the app has multiple container images then an alias would be used:
     -   Internal alias file: <https://github.com/Notifiarr/dockwatch/blob/main/root/app/www/public/container-alias.json> - This can be modified to add more links to official images as needed
-    -   If you have your own custom images that you want to point to an icon:
+    -   If you have your own custom container images that you want to point to an icon:
         -   Create `/config/container-alias.json` and use the same format as the internal file
+        -   Example: 
+        ```
+        {
+          ["image url or icon name"]: "container image name",
+          ["pi-hole"]: "pihole",
+          ["https://www.pgadmin.org/static/COMPILED/assets/img/postgres-alt.svg"]: "pgadmin4"
+        }
+        ```
 
 ## Network dependencies
 
