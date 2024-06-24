@@ -2,5 +2,6 @@
     "apprise": ["apprise-api"],
     "grafana": ["grafana-image-renderer"],
     "portainer": ["portainer-ce", "portainer-be", "portainer_agent", "portainer-ee"],
-    "prometheus": ["node-exporter"]
+    "prometheus": ["node-exporter"],
+    "https://www.pgadmin.org/static/COMPILED/assets/img/postgres-alt.svg": ["pgadmin4"]
 }

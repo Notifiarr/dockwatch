@@ -29,7 +29,7 @@ function getIcons($bustCache = false)
         if (!empty($iconList)) {
             setFile(LOGO_FILE, $iconList);
         } else { //-- GH REQUST FAILED, USE EXISTING
-            $iconList = getFile(LOGO_FILE);    
+            $iconList = getFile(LOGO_FILE);
         }
     } else {
         $iconList = getFile(LOGO_FILE);
@@ -63,7 +63,7 @@ function getIcon($inspect)
 
                 foreach ($aliasList as $name => $aliasOptions) {
                     if (in_array($image, $aliasOptions)) {
-                        return ICON_URL . $icons[$name];
+                        return str_contains($name, 'http') ? $name : ICON_URL . $icons[$name];
                     }
                 }
             }
