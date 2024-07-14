@@ -14,11 +14,13 @@ set_time_limit(0);
 
 logger(SYSTEM_LOG, 'Cron: running prune');
 logger(CRON_PRUNE_LOG, 'run ->');
-echo date('c') . ' Cron run started: prune' . "\n";
+echo date('c') . ' Cron: prune ->' . "\n";
 
 if ($settingsFile['tasks']['prune']['disabled']) {
-    logger(CRON_PRUNE_LOG, 'Cron run stopped: disabled in tasks menu');
-    echo date('c') . ' Cron run cancelled: disabled in tasks menu' . "\n";
+    logger(CRON_PRUNE_LOG, 'Cron cancelled: disabled in tasks menu');
+    logger(CRON_PRUNE_LOG, 'run <-');
+    echo date('c') . ' Cron: prune cancelled, disabled in tasks menu' . "\n";
+    echo date('c') . ' Cron: prune <-' . "\n";
     exit();
 }
 
@@ -93,4 +95,5 @@ if ($settingsFile['notifications']['triggers']['prune']['active'] && (count($vol
     $notifications->notify($settingsFile['notifications']['triggers']['prune']['platform'], $payload);
 }
 
+echo date('c') . ' Cron: prune <-' . "\n";
 logger(CRON_PRUNE_LOG, 'run <-');

@@ -14,11 +14,13 @@ set_time_limit(0);
 
 logger(SYSTEM_LOG, 'Cron: running pulls');
 logger(CRON_PULLS_LOG, 'run ->');
-echo date('c') . ' Cron run started: pulls' . "\n";
+echo date('c') . ' Cron: pulls' . "\n";
 
 if ($settingsFile['tasks']['pulls']['disabled']) {
-    logger(CRON_PULLS_LOG, 'Cron run stopped: disabled in tasks menu');
-    echo date('c') . ' Cron run cancelled: disabled in tasks menu' . "\n";
+    logger(CRON_PULLS_LOG, 'Cron cancelled: disabled in tasks menu');
+    logger(CRON_PULLS_LOG, 'run <-');
+    echo date('c') . ' Cron: pulls cancelled, disabled in tasks menu' . "\n";
+    echo date('c') . ' Cron: pulls <-' . "\n";
     exit();
 }
 
@@ -352,4 +354,6 @@ if ($updateSettings) {
     }
 }
 
+
+echo date('c') . ' Cron: pulls <-' . "\n";
 logger(CRON_PULLS_LOG, 'run <-');

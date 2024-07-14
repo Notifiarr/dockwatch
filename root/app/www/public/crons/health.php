@@ -12,17 +12,21 @@ require ABSOLUTE_PATH . 'loader.php';
 
 logger(SYSTEM_LOG, 'Cron: running health');
 logger(CRON_HEALTH_LOG, 'run ->');
-echo 'Cron run started: health' . "\n";
+echo date('c') . ' Cron: health ->' . "\n";
 
 if ($settingsFile['tasks']['health']['disabled']) {
-    logger(CRON_HEALTH_LOG, 'Cron run stopped: disabled in tasks menu');
-    echo date('c') . ' Cron run cancelled: disabled in tasks menu' . "\n";
+    logger(CRON_HEALTH_LOG, 'Cron cancelled: disabled in tasks menu');
+    logger(CRON_HEALTH_LOG, 'run <-');
+    echo date('c') . ' Cron: health cancelled, disabled in tasks menu' . "\n";
+    echo date('c') . ' Cron: health <-' . "\n";
     exit();
 }
 
 if (!$settingsFile['global']['restartUnhealthy'] && !$settingsFile['notifications']['triggers']['health']['active']) {
-    logger(CRON_HEALTH_LOG, 'Cron run stopped: restart and notify disabled');
-    echo date('c') . ' Cron run stopped: restart and notify disabled' . "\n";
+    logger(CRON_HEALTH_LOG, 'Cron cancelled: restart and notify disabled');
+    logger(CRON_HEALTH_LOG, 'run <-');
+    echo date('c') . ' Cron health cancelled: restart unhealthy and notify disabled' . "\n";
+    echo date('c') . ' Cron: health <-' . "\n";
     exit();
 }
 
@@ -135,4 +139,5 @@ if ($unhealthy) {
     setFile(APP_DATA_PATH . 'health.json', []);
 }
 
+echo date('c') . ' Cron: health <-' . "\n";
 logger(CRON_HEALTH_LOG, 'run <-');

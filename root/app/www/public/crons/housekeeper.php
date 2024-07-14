@@ -12,11 +12,13 @@ require ABSOLUTE_PATH . 'loader.php';
 
 logger(SYSTEM_LOG, 'Cron: running housekeeper');
 logger(CRON_HOUSEKEEPER_LOG, 'run ->');
-echo date('c') . ' Cron run started: housekeeper' . "\n";
+echo date('c') . ' Cron: housekeeper ->' . "\n";
 
 if ($settingsFile['tasks']['housekeeping']['disabled']) {
-    logger(CRON_HOUSEKEEPER_LOG, 'Cron run stopped: disabled in tasks menu');
-    echo date('c') . ' Cron run cancelled: disabled in tasks menu' . "\n";
+    logger(CRON_HOUSEKEEPER_LOG, 'Cron cancelled: disabled in tasks menu');
+    logger(CRON_HOUSEKEEPER_LOG, 'run <-');
+    echo date('c') . ' Cron: housekeeper cancelled, disabled in tasks menu' . "\n";
+    echo date('c') . ' Cron: housekeeper <-' . "\n";
     exit();
 }
 
@@ -129,4 +131,5 @@ while ($backup = readdir($dir)) {
     }
 }
 
+echo date('c') . ' Cron: housekeeper <-' . "\n";
 logger(CRON_HOUSEKEEPER_LOG, 'run <-');

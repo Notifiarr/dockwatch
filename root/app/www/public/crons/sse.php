@@ -12,12 +12,13 @@ require ABSOLUTE_PATH . 'loader.php';
 
 logger(SYSTEM_LOG, 'Cron: running sse');
 logger(CRON_SSE_LOG, 'run ->');
-echo date('c') . ' Cron run started: sse' . "\n";
+echo date('c') . ' Cron: sse' . "\n";
 
 if (!$settingsFile['global']['sseEnabled']) {
-    logger(CRON_SSE_LOG, 'Cron run stopped: disabled in tasks menu');
+    logger(CRON_SSE_LOG, 'Cron cancelled: disabled in tasks menu');
     logger(CRON_SSE_LOG, 'run <-');
-    echo date('c') . ' Cron run cancelled: disabled in tasks menu' . "\n";
+    echo date('c') . ' Cron: sse cancelled, disabled in tasks menu' . "\n";
+    echo date('c') . ' Cron: sse <-' . "\n";
     exit();
 }
 
@@ -34,4 +35,5 @@ $updatedProcessList['updated'] = time();
 
 setFile(SSE_FILE, $updatedProcessList);
 
+echo date('c') . ' Cron: sse <-' . "\n";
 logger(CRON_SSE_LOG, 'run <-');
