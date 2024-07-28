@@ -191,6 +191,13 @@ if ($_POST['m'] == 'init') {
                             </td>
                             <td>Automatically try to prune all orphan networks daily</td>
                         </tr>
+                        <tr>
+                            <th scope="row">Hour</th>
+                            <td>
+                                <input class="form-control" type="number" id="globalSetting-autoPruneHour" min="0" max="23" value="<?= $globalSettings['autoPruneHour'] ? $globalSettings['autoPruneHour'] : "12" ?>">
+                            </td>
+                            <td>At which hour the auto prune should run (0-23)</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

@@ -24,6 +24,15 @@ if ($settingsFile['tasks']['prune']['disabled']) {
     exit();
 }
 
+$frequencyHour = $settingsFile['global']['autoPruneHour'] ? $settingsFile['global']['autoPruneHour'] : '12';
+if ($frequencyHour !== date('G')) {
+    logger(CRON_PRUNE_LOG, 'Cron: skipped, frequency setting will run at hour ' . $frequencyHour);
+    logger(CRON_PRUNE_LOG, 'run <-');
+    echo date('c') . ' Cron: skipped, frequency setting will run at hour ' . $frequencyHour . "\n";
+    echo date('c') . ' Cron: prune <-' . "\n";
+    exit();
+}
+
 $imagePrune = $imageList = $volumePrune = [];
 $networkPrune = [];
 $images     = json_decode($docker->getOrphanContainers(), true);
