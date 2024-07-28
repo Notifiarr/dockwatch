@@ -110,12 +110,12 @@ trait API
     {
         $inspect    = $inspect[0] ? $inspect[0] : $inspect;
         $image      = $inspect['Config']['Image'];
-    
+
         $containerName = '';
         if ($inspect['Name']) {
             $containerName = str_replace('/', '', $inspect['Name']);
         }
-    
+
         if (!$containerName && !empty($inspect['Config']['Env'])) {
             foreach ($inspect['Config']['Env'] as $env) {
                 if (str_contains($env, 'HOST_CONTAINERNAME')) {
@@ -124,7 +124,7 @@ trait API
                 }
             }
         }
-    
+
         $payload                        = [
                                             'Hostname'      => $inspect['Config']['Hostname'] ? $inspect['Config']['Hostname'] : $containerName,
                                             'Domainname'    => $inspect['Config']['Domainname'],
@@ -136,7 +136,7 @@ trait API
                                             'StopSignal'    => $inspect['Config']['StopSignal'],
                                             'WorkingDir'    => $inspect['Config']['WorkingDir']
                                         ];
-    
+
         $payload['Env']                 = $inspect['Config']['Env'];
         $payload['Cmd']                 = $inspect['Config']['Cmd'];
         $payload['Healthcheck']         = $inspect['Config']['Healthcheck'];
@@ -147,16 +147,20 @@ trait API
         $payload['NetworkingConfig']    = [
                                             'EndpointsConfig' => $inspect['NetworkSettings']['Networks']
                                         ];
-    
+
         //-- API VALIDATION STUFF
         if (empty($payload['HostConfig']['PortBindings'])) {
             $payload['HostConfig']['PortBindings'] = null;
         }
-    
+
         if (empty($payload['NetworkingConfig']['EndpointsConfig'])) {
             $payload['NetworkingConfig']['EndpointsConfig'] = null;
+        } else {
+            if (empty($payload['NetworkingConfig']['EndpointsConfig']['IPAMConfig'])) {
+                $payload['NetworkingConfig']['EndpointsConfig']['IPAMConfig'] = '{}';
+            }
         }
-    
+
         if (empty($payload['ExposedPorts'])) {
             $payload['ExposedPorts'] = null;
         } else {
@@ -164,7 +168,7 @@ trait API
                 $payload['ExposedPorts'][$port] = null;
             }
         }
-    
+
         if (empty($payload['Volumes'])) {
             $payload['Volumes'] = null;
         } else {
@@ -172,16 +176,16 @@ trait API
                 $payload['Volumes'][$volume] = null;
             }
         }
-    
+
         if (empty($payload['HostConfig']['LogConfig']['Config'])) {
             $payload['HostConfig']['LogConfig']['Config'] = null;
         }
-    
+
         //-- PART OF A CONTAINER NETWORK
         if (str_contains($payload['HostConfig']['NetworkMode'], 'container:')) {
             $payload['Hostname']        = null;
             $payload['ExposedPorts']    = null;
-    
+
             //-- MAKE SURE THE ID IS UPDATED
             $dependencyFile = getServerFile('dependency');
             $dependencyFile = is_array($dependencyFile['file']) && !empty($dependencyFile['file']) ? $dependencyFile['file'] : [];
@@ -193,7 +197,7 @@ trait API
                 }
             }
         }
-    
+
         if (empty($payload['HostConfig']['Mounts'])) {
             $payload['HostConfig']['Mounts'] = null;
         } else {
@@ -203,7 +207,7 @@ trait API
                 }
             }
         }
-    
+
         if ($payload['NetworkSettings']['Networks']) {
             foreach ($payload['NetworkSettings']['Networks'] as $network => $networkSettings) {
                 if ($networkSettings['Aliases']) {
@@ -220,7 +224,7 @@ trait API
                 }
             }
         }
-    
+
         return [
                 'container' => $containerName, 
                 'endpoint'  => sprintf(DockerApi::CREATE_CONTAINER, $containerName), 
