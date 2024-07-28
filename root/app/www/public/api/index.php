@@ -18,7 +18,7 @@ session_unset();
 session_destroy();
 
 $code = 200;
-$apikey = $_SERVER['HTTP_X_API_KEY'] ;
+$apikey = $_SERVER['HTTP_X_API_KEY'] ? $_SERVER['HTTP_X_API_KEY'] : $_GET['apikey'];
 if ($apikey != $serversFile[0]['apikey']) {
     apiResponse(401, ['error' => 'Invalid apikey']);
 }
@@ -29,6 +29,9 @@ switch (true) {
     case $_GET['request']:
         //-- GETTERS
         switch ($_GET['request']) {
+            case 'stats':
+                $response = getStats();
+                break;
             case 'dockerAutoCompose':
                 if (!$_GET['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
