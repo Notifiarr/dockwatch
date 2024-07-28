@@ -156,8 +156,10 @@ trait API
         if (empty($payload['NetworkingConfig']['EndpointsConfig'])) {
             $payload['NetworkingConfig']['EndpointsConfig'] = null;
         } else {
-            if (empty($payload['NetworkingConfig']['EndpointsConfig']['IPAMConfig'])) {
-                $payload['NetworkingConfig']['EndpointsConfig']['IPAMConfig'] = '{}';
+            foreach ($payload['NetworkingConfig']['EndpointsConfig'] as $endpoint => $endpointData) {
+                if (empty($payload['NetworkingConfig']['EndpointsConfig'][$endpoint]['IPAMConfig'])) {
+                    $payload['NetworkingConfig']['EndpointsConfig'][$endpoint]['IPAMConfig'] = new StdClass();
+                }
             }
         }
 
