@@ -9,6 +9,8 @@
 
 function getStats()
 {
+    global $docker;
+    
     $stateFile = getFile(STATE_FILE);
     $pullsFile = getFile(PULL_FILE);
     
