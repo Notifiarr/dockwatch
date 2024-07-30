@@ -194,7 +194,15 @@ if ($_POST['m'] == 'init') {
                         <tr>
                             <th scope="row">Hour</th>
                             <td>
-                                <input class="form-control" type="number" id="globalSetting-autoPruneHour" min="0" max="23" value="<?= $globalSettings['autoPruneHour'] ? $globalSettings['autoPruneHour'] : "12" ?>">
+                                <select class="form-select" id="globalSetting-autoPruneHour">
+                                    <?php
+                                        $option = '';
+                                        for ($x = 0; $x <= 23; $x++) {
+                                            $option .= '<option '.($x == intval($globalSettings['autoPruneHour']) || !$globalSettings['autoPruneHour'] && $x == 12 ? 'selected' : '').' value="'. $x .'">'. $x .'</option>'; 
+                                        }
+                                        echo $option;
+                                    ?>
+                                </select>
                             </td>
                             <td>At which hour the auto prune should run (0-23)</td>
                         </tr>
