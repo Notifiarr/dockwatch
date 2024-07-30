@@ -61,6 +61,10 @@ function executeTask($task)
             $state  = getFile(DEPENDENCY_FILE);
             $return = json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
             break;
+        case 'dwStats':
+            $stats  = getStats();
+            $return = json_encode($stats, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+            break;
     }
 
     return $return;

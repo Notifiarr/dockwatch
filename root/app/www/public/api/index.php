@@ -29,7 +29,7 @@ switch (true) {
     case $_GET['request']:
         //-- GETTERS
         switch ($_GET['request']) {
-            case 'stats':
+            case 'dwStats':
                 $response = getStats();
                 break;
             case 'dockerAutoCompose':

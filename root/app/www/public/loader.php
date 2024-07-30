@@ -142,9 +142,9 @@ if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER
 }
 
 if (!IS_SSE) {
-    $fetchProc      = in_array($_POST['page'], $getProc) || $_POST['hash'];
-    $fetchStats     = in_array($_POST['page'], $getStats) || $_POST['hash'];
-    $fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'];
+    $fetchProc      = in_array($_POST['page'], $getProc) || $_POST['hash'] || $_GET['request'] == 'dwStats';
+    $fetchStats     = in_array($_POST['page'], $getStats) || $_POST['hash'] || $_GET['request'] == 'dwStats';
+    $fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'] || $_GET['request'] == 'dwStats';
 
     $loadTimes[] = trackTime('getExpandedProcessList ->');
     $getExpandedProcessList = getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect);
@@ -155,7 +155,7 @@ if (!IS_SSE) {
     $loadTimes[] = trackTime('getExpandedProcessList <-');
 
     //-- UPDATE THE STATE FILE WHEN EVERYTHING IS FETCHED
-    if ($_POST['page'] == 'overview' || $_POST['page'] == 'containers') {
+    if ($_POST['page'] == 'overview' || $_POST['page'] == 'containers' || $_GET['request'] == 'dwStats') {
         setServerFile('state', json_encode($processList));
     }
 
