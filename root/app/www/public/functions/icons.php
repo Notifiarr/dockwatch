@@ -71,7 +71,7 @@ function getIcon($inspect)
 
                 foreach ($aliasList as $name => $aliasOptions) {
                     if (array_equals_any($aliasOptions, $matchOptions)) {
-                        return str_contains($name, 'http') ? $name : $icons[$name];
+                        return str_contains($name, 'http') ? $name : ICON_URL . $icons[$name];
                     }
                 }
             }

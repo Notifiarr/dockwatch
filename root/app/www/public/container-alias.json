@@ -1,5 +1,6 @@
 {
     "apprise": ["apprise-api"],
+    "authentik": ["authentik", "ghcr.io/goauthentik/server"],
     "grafana": ["grafana-image-renderer"],
     "portainer": ["portainer-ce", "portainer-be", "portainer_agent", "portainer-ee"],
     "prometheus": ["node-exporter"],
