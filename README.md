@@ -58,9 +58,9 @@ No database required. All settings are stored locally in a volume mount.
         -   Example: 
         ```
         {
-          ["image url or icon name"]: "container image name",
-          ["pi-hole"]: "pihole",
-          ["https://www.pgadmin.org/static/COMPILED/assets/img/postgres-alt.svg"]: "pgadmin4"
+          ["image url or icon name"]: {"container image name"},
+          ["pi-hole"]: {"pihole"},
+          ["https://www.pgadmin.org/static/COMPILED/assets/img/postgres-alt.svg"]: {"pgadmin4"}
         }
         ```
 
