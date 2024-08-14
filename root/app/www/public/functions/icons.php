@@ -71,7 +71,14 @@ function getIcon($inspect)
 
                 foreach ($aliasList as $name => $aliasOptions) {
                     if (array_equals_any($aliasOptions, $matchOptions)) {
-                        return str_contains($name, 'http') ? $name : ICON_URL . $icons[$name];
+                        switch (true) {
+                            case str_contains($name, 'http'): //-- ALLOW FOR EXTERNAL URL
+                                return $name;
+                            case substr($name, 0, 1) == '/': //-- ALLOW FOR LOCAL IMAGES
+                                return 'data:image/' . substr($name, -3) . ';charset=utf-8;base64, ' . base64_encode(file_get_contents($name));
+                            default:
+                                return ICON_URL . $icons[$name]; //-- MAP TO THE IMAGES REPO
+                        }
                     }
                 }
             }

@@ -55,14 +55,25 @@ No database required. All settings are stored locally in a volume mount.
     -   Internal alias file: <https://github.com/Notifiarr/dockwatch/blob/main/root/app/www/public/container-alias.json> - This can be modified to add more links to official images as needed
     -   If you have your own custom container images that you want to point to an icon:
         -   Create `/config/container-alias.json` and use the same format as the internal file
-        -   Example: 
+        -   Examples: 
         ```
         {
-          ["image url or icon name"]: ["container image name"],
-          ["pi-hole"]: ["pihole"],
-          ["https://www.pgadmin.org/static/COMPILED/assets/img/postgres-alt.svg"]: ["pgadmin4"]
+          "pi-hole": ["pihole"],
+          "https://www.pgadmin.org/static/COMPILED/assets/img/postgres-alt.svg": ["pgadmin4"]
+          "/config/images/vaultwarden.png": ["vaultwarden/server"]
         }
         ```
+
+        The key (left side) is where the image is:
+        - Notifiarr image repo file name (1st example)
+        - Full url (2nd example)
+        - Absolute local path relative to the container (3rd example)
+     
+
+        The value (right side list) is what all to search for which will match to:
+        - Container names (1st example)
+        - Image names (2nd example)
+        - Full image names (3rd example)
 
 ## Network dependencies
 
