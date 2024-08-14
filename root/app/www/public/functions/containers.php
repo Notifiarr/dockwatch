@@ -40,12 +40,10 @@ function renderContainerRow($nameHash, $return)
         $dockwatchWarning   = ' <i class="fas fa-exclamation-circle text-danger" title="Dockwatch warning, click for more information" style="cursor: pointer;" onclick="dockwatchWarning()"></i>';
     }
 
-    $skipActions = skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions);
-
+    $skipActions        = skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions);
     $containerSettings  = $settingsFile['containers'][$nameHash];
     $logo               = getIcon($process['inspect']);
-
-    $notificationIcon = '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container" style="display: ' . ($containerSettings['disableNotifications'] ? 'inline-block' : 'none') . '"></i> ';
+    $notificationIcon   = '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container" style="display: ' . ($containerSettings['disableNotifications'] ? 'inline-block' : 'none') . '"></i> ';
 
     if ($process['State'] == 'running') {
         $control = '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i><br>';

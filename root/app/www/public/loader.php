@@ -36,7 +36,7 @@ $loadTimes  = [];
 $start      = microtime(true);
 
 //-- DIRECTORIES TO LOAD FILES FROM, ORDER IS IMPORTANT
-$autoloads          = ['includes', 'functions', 'classes'];
+$autoloads          = ['includes', 'functions', 'functions/helpers', 'classes'];
 $ignoreAutoloads    = ['header.php', 'footer.php'];
 
 foreach ($autoloads as $autoload) {

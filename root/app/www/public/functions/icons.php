@@ -43,27 +43,35 @@ function getIcon($inspect)
     if ($inspect[0]['Config']['Labels']['net.unraid.docker.icon']) {
         return $inspect[0]['Config']['Labels']['net.unraid.docker.icon'];
     } else {
-        //-- TRY AN EXACT MATCH
         $icons = getIcons();
-        $image = explode('/', $inspect[0]['Config']['Image']);
-        $image = $image[count($image) - 1];
-        $image = explode(':', $image);
-        $image = $image[0];
 
-        if ($icons[$image]) {
-            return ICON_URL . $icons[$image];
+        //-- GET JUST IMAGE NAME
+        $imageName = explode('/', $inspect[0]['Config']['Image']);
+        $imageName = $imageName[count($imageName) - 1];
+        $imageName = explode(':', $imageName);
+        $imageName = $imageName[0];
+
+        //-- GET SOURCE/IMAGE
+        list($fullImage, $tag) = explode(':', $inspect[0]['Config']['Image']);
+
+        //-- GET CONTAINER
+        $container = str_replace('/', '', $inspect[0]['Name']);
+
+        if ($icons[$imageName] || $icons[$container]) {
+            return $icons[$container] ? ICON_URL . $icons[$container] : ICON_URL . $icons[$imageName];
         }
 
         //-- TRY THE ALIAS FILES
-        $aliasFiles = [EXTERNAL_ICON_ALIAS_FILE, ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE];
+        $aliasFiles     = [EXTERNAL_ICON_ALIAS_FILE, ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE];
+        $matchOptions   = [$imageName, $fullImage, $container];
 
         foreach ($aliasFiles as $aliasFile) {
             if (file_exists($aliasFile)) {
                 $aliasList = getFile($aliasFile);
 
                 foreach ($aliasList as $name => $aliasOptions) {
-                    if (in_array($image, $aliasOptions)) {
-                        return str_contains($name, 'http') ? $name : ICON_URL . $icons[$name];
+                    if (array_equals_any($aliasOptions, $matchOptions)) {
+                        return str_contains($name, 'http') ? $name : $icons[$name];
                     }
                 }
             }
