@@ -111,10 +111,7 @@ function renderContainerRow($nameHash, $return)
                 continue;
             }
 
-            $arrow = '&harr;';
-            if ($mount['Mode'] == 'ro') {
-                $arrow = '&larr;';
-            }
+            $arrow = $mount['Mode'] == 'ro' ? '&larr;' : '&harr;';
 
             $mounts[] = $mount['Destination'] . ' ' . $arrow . ' ' . $mount['Source'] . ($mount['Mode'] ? ':' . $mount['Mode'] : '');
             if (!$previewMount) {
@@ -131,58 +128,48 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
-    $portList = '';
-    $previewPort = '';
+    $portList       = '';
+    $previewPort    = '';
     if ($process['inspect'][0]['HostConfig']['PortBindings']) {
         $ports = [];
 
         foreach ($process['inspect'][0]['HostConfig']['PortBindings'] as $internalBind => $portBinds) {
-            $arrow = '&rarr;';
-
             foreach ($portBinds as $portBind) {
                 if ($portBind['HostPort']) {
-                    $ports[] = $internalBind . ' ' . $arrow . ' ' . $portBind["HostPort"];
-                }
-            }
-
-            if (!$previewPort) {
-                $slicePorts = array_slice($ports, 0, 2);
-
-                foreach ($slicePorts as $slicePort) {
-                    $previewPort .= $slicePort;
+                    $ports[] = $internalBind . ' &rarr; ' . $portBind['HostPort'];
                 }
             }
         }
 
         if ($ports) {
-            $portList = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-port-btn-' . $nameHash . '" onclick="hideContainerPorts(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-port-btn-' . $nameHash . '" onclick="showContainerPorts(\'' . $nameHash . '\')"></i> ';
-            $portList .= '<span id="port-list-preview-' . $nameHash . '">' . $previewPort . '</span><br>';
-            $portList .= '<div id="port-list-full-' . $nameHash . '" style="display: none;">';
-            $portList .= implode('<br>', $ports);
-            $portList .= '</div>';
+            if (!$previewPort) {
+                $slicePorts     = array_slice($ports, 0, 2);
+                $previewPort    = implode('<br>', $slicePorts);
+            }
+
+            if (count($ports) <= 2) {
+                $portList = $previewPort;
+            } else {
+                $portList = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-port-btn-' . $nameHash . '" onclick="hideContainerPorts(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-port-btn-' . $nameHash . '" onclick="showContainerPorts(\'' . $nameHash . '\')"></i> ';
+                $portList .= '<span id="port-list-preview-' . $nameHash . '">' . $previewPort . '</span><br>';
+                $portList .= '<div id="port-list-full-' . $nameHash . '" style="display: none;">';
+                $portList .= implode('<br>', $ports);
+                $portList .= '</div>';
+            }
         }
     }
 
-    $envList = '';
+    $envList    = '';
     $previewEnv = '';
     if ($process['inspect'][0]['Config']['Env']) {
         $env = [];
 
         foreach ($process['inspect'][0]['Config']['Env'] as $envVar) {
-            $arrow = '&rarr;';
-
-            $env[] = explode("=", $envVar)[0] . ' ' . $arrow . ' ' . explode("=", $envVar)[1];
+            $envLabel = explode('=', $envVar)[0] . ' &rarr; ' . explode('=', $envVar)[1];
+            $env[] = $envLabel;
 
             if (!$previewEnv) {
-                $sliceEnvs = array_slice($env, 0, 3);
-
-                foreach ($sliceEnvs as $sliceEnv) {
-                    if (strlen($sliceEnv) > 18) {
-                        $previewEnv .= truncateEnd($sliceEnv, 18);
-                    } else {
-                        $previewEnv .= $sliceEnv;
-                    }
-                }
+                $previewEnv .= truncateEnd($envLabel, 30);
             }
         }
 
@@ -331,44 +318,13 @@ function renderContainerRow($nameHash, $return)
             <td id="<?= $nameHash ?>-mounts-td">
                 <span id="<?= $nameHash ?>-mounts" class="small-text"><?= $mountList ?></span>
             </td>
-
-            <td id="<?= $nameHash ?>-ports-td">
-                <span id="<?= $nameHash ?>-ports" class="small-text"><?= $portList ?></span>
-            </td>
-
             <td id="<?= $nameHash ?>-env-td">
                 <span id="<?= $nameHash ?>-env" class="small-text"><?= $envList ?></span>
             </td>
-
+            <td id="<?= $nameHash ?>-ports-td">
+                <span id="<?= $nameHash ?>-ports" class="small-text"><?= $portList ?></span>
+            </td>
             <td id="<?= $nameHash ?>-usage"><?= $cpuUsage ?><br><?= $process['stats']['MemPerc'] ?></td>
-
-            <td id="<?= $nameHash ?>-update-td">
-                <select id="containers-update-<?= $nameHash ?>" class="form-select container-updates" style="min-width: 150px;">
-                    <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>
-                    <?php if ($isDockwatch || !skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions)) { ?>
-                    <option <?= ($containerSettings['updates'] == 1 ? 'selected' : '') ?> value="1">Auto update</option>
-                    <?php } ?>
-                    <option <?= ($containerSettings['updates'] == 2 ? 'selected' : '') ?> value="2">Check for updates</option>
-                </select>
-            </td>
-            <td id="<?= $nameHash ?>-frequency-td" style="width: 135px;">
-                <?php
-                ?>
-                <input type="text" class="form-control container-frequency" id="containers-frequency-<?= $nameHash ?>" value="<?= $containerSettings['frequency'] ?>" onclick="frequencyCronEditor(this.value, '<?= $nameHash ?>', '<?= $process['Names'] ?>')" readonly>
-                <?php
-                //-- OLD FREQUENCY SETTINGS
-                if (strlen($containerSettings['frequency']) > 3) {
-                    try {
-                        $cron = Cron\CronExpression::factory($containerSettings['frequency']);
-                        $display = $cron->getNextRunDate()->format('Y-m-d H:i:s');
-                    } catch (Exception $e) {
-                        $display = 'Invalid cron syntax';
-                    }
-
-                    echo '<span class="text-muted small-text">' . $display . '</span>';
-                }
-                ?>
-            </td>
         </tr>
         <?php
     }

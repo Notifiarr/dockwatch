@@ -39,11 +39,9 @@ if ($_POST['m'] == 'init') {
                             <th scope="col" class="noselect">State</th>
                             <th scope="col" class="noselect">Health</th>
                             <th scope="col" class="noselect no-sort">Mounts</th>
-                            <th scope="col" class="noselect no-sort">Ports</th>
                             <th scope="col" class="noselect no-sort">Environment</th>
+                            <th scope="col" class="noselect no-sort">Ports</th>
                             <th scope="col" class="noselect no-sort">CPU/MEM</th>
-                            <th scope="col" class="noselect no-sort">Update Option</th>
-                            <th scope="col" class="noselect no-sort">Frequency</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,6 +50,7 @@ if ($_POST['m'] == 'init') {
                         if ($settingsFile['containerGroups']) {
                             foreach ($settingsFile['containerGroups'] as $groupHash => $containerGroup) {
                                 $groupCPU = $groupMemory = 0;
+
                                 foreach ($processList as $process) {
                                     $nameHash = md5($process['Names']);
 
@@ -78,10 +77,9 @@ if ($_POST['m'] == 'init') {
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
-                                    <td><?= $groupCPU ?>%</td>
-                                    <td><?= $groupMemory ?>%</td>
                                     <td>&nbsp;</td>
                                     <td>&nbsp;</td>
+                                    <td><?= $groupCPU ?>%<br><?= $groupMemory ?>%</td>
                                 </tr>
                                 <?php
 
@@ -145,7 +143,7 @@ if ($_POST['m'] == 'init') {
                                 </select>
                                 <button type="button" class="btn btn-outline-info" onclick="massApplyContainerTrigger()">Apply</button>
                             </td>
-                            <td colspan="5">
+                            <td colspan="4">
                                 <div style="float: right;">
                                     <button type="button" class="btn btn-success" onclick="saveContainerSettings()">Save Changes</button>
                                     <button id="check-all-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>

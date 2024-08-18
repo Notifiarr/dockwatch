@@ -401,7 +401,7 @@ function showContainerMounts(containerHash)
     $('#hide-mount-btn-' + containerHash + ', #mount-list-full-' + containerHash).show();
     $('#show-mount-btn-' + containerHash + ', #mount-list-preview-' + containerHash).hide();
     // <td>
-    $('#' + containerHash + '-usage, #' + containerHash + '-ports-td, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').hide();
+    $('#' + containerHash + '-usage, #' + containerHash + '-env-td, #' + containerHash + '-ports-td').hide();
     $('#' + containerHash + '-mounts-td').attr('colspan', 5);
 }
 // ---------------------------------------------------------------------------------------------
@@ -410,26 +410,8 @@ function hideContainerMounts(containerHash)
     $('#show-mount-btn-' + containerHash + ', #mount-list-preview-' + containerHash).show();
     $('#hide-mount-btn-' + containerHash + ', #mount-list-full-' + containerHash).hide();
     // <td>
-    $('#' + containerHash + '-usage, #' + containerHash + '-ports-td, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').show();
+    $('#' + containerHash + '-usage, #' + containerHash + '-env-td, #' + containerHash + '-ports-td').show();
     $('#' + containerHash + '-mounts-td').attr('colspan', 0);
-}
-// ---------------------------------------------------------------------------------------------
-function showContainerPorts(containerHash)
-{
-    $('#hide-port-btn-' + containerHash + ', #port-list-full-' + containerHash).show();
-    $('#show-port-btn-' + containerHash + ', #port-list-preview-' + containerHash).hide();
-    // <td>
-    $('#' + containerHash + '-usage, #' + containerHash + '-env-td, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').hide();
-    $('#' + containerHash + '-ports-td').attr('colspan', 5);
-}
-// ---------------------------------------------------------------------------------------------
-function hideContainerPorts(containerHash)
-{
-    $('#show-port-btn-' + containerHash + ', #port-list-preview-' + containerHash).show();
-    $('#hide-port-btn-' + containerHash + ', #port-list-full-' + containerHash).hide();
-    // <td>
-    $('#' + containerHash + '-usage, #' + containerHash + '-env-td, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').show();
-    $('#' + containerHash + '-ports-td').attr('colspan', 0);
 }
 // ---------------------------------------------------------------------------------------------
 function showContainerEnv(containerHash)
@@ -437,7 +419,7 @@ function showContainerEnv(containerHash)
     $('#hide-env-btn-' + containerHash + ', #env-list-full-' + containerHash).show();
     $('#show-env-btn-' + containerHash + ', #env-list-preview-' + containerHash).hide();
     // <td>
-    $('#' + containerHash + '-usage, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').hide();
+    $('#' + containerHash + '-usage, #' + containerHash + '-ports-td').hide();
     $('#' + containerHash + '-env-td').attr('colspan', 5);
 }
 // ---------------------------------------------------------------------------------------------
@@ -446,8 +428,26 @@ function hideContainerEnv(containerHash)
     $('#show-env-btn-' + containerHash + ', #env-list-preview-' + containerHash).show();
     $('#hide-env-btn-' + containerHash + ', #env-list-full-' + containerHash).hide();
     // <td>
-    $('#' + containerHash + '-usage, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').show();
+    $('#' + containerHash + '-usage, #' + containerHash + '-ports-td').show();
     $('#' + containerHash + '-env-td').attr('colspan', 0);
+}
+// ---------------------------------------------------------------------------------------------
+function showContainerPorts(containerHash)
+{
+    $('#hide-port-btn-' + containerHash + ', #port-list-full-' + containerHash).show();
+    $('#show-port-btn-' + containerHash + ', #port-list-preview-' + containerHash).hide();
+    // <td>
+    $('#' + containerHash + '-usage').hide();
+    $('#' + containerHash + '-ports-td').attr('colspan', 5);
+}
+// ---------------------------------------------------------------------------------------------
+function hideContainerPorts(containerHash)
+{
+    $('#show-port-btn-' + containerHash + ', #port-list-preview-' + containerHash).show();
+    $('#hide-port-btn-' + containerHash + ', #port-list-full-' + containerHash).hide();
+    // <td>
+    $('#' + containerHash + '-usage').show();
+    $('#' + containerHash + '-ports-td').attr('colspan', 0);
 }
 // ---------------------------------------------------------------------------------------------
 function containerLogs(container)
