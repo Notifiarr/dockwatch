@@ -131,12 +131,78 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
+    $portList = '';
+    $previewPort = '';
+    if ($process['inspect'][0]['HostConfig']['PortBindings']) {
+        $ports = [];
+
+        foreach ($process['inspect'][0]['HostConfig']['PortBindings'] as $internalBind => $portBinds) {
+            $arrow = '&rarr;';
+
+            foreach ($portBinds as $portBind) {
+                if ($portBind['HostPort']) {
+                    $ports[] = $internalBind . ' ' . $arrow . ' ' . $portBind["HostPort"];
+                }
+            }
+
+            if (!$previewPort) {
+                $slicePorts = array_slice($ports, 0, 2);
+
+                foreach ($slicePorts as $slicePort) {
+                    $previewPort .= $slicePort;
+                }
+            }
+        }
+
+        if ($ports) {
+            $portList = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-port-btn-' . $nameHash . '" onclick="hideContainerPorts(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-port-btn-' . $nameHash . '" onclick="showContainerPorts(\'' . $nameHash . '\')"></i> ';
+            $portList .= '<span id="port-list-preview-' . $nameHash . '">' . $previewPort . '</span><br>';
+            $portList .= '<div id="port-list-full-' . $nameHash . '" style="display: none;">';
+            $portList .= implode('<br>', $ports);
+            $portList .= '</div>';
+        }
+    }
+
+    $envList = '';
+    $previewEnv = '';
+    if ($process['inspect'][0]['Config']['Env']) {
+        $env = [];
+
+        foreach ($process['inspect'][0]['Config']['Env'] as $envVar) {
+            $arrow = '&rarr;';
+
+            $env[] = explode("=", $envVar)[0] . ' ' . $arrow . ' ' . explode("=", $envVar)[1];
+
+            if (!$previewEnv) {
+                $sliceEnvs = array_slice($env, 0, 3);
+
+                foreach ($sliceEnvs as $sliceEnv) {
+                    if (strlen($sliceEnv) > 18) {
+                        $previewEnv .= truncateEnd($sliceEnv, 18);
+                    } else {
+                        $previewEnv .= $sliceEnv;
+                    }
+                }
+            }
+        }
+
+        if ($env) {
+            $envList = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-env-btn-' . $nameHash . '" onclick="hideContainerEnv(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-env-btn-' . $nameHash . '" onclick="showContainerEnv(\'' . $nameHash . '\')"></i> ';
+            $envList .= '<span id="env-list-preview-' . $nameHash . '">' . $previewEnv . '</span><br>';
+            $envList .= '<div id="env-list-full-' . $nameHash . '" style="display: none;">';
+            $envList .= implode('<br>', $env);
+            $envList .= '</div>';
+        }
+    }
+
     if ($return == 'json') {
         $return     = [
                         'control'   => $control,
                         'update'    => $updateStatus . '<br><span class="text-muted small-text" title="' . $pullData['imageDigest'] .'">' . truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) . '</span>',
                         'state'     => $process['State'],
                         'mounts'    => $mountList,
+                        'ports'     => $portList,
+                        'env'       => $envList,
                         'length'    => $length,
                         'cpu'       => $cpuUsage,
                         'cpuTitle'  => $process['stats']['CPUPerc'],
@@ -265,8 +331,17 @@ function renderContainerRow($nameHash, $return)
             <td id="<?= $nameHash ?>-mounts-td">
                 <span id="<?= $nameHash ?>-mounts" class="small-text"><?= $mountList ?></span>
             </td>
-            <td id="<?= $nameHash ?>-cpu" title="<?= $process['stats']['CPUPerc'] ?>"><?= $cpuUsage ?></td>
-            <td id="<?= $nameHash ?>-mem"><?= $process['stats']['MemPerc'] ?></td>
+
+            <td id="<?= $nameHash ?>-ports-td">
+                <span id="<?= $nameHash ?>-ports" class="small-text"><?= $portList ?></span>
+            </td>
+
+            <td id="<?= $nameHash ?>-env-td">
+                <span id="<?= $nameHash ?>-env" class="small-text"><?= $envList ?></span>
+            </td>
+
+            <td id="<?= $nameHash ?>-usage"><?= $cpuUsage ?><br><?= $process['stats']['MemPerc'] ?></td>
+
             <td id="<?= $nameHash ?>-update-td">
                 <select id="containers-update-<?= $nameHash ?>" class="form-select container-updates" style="min-width: 150px;">
                     <option <?= ($containerSettings['updates'] == 0 ? 'selected' : '') ?> value="0">Ignore</option>

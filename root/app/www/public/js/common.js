@@ -93,14 +93,13 @@ function initPage(page)
                         $('.dt-buttons').
                             prepend($('#check-all-btn')).
                             append($('#group-btn')).
-                            append($('#group-restore-btn'));
-
-                        $('.dataTables_filter').
-                            addClass('dt-buttons').
+                            append($('#group-restore-btn')).
                             append($('#updates-btn')).
-                            append($('#frequency-btn')).
                             append($('#frequency-all-div')).
                             append($('#updates-all-div'));
+
+                        $('.dataTables_filter').
+                            addClass('dt-buttons');
 
                         $('.sorting_disabled').removeClass('sorting_asc');
                     },

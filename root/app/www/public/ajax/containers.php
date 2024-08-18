@@ -39,8 +39,9 @@ if ($_POST['m'] == 'init') {
                             <th scope="col" class="noselect">State</th>
                             <th scope="col" class="noselect">Health</th>
                             <th scope="col" class="noselect no-sort">Mounts</th>
-                            <th scope="col" class="noselect">CPU</th>
-                            <th scope="col" class="noselect">Memory</th>
+                            <th scope="col" class="noselect no-sort">Ports</th>
+                            <th scope="col" class="noselect no-sort">Environment</th>
+                            <th scope="col" class="noselect no-sort">CPU/MEM</th>
                             <th scope="col" class="noselect no-sort">Update Option</th>
                             <th scope="col" class="noselect no-sort">Frequency</th>
                         </tr>
@@ -151,23 +152,26 @@ if ($_POST['m'] == 'init') {
                                     <button id="group-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openContainerGroups()">Container groups</button>
                                     <button id="group-restore-btn" style="display: none;" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
 
-                                    <button id="updates-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="$('#updates-all-div').toggle(); $('#frequency-all-div').hide();">Updates</button>
-                                    <button id="frequency-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="$('#frequency-all-div').toggle(); $('#updates-all-div').hide();">Frequency</button>
-                                    <div id="frequency-all-div" class="m-0 p-0" style="display: none;">
-                                        <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
-                                        <input id="containers-frequency-all" type="text" class="form-control d-inline-block w-25" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
-                                        <i class="fas fa-angle-down ms-1 me-1" style="cursor: pointer;" onclick="massChangeFrequency(1)" title="Apply to selected containers"></i>
-                                        <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="massChangeFrequency(2)" title="Apply to all containers"></i>
-                                    </div>
+                                    <button id="updates-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="$('#updates-all-div').toggle();">Update options</button>
+
+                                    
                                     <div id="updates-all-div" class="m-0 p-0" style="display: none;">
-                                        <select id="container-updates-all" class="form-select d-inline-block w-50">
-                                            <option value="-1">-- Select Option --</option>
-                                            <option value="0">Ignore</option>
-                                            <option value="1">Auto update</option>
-                                            <option value="2">Check for updates</option>
-                                        </select>
-                                        <i class="fas fa-angle-down ms-1 me-1" style="cursor: pointer;" onclick="massChangeContainerUpdates(1)" title="Apply to selected containers"></i>
-                                        <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="massChangeContainerUpdates(2)" title="Apply to all containers"></i>
+                                        <div>
+                                            <input id="containers-frequency-all" type="text" class="form-control d-inline-block w-25" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
+                                            <i class="fas fa-angle-down ms-1 me-1" style="cursor: pointer;" onclick="massChangeFrequency(1)" title="Apply to selected containers"></i>
+                                            <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="massChangeFrequency(2)" title="Apply to all containers"></i>
+                                        </div>
+
+                                        <div class="mt-1">
+                                            <select id="container-updates-all" class="form-select d-inline-block w-50">
+                                                <option value="-1">-- Select Option --</option>
+                                                <option value="0">Ignore</option>
+                                                <option value="1">Auto update</option>
+                                                <option value="2">Check for updates</option>
+                                            </select>
+                                            <i class="fas fa-angle-down ms-1 me-1" style="cursor: pointer;" onclick="massChangeContainerUpdates(1)" title="Apply to selected containers"></i>
+                                            <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="massChangeContainerUpdates(2)" title="Apply to all containers"></i>
+                                        </div>
                                     </div>
                                 </div>
                             </td>

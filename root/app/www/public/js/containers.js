@@ -110,14 +110,16 @@ function updateContainerRowText(hash, data)
     $('#' + hash + '-control').html(data.control);
     $('#' + hash + '-update').html(data.update);
     $('#' + hash + '-state').html(data.state);
-    $('#' + hash + '-mounts').html( data.mounts);
+    $('#' + hash + '-mounts').html(data.mounts);
+    $('#' + hash + '-ports').html(data.ports);
+    $('#' + hash + '-env').html(data.env);
     $('#' + hash + '-length').html(data.length);
-    $('#' + hash + '-cpu').html(data.cpu);
-    $('#' + hash + '-cpu').prop('title', data.cpuTitle);
-    $('#' + hash + '-mem').html(data.mem);
+    $('#' + hash + '-usage').html(data.cpu + "<br>" + data.mem);
     $('#' + hash + '-health').html(data.health);
 
     hideContainerMounts(hash);
+    hideContainerPorts(hash);
+    hideContainerEnv(hash);
 }
 // ---------------------------------------------------------------------------------------------
 function saveContainerSettings()
@@ -399,7 +401,7 @@ function showContainerMounts(containerHash)
     $('#hide-mount-btn-' + containerHash + ', #mount-list-full-' + containerHash).show();
     $('#show-mount-btn-' + containerHash + ', #mount-list-preview-' + containerHash).hide();
     // <td>
-    $('#' + containerHash + '-cpu, #' + containerHash + '-mem, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').hide();
+    $('#' + containerHash + '-usage, #' + containerHash + '-ports-td, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').hide();
     $('#' + containerHash + '-mounts-td').attr('colspan', 5);
 }
 // ---------------------------------------------------------------------------------------------
@@ -408,8 +410,44 @@ function hideContainerMounts(containerHash)
     $('#show-mount-btn-' + containerHash + ', #mount-list-preview-' + containerHash).show();
     $('#hide-mount-btn-' + containerHash + ', #mount-list-full-' + containerHash).hide();
     // <td>
-    $('#' + containerHash + '-cpu, #' + containerHash + '-mem, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').show();
+    $('#' + containerHash + '-usage, #' + containerHash + '-ports-td, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').show();
     $('#' + containerHash + '-mounts-td').attr('colspan', 0);
+}
+// ---------------------------------------------------------------------------------------------
+function showContainerPorts(containerHash)
+{
+    $('#hide-port-btn-' + containerHash + ', #port-list-full-' + containerHash).show();
+    $('#show-port-btn-' + containerHash + ', #port-list-preview-' + containerHash).hide();
+    // <td>
+    $('#' + containerHash + '-usage, #' + containerHash + '-env-td, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').hide();
+    $('#' + containerHash + '-ports-td').attr('colspan', 5);
+}
+// ---------------------------------------------------------------------------------------------
+function hideContainerPorts(containerHash)
+{
+    $('#show-port-btn-' + containerHash + ', #port-list-preview-' + containerHash).show();
+    $('#hide-port-btn-' + containerHash + ', #port-list-full-' + containerHash).hide();
+    // <td>
+    $('#' + containerHash + '-usage, #' + containerHash + '-env-td, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').show();
+    $('#' + containerHash + '-ports-td').attr('colspan', 0);
+}
+// ---------------------------------------------------------------------------------------------
+function showContainerEnv(containerHash)
+{
+    $('#hide-env-btn-' + containerHash + ', #env-list-full-' + containerHash).show();
+    $('#show-env-btn-' + containerHash + ', #env-list-preview-' + containerHash).hide();
+    // <td>
+    $('#' + containerHash + '-usage, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').hide();
+    $('#' + containerHash + '-env-td').attr('colspan', 5);
+}
+// ---------------------------------------------------------------------------------------------
+function hideContainerEnv(containerHash)
+{
+    $('#show-env-btn-' + containerHash + ', #env-list-preview-' + containerHash).show();
+    $('#hide-env-btn-' + containerHash + ', #env-list-full-' + containerHash).hide();
+    // <td>
+    $('#' + containerHash + '-usage, #' + containerHash + '-update-td, #' + containerHash + '-frequency-td, #' + containerHash + '-hour-td').show();
+    $('#' + containerHash + '-env-td').attr('colspan', 0);
 }
 // ---------------------------------------------------------------------------------------------
 function containerLogs(container)
