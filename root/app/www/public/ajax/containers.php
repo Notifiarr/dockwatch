@@ -149,28 +149,7 @@ if ($_POST['m'] == 'init') {
                                     <button id="check-all-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
                                     <button id="group-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openContainerGroups()">Container groups</button>
                                     <button id="group-restore-btn" style="display: none;" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
-
-                                    <button id="updates-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="$('#updates-all-div').toggle();">Update options</button>
-
-                                    
-                                    <div id="updates-all-div" class="m-0 p-0" style="display: none;">
-                                        <div>
-                                            <input id="containers-frequency-all" type="text" class="form-control d-inline-block w-25" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
-                                            <i class="fas fa-angle-down ms-1 me-1" style="cursor: pointer;" onclick="massChangeFrequency(1)" title="Apply to selected containers"></i>
-                                            <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="massChangeFrequency(2)" title="Apply to all containers"></i>
-                                        </div>
-
-                                        <div class="mt-1">
-                                            <select id="container-updates-all" class="form-select d-inline-block w-50">
-                                                <option value="-1">-- Select Option --</option>
-                                                <option value="0">Ignore</option>
-                                                <option value="1">Auto update</option>
-                                                <option value="2">Check for updates</option>
-                                            </select>
-                                            <i class="fas fa-angle-down ms-1 me-1" style="cursor: pointer;" onclick="massChangeContainerUpdates(1)" title="Apply to selected containers"></i>
-                                            <i class="fas fa-angle-double-down" style="cursor: pointer;" onclick="massChangeContainerUpdates(2)" title="Apply to all containers"></i>
-                                        </div>
-                                    </div>
+                                    <button id="updates-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openUpdateOptions()">Update options</button>
                                 </div>
                             </td>
                         </tr>
@@ -677,6 +656,80 @@ if ($_POST['m'] == 'saveContainerGroup') {
     }
 
     echo $error;
+}
+
+if ($_POST['m'] == 'updateOptions') {
+    $processList = apiRequest('dockerProcessList', ['format' => true]);
+    $processList = json_decode($processList['response']['docker'], true);
+    array_sort_by_key($processList, 'Names');
+
+    ?>
+    <div class="bg-secondary rounded h-100 p-4">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.update-container-check').prop('checked', $(this).prop('checked'));"></th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Update</th>
+                        <th scope="col">Frequency</th>
+                    </tr>
+                </thead>
+                <tbody id="containerUpdateRows">
+                <?php
+                foreach ($processList as $process) {
+                    $nameHash   = md5($process['Names']);
+                    ?>
+                    <tr>
+                        <th scope="row">
+                            <input id="container-updates-<?= $nameHash ?>-check" type="checkbox" class="form-check-input update-container-check">
+                        </th>
+                        <td>
+                            <?= $process['Names'] ?>
+                        </td>
+                        <td>
+                            <select id="container-updates-<?= $nameHash ?>" class="form-select">
+                                <option value="-1">-- Select Option --</option>
+                                <option value="0">Ignore</option>
+                                <option value="1">Auto update</option>
+                                <option value="2">Check for updates</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input id="container-frequency-<?= $nameHash ?>" type="text" class="form-control" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
+                        </td>
+                    </tr>
+                    <?php
+                }
+                ?>
+                </tbody>
+            </table>
+
+            <!-- todo:// i need to figure out how the classes are called in bootstrap lmao -->
+            <div style="float: right; display: flex; width: 76.5%; gap: 15px;">
+                <div style="width: 44.5%;">
+                    <select id="container-updates-all" class="form-select d-inline-block" style="width: 88%;">
+                        <option value="-1">-- Select Option --</option>
+                        <option value="0">Ignore</option>
+                        <option value="1">Auto update</option>
+                        <option value="2">Check for updates</option>
+                    </select>
+                    <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeContainerUpdates(1)" title="Apply to selected containers"></i>
+                    <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeContainerUpdates(2)" title="Apply to all containers"></i>
+                </div>
+                <div style="width: 52.5%;">
+                    <input id="containers-frequency-all" type="text" style="width: 89%;" class="form-control d-inline-block" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
+                    <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeFrequency(1)" title="Apply to selected containers"></i>
+                    <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeFrequency(2)" title="Apply to all containers"></i>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <?php
+}
+
+if ($_POST['m'] == 'saveUpdateOptions') {
 }
 
 if ($_POST['m'] == 'openEditContainer') {

@@ -396,6 +396,31 @@ function saveContainerGroup()
 
 }
 // ---------------------------------------------------------------------------------------------
+function openUpdateOptions()
+{
+    $('#updateOptions-modal').modal({
+        keyboard: false,
+        backdrop: 'static'
+    });
+
+    $('#updateOptions-modal').hide();
+    $('#updateOptions-modal').modal('show');
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/containers.php',
+        data: '&m=updateOptions',
+        success: function (resultData) {
+            $('#updateOptions-containers').html(resultData);
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
+function saveUpdateOptions()
+{
+
+}
+// ---------------------------------------------------------------------------------------------
 function showContainerMounts(containerHash)
 {
     $('#hide-mount-btn-' + containerHash + ', #mount-list-full-' + containerHash).show();
