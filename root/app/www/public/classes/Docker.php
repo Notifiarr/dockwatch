@@ -123,7 +123,7 @@ interface DockerSock
     //-- CONTAINER SPECIFIC
     public const REMOVE_CONTAINER = '/usr/bin/docker container rm -f %s';
     public const START_CONTAINER = '/usr/bin/docker container start %s';
-    public const STOP_CONTAINER = '/usr/bin/docker container stop %s';
+    public const STOP_CONTAINER = '/usr/bin/docker container stop %s%s';
     public const ORPHAN_CONTAINERS = '/usr/bin/docker images -f dangling=true --format="{{json . }}" | jq -s --tab .';
     public const CONTAINER_PORT = '/usr/bin/docker port %s %s';
     //-- IMAGE SPECIFIC

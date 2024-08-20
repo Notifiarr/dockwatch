@@ -29,7 +29,18 @@ trait Container
 
     public function stopContainer($container)
     {
-        $cmd = sprintf(DockerSock::STOP_CONTAINER, $container);    
+        //-- GET CURRENT SETTINGS FILE
+        $settingsFile = getServerFile('settings');
+        $settingsFile = $settingsFile['file'];
+
+        $nameHash = md5($container);
+        $delay = (intval($settingsFile['containers'][$nameHash]['shutdownDelaySeconds']) >= 5 ? ' -t ' . $settingsFile['containers'][$nameHash]['shutdownDelaySeconds'] : ' -t 120');
+        
+        if ($settingsFile['containers'][$nameHash]['shutdownDelay']) {
+            logger(SYSTEM_LOG, 'stopContainer() delaying stop command for container ' . $container . ' with ' . $delay);
+        }
+
+        $cmd = sprintf(DockerSock::STOP_CONTAINER, $container, ($settingsFile['containers'][$nameHash]['shutdownDelay'] ? $delay : ''));
         return shell_exec($cmd . ' 2>&1');
     }
 

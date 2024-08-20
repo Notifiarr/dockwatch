@@ -6,10 +6,21 @@ function toggleAllContainers()
 // ---------------------------------------------------------------------------------------------
 function updateContainerOption(option, hash)
 {
+    var setting =  ($('#' + option + '-' + hash).prop('checked') ? 1 : 0);
+
+    if (option == 'shutdownDelaySeconds') {
+        setting = $('#shutdownDelay-input-' + hash).val();
+
+        if (isNaN(parseInt(setting)) || parseInt(setting) < 5) {
+            toast('Container option', 'Shutdown delay needs to be a number and atleast 5 seconds long', 'error');
+            return;
+        }
+    }
+
     $.ajax({
         type: 'POST',
         url: 'ajax/containers.php',
-        data: '&m=updateContainerOption&hash=' + hash + '&option=' + option + '&setting=' + ($('#' + option + '-' + hash).prop('checked') ? 1 : 0),
+        data: '&m=updateContainerOption&hash=' + hash + '&option=' + option + '&setting=' + setting,
         success: function (resultData) {
             toast('Container option', 'The container option setting has been saved', 'success');
 
@@ -34,6 +45,14 @@ function updateContainerOption(option, hash)
                     $('#disableNotifications-icon-' + hash).show();
                 } else {
                     $('#disableNotifications-icon-' + hash).hide();
+                }
+            }
+
+            if (option == 'shutdownDelay') {
+                if ($('#shutdownDelay-input-' + hash).prop('readonly')) {
+                    $('#shutdownDelay-input-' + hash).prop('readonly', false);
+                } else {
+                    $('#shutdownDelay-input-' + hash).prop('readonly', true);
                 }
             }
         }

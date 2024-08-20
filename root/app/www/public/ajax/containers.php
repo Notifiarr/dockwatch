@@ -184,6 +184,8 @@ if ($_POST['m'] == 'saveContainerSettings') {
         $newSettings[$hash]['frequency']            = $frequency;
         $newSettings[$hash]['restartUnhealthy']     = $settingsFile['containers'][$hash]['restartUnhealthy'];
         $newSettings[$hash]['disableNotifications'] = $settingsFile['containers'][$hash]['disableNotifications'];
+        $newSettings[$hash]['shutdownDelay']        = $settingsFile['containers'][$hash]['shutdownDelay'];
+        $newSettings[$hash]['shutdownDelaySeconds'] = $settingsFile['containers'][$hash]['shutdownDelaySeconds'];
     }
 
     $settingsFile['containers'] = $newSettings;

@@ -280,11 +280,12 @@ function renderContainerRow($nameHash, $return)
                             <li class="dropdown-submenu">
                                 <i class="fas fa-ellipsis-v fa-fw text-muted me-1"></i> <a tabindex="-1" href="#" class="text-white">Options</a>
                                 <ul class="dropdown-menu dropdown-menu-dark p-2" style="width: 300px;">
-                                <li><input <?= ($settingsFile['containers'][$nameHash]['disableNotifications'] ? 'checked' : '') ?> type="checkbox" class="form-check-input" id="disableNotifications-<?= $nameHash ?>" onclick="updateContainerOption('disableNotifications', '<?= $nameHash ?>')"> Disable notifications</li>
+                                    <li><input <?= ($settingsFile['containers'][$nameHash]['disableNotifications'] ? 'checked' : '') ?> type="checkbox" class="form-check-input" id="disableNotifications-<?= $nameHash ?>" onclick="updateContainerOption('disableNotifications', '<?= $nameHash ?>')"> Disable notifications</li>
                                     <li><input <?= ($skipActions == SKIP_FORCE ? 'disabled checked' : ($settingsFile['containers'][$nameHash]['blacklist'] ? 'checked' : '')) ?> type="checkbox" class="form-check-input" id="blacklist-<?= $nameHash ?>" onclick="updateContainerOption('blacklist', '<?= $nameHash ?>')"> Blacklist (no state changes)</li>
                                     <?php if ($usesHealth) { ?>
                                     <li><input <?= ($skipActions ? 'disabled' : ($settingsFile['containers'][$nameHash]['restartUnhealthy'] ? 'checked' : '')) ?> type="checkbox" class="form-check-input" id="restartUnhealthy-<?= $nameHash ?>" onclick="updateContainerOption('restartUnhealthy', '<?= $nameHash ?>')"> Restart when unhealthy</li>
                                     <?php } ?>
+                                    <li><input <?= ($settingsFile['containers'][$nameHash]['shutdownDelay'] ? 'checked' : '') ?> type="checkbox" class="form-check-input" id="shutdownDelay-<?= $nameHash ?>" onclick="updateContainerOption('shutdownDelay', '<?= $nameHash ?>');"> Delay shutdown <input type="text" id="shutdownDelay-input-<?= $nameHash ?>" onfocusout="updateContainerOption('shutdownDelaySeconds', '<?= $nameHash ?>');" class="form-control d-inline-block" style="height: 24px; width: 20%;" value="<?= ($settingsFile['containers'][$nameHash]['shutdownDelaySeconds'] ? $settingsFile['containers'][$nameHash]['shutdownDelaySeconds'] : "120") ?>" <?= (!$settingsFile['containers'][$nameHash]['shutdownDelay'] ? 'readonly' : '') ?>></li>
                                 </ul>
                             </li>
 
