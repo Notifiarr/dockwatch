@@ -145,7 +145,6 @@ if ($_POST['m'] == 'init') {
                             </td>
                             <td colspan="4">
                                 <div style="float: right;">
-                                    <button type="button" class="btn btn-success" onclick="saveContainerSettings()">Save Changes</button>
                                     <button id="check-all-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
                                     <button id="group-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openContainerGroups()">Container groups</button>
                                     <button id="group-restore-btn" style="display: none;" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
@@ -159,37 +158,6 @@ if ($_POST['m'] == 'init') {
         </div>
     </div>
     <?php
-}
-
-if ($_POST['m'] == 'saveContainerSettings') {
-    $newSettings = [];
-
-    foreach ($_POST as $key => $val) {
-        if (!str_contains($key, '-update-')) {
-            continue;
-        }
-
-        $hash = str_replace('containers-update-', '', $key);
-
-        list($minute, $hour, $dom, $month, $dow) = explode(' ', $_POST['containers-frequency-' . $hash]);
-        $frequency = $minute . ' ' . $hour . ' ' . $dom . ' ' . $month . ' ' . $dow;
-
-        try {
-            $cron = Cron\CronExpression::factory($frequency);
-        } catch (Exception $e) {
-            $frequency = DEFAULT_CRON;
-        }
-
-        $newSettings[$hash]['updates']              = $val;
-        $newSettings[$hash]['frequency']            = $frequency;
-        $newSettings[$hash]['restartUnhealthy']     = $settingsFile['containers'][$hash]['restartUnhealthy'];
-        $newSettings[$hash]['disableNotifications'] = $settingsFile['containers'][$hash]['disableNotifications'];
-        $newSettings[$hash]['shutdownDelay']        = $settingsFile['containers'][$hash]['shutdownDelay'];
-        $newSettings[$hash]['shutdownDelaySeconds'] = $settingsFile['containers'][$hash]['shutdownDelaySeconds'];
-    }
-
-    $settingsFile['containers'] = $newSettings;
-    setServerFile('settings', $settingsFile);
 }
 
 if ($_POST['m'] == 'containerLogs') {
@@ -671,7 +639,7 @@ if ($_POST['m'] == 'updateOptions') {
             <table class="table">
                 <thead>
                     <tr>
-                        <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.update-container-check').prop('checked', $(this).prop('checked'));"></th>
+                        <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.container-update-checkbox').prop('checked', $(this).prop('checked'));"></th>
                         <th scope="col">Name</th>
                         <th scope="col">Update</th>
                         <th scope="col">Frequency</th>
@@ -684,21 +652,21 @@ if ($_POST['m'] == 'updateOptions') {
                     ?>
                     <tr>
                         <th scope="row">
-                            <input id="container-updates-<?= $nameHash ?>-check" type="checkbox" class="form-check-input update-container-check">
+                            <input id="container-update-<?= $nameHash ?>-checkbox" type="checkbox" class="form-check-input container-update-checkbox">
                         </th>
                         <td>
                             <?= $process['Names'] ?>
                         </td>
                         <td>
-                            <select id="container-updates-<?= $nameHash ?>" class="form-select">
-                                <option value="-1">-- Select Option --</option>
-                                <option value="0">Ignore</option>
-                                <option value="1">Auto update</option>
-                                <option value="2">Check for updates</option>
+                            <select id="container-update-<?= $nameHash ?>" class="form-select container-update">
+                                <option <?= ($settingsFile['containers'][$nameHash]['updates'] == '-1' ? 'selected' : '') ?> value="-1">-- Select Option --</option>
+                                <option <?= ($settingsFile['containers'][$nameHash]['updates'] == '0'  ? 'selected' : '') ?> value="0">Ignore</option>
+                                <option <?= ($settingsFile['containers'][$nameHash]['updates'] == '1'  ? 'selected' : '') ?> value="1">Auto update</option>
+                                <option <?= ($settingsFile['containers'][$nameHash]['updates'] == '2'  ? 'selected' : '') ?> value="2">Check for updates</option>
                             </select>
                         </td>
                         <td>
-                            <input id="container-frequency-<?= $nameHash ?>" type="text" class="form-control" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
+                            <input id="container-frequency-<?= $nameHash ?>" type="text" class="form-control container-frequency" onclick="frequencyCronEditor(this.value, '<?= $nameHash ?>', '<?= $process['Names'] ?>')" value="<?= $settingsFile['containers'][$nameHash]['frequency'] ?>" readonly>
                         </td>
                     </tr>
                     <?php
@@ -710,7 +678,7 @@ if ($_POST['m'] == 'updateOptions') {
             <!-- todo:// i need to figure out how the classes are called in bootstrap lmao -->
             <div style="float: right; display: flex; width: 76.5%; gap: 15px;">
                 <div style="width: 44.5%;">
-                    <select id="container-updates-all" class="form-select d-inline-block" style="width: 88%;">
+                    <select id="container-update-all" class="form-select d-inline-block" style="width: 88%;">
                         <option value="-1">-- Select Option --</option>
                         <option value="0">Ignore</option>
                         <option value="1">Auto update</option>
@@ -720,7 +688,7 @@ if ($_POST['m'] == 'updateOptions') {
                     <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeContainerUpdates(2)" title="Apply to all containers"></i>
                 </div>
                 <div style="width: 52.5%;">
-                    <input id="containers-frequency-all" type="text" style="width: 89%;" class="form-control d-inline-block" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
+                    <input id="container-frequency-all" type="text" style="width: 89%;" class="form-control d-inline-block" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
                     <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeFrequency(1)" title="Apply to selected containers"></i>
                     <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeFrequency(2)" title="Apply to all containers"></i>
                 </div>
@@ -732,6 +700,38 @@ if ($_POST['m'] == 'updateOptions') {
 }
 
 if ($_POST['m'] == 'saveUpdateOptions') {
+    $newSettings = [];
+
+    foreach ($_POST as $key => $val) {
+        preg_match('/container-update-([^-\n]+)|container-frequency-([^-\n]+)/', $key, $matches, PREG_OFFSET_CAPTURE);
+        if (!$matches) {
+            continue;
+        }
+        
+        $hash = $matches[1][0];
+        if (!$hash || $hash == "all") {
+            continue;
+        }
+
+        list($minute, $hour, $dom, $month, $dow) = explode(' ', $_POST['container-frequency-' . $hash]);
+        $frequency = $minute . ' ' . $hour . ' ' . $dom . ' ' . $month . ' ' . $dow;
+
+        try {
+            $cron = Cron\CronExpression::factory($frequency);
+        } catch (Exception $e) {
+            $frequency = DEFAULT_CRON;
+        }
+
+        $newSettings[$hash]['updates']              = $val;
+        $newSettings[$hash]['frequency']            = $frequency;
+        $newSettings[$hash]['restartUnhealthy']     = $settingsFile['containers'][$hash]['restartUnhealthy'];
+        $newSettings[$hash]['disableNotifications'] = $settingsFile['containers'][$hash]['disableNotifications'];
+        $newSettings[$hash]['shutdownDelay']        = $settingsFile['containers'][$hash]['shutdownDelay'];
+        $newSettings[$hash]['shutdownDelaySeconds'] = $settingsFile['containers'][$hash]['shutdownDelaySeconds'];
+    }
+
+    $settingsFile['containers'] = $newSettings;
+    setServerFile('settings', $settingsFile);
 }
 
 if ($_POST['m'] == 'openEditContainer') {

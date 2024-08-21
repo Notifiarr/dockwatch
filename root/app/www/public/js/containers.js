@@ -95,7 +95,7 @@ function frequencyCronEditor(frequency, hash, name)
                 return;
             }
 
-            $(`#containers-frequency-${hash}`).val(expression);
+            $(`#container-frequency-${hash}`).val(expression);
         },
     });
 }
@@ -139,34 +139,6 @@ function updateContainerRowText(hash, data)
     hideContainerMounts(hash);
     hideContainerPorts(hash);
     hideContainerEnv(hash);
-}
-// ---------------------------------------------------------------------------------------------
-function saveContainerSettings()
-{
-    loadingStart();
-
-    let params = '';
-    $.each($('[id^=containers-]'), function () {
-        let val = '';
-        if ($(this).is(':checkbox') || $(this).is(':radio')) {
-            val = $(this).prop('checked') ? 1 : 0;
-        } else {
-            val = $(this).val();
-        }
-
-        params += '&' + $(this).attr('id') + '=' + val;
-    });
-
-    $.ajax({
-        type: 'POST',
-        url: '../ajax/containers.php',
-        data: '&m=saveContainerSettings' + params,
-        success: function (resultData) {
-            loadingStop();
-            toast('Containers', 'Container settings saved', 'success');
-        }
-    });
-
 }
 // ---------------------------------------------------------------------------------------------
 function controlContainer(containerHash, action)
@@ -437,7 +409,31 @@ function openUpdateOptions()
 // ---------------------------------------------------------------------------------------------
 function saveUpdateOptions()
 {
+    loadingStart();
 
+    let params = '';
+    $.each($('[id^=container-]'), function () {
+        let val = '';
+        if ($(this).is(':checkbox') || $(this).is(':radio')) {
+            val = $(this).prop('checked') ? 1 : 0;
+        } else {
+            val = $(this).val();
+        }
+
+        params += '&' + $(this).attr('id') + '=' + val;
+    });
+
+    console.log(params);
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/containers.php',
+        data: '&m=saveUpdateOptions' + params,
+        success: function (resultData) {
+            loadingStop();
+            toast('Update options', 'Update settings saved', 'success');
+        }
+    });
 }
 // ---------------------------------------------------------------------------------------------
 function showContainerMounts(containerHash)
@@ -516,19 +512,19 @@ function containerLogs(container)
 // ---------------------------------------------------------------------------------------------
 function massChangeContainerUpdates(option)
 {
-    const selected = $('#container-updates-all').val();
+    const selected = $('#container-update-all').val();
 
     switch (option) {
         case 1: //-- SELECTED
-            $.each($('.containers-check'), function () {
+            $.each($('.container-update-checkbox'), function () {
                 if ($(this).prop('checked')) {
-                    const hash = $(this).attr('id').replace('massTrigger-', '');
-                    $('#containers-update-' + hash).val(selected)        
+                    const hash = $(this).attr('id').match(/container-update-(.+)-checkbox/);
+                    $('#container-update-' + hash[1]).val(selected);
                 }
             });
             break;
         case 2: //-- ALL
-            $.each($('.container-updates'), function () {
+            $.each($('.container-update'), function () {
                 if ($('option[value=' + selected + ']', this).length) {
                     $(this).val(selected);
                 }
@@ -539,14 +535,14 @@ function massChangeContainerUpdates(option)
 // ---------------------------------------------------------------------------------------------
 function massChangeFrequency(option)
 {
-    const frequency = $('#containers-frequency-all').val();
+    const frequency = $('#container-frequency-all').val();
 
     switch (option) {
         case 1: //-- SELECTED
-            $.each($('.containers-check'), function () {
+            $.each($('.container-update-checkbox'), function () {
                 if ($(this).prop('checked')) {
-                    const hash = $(this).attr('id').replace('massTrigger-', '');
-                    $('#containers-frequency-' + hash).val(frequency)        
+                    const hash = $(this).attr('id').match(/container-update-(.+)-checkbox/);
+                    $('#container-frequency-' + hash[1]).val(frequency);
                 }
             });
             break;
