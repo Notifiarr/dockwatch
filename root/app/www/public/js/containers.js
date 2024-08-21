@@ -11,6 +11,10 @@ function updateContainerOption(option, hash)
     if (option == 'shutdownDelaySeconds') {
         setting = $('#shutdownDelay-input-' + hash).val();
 
+        if (!$(`#shutdownDelay-${hash}`).prop('checked')) {
+            return;
+        }
+
         if (isNaN(parseInt(setting)) || parseInt(setting) < 5) {
             toast('Container option', 'Shutdown delay needs to be a number and atleast 5 seconds long', 'error');
             return;
@@ -422,8 +426,6 @@ function saveUpdateOptions()
 
         params += '&' + $(this).attr('id') + '=' + val;
     });
-
-    console.log(params);
 
     $.ajax({
         type: 'POST',
