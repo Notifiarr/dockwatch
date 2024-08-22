@@ -22,16 +22,46 @@ $(document).ready(function () {
     }
 });
 // -------------------------------------------------------------------------------------------
-function initPage(page)
+function containerMenuMouseOut()
 {
+    if (currentPage != 'containers') {
+        $('#menu-containers-label').removeClass('text-primary');
+    }
+}
+// -------------------------------------------------------------------------------------------
+function clearInitPage(page)
+{
+    init = false;
+    $('#content-' + page).html('The <code>init</code> variable has been set to false, you can load a page without waiting now');
+}
+// -------------------------------------------------------------------------------------------
+function initPage(page, menu = false)
+{
+    $('.conatiner-links').hide();
+
+    if (page == 'containers') {
+        $('.conatiner-links').show();
+    }
+
+    if (menu && EXTERNAL_LOADING) {
+        window.location.href = '?page=' + page
+        return;
+    }
+
     if (init) {
-        toast('Loading', 'A previous page load is still finishing, try again in a second', 'info');
+        toast('Loading', '<span ondblclick="clearInitPage(\'' + page + '\')">A previous page load is still finishing, try again in a second</span>', 'info');
         return;
     }
 
     const dockerPermissionsError = $('#content-dockerPermissions').is(':visible');
     if (dockerPermissionsError) {
         return;
+    }
+
+    //-- CONTAINERS MENU ITEM IS A LITTLE DIFFERENT
+    $('#menu-containers-label').removeClass('text-primary');
+    if (page == 'containers') {
+        $('#menu-containers-label').addClass('text-primary');
     }
 
     currentPage = page;
@@ -46,8 +76,8 @@ function initPage(page)
         url: '../ajax/' + page + '.php',
         data: '&m=init&page=' + page,
         success: function (resultData) {
-            $('#content-' + page).html(resultData);
             init = false;
+            $('#content-' + page).html(resultData);
 
             if (page == 'containers') {
                 $('#sse-timer').html(sseCountdown);
@@ -90,16 +120,9 @@ function initPage(page)
                             $('.container-group-row').show();
                         });
 
-                        $('.dt-buttons').
-                            prepend($('#check-all-btn')).
-                            append($('#group-btn')).
-                            append($('#group-restore-btn')).
-                            append($('#updates-btn')).
-                            append($('#frequency-all-div')).
-                            append($('#updates-all-div'));
+                        $('.dt-buttons').prepend($('#check-all-btn'))
 
-                        $('.dataTables_filter').
-                            addClass('dt-buttons');
+                        $('.dataTables_filter').addClass('dt-buttons');
 
                         $('.sorting_disabled').removeClass('sorting_asc');
                     },
@@ -223,17 +246,24 @@ function loadingStop()
 
 }
 // -------------------------------------------------------------------------------------------
-function updateServerIndex()
+function updateActiveServer()
 {
-    $('#external-server-icon').hide();
-    if ($('#activeServer').val() != '0') {
-        $('#external-server-icon').show();
+    $('[id^=external-server-icon-link-]').hide();
+    $('#external-server-icon-link-' + $('#activeServerId').val()).show();
+
+    if ($('#activeServerId').val() != APP_SERVER_ID) {
+        sseSource.close();
+        USE_SSE = false;
+        console.log('SSE: Disabled (Remote management)');
+    } else {
+        USE_SSE = SSE_SETTING ? true : false;
+        initializeSSE();
     }
 
     $.ajax({
         type: 'POST',
         url: '../ajax/settings.php',
-        data: '&m=updateServerIndex&index=' + $('#activeServer').val(),
+        data: '&m=updateActiveServer&id=' + $('#activeServerId').val(),
         success: function (resultData) {
             initPage(currentPage);
         }
@@ -254,6 +284,10 @@ function dialogOpen(p)
     if (typeof id === 'undefined') {
         console.log('Error: Called dialogOpen with no id parameter');
         return;
+    }
+
+    if ($('#' + id).length) {
+        $('#' + id).remove();
     }
 
     //-- CLONE IT
@@ -341,23 +375,16 @@ function dialogOpen(p)
 function dialogClose(elm)
 {
     if (!elm) {
-        console.log('Error: Called dialogClose on no elm');
+        console.error('Error: Called dialogClose on no elm');
         return;
     }
 
-    let id = elm;
-    if (typeof elm === 'object') {
-        id = $('#dialog-modal-container').find('.modal').find(elm).closest('.modal').attr('id');
-    }
-
-    if (!$('#' + id).length) {
+    if (!$('#' + elm).length) {
+        console.error('Error: Could not locate dialog with id \'' + elm + '\'');
         return;
     }
 
-    const modal = bootstrap.Modal.getInstance($('#' + id))
-    modal.hide();
-    $('#' + id).click();
-    $('#' + id).remove();
+    $('#' + elm).modal('hide');
 
 }
 // -------------------------------------------------------------------------------------------
@@ -411,5 +438,17 @@ function pageLoadingStop()
         $('#loading-modal').modal('hide');
     }, 500);
 
+}
+// -------------------------------------------------------------------------------------------
+function resetSession()
+{
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/login.php',
+        data: '&m=resetSession',
+        success: function (resultData) {
+            reload();
+        }
+    });
 }
 // -------------------------------------------------------------------------------------------

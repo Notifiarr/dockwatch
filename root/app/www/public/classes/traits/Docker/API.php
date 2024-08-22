@@ -13,7 +13,7 @@
         $apiResponse    = $docker->apiCurl($request, 'post');
 */
 
-trait API
+trait DockersApi
 {
     public function apiIsAvailable()
     {
@@ -26,7 +26,7 @@ trait API
     
             return false;
         }
-    
+
         if (file_exists('/var/run/docker.sock')) {
             return true;
         }
@@ -197,8 +197,7 @@ trait API
             $payload['ExposedPorts']    = null;
 
             //-- MAKE SURE THE ID IS UPDATED
-            $dependencyFile = getServerFile('dependency');
-            $dependencyFile = is_array($dependencyFile['file']) && !empty($dependencyFile['file']) ? $dependencyFile['file'] : [];
+            $dependencyFile = makeArray(apiRequest('file-dependency')['result']);
     
             foreach ($dependencyFile as $parent => $parentSettings) {
                 if (in_array($containerName, $parentSettings['containers'])) {

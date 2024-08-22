@@ -7,6 +7,29 @@
 ----------------------------------
 */
 
+function loadClassExtras($class)
+{
+    $extras = ['interfaces', 'traits'];
+
+    foreach ($extras as $extraDir) {
+        if (file_exists(ABSOLUTE_PATH . 'classes/' . $extraDir . '/' . $class . '.php')) {
+            require ABSOLUTE_PATH . 'classes/' . $extraDir . '/' . $class . '.php';
+        } else {
+            $extraFolder = ABSOLUTE_PATH . 'classes/' . $extraDir . '/' . $class . '/';
+
+            if (is_dir($extraFolder)) {
+                $openExtraDir = opendir($extraFolder);
+                while ($extraFile = readdir($openExtraDir)) {
+                    if (str_contains($extraFile, '.php')) {
+                        require $extraFolder . $extraFile;
+                    }
+                }
+                closedir($openExtraDir);
+            }
+        }
+    }
+}
+
 function isDockwatchContainer($container)
 {
     $imageMatch = str_replace(':main', '', APP_IMAGE);
@@ -19,11 +42,6 @@ function isDockwatchContainer($container)
 
 function automation()
 {
-    if (!file_exists(SERVERS_FILE)) {
-        $servers[] = ['name' => 'localhost', 'url' => 'http://localhost', 'apikey' => generateApikey()];
-        setFile(SERVERS_FILE, $servers);
-    }
-
     //-- CREATE DIRECTORIES
     createDirectoryTree(LOGS_PATH . 'crons');
     createDirectoryTree(LOGS_PATH . 'notifications');
@@ -33,6 +51,8 @@ function automation()
     createDirectoryTree(BACKUP_PATH);
     createDirectoryTree(TMP_PATH);
     createDirectoryTree(COMPOSE_PATH);
+    createDirectoryTree(DATABASE_PATH);
+    createDirectoryTree(MIGRATIONS_PATH);
 }
 
 function createDirectoryTree($tree)
@@ -80,11 +100,6 @@ function linkWebroot($location)
             $shell->exec($cmd . ' 2>&1');
             break;
     }
-}
-
-function generateApikey($length = 32)
-{
-    return bin2hex(random_bytes($length));
 }
 
 function trackTime($label, $microtime = 0)
@@ -153,4 +168,35 @@ function formatPortRanges($ports)
     }
 
     return $ranges;
+}
+
+function breakpoint()
+{
+    $backtrace = debug_backtrace();
+    echo '<br>breakpoint -><br>' . $backtrace[0]['file'] . '->' . $backtrace[0]['line'] . '<br>';
+    exit('breakpoint <-');
+}
+
+function getRemoteServerSelect()
+{
+    $activeServer   = apiGetActiveServer();
+    $serverPings    = apiRequestServerPings();
+    $links          = '';
+    $serverList     = '<select class="form-select w-75 d-inline-block" id="activeServerId" onchange="updateActiveServer()">';
+    foreach ($serverPings as $serverPing) {
+        $disabled = $serverPing['code'] != 200 ? ' [HTTP: ' . $serverPing['code'] . ']' : '';
+
+        $serverList .= '<option ' . ($disabled ? 'disabled ' : '') . ($activeServer['id'] == $serverPing['id'] ? 'selected' : '') . ' value="' . $serverPing['id'] . '">' . $serverPing['name'] . $disabled . '</option>';
+
+        if ($serverPing['id'] != APP_SERVER_ID) {
+            $links .= ' <a style="display: ' . ($activeServer['id'] == $serverPing['id'] ? 'inline-block' : 'none') . ';" id="external-server-icon-link-' . $serverPing['id'] . '" class="text-info" href="' . $serverPing['url'] . '" target="_blank" title="Open this server in a new tab"><i class="fas fa-external-link-alt fa-lg"></i></a>';
+        }
+    }
+    $serverList .= '</select>';
+    $serverList .= $links;
+
+    $_SESSION['serverList']         = $serverList;
+    $_SESSION['serverListUpdated']  = time();
+
+    return $serverList;
 }

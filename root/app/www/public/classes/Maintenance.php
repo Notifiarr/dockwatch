@@ -12,15 +12,8 @@
  * It is done this way so if things need to be done per host or per maintenance it is easy to split & log
  */
 
-//-- BRING IN THE TRAITS
-$traits     = ABSOLUTE_PATH . 'classes/traits/Maintenance/';
-$traitsDir  = opendir($traits);
-while ($traitFile = readdir($traitsDir)) {
-    if (str_contains($traitFile, '.php')) {
-        require $traits . $traitFile;
-    }
-}
-closedir($traitsDir);
+//-- BRING IN THE EXTRAS
+loadClassExtras('Maintenance');
 
 class Maintenance
 {
@@ -31,26 +24,21 @@ class Maintenance
     protected $maintenanceContainerName = 'dockwatch-maintenance';
     protected $maintenancePort;
     protected $maintenanceIP;
-    protected $settingsFile;
+    protected $settingsTable;
     protected $hostContainer = [];
     protected $maintenanceContainer = [];
     protected $processList = [];
 
     public function __construct()
     {
-        global $docker, $settingsFile;
+        global $docker, $settingsTable;
 
         logger(MAINTENANCE_LOG, '$maintenance->__construct() ->');
 
-        if (!$settingsFile) {
-            $settingsFile = getServerFile('settings');
-            $settingsFile = $settingsFile['file'];
-        }
-
         $this->docker           = $docker;
-        $this->settingsFile     = $settingsFile;
-        $this->maintenancePort  = $settingsFile['global']['maintenancePort'];
-        $this->maintenanceIP    = $settingsFile['global']['maintenanceIP'];
+        $this->settingsTable    = $settingsTable;
+        $this->maintenancePort  = $settingsTable['maintenancePort'];
+        $this->maintenanceIP    = $settingsTable['maintenanceIP'];
         $getExpandedProcessList = getExpandedProcessList(true, true, true, true);
         $this->processList      = is_array($getExpandedProcessList['processList']) ? $getExpandedProcessList['processList'] : [];
         $imageMatch             = str_replace(':main', '', APP_IMAGE);

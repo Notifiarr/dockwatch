@@ -28,8 +28,8 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
             $processList = json_decode($processList, true);
             logger(MAINTENANCE_LOG, 'dockerProcessList <-');
         } else {
-            $processList = apiRequest('dockerProcessList', ['format' => true]);
-            $processList = json_decode($processList['response']['docker'], true);
+            $processList = apiRequest('docker-processList', ['format' => true])['result'];
+            $processList = json_decode($processList, true);
         }
         $loadTimes[] = trackTime('dockerProcessList <-');
 
@@ -41,8 +41,8 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
             $imageSizes = json_decode($imageSizes, true);
             logger(MAINTENANCE_LOG, 'dockerImageSizes <-');
         } else {
-            $imageSizes = apiRequest('dockerImageSizes');
-            $imageSizes = json_decode($imageSizes['response']['docker'], true);
+            $imageSizes = apiRequest('docker-imageSizes')['result'];
+            $imageSizes = json_decode($imageSizes, true);
         }
         $loadTimes[] = trackTime('dockerImageSizes <-');
     }
@@ -56,8 +56,7 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
             logger(MAINTENANCE_LOG, json_encode($dockerStats, JSON_UNESCAPED_SLASHES));
             logger(MAINTENANCE_LOG, 'dockerStats <-');
         } else {
-            $dockerStats    = apiRequest('stats');
-            $dockerStats    = $dockerStats['response']['state'];
+            $dockerStats = apiRequest('file-stats')['result'];
         }
 
         if (!$dockerStats) { //-- NOT WRITTEN YET
@@ -66,8 +65,8 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
                 logger(MAINTENANCE_LOG, $dockerStats);
                 $dockerStats = json_decode($dockerStats, true);
             } else {
-                $dockerStats = apiRequest('dockerStats');
-                $dockerStats = json_decode($dockerStats['response']['docker'], true);
+                $dockerStats = apiRequest('docker-stats', $_GET)['result'];
+                $dockerStats = json_decode($dockerStats, true);
             }
         }
 
@@ -91,8 +90,8 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
                 logger(MAINTENANCE_LOG, '$docker->inspect ' . json_encode(json_decode($inspect)));
                 logger(MAINTENANCE_LOG, 'dockerInspect <-');
             } else {
-                $inspect        = apiRequest('dockerInspect', ['name' => implode(' ', $inspectContainers), 'format' => true]);
-                $inspectResults = json_decode($inspect['response']['docker'], true);
+                $inspect        = apiRequest('docker-inspect', ['name' => implode(' ', $inspectContainers), 'format' => true])['result'];
+                $inspectResults = json_decode($inspect, true);
             }
         }
 
@@ -132,21 +131,21 @@ function updateDependencyParentId($container, $id)
     global $dependencyFile;
 
     $dependencyFile[$container]['id'] = $id;
-    setServerFile('dependency', json_encode($dependencyFile));
+    apiRequest('file-dependency', [], ['contents' => $dependencyFile]);
 }
 
 function dockerState()
 {
-    $processList = apiRequest('dockerProcessList', ['format' => true, 'useCache' => false]);
-    $processList = json_decode($processList['response']['docker'], true);
+    $processList = apiRequest('docker-processList', ['format' => true, 'useCache' => false])['result'];
+    $processList = json_decode($processList, true);
 
-    $dockerStats = apiRequest('dockerStats', ['useCache' => false]);
-    $dockerStats = json_decode($dockerStats['response']['docker'], true);
+    $dockerStats = apiRequest('docker-stats', ['useCache' => false])['result'];
+    $dockerStats = json_decode($dockerStats, true);
 
     if (!empty($processList)) {
         foreach ($processList as $index => $process) {
-            $inspect = apiRequest('dockerInspect', ['name' => $process['Names'], 'useCache' => false]);
-            $processList[$index]['inspect'] = json_decode($inspect['response']['docker'], true);
+            $inspect = apiRequest('docker-inspect', ['name' => $process['Names'], 'useCache' => false])['result'];
+            $processList[$index]['inspect'] = json_decode($inspect, true);
 
             foreach ($dockerStats as $dockerStat) {
                 if ($dockerStat['Name'] == $process['Names']) {
@@ -163,10 +162,11 @@ function dockerState()
 function dockerPermissionCheck()
 {
     logger(UI_LOG, 'dockerPermissionCheck ->');
-    $response = apiRequest('dockerProcessList', ['format' => true]);
-    logger(UI_LOG, '$response: ' . json_encode($response));
+    $apiRequest = apiRequest('docker-processList', ['format' => true]);
+    logger(UI_LOG, '$apiRequest: ' . json_encode($apiRequest));
     logger(UI_LOG, 'dockerPermissionCheck <-');
-    return empty(json_decode($response['response']['docker'], true)) ? false : true;
+
+    return empty(json_decode($apiRequest['result'], true)) ? false : true;
 }
 
 function dockerCreateContainer($inspect)

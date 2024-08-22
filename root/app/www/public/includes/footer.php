@@ -179,7 +179,7 @@
         </ul>
         <br>
         Consider not running the dockwatch update time at the same time as other containers. When dockwatch starts its update process, everything after it will be ignored since it is stopping its self!<hr>
-        <?php if ($_SESSION['serverIndex'] != 0) { ?>
+        <?php if ($_SESSION['activeServerId'] != 0) { ?>
             Remote control of self restarts and updates is not supported.
         <?php } else { ?>
             Wait 30-45 seconds after using these buttons and refresh the page so the process outlined above can complete. If you have notifications enabled you will see the maintenance container start and shortly after the dockwatch container start.<br><br>

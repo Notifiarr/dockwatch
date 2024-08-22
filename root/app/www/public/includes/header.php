@@ -9,38 +9,14 @@
 
 $_SESSION['IN_DOCKWATCH'] = true;
 
-$fetchServers = false;
-if (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300) < time()) {
-    $fetchServers = true;
-}
-
-if ($fetchServers) {
-    $serverList = '<select class="form-select w-75 d-inline-block" id="activeServer" onchange="updateServerIndex()">';
-    foreach ($serversFile as $serverIndex => $serverDetails) {
-        $ping = curl($serverDetails['url'] . '/api/?request=ping', ['x-api-key: ' . $serverDetails['apikey']], 'GET', '', [], 5);
-        $disabled = '';
-        if ($ping['code'] != 200) {
-            $disabled = ' [HTTP: ' . $ping['code'] . ']';
-        }
-        $serverList .= '<option ' . ($disabled ? 'disabled ' : '') . ($_SESSION['serverIndex'] == $serverIndex ? 'selected' : '') . ' value="' . $serverIndex . '">' . $serverDetails['name'] . $disabled . '</option>';
-        $link = $_SESSION['serverIndex'] == $serverIndex ? $serverDetails['url'] : $link;
-    }
-    $serverList .= '</select>';
-    $serverList .= ' <a class="text-info" href="' . $link . '" target="_blank" title="Open this server in a new tab"><i id="external-server-icon" class="fas fa-external-link-alt fa-lg" style="display: ' . ($_SESSION['serverIndex'] == 0 ? 'none' : 'inline-block') . ';"></i></a>';
-
-    $_SESSION['serverList']         = $serverList;
-    $_SESSION['serverListUpdated']  = time();
-} else {
-    $serverList = $_SESSION['serverList'];
-}
-
+$serverList = (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300) < time()) ? getRemoteServerSelect() : $_SESSION['serverList'];
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Dockwatch<?= ($settingsFile['global']['serverName'] ? ' - ' . $settingsFile['global']['serverName'] : '') ?></title>
+    <title><?= APP_NAME ?><?= $settingsTable['serverName'] ? ' - ' . $settingsTable['serverName'] : '' ?></title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -67,8 +43,11 @@ if ($fetchServers) {
     <link href="css/style.css" rel="stylesheet">
 
     <script type="text/javascript">
-        const USE_EXTERNAL_LOADING = '<?= $settingsFile['global']['externalLoading'] && in_array($_GET['page'], $pages) ? $_GET['page'] : 'overview' ?>';
-        const USE_SSE = <?= $settingsFile['global']['sseEnabled'] ? 'true' : 'false' ?>;
+        const USE_EXTERNAL_LOADING = '<?= $settingsTable['externalLoading'] && in_array($_GET['page'], $pages) ? $_GET['page'] : 'overview' ?>';
+        let USE_SSE = <?= $settingsTable['sseEnabled'] ? 'true' : 'false' ?>;
+        const SSE_SETTING = <?= intval($settingsTable['sseEnabled']) ?>;
+        const APP_SERVER_ID = <?= APP_SERVER_ID ?>;
+        const EXTERNAL_LOADING = <?= $settingsTable['externalLoading'] ?>;
     </script>
 </head>
 
@@ -84,22 +63,32 @@ if ($fetchServers) {
 
         <!-- Sidebar Start -->
         <div class="sidebar pe-4 pb-3">
-            <nav class="navbar bg-secondary navbar-dark">
+            <nav class="navbar bg-secondary navbar-dark" style="overflow: hidden;">
                 <a href="index.php" class="navbar-brand mx-4">
-                    <h3 class="text-primary mb-0">Dockwatch</h3>
+                    <h3 class="text-primary mb-0"><?= APP_NAME ?></h3>
                 </a>
-                <div class="mb-4 w-100" align="center"><?= $serverList ?></div>
+                <div class="mb-4 w-100" align="center"><div id="activeInstanceContainer"><?= $serverList ?></div></div>
                 <?php if ($_SESSION['authenticated']) { ?>
                 <div class="navbar-nav w-100">
-                    <a id="menu-overview" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=overview'" : "initPage('overview')" ?>" style="cursor: pointer;" class="nav-item nav-link active"><i class="fas fa-heartbeat me-2"></i>Overview</a>
-                    <a id="menu-containers" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=containers'" : "initPage('containers')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Containers</a>
-                    <a id="menu-compose" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=compose'" : "initPage('compose')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-octopus-deploy me-2"></i>Compose</a>
-                    <a id="menu-orphans" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=orphans'" : "initPage('orphans')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Orphans</a>
-                    <a id="menu-notification" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=notification'" : "initPage('notification')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-comment-dots me-2"></i>Notifications</a>
-                    <a id="menu-settings" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=settings'" : "initPage('settings')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tools me-2"></i>Settings</a>
-                    <a id="menu-tasks" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=tasks'" : "initPage('tasks')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tasks me-2"></i>Tasks</a>
-                    <a id="menu-commands" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=commands'" : "initPage('commands')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-docker me-2"></i>Commands</a>
-                    <a id="menu-logs" onclick="<?= $settingsFile['global']['externalLoading'] ? "window.location.href='?page=logs'" : "initPage('logs')" ?>" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-file-code me-2"></i>Logs</a>
+                    <a id="menu-overview" onclick="initPage('overview', true)" style="cursor: pointer;" class="nav-item nav-link active"><i class="fas fa-heartbeat me-2"></i>Overview</a>
+                    <a id="menu-containers" class="nav-item nav-link" onmouseover="$('#menu-containers-label').addClass('text-primary')" onmouseout="containerMenuMouseOut()">
+                        <div style="cursor: pointer;">
+                            <div id="menu-containers-label" onclick="initPage('containers', true)">
+                                <i class="fas fa-th me-2"></i>Containers
+                            </div>
+                            <div class="w-100 text-white ms-5 conatiner-links" style="display: none;">
+                                <div onclick="openContainerGroups()" style="cursor: pointer;">&middot; Groups</div>
+                                <div onclick="openUpdateOptions()" style="cursor: pointer;">&middot; Updates</div>
+                            </div>
+                        </div>
+                    </a>
+                    <a id="menu-compose" onclick="initPage('compose', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-octopus-deploy me-2"></i>Compose</a>
+                    <a id="menu-orphans" onclick="initPage('orphans', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Orphans</a>
+                    <a id="menu-notification" onclick="initPage('notification', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-comment-dots me-2"></i>Notifications</a>
+                    <a id="menu-settings" onclick="initPage('settings', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tools me-2"></i>Settings</a>
+                    <a id="menu-tasks" onclick="initPage('tasks', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tasks me-2"></i>Tasks</a>
+                    <a id="menu-commands" onclick="initPage('commands', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-docker me-2"></i>Commands</a>
+                    <a id="menu-logs" onclick="initPage('logs', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-file-code me-2"></i>Logs</a>
                     <?php if (USE_AUTH) { ?>
                     <a onclick="logout()" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
                     <?php } ?>
@@ -112,7 +101,7 @@ if ($fetchServers) {
             </nav>
             <div class="w-100 text-center small-text" style="position: absolute; bottom: 0;">
                 Branch: <?= gitBranch() ?>, Hash: <a href="https://github.com/Notifiarr/dockwatch/commit/<?= gitHash() ?>" target="_blank" class="text-info"><?= substr(gitHash(), 0, 7) ?></a><br>
-                <span class="text-muted">Theme By <a href="https://htmlcodex.com" target="_blank">HTML Codex</a> | <i class="fas fa-stopwatch" onclick="$('#loadtime-debug').toggle()"></i></span>
+                <span class="text-muted">Theme By <a href="https://htmlcodex.com" target="_blank">HTML Codex</a> | <i class="fas fa-stopwatch" onclick="$('#loadtime-debug').toggle()"></i> | <i title="Clear session" class="fas fa-sign-out-alt" onclick="resetSession()"></i></span>
             </div>
         </div>
         <!-- Sidebar End -->

@@ -11,20 +11,19 @@ function executeTask($task)
 {
     global $shell;
 
-    $getExpandedProcessList = getExpandedProcessList(true, true, true);
-    $processList            = $getExpandedProcessList['processList'];
-
     $return = '[]';
 
     switch ($task) {
         case 'processList';
-            $return = json_encode($processList, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-            break;
+            $getExpandedProcessList = getExpandedProcessList(true, true, true);
+            $processList            = $getExpandedProcessList['processList'];
+
+            return json_encode($processList, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'aliasFile':
             $external   = getFile(EXTERNAL_ICON_ALIAS_FILE);
             $internal   = getFile(ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE);
-            $return     = json_encode(['external_file' => EXTERNAL_ICON_ALIAS_FILE, 'external_alias' => $external, 'internal_file' => ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE, 'internal_alias' => $internal], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-            break;
+
+            return json_encode(['external_file' => EXTERNAL_ICON_ALIAS_FILE, 'external_alias' => $external, 'internal_file' => ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE, 'internal_alias' => $internal], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'state':
         case 'health':
         case 'housekeeper':
@@ -32,42 +31,36 @@ function executeTask($task)
         case 'prune':
         case 'stats':
             $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'crons/' . $task . '.php';
-            $return = $shell->exec($cmd . ' 2>&1');
-            break;
+
+            return $shell->exec($cmd . ' 2>&1');
         case 'server':
             $return = 'cli:<br>';
             $return .= '/usr/bin/php -r \'print_r($_SERVER);\'<br><br>';
             $return .= 'browser:<br>';
+
             foreach ($_SERVER as $key => $val) {
                 $return .= '[' . $key . '] => ' . $val . '<br>';
             }
-            break;
+
+            return $return;
         case 'session':
             foreach ($_SESSION as $key => $val) {
                 $return .= '[' . $key . '] => ' . $val . '<br>';
             }
-            break;
+
+            return $return;
         case 'icons':
             getIcons(true);
-            $return = 'The icon list has been refreshed';
-            break;
+            return 'The icon list has been refreshed';
         case 'pullFile':
-            $pull   = getFile(PULL_FILE);
-            $return = json_encode($pull, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-            break;
+            return json_encode(getFile(PULL_FILE), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'stateFile':
-            $state  = getFile(STATE_FILE);
-            $return = json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-            break;
+            return json_encode(getFile(STATE_FILE), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'dependencyFile':
-            $state  = getFile(DEPENDENCY_FILE);
-            $return = json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-            break;
+            return json_encode(getFile(DEPENDENCY_FILE), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'dwStats':
-            $stats  = getStats();
-            $return = json_encode($stats, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-            break;
+            return json_encode(getStats(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        default:
+            return 'Invalid task requested (task=' . $task . ')';
     }
-
-    return $return;
 }

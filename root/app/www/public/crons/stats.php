@@ -14,7 +14,7 @@ logger(SYSTEM_LOG, 'Cron: running stats');
 logger(CRON_STATS_LOG, 'run ->');
 echo date('c') . ' Cron: stats' . "\n";
 
-if ($settingsFile['tasks']['stats']['disabled']) {
+if ($settingsTable['tasksStatsDisabled']) {
     logger(CRON_STATS_LOG, 'Cron cancelled: disabled in tasks menu');
     logger(CRON_STATS_LOG, 'run <-');
     echo date('c') . ' Cron: stats cancelled, disabled in tasks menu' . "\n";
@@ -23,7 +23,7 @@ if ($settingsFile['tasks']['stats']['disabled']) {
 }
 
 $dockerStats = $docker->stats(false);
-setServerFile('stats', $dockerStats);
+apiRequest('file-stats', [], ['contents' => $dockerStats]);
 
 echo date('c') . ' Cron: stats <-' . "\n";
 logger(CRON_STATS_LOG, 'run <-');

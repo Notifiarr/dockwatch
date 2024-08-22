@@ -10,12 +10,12 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $images     = apiRequest('dockerGetOrphanContainers');
-    $images     = json_decode($images['response']['docker'], true);
-    $volumes    = apiRequest('dockerGetOrphanVolumes');
-    $volumes    = json_decode($volumes['response']['docker'], true);
-    $networks    = apiRequest('dockerGetOrphanNetworks');
-    $networks    = json_decode($networks['response']['docker'], true);
+    $images     = apiRequest('docker-getOrphanContainers');
+    $images     = json_decode($images['result'], true);
+    $volumes    = apiRequest('docker-getOrphanVolumes');
+    $volumes    = json_decode($volumes['result'], true);
+    $networks   = apiRequest('docker-getOrphanNetworks');
+    $networks   = json_decode($networks['result'], true);
 
     ?>
     <div class="container-fluid pt-4 px-4 mb-5">
@@ -126,24 +126,21 @@ if ($_POST['m'] == 'removeOrphans') {
     switch ($_POST['action']) {
         case 'remove':
             if ($_POST['type'] == 'image') {
-                $remove = apiRequest('dockerRemoveImage', [], ['image' => $_POST['orphan']]);
-                $remove = $remove['response']['docker'];
-                if (stripos($remove, 'error') !== false || stripos($remove, 'help') !== false) {
-                    echo $remove;
-                }
-            }
-            if ($_POST['type'] == 'volume') {
-                $remove = apiRequest('dockerRemoveVolume', [], ['name' => $_POST['orphan']]);
-                $remove = $remove['response']['docker'];
-                if (stripos($remove, 'error') !== false || stripos($remove, 'help') !== false) {
-                    echo $remove;
+                $apiRequest = apiRequest('docker-removeImage', [], ['image' => $_POST['orphan']])['result'];
+                if (stripos($apiRequest, 'error') !== false || stripos($apiRequest, 'help') !== false) {
+                    echo $apiRequest;
                 }
             }
             if ($_POST['type'] == 'network') {
-                $remove = apiRequest('dockerRemoveNetwork', [], ['id' => $_POST['orphan']]);
-                $remove = $remove['response']['docker'];
-                if (stripos($remove, 'error') !== false || stripos($remove, 'help') !== false) {
-                    echo $remove;
+                $apiRequest = apiRequest('docker-removeNetwork', [], ['id' => $_POST['orphan']])['result'];
+                if (stripos($apiRequest, 'error') !== false || stripos($apiRequest, 'help') !== false) {
+                    echo $apiRequest;
+                }
+            }
+            if ($_POST['type'] == 'volume') {
+                $apiRequest = apiRequest('docker-removeVolume', [], ['name' => $_POST['orphan']])['result'];
+                if (stripos($apiRequest, 'error') !== false || stripos($apiRequest, 'help') !== false) {
+                    echo $apiRequest;
                 }
             }
             break;

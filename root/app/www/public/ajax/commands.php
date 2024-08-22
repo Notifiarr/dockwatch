@@ -19,10 +19,10 @@ if ($_POST['m'] == 'init') {
                         <div class="col-sm-12 mb-2">
                             <select class="form-select" id="command">
                                 <optgroup label="docker">
-                                    <option value="dockerInspect">inspect {container}</option>
-                                    <option value="dockerNetworks">network {params}</option>
-                                    <option value="dockerPort">port {container}</option>
-                                    <option value="dockerProcessList">ps</option>
+                                    <option value="docker-inspect">inspect {container}</option>
+                                    <option value="docker-networks">network {params}</option>
+                                    <option value="docker-port">port {container}</option>
+                                    <option value="docker-processList">ps</option>
                                 </optgroup>
                             </select>
                         </div>
@@ -42,10 +42,10 @@ if ($_POST['m'] == 'init') {
                         </thead>
                         <tbody>
                             <?php
-                            foreach ($serversFile as $serverIndex => $serverData) {
+                            foreach ($serversTable as $serverId => $serverData) {
                                 ?>
                                 <tr>
-                                    <td><input type="checkbox" class="form-check-input" id="command-<?= $serverIndex ?>"></td>
+                                    <td><input type="checkbox" class="form-check-input" id="command-<?= $serverId ?>"></td>
                                     <td><?= $serverData['name'] ?></td>
                                 </tr>
                                 <?php
@@ -72,21 +72,19 @@ if ($_POST['m'] == 'runCommand') {
     $servers    = explode(',', $_POST['servers']);
     $params     = $_POST['params'];
 
-    foreach ($serversFile as $serverIndex => $serverData) {
-        if (in_array($serverIndex, $servers)) {
-            $serverOverride = $serverData;
-            $apiResponse = apiRequest($_POST['command'], ['name' => $_POST['container'], 'params' => $_POST['parameters']]);
+    foreach ($serversTable as $serverId => $serverData) {
+        if (in_array($serverId, $servers)) {
+            apiSetActiveServer($serverData['id'], $serversTable);
 
-            if ($apiResponse['code'] == 200) {
-                $apiResponse = $apiResponse['response']['docker'];
-            } else {
-                $apiResponse = $apiResponse['code'] .': '. $apiResponse['error'];
-            }
+            $apiResponse = apiRequest($_POST['command'], ['name' => $_POST['container'], 'params' => $_POST['parameters']]);
+            $apiResponse = $apiResponse['code'] == 200 ? $apiResponse['result'] : $apiResponse['code'] . ': ' . $apiResponse['error'];
 
             ?>
-            <h4><?= $serverData['name'] ?></h4>
+            <h4 class="d-inline-block"><?= $serverData['name'] ?></h4> <span class="small-text d-inline-block"><?= $serverData['url'] ?></span>
             <pre style="max-height: 500px; overflow: auto;"><?= htmlspecialchars($apiResponse) ?></pre>
             <?php
         }
     }
+
+    apiSetActiveServer(APP_SERVER_ID, $serversTable);
 }

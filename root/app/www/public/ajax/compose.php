@@ -15,7 +15,7 @@ services:
     container_name: dockwatch
     image: ghcr.io/notifiarr/dockwatch:main
     ports:
-      - 9999:80/tcp
+      - ' . APP_PORT . ':80/tcp
     environment:
       - PGID=999
       - TZ=America/New_York
@@ -35,7 +35,7 @@ while ($folder = readdir($dir)) {
 closedir($dir);
 
 if ($_POST['m'] == 'init') {
-    if ($_SESSION['serverIndex'] != 0) {
+    if ($_SESSION['activeServerId'] != APP_SERVER_ID) {
         echo 'Remote compose management is not supported. Please do that on the Dockwatch instance directly.';
     } else {
         ?>

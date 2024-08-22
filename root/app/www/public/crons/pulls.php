@@ -14,9 +14,9 @@ set_time_limit(0);
 
 logger(SYSTEM_LOG, 'Cron: running pulls');
 logger(CRON_PULLS_LOG, 'run ->');
-echo date('c') . ' Cron: pulls' . "\n";
+echo date('c') . ' Cron: pulls ->' . "\n";
 
-if ($settingsFile['tasks']['pulls']['disabled']) {
+if ($settingsTable['tasksPullsDisabled']) {
     logger(CRON_PULLS_LOG, 'Cron cancelled: disabled in tasks menu');
     logger(CRON_PULLS_LOG, 'run <-');
     echo date('c') . ' Cron: pulls cancelled, disabled in tasks menu' . "\n";
@@ -24,14 +24,16 @@ if ($settingsFile['tasks']['pulls']['disabled']) {
     exit();
 }
 
-$updateSettings = $settingsFile['containers'];
-$notify         = [];
-$startStamp     = new DateTime();
+$containersTable    = apiRequest('database-getContainers')['result'];
+$notify             = [];
+$startStamp         = new DateTime();
 
-if ($updateSettings) {
+if ($containersTable) {
     $imagesUpdated = [];
 
-    foreach ($updateSettings as $containerHash => $containerSettings) {
+    foreach ($containersTable as $containerSettings) {
+        $containerHash = $containerSettings['hash'];
+
         //-- SET TO IGNORE
         if (!$containerSettings['updates']) {
             continue;
@@ -132,7 +134,7 @@ if ($updateSettings) {
                     echo date('c') . ' ' . $msg . "\n";
                 }
 
-                if (!$dockerCommunicateAPI) {
+                if (!$isDockerApiAvailable) {
                     $msg = 'Skipping container update: ' . $containerState['Names'] . ' (docker engine api access is not available)';
                     logger(CRON_PULLS_LOG, $msg);
                     echo date('c') . ' ' . $msg . "\n";
@@ -160,7 +162,7 @@ if ($updateSettings) {
                                                             ];
 
                                 //-- UPDATE THE PULLS FILE BEFORE THIS CALL SINCE THIS STOPS THE PROCESS
-                                setServerFile('pull', $pullsFile);
+                                apiRequest('file-pull', [], ['contents' => $pullsFile]);
 
                                 $maintenance = new Maintenance();
                                 $maintenance->apply('update');
@@ -240,8 +242,7 @@ if ($updateSettings) {
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo date('c') . ' ' . $msg . "\n";
 
-                                    $dependencyFile = getServerFile('dependency');
-                                    $dependencyFile = $dependencyFile['file'];
+                                    $dependencyFile = apiRequest('file-dependency')['result'];
                                     $dependencies   = $dependencyFile[$containerState['Names']]['containers'];
 
                                     if (is_array($dependencies)) {
@@ -252,31 +253,31 @@ if ($updateSettings) {
                                         updateDependencyParentId($containerState['Names'], $update['Id']);
 
                                         foreach ($dependencies as $dependencyContainer) {
-                                            $msg = '[dependency] dockerInspect: ' . $dependencyContainer;
+                                            $msg = '[dependency] docker-inspect: ' . $dependencyContainer;
                                             logger(CRON_PULLS_LOG, $msg);
                                             echo date('c') . ' ' . $msg . "\n";
-                                            $apiResponse = apiRequest('dockerInspect', ['name' => $dependencyContainer, 'useCache' => false, 'format' => true]);
+                                            $apiResponse = apiRequest('docker-inspect', ['name' => $dependencyContainer, 'useCache' => false, 'format' => true]);
                                             logger(CRON_PULLS_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
-                                            $inspectImage = $apiResponse['response']['docker'];
+                                            $inspectImage = $apiResponse['result'];
 
-                                            $msg = '[dependency] dockerStopContainer: ' . $dependencyContainer;
+                                            $msg = '[dependency] docker-stopContainer: ' . $dependencyContainer;
                                             logger(CRON_PULLS_LOG, $msg);
                                             echo date('c') . ' ' . $msg . "\n";
-                                            $apiResult = apiRequest('dockerStopContainer', [], ['name' => $dependencyContainer]);
-                                            logger(CRON_PULLS_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                                            $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $dependencyContainer]);
+                                            logger(CRON_PULLS_LOG, 'dockerStopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
-                                            $msg = '[dependency] dockerRemoveContainer: ' . $dependencyContainer;
+                                            $msg = '[dependency] docker-removeContainer: ' . $dependencyContainer;
                                             logger(CRON_PULLS_LOG, $msg);
                                             echo date('c') . ' ' . $msg . "\n";
-                                            $apiResult = apiRequest('dockerRemoveContainer', [], ['name' => $dependencyContainer]);
-                                            logger(CRON_PULLS_LOG, 'dockerRemoveContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                                            $apiRequest = apiRequest('docker-removeContainer', [], ['name' => $dependencyContainer]);
+                                            logger(CRON_PULLS_LOG, 'docker-removeContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
-                                            $msg = '[dependency] dockerCreateContainer: ' . $dependencyContainer;
+                                            $msg = '[dependency] docker-createContainer: ' . $dependencyContainer;
                                             logger(CRON_PULLS_LOG, $msg);
                                             echo date('c') . ' ' . $msg . "\n";
-                                            $apiResponse = apiRequest('dockerCreateContainer', [], ['inspect' => $inspectImage]);
-                                            logger(CRON_PULLS_LOG, 'dockerCreateContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
-                                            $update         = $apiResponse['response']['docker'];
+                                            $apiRequest = apiRequest('docker-createContainer', [], ['inspect' => $inspectImage]);
+                                            logger(CRON_PULLS_LOG, 'docker-createContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                                            $update         = $apiRequest['result'];
                                             $createResult   = 'failed';
 
                                             if (strlen($update['Id']) == 64) {
@@ -284,11 +285,11 @@ if ($updateSettings) {
                                                 logger(CRON_PULLS_LOG, 'Container ' . $dependencyContainer . ' re-create: ' . $createResult);
 
                                                 if (str_contains($containerState['State'], 'running')) {
-                                                    $msg = '[dependency] dockerStartContainer: ' . $dependencyContainer;
+                                                    $msg = '[dependency] docker-startContainer: ' . $dependencyContainer;
                                                     logger(CRON_PULLS_LOG, $msg);
                                                     echo date('c') . ' ' . $msg . "\n";
-                                                    $apiResponse = apiRequest('dockerStartContainer', [], ['name' => $dependencyContainer]);
-                                                    logger(CRON_PULLS_LOG, 'dockerStartContainer:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                                                    $apiRequest = apiRequest('docker-startContainer', [], ['name' => $dependencyContainer]);
+                                                    logger(CRON_PULLS_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                                                 } else {
                                                     logger(CRON_PULLS_LOG, 'container was not running, not starting it');
                                                 }
@@ -296,7 +297,7 @@ if ($updateSettings) {
                                         }
                                     }
 
-                                    if ($settingsFile['notifications']['triggers']['updated']['active'] && !$settingsFile['containers'][$containerHash]['disableNotifications']) {
+                                    if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'updated'])['result'] && !$containerSettings['disableNotifications']) {
                                         $notify['updated'][]    = [
                                                                     'container' => $containerState['Names'],
                                                                     'image'     => $image,
@@ -309,14 +310,14 @@ if ($updateSettings) {
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo date('c') . ' ' . $msg . "\n";
 
-                                    if ($settingsFile['notifications']['triggers']['updated']['active'] && !$settingsFile['containers'][$containerHash]['disableNotifications']) {
+                                    if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'updated'])['result'] && !$containerSettings['disableNotifications']) {
                                         $notify['failed'][] = ['container' => $containerState['Names']];
                                     }
                                 }
                             }
                             break;
                         case 2: //-- Check for updates
-                            if ($settingsFile['notifications']['triggers']['updates']['active'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image'] && !$settingsFile['containers'][$containerHash]['disableNotifications']) {
+                            if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'updates'])['result'] && !$containerSettings['disableNotifications'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
                                 $notify['available'][] = ['container' => $containerState['Names']];
                             }
                             break;
@@ -330,30 +331,32 @@ if ($updateSettings) {
         }
     }
 
-    setServerFile('pull', $pullsFile);
+    apiRequest('file-pull', [], ['contents' => $pullsFile]);
 
     if ($notify) {
         //-- IF THEY USE THE SAME PLATFORM, COMBINE THEM
-        if ($settingsFile['notifications']['triggers']['updated']['platform'] == $settingsFile['notifications']['triggers']['updates']['platform']) {
+        if (apiRequest('database-getNotificationLinkPlatformFromName', ['name' => 'updated'])['result'] == apiRequest('database-getNotificationLinkPlatformFromName', ['name' => 'updates'])['result']) {
             $payload = ['event' => 'updates', 'available' => $notify['available'], 'updated' => $notify['updated']];
+            $notifications->notify(0, 'updates', $payload);
+
             logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
-            $notifications->notify($settingsFile['notifications']['triggers']['updated']['platform'], $payload);
         } else {
             if ($notify['available']) {
                 $payload = ['event' => 'updates', 'available' => $notify['available']];
+                $notifications->notify(0, 'updates', $payload);
+
                 logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
-                $notifications->notify($settingsFile['notifications']['triggers']['updated']['platform'], $payload);
             }
 
-            if ($notify['usage']['mem']) {
+            if ($notify['updated']) {
                 $payload = ['event' => 'updates', 'updated' => $notify['updated']];
+                $notifications->notify(0, 'updated', $payload);
+
                 logger(CRON_PULLS_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
-                $notifications->notify($settingsFile['notifications']['triggers']['updates']['platform'], $payload);
             }
         }
     }
 }
-
 
 echo date('c') . ' Cron: pulls <-' . "\n";
 logger(CRON_PULLS_LOG, 'run <-');

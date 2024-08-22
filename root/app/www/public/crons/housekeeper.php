@@ -14,7 +14,7 @@ logger(SYSTEM_LOG, 'Cron: running housekeeper');
 logger(CRON_HOUSEKEEPER_LOG, 'run ->');
 echo date('c') . ' Cron: housekeeper ->' . "\n";
 
-if ($settingsFile['tasks']['housekeeping']['disabled']) {
+if ($settingsTable['tasksHousekeepingDisabled']) {
     logger(CRON_HOUSEKEEPER_LOG, 'Cron cancelled: disabled in tasks menu');
     logger(CRON_HOUSEKEEPER_LOG, 'run <-');
     echo date('c') . ' Cron: housekeeper cancelled, disabled in tasks menu' . "\n";
@@ -33,7 +33,7 @@ if (date('H') == 0 && date('i') <= 5) {
         }
 
         logger(CRON_HOUSEKEEPER_LOG, 'removing \'' . TMP_PATH . $file . '\'');
-        unlink(TMP_PATH . $file);
+        $shell->exec('rm -rf ' . TMP_PATH . $file);
     }
     closedir($dir);
 }
@@ -44,12 +44,12 @@ if (date('H') == 0 && date('i') <= 5) {
                     [
                         'crons'         => [[
                                             'message'   => 'Cron log file cleanup (daily @ midnight)',
-                                            'length'    => ($settingsFile['global']['cronLogLength'] <= 1 ? 1 : $settingsFile['global']['cronLogLength'])
+                                            'length'    => ($settingsTable['cronLogLength'] <= 1 ? 1 : $settingsTable['cronLogLength'])
                                         ]]
                     ],[
                         'notifications' => [[
                                             'message'   => 'Notification log file cleanup (daily @ midnight)',
-                                            'length'    => ($settingsFile['global']['notificationLogLength'] <= 1 ? 1 : $settingsFile['global']['notificationLogLength'])
+                                            'length'    => ($settingsTable['notificationLogLength'] <= 1 ? 1 : $settingsTable['notificationLogLength'])
                                         ]]
                     ],[
                         'system'        => [[
@@ -59,11 +59,11 @@ if (date('H') == 0 && date('i') <= 5) {
                                         ],[
                                             'type'      => 'ui',
                                             'message'   => 'UI log file cleanup (daily @ midnight)',
-                                            'length'    => ($settingsFile['global']['uiLogLength'] <= 1 ? 1 : $settingsFile['global']['uiLogLength'])
+                                            'length'    => ($settingsTable['uiLogLength'] <= 1 ? 1 : $settingsTable['uiLogLength'])
                                         ],[
                                             'type'      => 'api',
                                             'message'   => 'API log file cleanup (daily @ midnight)',
-                                            'length'    => ($settingsFile['global']['apiLogLength'] <= 1 ? 1 : $settingsFile['global']['apiLogLength'])
+                                            'length'    => ($settingsTable['apiLogLength'] <= 1 ? 1 : $settingsTable['apiLogLength'])
                                         ]]
                     ]
                 ];
@@ -87,7 +87,7 @@ if (date('H') == 0 && date('i') <= 5) {
             
                         if ($daysBetween > $settings['length']) {
                             logger(CRON_HOUSEKEEPER_LOG, 'removing logfile');
-                            unlink($thisDir . $log);
+                            $shell->exec('rm -rf ' . $thisDir . $log);
                         }
                     }
                 }
@@ -98,34 +98,37 @@ if (date('H') == 0 && date('i') <= 5) {
 }
 
 //-- BACKUPS
-createDirectoryTree(BACKUP_PATH . date('Ymd'));
-$defines = get_defined_constants();
-foreach ($defines as $define => $defineValue) {
-    if (str_contains($define, '_FILE') && str_contains_all($defineValue, ['config/', '.json'])) {
-        $backupFiles[] = $defineValue;
+if (!is_dir(BACKUP_PATH . date('Ymd'))) {
+    createDirectoryTree(BACKUP_PATH . date('Ymd'));
+    $defines = get_defined_constants();
+    foreach ($defines as $define => $defineValue) {
+        if (str_contains($define, '_FILE') && str_contains_all($defineValue, ['config/', '.json'])) {
+            $backupFiles[] = $defineValue;
+        }
     }
-}
 
-foreach ($backupFiles as $backupFile) {
-    $file = explode('/', $backupFile);
-    $file = end($file);
+    foreach ($backupFiles as $backupFile) {
+        $file = explode('/', $backupFile);
+        $file = end($file);
 
-    logger(CRON_HOUSEKEEPER_LOG, 'backup file \'' . APP_DATA_PATH . $file . '\' to \'' . BACKUP_PATH . $file . '\'');
-    copy(APP_DATA_PATH . $file, BACKUP_PATH . date('Ymd') . '/' .$file);
+        logger(CRON_HOUSEKEEPER_LOG, 'backup file \'' . APP_DATA_PATH . $file . '\' to \'' . BACKUP_PATH . $file . '\'');
+        copy(APP_DATA_PATH . $file, BACKUP_PATH . date('Ymd') . '/' . $file);
+        $database->backup();
+    }
 }
 
 $dir = opendir(BACKUP_PATH);
 while ($backup = readdir($dir)) {
     if (!is_dir(BACKUP_PATH . $backup)) {
         logger(CRON_HOUSEKEEPER_LOG, 'removing backup: ' . BACKUP_PATH . $backup);
-        unlink(BACKUP_PATH . $backup);
+        $shell->exec('rm -rf ' . BACKUP_PATH . $backup);
     } else {
         if ($backup[0] != '.') {
             $daysBetween = daysBetweenDates($backup, date('Ymd'));
 
-            if ($daysBetween > 3) {
+            if ($daysBetween >= APP_BACKUPS) {
                 logger(CRON_HOUSEKEEPER_LOG, 'removing backup: ' . BACKUP_PATH . $backup);
-                unlink(BACKUP_PATH . $backup);
+                $shell->exec('rm -rf ' . BACKUP_PATH . $backup);
             }
         }
     }

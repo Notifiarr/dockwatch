@@ -9,38 +9,36 @@
 
 trait Container
 {
-    public function getContainerPort($container, $params = '')
+    public function getContainerPort($containerName, $params = '')
     {
-        $cmd = sprintf(DockerSock::CONTAINER_PORT, $this->shell->prepare($container), $this->shell->prepare($params));
+        $cmd = sprintf(DockerSock::CONTAINER_PORT, $this->shell->prepare($containerName), $this->shell->prepare($params));
         return $this->shell->exec($cmd . ' 2>&1');
     }
 
-    public function removeContainer($container)
+    public function removeContainer($containerName)
     {
-        $cmd = sprintf(DockerSock::REMOVE_CONTAINER, $this->shell->prepare($container));
+        $cmd = sprintf(DockerSock::REMOVE_CONTAINER, $this->shell->prepare($containerName));
         return $this->shell->exec($cmd . ' 2>&1');
     }
 
-    public function startContainer($container)
+    public function startContainer($containerName)
     {
-        $cmd = sprintf(DockerSock::START_CONTAINER, $this->shell->prepare($container));    
+        $cmd = sprintf(DockerSock::START_CONTAINER, $this->shell->prepare($containerName));    
         return $this->shell->exec($cmd . ' 2>&1');
     }
 
-    public function stopContainer($container)
+    public function stopContainer($containerName)
     {
-        //-- GET CURRENT SETTINGS FILE
-        $settingsFile = getServerFile('settings');
-        $settingsFile = $settingsFile['file'];
+        $nameHash   = md5($containerName);
+        $container  = $this->database->getContainerFromHash($nameHash);
+        $delay      = intval($container['shutdownDelaySeconds']) >= 5 ? ' -t ' . $container['shutdownDelaySeconds'] : ' -t 120';
 
-        $nameHash = md5($container);
-        $delay = (intval($settingsFile['containers'][$nameHash]['shutdownDelaySeconds']) >= 5 ? ' -t ' . $settingsFile['containers'][$nameHash]['shutdownDelaySeconds'] : ' -t 120');
-        
-        if ($settingsFile['containers'][$nameHash]['shutdownDelay']) {
-            logger(SYSTEM_LOG, 'stopContainer() delaying stop command for container ' . $container . ' with ' . $delay);
+        if ($container['shutdownDelay']) {
+            logger(SYSTEM_LOG, 'stopContainer() delaying stop command for container ' . $containerName . ' with ' . $delay);
         }
 
-        $cmd = sprintf(DockerSock::STOP_CONTAINER, $this->shell->prepare($container), ($settingsFile['containers'][$nameHash]['shutdownDelay'] ? $this->shell->prepare($delay) : ''));
+        $cmd = sprintf(DockerSock::STOP_CONTAINER, $this->shell->prepare($containerName), ($container['shutdownDelay'] ? $this->shell->prepare($delay) : ''));
+
         return $this->shell->exec($cmd . ' 2>&1');
     }
 
@@ -62,8 +60,7 @@ trait Container
 
         if ($query['hash']) {
             if (!$query['data']) {
-                $stateFile = getServerFile('state');
-                $query['data'] = $stateFile['file'];
+                $query['data'] = apiRequest('file-state')['result'];
             }
         
             foreach ($query['data'] as $container) {
@@ -125,7 +122,7 @@ trait Container
             }
         }
     
-        setServerFile('dependency', json_encode($dependencyList));
+        apiRequest('file-dependency', [], ['contents' => $dependencyList]);
     
         return $dependencyList;
     }

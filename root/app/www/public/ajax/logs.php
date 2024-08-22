@@ -108,27 +108,28 @@ if ($_POST['m'] == 'init') {
 if ($_POST['m'] == 'viewLog') {
     logger(SYSTEM_LOG, 'View log: ' . $_POST['name']);
 
-    $apiResponse = apiRequest('viewLog', ['name' => $_POST['name']]);
+    $apiRequest = apiRequest('server-log', ['name' => $_POST['name']]);
 
-    if ($apiResponse['code'] == 200) {
-        $result = json_decode($apiResponse['response']['result'], true);
+    if ($apiRequest['code'] == 200) {
+        $result = json_decode($apiRequest['result'], true);
     } else {
         $error = 'Failed to get log from server ' . ACTIVE_SERVER_NAME;
     }
 
-    echo json_encode(['error' => $error, 'header' => $result['header'], 'log' => htmlspecialchars($result['log']), 'server' => ACTIVE_SERVER_NAME]);
+    $log = str_contains($_POST['name'], 'migrations') ? $result['log'] : htmlspecialchars($result['log']);
+    echo json_encode(['error' => $error, 'header' => $result['header'], 'log' => $log, 'server' => ACTIVE_SERVER_NAME]);
 }
 
 if ($_POST['m'] == 'purgeLogs') {
     logger(SYSTEM_LOG, 'Purge logs: ' . $_POST['group']);
 
-    $apiResponse = apiRequest('purgeLogs', [], ['group' => $_POST['group']]);
-    logger(UI_LOG, 'purgeLogs:' . json_encode($apiResponse));
+    $apiRequest = apiRequest('server-purgeLogs', [], ['group' => $_POST['group']]);
+    logger(UI_LOG, 'purgeLogs:' . json_encode($apiRequest));
 }
 
 if ($_POST['m'] == 'deleteLog') {
     logger(SYSTEM_LOG, 'Delete log: ' . $_POST['log']);
 
-    $apiResponse = apiRequest('deleteLog', [], ['log' => $_POST['log']]);
-    logger(UI_LOG, 'deleteLog:' . json_encode($apiResponse));
+    $apiRequest = apiRequest('server-deleteLog', [], ['log' => $_POST['log']]);
+    logger(UI_LOG, 'deleteLog:' . json_encode($apiRequest));
 }

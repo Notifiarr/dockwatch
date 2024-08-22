@@ -7,15 +7,36 @@
 ----------------------------------
 */
 
-define('APP_NAME', 'DockWatch');
+define('APP_NAME', 'Dockwatch');
 define('APP_IMAGE', 'ghcr.io/notifiarr/dockwatch:main');
+define('APP_PORT', 9999);
+define('APP_SERVER_ID', 1);
+define('APP_SERVER_URL', 'http://localhost');
 define('APP_MAINTENANCE_IMAGE', 'ghcr.io/notifiarr/dockwatch:develop');
-
+define('APP_MAINTENANCE_PORT', 9998);
+define('APP_BACKUPS', 7); //-- DAYS
+define('APP_X', 0);
+define('APP_Y', 5);
 define('ICON_REPO', 'Notifiarr/images');
 define('ICON_URL', 'https://gh.notifiarr.com/images/icons/');
 
-//-- CRON FREQUENCY
+//-- REMOTES
+define('DEFAULT_REMOTE_SERVER_TIMEOUT', 20);
+
+//-- DATABASE
+define('DATABASE_NAME', 'dockwatch.db');
+define('SETTINGS_TABLE', 'settings');
+define('SERVERS_TABLE', 'servers');
+define('CONTAINER_SETTINGS_TABLE', 'container_settings');
+define('CONTAINER_GROUPS_TABLE', 'container_groups');
+define('CONTAINER_GROUPS_LINK_TABLE', 'container_group_link');
+define('NOTIFICATION_PLATFORM_TABLE', 'notification_platform');
+define('NOTIFICATION_TRIGGER_TABLE', 'notification_trigger');
+define('NOTIFICATION_LINK_TABLE', 'notification_link');
+
+//-- CRON
 define('DEFAULT_CRON', '0 0 * * *');
+define('DEFAULT_STATE_CRON_TIME', 5);
 
 //-- FOLDERS
 define('APP_DATA_PATH', '/config/');
@@ -23,6 +44,8 @@ define('BACKUP_PATH', APP_DATA_PATH . 'backups/');
 define('LOGS_PATH', APP_DATA_PATH . 'logs/');
 define('TMP_PATH', APP_DATA_PATH . 'tmp/');
 define('COMPOSE_PATH', APP_DATA_PATH . 'compose/');
+define('DATABASE_PATH', APP_DATA_PATH . 'database/');
+define('MIGRATIONS_PATH', ABSOLUTE_PATH . 'migrations/');
 
 //-- DATA FILES
 define('SERVERS_FILE', APP_DATA_PATH . 'servers.json');
@@ -52,6 +75,7 @@ define('CRON_STATE_LOG', LOGS_PATH . 'crons/state.log');
 define('CRON_STATS_LOG', LOGS_PATH . 'crons/stats.log');
 define('CRON_HEALTH_LOG', LOGS_PATH . 'crons/health.log');
 define('CRON_SSE_LOG', LOGS_PATH . 'crons/sse.log');
+define('MIGRATION_LOG', LOGS_PATH . 'crons/migrations.log');
 define('LOG_ROTATE_SIZE', 2); //-- MB UNTIL ROTATE
 
 //-- MEMCACHE
@@ -80,5 +104,5 @@ define('SKIP_OPTIONAL', 2);
 $skipContainerActions   = [
                             'dockwatch',    //-- IF THIS GOES DOWN, IT WILL STOP THE CONTAINER WHICH MEANS IT CAN NEVER FINISH
                             'cloudflared',  //-- IF THIS GOES DOWN, IT WILL KILL THE NETWORK TRAFFIC TO DOCKWATCH
-                            'swag'          //-- IS THIS GOES DOWN, IT WILL KILL THE WEB SERVICE TO DOCKWATCH
+                            'swag'          //-- IF THIS GOES DOWN, IT WILL KILL THE WEB SERVICE TO DOCKWATCH
                         ];

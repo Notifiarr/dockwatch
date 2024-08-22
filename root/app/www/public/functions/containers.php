@@ -9,61 +9,48 @@
 
 function renderContainerRow($nameHash, $return)
 {
-    global $docker, $pullsFile, $settingsFile, $processList, $skipContainerActions, $groupHash;
+    global $docker, $pullsFile, $settingsTable, $processList, $skipContainerActions, $groupHash;
 
-    if (!$pullsFile) {
-        $pullsFile = getServerFile('pull');
-        if ($pullsFile['code'] != 200) {
-            $apiError = $pullsFile['file'];
-        }
-        $pullsFile = $pullsFile['file'];
-    }
+    $pullsFile = $pullsFile ?: apiRequest('file-pull')['result'];
 
-    if (!$settingsFile) {
-        $settingsFile = getServerFile('settings');
-        if ($settingsFile['code'] != 200) {
-            $apiError = $settingsFile['file'];
-        }
-        $settingsFile = $settingsFile['file'];
-    }
-
-    foreach ($processList as $process) {
-        if (md5($process['Names']) == $nameHash) {
+    foreach ($processList as $thisProcess) {
+        if (md5($thisProcess['Names']) == $nameHash) {
+            $process = $thisProcess;
             break;
         }
     }
 
-    $isDockwatch = false;
-    $dockwatchWarning = '';
+    $isDockwatch        = false;
+    $dockwatchWarning   = '';
     if (isDockwatchContainer($process)) {
         $isDockwatch        = true;
         $dockwatchWarning   = ' <i class="fas fa-exclamation-circle text-danger" title="Dockwatch warning, click for more information" style="cursor: pointer;" onclick="dockwatchWarning()"></i>';
     }
 
     $skipActions        = skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions);
-    $containerSettings  = $settingsFile['containers'][$nameHash];
+    $containerSettings  = apiRequest('database-getContainerFromHash', ['hash' => $nameHash])['result'];
     $logo               = getIcon($process['inspect']);
     $notificationIcon   = '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container" style="display: ' . ($containerSettings['disableNotifications'] ? 'inline-block' : 'none') . '"></i> ';
 
     if ($process['State'] == 'running') {
-        $control = '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i><br>';
-        $control .= '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="stop-btn-' . $nameHash . '" class="fas fa-power-off text-danger container-stop-btn" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"></i>';
+        $control = '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i><br>';
+        $control .= '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="stop-btn-' . $nameHash . '" class="fas fa-power-off text-danger container-stop-btn" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"></i>';
     } else {
-        $control = '<i style="'. ($skipActions ? 'display: none;' : '') .' cursor: pointer;" id="start-btn-' . $nameHash . '" class="fas fa-play text-success container-start-btn" title="Start" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"></i>';
+        $control = '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="start-btn-' . $nameHash . '" class="fas fa-play text-success container-start-btn" title="Start" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"></i>';
     }
 
     $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
-    if (intval($settingsFile['global']['cpuAmount']) > 0) {
-        $cpuUsage = number_format(($cpuUsage / intval($settingsFile['global']['cpuAmount'])), 2) . '%';
+    if (intval($settingsTable['cpuAmount']) > 0) {
+        $cpuUsage = number_format(($cpuUsage / intval($settingsTable['cpuAmount'])), 2) . '%';
     }
 
     $pullData = $pullsFile[$nameHash];
     $updateStatus = '<span class="text-danger">Unchecked</span>';
     if ($pullData) {
-        $updateStatus = ($pullData['regctlDigest'] == $pullData['imageDigest']) ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
+        $updateStatus = $pullData['regctlDigest'] == $pullData['imageDigest'] ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
     }
 
-    $restartUnhealthy       = $settingsFile['containers'][$nameHash]['restartUnhealthy'];
+    $restartUnhealthy       = $containerSettings['restartUnhealthy'];
     $healthyRestartClass    = 'text-success';
     $healthyRestartText     = 'Auto restart when unhealthy';
 
@@ -71,8 +58,10 @@ function renderContainerRow($nameHash, $return)
         $healthyRestartClass    = 'text-warning';
         $healthyRestartText     = 'Not set to auto restart when unhealthy';
     }
+
     $usesHealth = false;
-    $health = 'Not setup';
+    $health     = 'Not setup';
+
     if (str_contains($process['Status'], 'healthy')) {
         $usesHealth = true;
         $health     = 'Healthy <i class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
@@ -89,6 +78,7 @@ function renderContainerRow($nameHash, $return)
     } else {
         list($time, $healthMsg) = explode('(', $process['Status']);
     }
+
     $time   = str_replace('ago', '', $time);
     $parts  = explode(' ', $time);
 
@@ -101,8 +91,7 @@ function renderContainerRow($nameHash, $return)
     }
     $length = implode(' ', $length);
 
-    $mountList = '';
-    $previewMount = '';
+    $mountList = $previewMount = '';
     if ($process['inspect'][0]['Mounts']) {
         $mounts = [];
 
@@ -128,8 +117,7 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
-    $portList       = '';
-    $previewPort    = '';
+    $portList = $previewPort = '';
     if ($process['inspect'][0]['HostConfig']['PortBindings']) {
         $ports = [];
 
@@ -159,17 +147,16 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
-    $envList    = '';
-    $previewEnv = '';
+    $envList = $previewEnv = '';
     if ($process['inspect'][0]['Config']['Env']) {
         $env = [];
 
         foreach ($process['inspect'][0]['Config']['Env'] as $envVar) {
-            $envLabel = explode('=', $envVar)[0] . ' &rarr; ' . explode('=', $envVar)[1];
-            $env[] = $envLabel;
+            $envLabel   = explode('=', $envVar)[0] . ' &rarr; ' . explode('=', $envVar)[1];
+            $env[]      = $envLabel;
 
             if (!$previewEnv) {
-                $previewEnv .= truncateEnd($envLabel, 30);
+                $previewEnv = strlen(explode('=', $envVar)[0] . ' &rarr; ') > 30 ? explode('=', $envVar)[0] . '...' : truncateEnd($envLabel, 30);
             }
         }
 
@@ -183,21 +170,19 @@ function renderContainerRow($nameHash, $return)
     }
 
     if ($return == 'json') {
-        $return     = [
-                        'control'   => $control,
-                        'update'    => $updateStatus . '<br><span class="text-muted small-text" title="' . $pullData['imageDigest'] .'">' . truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) . '</span>',
-                        'state'     => $process['State'],
-                        'mounts'    => $mountList,
-                        'ports'     => $portList,
-                        'env'       => $envList,
-                        'length'    => $length,
-                        'cpu'       => $cpuUsage,
-                        'cpuTitle'  => $process['stats']['CPUPerc'],
-                        'mem'       => $process['stats']['MemPerc'],
-                        'health'    => $health
-                    ];
-
-        return $return;
+        return [
+                'control'   => $control,
+                'update'    => $updateStatus . '<br><span class="text-muted small-text" title="' . $pullData['imageDigest'] .'">' . truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) . '</span>',
+                'state'     => $process['State'],
+                'mounts'    => $mountList,
+                'ports'     => $portList,
+                'env'       => $envList,
+                'length'    => $length,
+                'cpu'       => $cpuUsage,
+                'cpuTitle'  => $process['stats']['CPUPerc'],
+                'mem'       => $process['stats']['MemPerc'],
+                'health'    => $health
+            ];
     } else {
         $version = '';
         foreach ($process['inspect'][0]['Config']['Labels'] as $label => $val) {
@@ -252,43 +237,47 @@ function renderContainerRow($nameHash, $return)
         }
 
         ?>
-        <tr id="<?= $nameHash ?>" <?= ($groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ) ?>>
-            <td><input <?= ($isDockwatch ? 'attr-dockwatch="true"' : '') ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" type="checkbox" class="form-check-input containers-check <?= ($groupHash ? 'group-' . $groupHash . '-check' : '') ?>"></td>
-            <td><?= ($logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '') ?></td>
+        <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ?>>
+            <!-- COLUMN: CHECKBOX -->
+            <td><input <?= $isDockwatch ? 'attr-dockwatch="true"' : '' ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" data-id="<?= $containerSettings['id'] ?>" type="checkbox" class="form-check-input containers-check <?= $groupHash ? 'group-' . $groupHash . '-check' : '' ?>"></td>
+            <!-- COLUMN: ICON -->
+            <td><?= $logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '' ?></td>
+            <!-- COLUMN: STOP/START ICON, NAME, MENU, REPOSITORY -->
             <td>
                 <div class="row m-0 p-0">
+                    <!-- STOP/START ICONS -->
                     <div class="col-sm-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
+                    <!-- NAME, MENU, REPOSITORY -->
                     <div class="col-sm-10">
+                        <!-- NAME -->
                         <span id="menu-<?= $nameHash ?>" style="cursor: pointer;" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?= $notificationIcon . $process['Names'] ?></span>
+                        <!-- CONTAINER MENU -->
                         <ul style="max-width: 200px" class="dropdown-menu dropdown-menu-dark p-2" role="menu" aria-labelledby="menu-<?= $nameHash ?>">
-                            <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-tools fa-fw text-muted me-1"></i> <a onclick="openEditContainer('<?= $nameHash ?>')" tabindex="-1" href="#" class="text-white">Edit</a></li>
-
-                            <li <?= ($skipActions ? 'class="d-none"' : '') ?>><hr class="dropdown-divider"></li>
+                            <li <?= $skipActions ? 'class="d-none"' : '' ?>><i class="fas fa-tools fa-fw text-muted me-1"></i> <a onclick="openEditContainer('<?= $nameHash ?>')" tabindex="-1" href="#" class="text-white">Edit</a></li>
+                            <li <?= $skipActions ? 'class="d-none"' : '' ?>><hr class="dropdown-divider"></li>
                             <li class="dropdown-submenu">
                                 <i class="fas fa-ellipsis-v fa-fw text-muted me-1"></i> <a tabindex="-1" href="#" class="text-white">Actions</a>
                                 <ul class="dropdown-menu dropdown-menu-dark p-2" style="width: 250px;">
                                     <li><i class="far fa-file-alt fa-fw text-muted me-1"></i> <a onclick="containerLogs('<?= $process['Names'] ?>')" tabindex="-1" href="#" class="text-white">View logs</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><i class="fas fa-cloud-download-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 4)" tabindex="-1" href="#" class="text-white">Pull</a></li>
-                                    <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-trash-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 9)" tabindex="-1" href="#" class="text-white">Remove</a></li>
-                                    <li <?= ($skipActions ? 'class="d-none"' : '') ?>><i class="fas fa-cloud-upload-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 7)" tabindex="-1" href="#" class="text-white">Update: Apply</a></li>
+                                    <li <?= $skipActions ? 'class="d-none"' : '' ?>><i class="fas fa-trash-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 9)" tabindex="-1" href="#" class="text-white">Remove</a></li>
+                                    <li <?= $skipActions ? 'class="d-none"' : '' ?>><i class="fas fa-cloud-upload-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 7)" tabindex="-1" href="#" class="text-white">Update: Apply</a></li>
                                     <li><i class="fas fa-cloud fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 11)" tabindex="-1" href="#" class="text-white">Update: Check</a></li>
                                 </ul>
                             </li>
-
                             <li><hr class="dropdown-divider"></li>
                             <li class="dropdown-submenu">
                                 <i class="fas fa-ellipsis-v fa-fw text-muted me-1"></i> <a tabindex="-1" href="#" class="text-white">Options</a>
                                 <ul class="dropdown-menu dropdown-menu-dark p-2" style="width: 300px;">
-                                    <li><input <?= ($settingsFile['containers'][$nameHash]['disableNotifications'] ? 'checked' : '') ?> type="checkbox" class="form-check-input" id="disableNotifications-<?= $nameHash ?>" onclick="updateContainerOption('disableNotifications', '<?= $nameHash ?>')"> Disable notifications</li>
-                                    <li><input <?= ($skipActions == SKIP_FORCE ? 'disabled checked' : ($settingsFile['containers'][$nameHash]['blacklist'] ? 'checked' : '')) ?> type="checkbox" class="form-check-input" id="blacklist-<?= $nameHash ?>" onclick="updateContainerOption('blacklist', '<?= $nameHash ?>')"> Blacklist (no state changes)</li>
+                                    <li><input <?= $containerSettings['disableNotifications'] ? 'checked' : '' ?> type="checkbox" class="form-check-input" id="disableNotifications-<?= $nameHash ?>" onclick="updateContainerOption('disableNotifications', '<?= $nameHash ?>')"> Disable notifications</li>
+                                    <li><input <?= $skipActions == SKIP_FORCE ? 'disabled checked' : ($containerSettings['blacklist'] ? 'checked' : '') ?> type="checkbox" class="form-check-input" id="blacklist-<?= $nameHash ?>" onclick="updateContainerOption('blacklist', '<?= $nameHash ?>')"> Blacklist (no state changes)</li>
                                     <?php if ($usesHealth) { ?>
-                                    <li><input <?= ($skipActions ? 'disabled' : ($settingsFile['containers'][$nameHash]['restartUnhealthy'] ? 'checked' : '')) ?> type="checkbox" class="form-check-input" id="restartUnhealthy-<?= $nameHash ?>" onclick="updateContainerOption('restartUnhealthy', '<?= $nameHash ?>')"> Restart when unhealthy</li>
+                                    <li><input <?= $skipActions ? 'disabled' : ($containerSettings['restartUnhealthy'] ? 'checked' : '') ?> type="checkbox" class="form-check-input" id="restartUnhealthy-<?= $nameHash ?>" onclick="updateContainerOption('restartUnhealthy', '<?= $nameHash ?>')"> Restart when unhealthy</li>
                                     <?php } ?>
-                                    <li><input <?= ($settingsFile['containers'][$nameHash]['shutdownDelay'] ? 'checked' : '') ?> type="checkbox" class="form-check-input" id="shutdownDelay-<?= $nameHash ?>" onclick="updateContainerOption('shutdownDelay', '<?= $nameHash ?>');"> Delay shutdown <input type="text" id="shutdownDelay-input-<?= $nameHash ?>" onfocusout="updateContainerOption('shutdownDelaySeconds', '<?= $nameHash ?>');" class="form-control d-inline-block" style="height: 24px; width: 20%;" value="<?= ($settingsFile['containers'][$nameHash]['shutdownDelaySeconds'] ? $settingsFile['containers'][$nameHash]['shutdownDelaySeconds'] : "120") ?>" <?= (!$settingsFile['containers'][$nameHash]['shutdownDelay'] ? 'readonly' : '') ?>></li>
+                                    <li><input <?= $containerSettings['shutdownDelay'] ? 'checked' : '' ?> type="checkbox" class="form-check-input" id="shutdownDelay-<?= $nameHash ?>" onclick="updateContainerOption('shutdownDelay', '<?= $nameHash ?>');"> Delay shutdown <input type="text" id="shutdownDelay-input-<?= $nameHash ?>" onfocusout="updateContainerOption('shutdownDelaySeconds', '<?= $nameHash ?>');" class="form-control d-inline-block" style="height: 24px; width: 20%;" value="<?= $containerSettings['shutdownDelaySeconds'] ?: '120' ?>" <?= !$containerSettings['shutdownDelay'] ? 'readonly' : '' ?>></li>
                                 </ul>
                             </li>
-
                             <li><hr class="dropdown-divider"></li>
                             <li class="text-center mb-1">Info</li>
                             <?php if ($version) { ?>
@@ -303,28 +292,30 @@ function renderContainerRow($nameHash, $return)
                             <?php } ?>
                         </ul>
                         <?= $dockwatchWarning ?>
-                        <br><span class="text-muted small-text" title="<?= $docker->isIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle($docker->isIO($process['inspect'][0]['Config']['Image']), 25) ?></span>
+                        <!-- REPOSITORY -->
+                        <br><span class="text-muted small-text" title="<?= $docker->isIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle($docker->isIO($process['inspect'][0]['Config']['Image']), 30) ?></span>
                     </div>
                 </div>
             </td>
+            <!-- COLUMN: UPDATES, HASH -->
             <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
                 <?= $updateStatus ?><br>
                 <span class="text-muted small-text" title="<?= $pullData['imageDigest'] ?>"><?= truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) ?></span>
             </td>
+            <!-- COLUMN: STATE -->
             <td>
                 <span id="<?= $nameHash ?>-state"><?= $process['State'] ?></span><br>
                 <span class="text-muted small-text" id="<?= $nameHash ?>-length"><?= $length ?></span>
             </td>
+            <!-- COLUMN: HEALTH -->
             <td id="<?= $nameHash ?>-health"><?= $health ?></td>
-            <td id="<?= $nameHash ?>-mounts-td">
-                <span id="<?= $nameHash ?>-mounts" class="small-text"><?= $mountList ?></span>
-            </td>
-            <td id="<?= $nameHash ?>-env-td">
-                <span id="<?= $nameHash ?>-env" class="small-text"><?= $envList ?></span>
-            </td>
-            <td id="<?= $nameHash ?>-ports-td">
-                <span id="<?= $nameHash ?>-ports" class="small-text"><?= $portList ?></span>
-            </td>
+            <!-- COLUMN: MOUNTS -->
+            <td id="<?= $nameHash ?>-mounts-td"><span id="<?= $nameHash ?>-mounts" class="small-text"><?= $mountList ?></span></td>
+            <!-- COLUMN: ENVIRONMENTS -->
+            <td id="<?= $nameHash ?>-env-td"><span id="<?= $nameHash ?>-env" class="small-text"><?= $envList ?></span></td>
+            <!-- COLUMN: PORTS -->
+            <td id="<?= $nameHash ?>-ports-td"><span id="<?= $nameHash ?>-ports" class="small-text"><?= $portList ?></span></td>
+            <!-- COLUMN: MEMORT/CPU USAGE -->
             <td id="<?= $nameHash ?>-usage"><?= $cpuUsage ?><br><?= $process['stats']['MemPerc'] ?></td>
         </tr>
         <?php
@@ -333,15 +324,17 @@ function renderContainerRow($nameHash, $return)
 
 function skipContainerActions($container, $containers)
 {
-    global $docker, $settingsFile, $stateFile;
+    global $docker, $settingsTable, $stateFile;
 
-    $settingsFileData   = $settingsFile ? $settingsFile : getServerFile('settings');
-    $stateFileData      = $stateFile ? $stateFile : getServerFile('state');
+    $stateFile          = $stateFile ?: apiRequest('file-state')['result'];
+    $containersTable    = apiRequest('database-getContainers')['result'];
 
-    if ($settingsFileData['containers']) {
-        foreach ($settingsFileData['containers'] as $containerHash => $containerSettings) {
+    if ($containersTable) {
+        foreach ($containersTable as $containerSettings) {
+            $containerHash = $containerSettings['hash'];
+
             if ($containerSettings['blacklist']) {
-                $containerState = $docker->findContainer(['hash' => $containerHash, 'data' => $stateFileData]);
+                $containerState = $docker->findContainer(['hash' => $containerHash, 'data' => $stateFile]);
 
                 if (str_contains($containerState['Image'], $container)) {
                     return SKIP_OPTIONAL;
@@ -350,7 +343,7 @@ function skipContainerActions($container, $containers)
         }
     }
 
-    if ($settingsFileData['global']['overrideBlacklist'] == 0) {
+    if ($settingsTable['overrideBlacklist'] == 0) {
         foreach ($containers as $skip) {
             if (str_contains($container, $skip)) {
                 return SKIP_FORCE;

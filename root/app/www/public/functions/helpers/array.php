@@ -7,6 +7,11 @@
 ----------------------------------
 */
 
+function makeArray($array)
+{
+    return is_array($array) ? $array : [];
+}
+
 function array_equals_any($haystack, $needles)
 {
     if (!is_array($haystack) || !is_array($needles)) {

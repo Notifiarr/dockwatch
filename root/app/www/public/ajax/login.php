@@ -9,6 +9,11 @@
 
 require 'shared.php';
 
+if ($_POST['m'] == 'resetSession') {
+    session_unset();
+    session_destroy();
+}
+
 if ($_POST['m'] == 'login') {
     logger(SYSTEM_LOG, 'login ->');
 

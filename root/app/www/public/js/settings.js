@@ -25,7 +25,7 @@ function saveGlobalSettings()
             } else  {
                 toast('Settings', 'Global settings saved on server ' + resultData.server, 'success');
                 initPage('settings');
-                $('#activeServer').html(resultData.serverList);
+                $('#activeInstanceContainer').html(resultData.serverList);
             }
 
             loadingStop();

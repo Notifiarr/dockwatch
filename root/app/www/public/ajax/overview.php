@@ -83,8 +83,8 @@ if ($_POST['m'] == 'init') {
         $network += bytesFromString($netUsed);
     }
 
-    if (intval($settingsFile['global']['cpuAmount']) > 0) {
-        $cpuActual = number_format(($cpu / intval($settingsFile['global']['cpuAmount'])), 2);
+    if (intval($settingsTable['cpuAmount']) > 0) {
+        $cpuActual = number_format(($cpu / intval($settingsTable['cpuAmount'])), 2);
     }
 
     ?>
@@ -98,7 +98,7 @@ if ($_POST['m'] == 'init') {
                     <div class="col-sm-12 col-lg-8 text-end">
                         Running: <?= $running ?><br>
                         Stopped: <?= $stopped ?><br>
-                        Total: <?= ($running + $stopped) ?>
+                        Total: <?= $running + $stopped ?>
                     </div>
                 </div>
             </div>
@@ -122,7 +122,7 @@ if ($_POST['m'] == 'init') {
                     <div class="col-sm-12 col-lg-8 text-end">
                         Up to date: <?= $updated ?><br>
                         Outdated: <?= $outdated ?><br>
-                        Unchecked: <?= (($running + $stopped) - ($updated + $outdated)) ?>
+                        Unchecked: <?= ($running + $stopped) - ($updated + $outdated) ?>
                     </div>
                 </div>
             </div>

@@ -7,30 +7,27 @@
 ----------------------------------
 */
 
-//-- BRING IN THE TRAITS
-$traits     = ABSOLUTE_PATH . 'classes/traits/Docker/';
-$traitsDir  = opendir($traits);
-while ($traitFile = readdir($traitsDir)) {
-    if (str_contains($traitFile, '.php')) {
-        require $traits . $traitFile;
-    }
-}
-closedir($traitsDir);
+//-- BRING IN THE EXTRAS
+loadClassExtras('Docker');
 
 class Docker
 {
-    use API;
     use Container;
+    use DockersApi;
     use Image;
     use Network;
     use Process;
     use Volume;
 
     protected $shell;
+    protected $database;
 
     public function __construct()
     {
-        $this->shell = new Shell();
+        global $shell, $database;
+
+        $this->shell    = $shell ?? new Shell();
+        $this->database = $database ?? new Database();
     }
 
     public function stats($useCache)
@@ -47,7 +44,7 @@ class Docker
         $shell  = $this->shell->exec($cmd . ' 2>&1');
 
         if ($shell) {
-            setServerFile('stats', $shell);
+            apiRequest('file-stats', [], ['contents' => $shell]);
         }
 
         return $shell;
@@ -103,46 +100,4 @@ class Docker
     
         return str_contains($name, '/') ? $name : 'library/' . $name;
     }
-}
-
-interface DockerApi
-{
-    //-- CONTAINER SPECIFIC
-    public const STOP_CONTAINER = '/containers/%s/stop';
-    public const CREATE_CONTAINER = '/containers/create?name=%s';
-}
-
-//-- https://docs.docker.com/reference/cli/docker
-interface DockerSock
-{
-    //-- GENERAL
-    public const VERSION = '/usr/bin/docker version %s';
-    public const RUN = '/usr/bin/docker run %s';
-    public const LOGS = '/usr/bin/docker logs %s';
-    public const PROCESSLIST_FORMAT = '/usr/bin/docker ps --all --no-trunc --size=false --format="{{json . }}" | jq -s --tab .';
-    public const PROCESSLIST_CUSTOM = '/usr/bin/docker ps %s';
-    public const STATS_FORMAT = '/usr/bin/docker stats --all --no-trunc --no-stream --format="{{json . }}" | jq -s --tab .';
-    public const INSPECT_FORMAT = '/usr/bin/docker inspect %s --format="{{json . }}" | jq -s --tab .';
-    public const INSPECT_CUSTOM = '/usr/bin/docker inspect %s %s';
-    public const IMAGE_SIZES = '/usr/bin/docker images --format=\'{"ID":"{{ .ID }}", "Size": "{{ .Size }}"}\' | jq -s --tab .';
-    //-- CONTAINER SPECIFIC
-    public const REMOVE_CONTAINER = '/usr/bin/docker container rm -f %s';
-    public const START_CONTAINER = '/usr/bin/docker container start %s';
-    public const STOP_CONTAINER = '/usr/bin/docker container stop %s%s';
-    public const ORPHAN_CONTAINERS = '/usr/bin/docker images -f dangling=true --format="{{json . }}" | jq -s --tab .';
-    public const CONTAINER_PORT = '/usr/bin/docker port %s %s';
-    //-- IMAGE SPECIFIC
-    public const REMOVE_IMAGE = '/usr/bin/docker image rm %s';
-    public const PULL_IMAGE = '/usr/bin/docker image pull %s';
-    public const PRUNE_IMAGE = '/usr/bin/docker image prune -af';
-    //-- VOLUME SPECIFIC
-    public const ORPHAN_VOLUMES = '/usr/bin/docker volume ls -qf dangling=true --format="{{json . }}" | jq -s --tab .';
-    public const PRUNE_VOLUME = '/usr/bin/docker volume prune -af';
-    public const REMOVE_VOLUME = '/usr/bin/docker volume rm %s';
-    //-- NETWORK SPECIFIC
-    public const ORPHAN_NETWORKS = '/usr/bin/docker network ls -q --format="{{json . }}" | jq -s --tab .';
-    public const INSPECT_NETWORK = '/usr/bin/docker network inspect %s --format="{{json . }}" | jq -s --tab .';
-    public const PRUNE_NETWORK = '/usr/bin/docker network prune -af';
-    public const REMOVE_NETWORK = '/usr/bin/docker network rm %s';
-    public const GET_NETWORKS = '/usr/bin/docker network %s';
 }

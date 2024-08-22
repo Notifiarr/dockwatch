@@ -60,9 +60,9 @@ trait Maint
 
         $this->pullMaintenance();
 
-        $apiResponse = apiRequest('dockerInspect', ['name' => $this->hostContainer['Names'], 'useCache' => false, 'format' => true]);
-        logger(MAINTENANCE_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
-        $inspectImage = $apiResponse['response']['docker'];
+        $apiRequest = apiRequest('docker-inspect', ['name' => $this->hostContainer['Names'], 'useCache' => false, 'format' => true]);
+        logger(MAINTENANCE_LOG, 'docker-inspect:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+        $inspectImage = $apiRequest['result'];
         $inspectImage = json_decode($inspectImage, true);
 
         $inspectImage[0]['Name']                                                = '/' . $this->maintenanceContainerName;

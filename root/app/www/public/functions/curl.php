@@ -9,9 +9,7 @@
 
 function curl($url, $headers = [], $method = 'GET', $payload = '', $userPass = [], $timeout = 60)
 {
-    if (!is_string($payload)) {
-        $payload = '';
-    }
+    $payload = !is_string($payload) ? '' : $payload;
 
     $curlHeaders    = [
                         'user-agent:' . APP_NAME,
@@ -63,40 +61,18 @@ function curl($url, $headers = [], $method = 'GET', $payload = '', $userPass = [
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
     }
 
-    $responseHeaders = [];
-    curl_setopt(
-        $ch,
-        CURLOPT_HEADERFUNCTION,
-        function ($curl, $header) use (&$responseHeaders) {
-            $len    = strlen($header);
-            $header = explode(':', $header, 2);
-
-            if (count($header) < 2) {
-                return $len;
-            }
-
-            $responseHeaders[strtolower(trim($header[0]))][] = trim($header[1]);
-
-            return $len;
-        }
-    );
-
     $response       = curl_exec($ch);
     $jsonResponse   = json_decode($response, true);
     $response       = !empty($jsonResponse) ? $jsonResponse : $response;
     $error          = json_decode(curl_error($ch), true);
-    $curlGetInfo    = curl_getinfo($ch);
     $code           = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
     return [
-            'url'               => $url,
-            'method'            => $method,
-            'payload'           => $payload,
-            'headers'           => $curlHeaders,
-            'response'          => $response,
-            'responseHeaders'   => $responseHeaders,
-            'error'             => $error,
-            'code'              => $code,
-            'curlGetInfo'       => $curlGetInfo
+            'url'       => $url,
+            'method'    => $method,
+            'payload'   => $payload,
+            'response'  => $response,
+            'error'     => $error,
+            'code'      => $code
         ];
 }

@@ -13,21 +13,21 @@ require 'includes/header.php';
 if ($_SESSION['dockerPerms']) {
     $dockerPerms = $_SESSION['dockerPerms'];
 } else {
-    $dockerPerms = apiRequest('dockerPermissionCheck');
-    $dockerPerms = json_decode($dockerPerms['response']['docker'], true);
+    $dockerPerms = apiRequest('docker-permissionCheck')['result'];
+    $dockerPerms = json_decode($dockerPerms, true);
     $_SESSION['dockerPerms'] = $dockerPerms;
 }
 
 $loadError = '';
-if (!$serversFile) {
-    $loadError = 'Servers file missing or corrupt';
+if (!$serversTable) {
+    $loadError = 'Servers table is empty, this means the migration 001 did not run or a database could not be created.';
 }
 
 if (!file_exists(REGCTL_PATH . REGCTL_BINARY)) {
     $loadError = 'The required regctl binary is missing from \'' . REGCTL_PATH . REGCTL_BINARY . '\'';
 }
 
-if (!$dockerCommunicateAPI) {
+if (!$isDockerApiAvailable) {
     $loadError = 'There is a problem talking to the docker API. You either did not mount <code>/var/run/docker.sock</code> or you are passing in a <code>DOCKER_HOST</code> that is not valid. Try using the IP instead of container name for the docker host variable.';
 
     if ($_SERVER['DOCKER_HOST']) {
@@ -52,7 +52,7 @@ if ($loadError) {
     <div id="content-logs" style="display: none;"></div>
     <div id="content-tasks" style="display: none;"></div>
     <div id="content-commands" style="display: none;"></div>
-    <div id="content-dockerPermissions" style="display: <?= ($dockerPerms ? 'none' : 'block') ?>;">
+    <div id="content-dockerPermissions" style="display: <?= $dockerPerms ? 'none' : 'block' ?>;">
         If you are seeing this, it means the user:group running this container does not have permission to run docker commands. Please fix that, restart the container and try again.<br><br>
         <div class="bg-secondary rounded p-4">
             An example for Ubuntu:

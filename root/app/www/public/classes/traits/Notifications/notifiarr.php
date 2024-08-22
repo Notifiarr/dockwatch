@@ -9,9 +9,9 @@
 
 trait Notifiarr
 {
-    public function notifiarr($logfile, $payload)
+    public function notifiarr($logfile, $apikey, $payload)
     {
-        $headers    = ['x-api-key:' . $this->platformSettings[1]['apikey']];
+        $headers    = ['x-api-key:' . $apikey];
         $url        = 'https://notifiarr.com/api/v1/notification/dockwatch';
         $curl       = curl($url, $headers, 'POST', json_encode($payload));
 

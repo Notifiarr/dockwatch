@@ -26,6 +26,10 @@ RUN \
 # install sockets
 RUN apk add --no-cache \
   php82-sockets
+  
+# install sqlite3
+RUN apk add --no-cache \
+  php82-sqlite3
 
 # add regctl for container digest checks
 ARG TARGETARCH

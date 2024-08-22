@@ -14,7 +14,7 @@ logger(SYSTEM_LOG, 'Cron: running health');
 logger(CRON_HEALTH_LOG, 'run ->');
 echo date('c') . ' Cron: health ->' . "\n";
 
-if ($settingsFile['tasks']['health']['disabled']) {
+if ($settingsTable['taskHealthDisabled']) {
     logger(CRON_HEALTH_LOG, 'Cron cancelled: disabled in tasks menu');
     logger(CRON_HEALTH_LOG, 'run <-');
     echo date('c') . ' Cron: health cancelled, disabled in tasks menu' . "\n";
@@ -22,7 +22,7 @@ if ($settingsFile['tasks']['health']['disabled']) {
     exit();
 }
 
-if (!$settingsFile['global']['restartUnhealthy'] && !$settingsFile['notifications']['triggers']['health']['active']) {
+if (!$settingsTable['restartUnhealthy'] && !apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'health'])['result']) {
     logger(CRON_HEALTH_LOG, 'Cron cancelled: restart and notify disabled');
     logger(CRON_HEALTH_LOG, 'run <-');
     echo date('c') . ' Cron health cancelled: restart unhealthy and notify disabled' . "\n";
@@ -69,21 +69,23 @@ foreach ($processList as $process) {
 logger(CRON_HEALTH_LOG, '$unhealthy=' . json_encode($unhealthy, JSON_UNESCAPED_SLASHES));
 
 if ($unhealthy) {
+    $containersTable = apiRequest('database-getContainers')['result'];
+
     foreach ($unhealthy as $nameHash => $container) {
         $notify = false;
 
         if ($container['restart'] || $container['notify']) {
             continue;
         }
-
-        $skipActions = skipContainerActions($container['name'], $skipContainerActions);
+        $thisContainer  = apiRequest('database-getContainerFromHash', ['hash' => $nameHash])['result'];
+        $skipActions    = skipContainerActions($container['name'], $skipContainerActions);
 
         if ($skipActions) {
             logger(CRON_HEALTH_LOG, 'skipping: ' . $container['name'] . ', blacklisted (no state changes) container');
             continue;
         }
 
-        if (!$settingsFile['containers'][$nameHash]['restartUnhealthy']) {
+        if (!$thisContainer['restartUnhealthy']) {
             logger(CRON_HEALTH_LOG, 'skipping: ' . $container['name'] . ', restart unhealthy option not enabled');
             continue;
         }
@@ -91,9 +93,11 @@ if ($unhealthy) {
         $unhealthy[$nameHash]['notify']     = 0;
         $unhealthy[$nameHash]['restart']    = 0;
 
-        if ($settingsFile['notifications']['triggers']['health']['active'] && $settingsFile['notifications']['triggers']['health']['platform']) {
+        if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'health'])['result']) {
             $unhealthy[$nameHash]['notify'] = time();
             $notify = true;
+        } else {
+            logger(CRON_HEALTH_LOG, 'skipping notification for \'' . $container['name'] . '\', no notification senders with the health event enabled');
         }
 
         $dependencies = $dependencyFile[$container['name']]['containers'];
@@ -103,32 +107,34 @@ if ($unhealthy) {
         logger(CRON_HEALTH_LOG, 'restarting unhealthy \'' . $container['name'] . '\'');
         $unhealthy[$nameHash]['restart'] = time();
 
-        $apiResult = apiRequest('dockerStopContainer', [], ['name' => $container['name']]);
-        logger(CRON_HEALTH_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
-        $apiResult = apiRequest('dockerStartContainer', [], ['name' => $container['name']]);
-        logger(CRON_HEALTH_LOG, 'dockerStartContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+        $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $container['name']]);
+        logger(CRON_HEALTH_LOG, 'docker-stopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+        $apiRequest = apiRequest('docker-startContainer', [], ['name' => $container['name']]);
+        logger(CRON_HEALTH_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
         if ($dependencies) {
             logger(CRON_HEALTH_LOG, 'restarting dependenices...');
 
             foreach ($dependencies as $dependency) {
-                $apiResult = apiRequest('dockerStopContainer', [], ['name' => $dependency]);
-                logger(CRON_HEALTH_LOG, 'dockerStopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
-                $apiResult = apiRequest('dockerStartContainer', [], ['name' => $dependency]);
-                logger(CRON_HEALTH_LOG, 'dockerStartContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $dependency]);
+                logger(CRON_HEALTH_LOG, 'docker-stopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker-startContainer', [], ['name' => $dependency]);
+                logger(CRON_HEALTH_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
             }
         }
 
-        if ($settingsFile['containers'][$nameHash]['disableNotifications']) {
+        if ($notify && $thisContainer['disableNotifications']) {
             logger(CRON_HEALTH_LOG, 'skipping notification for \'' . $container['name'] . '\', container set to not notify');
             $notify = false;
         }
 
         if ($notify) {
             logger(CRON_HEALTH_LOG, 'sending notification for \'' . $container['name'] . '\'');
+
             $payload = ['event' => 'health', 'container' => $container['name'], 'restarted' => $unhealthy[$nameHash]['restart']];
+            $notifications->notify(0, 'health', $payload);
+
             logger(CRON_STATE_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
-            $notifications->notify($settingsFile['notifications']['triggers']['health']['platform'], $payload);
         }
     }
 

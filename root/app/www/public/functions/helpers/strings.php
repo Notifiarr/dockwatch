@@ -7,7 +7,7 @@
 ----------------------------------
 */
 
-function str_equals_any($haystack, array $needles): bool
+function str_equals_any(string|null $haystack, array $needles): bool
 {
     if (!$haystack) {
         return false;
@@ -16,13 +16,21 @@ function str_equals_any($haystack, array $needles): bool
     return in_array($haystack, $needles);
 }
 
-function str_contains_any(string $haystack, array $needles): bool
+function str_contains_any(string|null $haystack, array $needles): bool
 {
+    if (!$haystack) {
+        return false;
+    }
+
     return array_reduce($needles, fn($a, $n) => $a || str_contains($haystack, $n), false);
 }
 
-function str_contains_all(string $haystack, array $needles): bool
+function str_contains_all(string|null $haystack, array $needles): bool
 {
+    if (!$haystack) {
+        return false;
+    }
+
     return array_reduce($needles, fn($a, $n) => $a && str_contains($haystack, $n), true);
 }
 

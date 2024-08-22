@@ -31,7 +31,6 @@ if (!defined('ABSOLUTE_PATH')) {
     }
 }
 
-$apiError   = '';
 $loadTimes  = [];
 $start      = microtime(true);
 
@@ -59,63 +58,52 @@ if (!$_SESSION) {
     session_start();
 }
 
-if (!IS_SSE) {
-    //-- INITIALIZE THE DOCKER CLASS
-    $docker = new Docker();
+define('REMOTE_SERVER_TIMEOUT', $settingsTable['remoteServerTimeout'] ?: DEFAULT_REMOTE_SERVER_TIMEOUT);
 
+if (!IS_SSE) {
     //-- RUN REQUIRED CHECKS
     automation();
 
-    //-- CHECK IF DOCKER IS AVAILABLE
-    $dockerCommunicateAPI = $docker->apiIsAvailable();
+    logger(SYSTEM_LOG, 'Init class: Database()');
+    $database = new Database();
+    apiRequestLocal('database-migrations');
+    $settingsTable  = apiRequestLocal('database-getSettings');
+    $serversTable   = apiRequestLocal('database-getServers');
+
+    //-- SET ACTIVE INSTANCE
+    if (!$_SESSION['activeServerId'] || str_contains($_SERVER['PHP_SELF'], '/api/')) {
+        apiSetActiveServer(APP_SERVER_ID, $serversTable);
+        define('ACTIVE_SERVER_NAME', $serversTable[APP_SERVER_ID]['name']);
+    } else {
+        $activeServer = apiGetActiveServer();
+        define('ACTIVE_SERVER_NAME', $serversTable[$activeServer['id']]['name']);
+    }
 
     //-- INITIALIZE THE SHELL CLASS
+    logger(SYSTEM_LOG, 'Init class: Shell()');
     $shell = new Shell();
+
+    //-- INITIALIZE THE DOCKER CLASS
+    logger(SYSTEM_LOG, 'Init class: Docker()');
+    $docker = new Docker();
+
+    //-- CHECK IF DOCKER IS AVAILABLE
+    $isDockerApiAvailable = $docker->apiIsAvailable();
+
+    //-- INITIALIZE THE NOTIFY CLASS
+    $notifications = new Notifications();
+    logger(SYSTEM_LOG, 'Init class: Notifications()');
+
+    if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
+        $stateFile  = apiRequestLocal('file-state');
+        $pullsFile  = apiRequestLocal('file-pull');
+    }
 }
 
-//-- GET THE SERVERS LIST
-$serversFile = getFile(SERVERS_FILE);
-$_SESSION['serverIndex'] = is_numeric($_SESSION['serverIndex']) ? $_SESSION['serverIndex'] : 0;
-
-define('ACTIVE_SERVER_NAME', $serversFile[$_SESSION['serverIndex']]['name']);
-define('ACTIVE_SERVER_URL', rtrim($serversFile[$_SESSION['serverIndex']]['url'], '/'));
-define('ACTIVE_SERVER_APIKEY', $serversFile[$_SESSION['serverIndex']]['apikey']);
-
 if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
-    if (!IS_SSE) {
-        //-- CHECK IF SELECTED SERVER CAN BE TALKED TO
-        $ping = apiRequest('ping');
-        if (!is_array($ping) || $ping['code'] != 200) {
-            if ($_SESSION['serverIndex'] == 0) {
-                exit('The connection to this container in the servers file is broken');
-            } else {
-                $_SESSION['serverIndex'] = 0;
-                header('Location: /');
-                exit();
-            }
-        }
-    }
-
-    //-- SETTINGS
-    $settingsFile   = getServerFile('settings');
-    $apiError       = $settingsFile['code'] != 200 ? $settingsFile['file'] : $apiError;
-    $settingsFile   = $settingsFile['file'];
-
     //-- LOGIN, DEFINE AFTER LOADING SETTINGS
-    define('LOGIN_FAILURE_LIMIT', ($settingsFile['global']['loginFailures'] ? $settingsFile['global']['loginFailures']: 10));
-    define('LOGIN_FAILURE_TIMEOUT', ($settingsFile['global']['loginFailures'] ? $settingsFile['global']['loginTimeout']: 10)); //-- MINUTES TO DISABLE LOGINS
-
-    if (!IS_SSE) {
-        //-- STATE
-        $stateFile      = getServerFile('state');
-        $apiError       = $stateFile['code'] != 200 ? $stateFile['file'] : $apiError;
-        $stateFile      = $stateFile['file'];
-
-        //-- PULLS
-        $pullsFile      = getServerFile('pull');
-        $apiError       = $pullsFile['code'] != 200 ? $pullsFile['file'] : $apiError;
-        $pullsFile      = $pullsFile['file'];
-    }
+    define('LOGIN_FAILURE_LIMIT', ($settingsTable['loginFailures'] ? $settingsTable['loginFailures']: 10));
+    define('LOGIN_FAILURE_TIMEOUT', ($settingsTable['loginFailures'] ? $settingsTable['loginTimeout']: 10)); //-- MINUTES TO DISABLE LOGINS
 
     if (file_exists(LOGIN_FILE) && !str_contains($_SERVER['PHP_SELF'], '/crons/')) {
         define('USE_AUTH', true);
@@ -137,14 +125,20 @@ if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER
         }
     } else {
         logger(SYSTEM_LOG, 'Starting');
-
-        //-- INITIALIZE THE NOTIFY CLASS
-        $notifications = new Notifications();
-        logger(SYSTEM_LOG, 'Init class: Notifications()');
     }
 }
 
 if (!IS_SSE) {
+    //-- FLIP TO REMOTE MANAGEMENT IF NEEDED
+    $activeServer = $activeServer ?: apiGetActiveServer();
+
+    if ($activeServer['id'] != APP_SERVER_ID) {
+        $settingsTable  = apiRequest('database-getSettings')['result'];
+        $serversTable   = apiRequest('database-getServers')['result'];
+        $stateFile      = apiRequest('file-state')['result'];
+        $pullsFile      = apiRequest('file-pull')['result'];
+    }
+
     $fetchProc      = in_array($_POST['page'], $getProc) || $_POST['hash'] || $_GET['request'] == 'dwStats';
     $fetchStats     = in_array($_POST['page'], $getStats) || $_POST['hash'] || $_GET['request'] == 'dwStats';
     $fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'] || $_GET['request'] == 'dwStats';
@@ -159,7 +153,9 @@ if (!IS_SSE) {
 
     //-- UPDATE THE STATE FILE WHEN EVERYTHING IS FETCHED
     if ($_POST['page'] == 'overview' || $_POST['page'] == 'containers' || $_GET['request'] == 'dwStats') {
-        setServerFile('state', json_encode($processList));
+        if ($processList) {
+            apiRequest('file-state', [], ['contents' => $processList]);
+        }
     }
 
     //-- STATE

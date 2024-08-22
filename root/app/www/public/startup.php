@@ -14,14 +14,14 @@ if (!defined('ABSOLUTE_PATH')) {
 echo 'require_once ' . ABSOLUTE_PATH . 'loader.php' . "\n";
 require_once ABSOLUTE_PATH . 'loader.php';
 
-//-- SETTINGS
-$settingsFile = getFile(SETTINGS_FILE);
+//-- INITIALIZE THE NOTIFY CLASS
+$database = $database ?? new Database();
 
 //-- INITIALIZE THE NOTIFY CLASS
-$notifications = new Notifications();
+$notifications = $notifications ?? new Notifications();
 
 //-- INITIALIZE THE MAINTENANCE CLASS
-$maintenance = new Maintenance();
+$maintenance = $maintenance ?? new Maintenance();
 
 logger(STARTUP_LOG, 'Container init (Start/Restart) ->');
 
@@ -29,10 +29,14 @@ $name = file_exists(TMP_PATH . 'restart.txt') || file_exists(TMP_PATH . 'update.
 
 //-- STARTUP NOTIFICATION
 $notify['state']['changed'][] = ['container' => $name, 'previous' => '.....', 'current' => 'Started/Restarted'];
-if ($settingsFile['notifications']['triggers']['stateChange']['platform']) {
+
+if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'stateChange'])['result']) {
 	$payload = ['event' => 'state', 'changes' => $notify['state']['changed']];
-	$notifications->notify($settingsFile['notifications']['triggers']['stateChange']['platform'], $payload);
+	$notifications->notify(0, 'stateChange', $payload);
+
 	logger(STARTUP_LOG, 'Sending ' . $name . ' started notification');
+} else {
+	logger(STARTUP_LOG, 'Skipping ' . $name . ' started notification, no senders found with stateChange enabled');
 }
 
 //-- MAINTENANCE CHECK

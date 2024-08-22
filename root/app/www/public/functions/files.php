@@ -19,35 +19,6 @@ function loadJS()
     closedir($dir);
 }
 
-function getServerFile($file) 
-{
-    //-- NO NEED FOR AN API REQUEST LOCALLY
-    if (!$_SESSION['serverIndex']) {
-        $localFile = constant(strtoupper($file) . '_FILE');
-        return ['code' => 200, 'file' => getFile($localFile)];    
-    }
-
-    $apiResponse    = apiRequest($file);
-    $code           = $apiResponse['code'];
-    $file           = $apiResponse['response'][$file];
-
-    return ['code' => $code, 'file' => $file];
-}
-
-function setServerFile($file, $contents) 
-{
-    //-- NO NEED FOR AN API REQUEST LOCALLY
-    if (!$_SESSION['serverIndex']) {
-        $localFile = constant(strtoupper($file) . '_FILE');
-        setFile($localFile, $contents);
-        return ['code' => 200];    
-    }
-
-    $apiResponse = apiRequest($file, [], ['contents' => $contents]);
-
-    return $apiResponse;
-}
-
 function getFile($file) 
 {
     logger(SYSTEM_LOG, 'getFile() ' . $file);

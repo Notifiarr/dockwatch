@@ -295,11 +295,16 @@ function massApplyContainerTrigger(dependencyTrigger = false)
                 error: function(jqhdr, textStatus, errorThrown) {
                     $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + containerName + ' ajax error (' + (errorThrown ? errorThrown : 'timeout') + ', check the console for more information using F12) ... Retrying in 5s<br>');
 
-                    if (retries < 3) {
+                    if (retries <= 3) {
                         setTimeout(function () {
                             retries++;
                             runTrigger();
                         }, 5000);
+                    } else {
+                        $('#massContainerTrigger').val('0');
+                        $('.containers-check').prop('checked', false);
+                        $('#massTrigger-close-btn').show();
+                        $('#massTrigger-spinner').hide();
                     }
                 }
             });
@@ -331,7 +336,7 @@ function openContainerGroups()
 function loadContainerGroup()
 {
     $('#deleteGroupContainer').hide();
-    if ($('#groupSelection').val() != 1) {
+    if ($('#groupSelection').val() != 0) {
         $('#deleteGroupContainer').show();
         $('#groupName').val($('#groupSelection option:selected').text());
     } else {
@@ -341,7 +346,7 @@ function loadContainerGroup()
     $.ajax({
         type: 'POST',
         url: '../ajax/containers.php',
-        data: '&m=loadContainerGroup&groupHash=' + $('#groupSelection').val(),
+        data: '&m=loadContainerGroup&groupId=' + $('#groupSelection').val(),
         success: function (resultData) {
             $('#containerGroupRows').html(resultData);
         }
@@ -359,9 +364,10 @@ function saveContainerGroup()
     let groupItemCount = 0;
     let params = '';
     $.each($('[id^=groupContainer-]'), function() {
+        params += '&' + $(this).attr('id') + '=' + ($(this).prop('checked') ? 1 : 0);
+
         if ($(this).prop('checked')) {
             groupItemCount++;
-            params += '&' + $(this).attr('id') + '=1';
         }
     });
 
@@ -374,7 +380,7 @@ function saveContainerGroup()
     $.ajax({
         type: 'POST',
         url: '../ajax/containers.php',
-        data: '&m=saveContainerGroup&selection=' + $('#groupSelection').val() + '&name=' + $('#groupName').val() + '&delete=' + ($('#groupDelete').prop('checked') ? 1 : 0) + params,
+        data: '&m=saveContainerGroup&groupId=' + $('#groupSelection').val() + '&name=' + $('#groupName').val() + '&delete=' + ($('#groupDelete').prop('checked') ? 1 : 0) + params,
         success: function (resultData) {
             loadingStop();
 
@@ -393,6 +399,8 @@ function saveContainerGroup()
 // ---------------------------------------------------------------------------------------------
 function openUpdateOptions()
 {
+    $('#updateOptions-containers').html('Fetching container update settings...');
+
     $('#updateOptions-modal').modal({
         keyboard: false,
         backdrop: 'static'
@@ -401,12 +409,14 @@ function openUpdateOptions()
     $('#updateOptions-modal').hide();
     $('#updateOptions-modal').modal('show');
 
+    loadingStart();
     $.ajax({
         type: 'POST',
         url: '../ajax/containers.php',
         data: '&m=updateOptions',
         success: function (resultData) {
             $('#updateOptions-containers').html(resultData);
+            loadingStop();
         }
     });
 }
@@ -494,6 +504,7 @@ function hideContainerPorts(containerHash)
 // ---------------------------------------------------------------------------------------------
 function containerLogs(container)
 {
+    pageLoadingStart();
     $.ajax({
         type: 'POST',
         url: '../ajax/containers.php',
@@ -505,7 +516,7 @@ function containerLogs(container)
                 size: 'xl',
                 body: resultData,
                 onOpen: function () {
-
+                    pageLoadingStop();
                 }
             });
         }

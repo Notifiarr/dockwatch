@@ -218,9 +218,9 @@ Dockwatch has basic functionality for protecting the UI with a username and pass
 UI
 
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/87fc88d0-3430-43ba-a636-9c89992c7f59)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/d338a736-1c1b-4fa5-ac9e-6d5ab6f885ff)
+![image](https://github.com/user-attachments/assets/37eec4ee-364b-4cdc-806b-e08938f96af0)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/6e41ca48-1347-4a7f-8a2a-5e5c5020bf41)
-![image](https://github.com/Notifiarr/dockwatch/assets/8321115/9d4fc121-c457-4b85-981d-7c615c037946)
+![image](https://github.com/user-attachments/assets/dafd2368-2a7f-46a2-9f65-49c23e3757c3)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/2257d9bf-a9a8-46e3-8712-f3cb2c037199)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/0c5c64b1-ea87-4269-b9fc-d91744c7219d)
 ![image](https://github.com/Notifiarr/dockwatch/assets/8321115/952d424a-f171-4366-8f2e-f673618e8e51)

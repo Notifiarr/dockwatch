@@ -26,43 +26,43 @@ if ($_POST['m'] == 'init') {
                         </thead>
                         <tbody>
                             <tr>
-                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('stats', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['stats']['disabled'] ? 'checked' : '') ?>></td>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskStatsDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskStatsDisabled'] ? 'checked' : '' ?>></td>
                                 <td>Stats changes</td>
                                 <td>1m</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('stats')"></i></td>
                             </tr>
                             <tr>
-                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('sse', ($(this).prop('checked') ? 1 : 0))" <?= (!$settingsFile['global']['sseEnabled'] ? 'checked' : '') ?>></td>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('sseEnabled', ($(this).prop('checked') ? 1 : 0))" <?= !$settingsTable['sseEnabled'] ? 'checked' : '' ?>></td>
                                 <td>SSE</td>
                                 <td>1m</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('sse')"></i></td>
                             </tr>
                             <tr>
-                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('state', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['state']['disabled'] ? 'checked' : '') ?>></td>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskStateDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskStateDisabled'] ? 'checked' : '' ?>></td>
                                 <td>State changes</td>
                                 <td>5m</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('state')"></i></td>
                             </tr>
                             <tr>
-                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('pulls', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['pulls']['disabled'] ? 'checked' : '') ?>></td>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskPullsDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskPullsDisabled'] ? 'checked' : '' ?>></td>
                                 <td>Pulls</td>
                                 <td>5m</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('pulls')"></i></td>
                             </tr>
                             <tr>
-                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('housekeeping', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['housekeeping']['disabled'] ? 'checked' : '') ?>></td>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskHousekeepingDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskHousekeepingDisabled'] ? 'checked' : '' ?>></td>
                                 <td>Housekeeping</td>
                                 <td>10m</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('housekeeper')"></i></td>
                             </tr>
                             <tr>
-                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('health', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['health']['disabled'] ? 'checked' : '') ?>></td>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskHealthDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskHealthDisabled'] ? 'checked' : '' ?>></td>
                                 <td>Health</td>
                                 <td>15m</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('health')"></i></td>
                             </tr>
                             <tr>
-                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('prune', ($(this).prop('checked') ? 1 : 0))" <?= ($settingsFile['tasks']['prune']['disabled'] ? 'checked' : '') ?>></td>
+                                <td><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskPruneDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskPruneDisabled']? 'checked' : '' ?>></td>
                                 <td>Prune</td>
                                 <td>24h</td>
                                 <td align="center"><i class="fas fa-hourglass-start text-info" style="cursor: pointer;" onclick="runTask('prune')"></i></td>
@@ -129,10 +129,10 @@ if ($_POST['m'] == 'init') {
 if ($_POST['m'] == 'runTask') {
     logger(SYSTEM_LOG, 'Run task: ' . $_POST['task']);
 
-    $apiResponse = apiRequest('runTask', [], ['task' => $_POST['task']]);
-
-    if ($apiResponse['code'] == 200) {
-        $result = $apiResponse['response']['result'];
+    $apiRequest = apiRequest('server-runTask', [], ['task' => $_POST['task']]);
+    $result = $error = '';
+    if ($apiRequest['code'] == 200) {
+        $result = $apiRequest['result'];
     } else {
         $error = 'Failed to run taks on server ' . ACTIVE_SERVER_NAME;
     }
@@ -141,16 +141,10 @@ if ($_POST['m'] == 'runTask') {
 }
 
 if ($_POST['m'] == 'updateTaskDisabled') {
-    if ($_POST['task'] == 'sse') {
-        $settingsFile['global']['sseEnabled'] = !intval($_POST['disabled']);
+    if ($_POST['task'] == 'sseEnabled') {
+        apiRequest('database-setSetting', [], ['setting' => 'sseEnabled', 'value' => !intval($_POST['disabled'])]);
     } else {
-        $settingsFile['tasks'][$_POST['task']] = ['disabled' => intval($_POST['disabled'])];
-    }
-
-    $saveSettings = setServerFile('settings', $settingsFile);
-    
-    if ($saveSettings['code'] != 200) {
-        $error = 'Error saving task settings on server ' . ACTIVE_SERVER_NAME;
+        apiRequest('database-setSetting', [], ['setting' => $_POST['task'], 'value' => intval($_POST['disabled'])]);
     }
 
     echo json_encode(['error' => $error, 'server' => ACTIVE_SERVER_NAME]);

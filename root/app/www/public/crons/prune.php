@@ -16,7 +16,7 @@ logger(SYSTEM_LOG, 'Cron: running prune');
 logger(CRON_PRUNE_LOG, 'run ->');
 echo date('c') . ' Cron: prune ->' . "\n";
 
-if ($settingsFile['tasks']['prune']['disabled']) {
+if ($settingsTable['tasksPruneDisabled']) {
     logger(CRON_PRUNE_LOG, 'Cron cancelled: disabled in tasks menu');
     logger(CRON_PRUNE_LOG, 'run <-');
     echo date('c') . ' Cron: prune cancelled, disabled in tasks menu' . "\n";
@@ -24,7 +24,7 @@ if ($settingsFile['tasks']['prune']['disabled']) {
     exit();
 }
 
-$frequencyHour = $settingsFile['global']['autoPruneHour'] ? $settingsFile['global']['autoPruneHour'] : '12';
+$frequencyHour = $settingsTable['autoPruneHour'] ? $settingsTable['autoPruneHour'] : '12';
 if ($frequencyHour !== date('G')) {
     logger(CRON_PRUNE_LOG, 'Cron: skipped, frequency setting will run at hour ' . $frequencyHour);
     logger(CRON_PRUNE_LOG, 'run <-');
@@ -43,7 +43,7 @@ logger(CRON_PRUNE_LOG, 'images=' . json_encode($images));
 logger(CRON_PRUNE_LOG, 'volumes=' . json_encode($volumes));
 logger(CRON_PRUNE_LOG, 'networks=' . json_encode($networks));
 
-if ($settingsFile['global']['autoPruneImages']) {
+if ($settingsTable['autoPruneImages']) {
     if ($images) {
         foreach ($images as $image) {
             $imagePrune[]   = $image['ID'];
@@ -54,7 +54,7 @@ if ($settingsFile['global']['autoPruneImages']) {
     logger(CRON_PRUNE_LOG, 'Auto prune images disabled');
 }
 
-if ($settingsFile['global']['autoPruneVolumes']) {
+if ($settingsTable['autoPruneVolumes']) {
     if ($volumes) {
         foreach ($volumes as $volume) {
             $volumePrune[] = $volume['Name'];
@@ -64,7 +64,7 @@ if ($settingsFile['global']['autoPruneVolumes']) {
     logger(CRON_PRUNE_LOG, 'Auto prune volumes disabled');
 }
 
-if ($settingsFile['global']['autoPruneNetworks']) {
+if ($settingsTable['autoPruneNetworks']) {
     if ($networks) {
         foreach ($networks as $network) {
             $networkPrune[] = $network['ID'];
@@ -98,10 +98,11 @@ if ($networkPrune) {
     logger(CRON_PRUNE_LOG, 'result: ' . $prune);
 }
 
-if ($settingsFile['notifications']['triggers']['prune']['active'] && (count($volumePrune) > 0 || count($imagePrune) > 0 || count($networkPrune) > 0)) {
+if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'prune'])['result'] && (count($volumePrune) > 0 || count($imagePrune) > 0 || count($networkPrune) > 0)) {
     $payload = ['event' => 'prune', 'network' => count($networkPrune), 'volume' => count($volumePrune), 'image' => count($imagePrune), 'imageList' => $imageList];
+	$notifications->notify(0, 'prune', $payload);
+
     logger(CRON_PRUNE_LOG, 'Notification payload: ' . json_encode($payload));
-    $notifications->notify($settingsFile['notifications']['triggers']['prune']['platform'], $payload);
 }
 
 echo date('c') . ' Cron: prune <-' . "\n";

@@ -12,14 +12,15 @@ header('Cache-Control: no-cache');
 
 require 'loader.php';
 
-$sseFile = getServerFile('sse');
-$sseFile = $sseFile['code'] != 200 ? [] : $sseFile['file'];
+$database       = new Database();
+$settingsTable  = apiRequestLocal('database-getSettings');
+$sseFile        = getFile(SSE_FILE);
 
-if ($settingsFile['global']['sseEnabled']) {
+if ($settingsTable['sseEnabled']) {
     //-- DONT SEND ALL THE DATA EVERY TIME, WASTE
     if (!$sseFile['pushed']) {
         $sseFile['pushed'] = time();
-        setServerFile('sse', $sseFile);
+        setFile(SSE_FILE, $sseFile);
     } else {
         $sseFile = [];
     }
