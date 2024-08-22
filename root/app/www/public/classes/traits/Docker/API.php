@@ -163,8 +163,12 @@ trait API
             }
         }
 
-        if (empty($payload['HostConfig']['DeviceRequests']['Options'])) {
-            $payload['HostConfig']['DeviceRequests']['Options'] = new StdClass();
+        if (!empty($payload['HostConfig']['DeviceRequests'])) {
+            foreach ($payload['HostConfig']['DeviceRequests'] as $deviceRequestIndex => $deviceRequest) {
+                if (empty($payload['HostConfig']['DeviceRequests'][$deviceRequestIndex]['Options'])) {
+                    $payload['HostConfig']['DeviceRequests'][$deviceRequestIndex]['Options'] = new StdClass();
+                }
+            }
         }
 
         if (empty($payload['ExposedPorts'])) {
