@@ -163,6 +163,10 @@ trait API
             }
         }
 
+        if (empty($payload['HostConfig']['DeviceRequests']['Options'])) {
+            $payload['HostConfig']['DeviceRequests']['Options'] = new StdClass();
+        }
+
         if (empty($payload['ExposedPorts'])) {
             $payload['ExposedPorts'] = null;
         } else {
