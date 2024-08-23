@@ -163,7 +163,7 @@ trait API
             }
         }
 
-        if (!empty($payload['HostConfig']['DeviceRequests'])) {
+        if (is_array($payload['HostConfig']['DeviceRequests'])) {
             foreach ($payload['HostConfig']['DeviceRequests'] as $deviceRequestIndex => $deviceRequest) {
                 if (empty($payload['HostConfig']['DeviceRequests'][$deviceRequestIndex]['Options'])) {
                     $payload['HostConfig']['DeviceRequests'][$deviceRequestIndex]['Options'] = new StdClass();
