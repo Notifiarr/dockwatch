@@ -181,11 +181,14 @@ function dockerCreateContainer($inspect)
 
 function dockerAutoCompose($containerName)
 {
-    $cmd        = sprintf(DockerSock::RUN, '--rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $containerName);
-    $compose    = shell_exec($cmd . ' 2>&1');
+    global $shell;
+
+    $cmd        = sprintf(DockerSock::RUN, '--rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $shell->prepare($containerName));
+    $compose    = $shell->exec($cmd . ' 2>&1');
     $lines      = explode("\n", $compose);
     $skip       = true;
     $command    = [];
+
     //-- LOOP THIS SO IT REMOVES ALL THE ADD CONTAINER OVERHEAD
     foreach ($lines as $line) {
         if (str_contains($line, 'networks:') || str_contains($line, 'services:')) {
@@ -206,16 +209,18 @@ function dockerAutoCompose($containerName)
 
 function dockerAutoRun($container)
 {
+    global $shell;
+
     $indent         = '  ';
     $glue           = "\n";
     $cmd            = sprintf(DockerSock::INSPECT_FORMAT, $container);
-    $containerJson  = shell_exec($cmd . ' 2>&1');
+    $containerJson  = $shell->exec($cmd . ' 2>&1');
     $containerArray = json_decode($containerJson, true);
     $containerArray = $containerArray[0];
     $image          = $containerArray['Config']['Image'];
 
     $cmd            = sprintf(DockerSock::INSPECT_FORMAT, $image);
-    $imageJson      = shell_exec($cmd . ' 2>&1');
+    $imageJson      = $shell->exec($cmd . ' 2>&1');
     $imageArray     = json_decode($imageJson, true);
     $imageArray     = $imageArray[0];
 

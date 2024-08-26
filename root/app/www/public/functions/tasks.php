@@ -9,6 +9,8 @@
 
 function executeTask($task)
 {
+    global $shell;
+
     $getExpandedProcessList = getExpandedProcessList(true, true, true);
     $processList            = $getExpandedProcessList['processList'];
 
@@ -30,7 +32,7 @@ function executeTask($task)
         case 'prune':
         case 'stats':
             $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'crons/' . $task . '.php';
-            $return = shell_exec($cmd . ' 2>&1');
+            $return = $shell->exec($cmd . ' 2>&1');
             break;
         case 'server':
             $return = 'cli:<br>';

@@ -152,13 +152,13 @@ if ($_POST['m'] == 'composeAdd') {
 if ($_POST['m'] == 'composeDelete') {
     //-- MAKE SURE THE PATH IS IN THE COMPOSE LOCATION PATH
     if (substr($_POST['composePath'], 0, strlen(COMPOSE_PATH)) == COMPOSE_PATH) {
-        shell_exec('rm -rf ' . $_POST['composePath']);
+        $shell->exec('rm -rf ' . $_POST['composePath']);
     }
 }
 
 if ($_POST['m'] == 'composePull') {
     $cmd = 'cd ' . $_POST['composePath'] . ' && docker-compose pull';
-    $pull = shell_exec($cmd . ' 2>&1');
+    $pull = $shell->exec($cmd . ' 2>&1');
 
     if (str_contains_all($pull, ['Pulling', 'Pulled'])) {
         echo 'pulled';
@@ -169,7 +169,7 @@ if ($_POST['m'] == 'composePull') {
 
 if ($_POST['m'] == 'composeUp') {
     $cmd    = 'cd ' . $_POST['composePath'] . ' && docker-compose up -d';
-    $up     = shell_exec($cmd . ' 2>&1');
+    $up     = $shell->exec($cmd . ' 2>&1');
 
     if (str_contains_all($up, ['Container', 'Started']) || str_contains_all($up, ['Container', 'Running'])) {
         echo 'up';

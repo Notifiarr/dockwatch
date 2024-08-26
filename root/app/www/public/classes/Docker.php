@@ -26,9 +26,11 @@ class Docker
     use Process;
     use Volume;
 
+    protected $shell;
+
     public function __construct()
     {
-
+        $this->shell = new Shell();
     }
 
     public function stats($useCache)
@@ -42,8 +44,11 @@ class Docker
         }
 
         $cmd    = DockerSock::STATS_FORMAT;
-        $shell  = shell_exec($cmd . ' 2>&1');
-        setServerFile('stats', $shell);
+        $shell  = $this->shell->exec($cmd . ' 2>&1');
+
+        if ($shell) {
+            setServerFile('stats', $shell);
+        }
 
         return $shell;
     }
@@ -51,20 +56,20 @@ class Docker
     public function inspect($what, $useCache = true, $format = true, $params = '')
     {
         if ($format) {
-            $cmd = sprintf(DockerSock::INSPECT_FORMAT, $what);
+            $cmd = sprintf(DockerSock::INSPECT_FORMAT, $this->shell->prepare($what));
         } else {
-            $cmd = sprintf(DockerSock::INSPECT_CUSTOM, $what, $params);
+            $cmd = sprintf(DockerSock::INSPECT_CUSTOM, $this->shell->prepare($what), $this->shell->prepare($params));
         }
 
-        $shell  = shell_exec($cmd . ' 2>&1');
+        $shell = $this->shell->exec($cmd . ' 2>&1');
 
         return $shell;
     }
 
     public function logs($container)
     {
-        $cmd    = sprintf(DockerSock::LOGS, $container);
-        $shell  = shell_exec($cmd . ' 2>&1');
+        $cmd    = sprintf(DockerSock::LOGS, $this->shell->prepare($container));
+        $shell  = $this->shell->exec($cmd . ' 2>&1');
         $in     = ["\n", '[36m', '[31m', '[0m'];
         $out    = ['<br>', '', '', ''];
 

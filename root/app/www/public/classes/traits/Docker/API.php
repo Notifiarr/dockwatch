@@ -37,7 +37,7 @@ trait API
     public function apiVersion()
     {
         $cmd    = sprintf(DockerSock::VERSION, '| grep "API"');
-        $shell  = shell_exec($cmd . ' 2>&1');
+        $shell  = $this->shell->exec($cmd . ' 2>&1');
         preg_match_all("/([0-9]\.[0-9]{1,3})/", $shell, $matches);
     
         return $matches[0][1];
@@ -71,7 +71,7 @@ trait API
         if ($payload) {
             $cmd .= ' -d @' . TMP_PATH . $filename;
         }
-        $shell = shell_exec($cmd . ' 2>&1');
+        $shell = $this->shell->exec($cmd . ' 2>&1');
     
         if (!$shell) {
             $shell = ['result' => 'failed', 'cmd' => $cmd, 'shell' => $shell];
@@ -103,7 +103,7 @@ trait API
                 )
         */
 
-        return ['endpoint' => sprintf(DockerApi::STOP_CONTAINER, $container), 'payload' => ''];
+        return ['endpoint' => sprintf(DockerApi::STOP_CONTAINER, $this->shell->prepare($container)), 'payload' => ''];
     }
 
     public function apiCreateContainer($inspect = [])
@@ -237,7 +237,7 @@ trait API
 
         return [
                 'container' => $containerName, 
-                'endpoint'  => sprintf(DockerApi::CREATE_CONTAINER, $containerName), 
+                'endpoint'  => sprintf(DockerApi::CREATE_CONTAINER, $this->shell->prepare($containerName)), 
                 'payload'   => $payload, 
                 'debug'     => ['dependencyFile' => $dependencyFile]
             ];

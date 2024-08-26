@@ -11,20 +11,20 @@ trait Container
 {
     public function getContainerPort($container, $params = '')
     {
-        $cmd = sprintf(DockerSock::CONTAINER_PORT, $container, $params);
-        return shell_exec($cmd . ' 2>&1');
+        $cmd = sprintf(DockerSock::CONTAINER_PORT, $this->shell->prepare($container), $this->shell->prepare($params));
+        return $this->shell->exec($cmd . ' 2>&1');
     }
 
     public function removeContainer($container)
     {
-        $cmd = sprintf(DockerSock::REMOVE_CONTAINER, $container);
-        return shell_exec($cmd . ' 2>&1');
+        $cmd = sprintf(DockerSock::REMOVE_CONTAINER, $this->shell->prepare($container));
+        return $this->shell->exec($cmd . ' 2>&1');
     }
 
     public function startContainer($container)
     {
-        $cmd = sprintf(DockerSock::START_CONTAINER, $container);    
-        return shell_exec($cmd . ' 2>&1');
+        $cmd = sprintf(DockerSock::START_CONTAINER, $this->shell->prepare($container));    
+        return $this->shell->exec($cmd . ' 2>&1');
     }
 
     public function stopContainer($container)
@@ -40,14 +40,14 @@ trait Container
             logger(SYSTEM_LOG, 'stopContainer() delaying stop command for container ' . $container . ' with ' . $delay);
         }
 
-        $cmd = sprintf(DockerSock::STOP_CONTAINER, $container, ($settingsFile['containers'][$nameHash]['shutdownDelay'] ? $delay : ''));
-        return shell_exec($cmd . ' 2>&1');
+        $cmd = sprintf(DockerSock::STOP_CONTAINER, $this->shell->prepare($container), ($settingsFile['containers'][$nameHash]['shutdownDelay'] ? $this->shell->prepare($delay) : ''));
+        return $this->shell->exec($cmd . ' 2>&1');
     }
 
     public function getOrphanContainers()
     {
         $cmd = DockerSock::ORPHAN_CONTAINERS;    
-        return shell_exec($cmd . ' 2>&1');
+        return $this->shell->exec($cmd . ' 2>&1');
     }
 
     public function findContainer($query = [])

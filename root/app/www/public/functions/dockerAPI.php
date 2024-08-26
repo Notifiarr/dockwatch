@@ -34,8 +34,10 @@ function dockerCommunicateAPI()
 
 function dockerVersionAPI()
 {
+    global $shell;
+
     $cmd = '/usr/bin/docker version | grep "API"';
-    $shell = shell_exec($cmd . ' 2>&1');
+    $shell = $shell->exec($cmd . ' 2>&1');
     preg_match_all("/([0-9]\.[0-9]{1,3})/", $shell, $matches);
 
     return $matches[0][1];
@@ -43,6 +45,8 @@ function dockerVersionAPI()
 
 function dockerCurlAPI($create, $method)
 {
+    global $shell;
+
     $payload    = $create['payload'];
     $endpoint   = $create['endpoint'];
     $container  = $create['container'];
@@ -69,7 +73,7 @@ function dockerCurlAPI($create, $method)
     if ($payload) {
         $cmd .= ' -d @' . TMP_PATH . $filename;
     }
-    $shell = shell_exec($cmd . ' 2>&1');
+    $shell = $shell->exec($cmd . ' 2>&1');
 
     if (!$shell) {
         $shell = ['result' => 'failed', 'cmd' => $cmd, 'shell' => $shell];

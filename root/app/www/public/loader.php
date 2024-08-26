@@ -68,6 +68,9 @@ if (!IS_SSE) {
 
     //-- CHECK IF DOCKER IS AVAILABLE
     $dockerCommunicateAPI = $docker->apiIsAvailable();
+
+    //-- INITIALIZE THE SHELL CLASS
+    $shell = new Shell();
 }
 
 //-- GET THE SERVERS LIST

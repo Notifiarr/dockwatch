@@ -42,9 +42,11 @@ function createDirectoryTree($tree)
 
 function cpuTotal()
 {
+    global $shell;
+
     $cpus       = 0;
     $cmd        = 'cat /proc/cpuinfo';
-    $cpuinfo    = shell_exec($cmd . ' 2>&1');
+    $cpuinfo    = $shell->exec($cmd . ' 2>&1');
     $lines      = explode("\n", $cpuinfo);
 
     foreach ($lines as $line) {
@@ -58,6 +60,8 @@ function cpuTotal()
 
 function linkWebroot($location)
 {
+    global $shell;
+
     switch ($location) {
         case 'internal':
             if (!is_dir('/app/www/internal')) {
@@ -65,7 +69,7 @@ function linkWebroot($location)
             } else {
                 $cmd = 'rm -f /app/www/public && ln -s /app/www/internal /app/www/public';
             }
-            shell_exec($cmd . ' 2>&1');
+            $shell->exec($cmd . ' 2>&1');
             break;
         case 'external':
             if (!is_dir('/app/www/internal')) {
@@ -73,7 +77,7 @@ function linkWebroot($location)
             } else {
                 $cmd = 'rm -f /app/www/public && ln -s /config/www /app/www/public';
             }
-            shell_exec($cmd . ' 2>&1');
+            $shell->exec($cmd . ' 2>&1');
             break;
     }
 }

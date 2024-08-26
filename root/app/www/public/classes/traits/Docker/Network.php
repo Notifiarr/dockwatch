@@ -14,7 +14,7 @@ trait Network
         $orphans = [];
 
         $cmd        = DockerSock::ORPHAN_NETWORKS;
-        $networks   = json_decode(shell_exec($cmd . ' 2>&1'), true);
+        $networks   = json_decode($this->shell->exec($cmd . ' 2>&1'), true);
 
         foreach ($networks as $network) {
             if (str_contains_any($network['Name'], ['bridge', 'host', 'none'])) {
@@ -22,7 +22,7 @@ trait Network
             }
 
             $cmd        = sprintf(DockerSock::INSPECT_NETWORK, $network['ID']);
-            $inspect    = json_decode(shell_exec($cmd . ' 2>&1'), true);
+            $inspect    = json_decode($this->shell->exec($cmd . ' 2>&1'), true);
 
             if (empty($inspect[0]['Containers'])) {
                 $orphans[] = $network;
@@ -34,19 +34,19 @@ trait Network
 
     public function getNetworks($params = '')
     {
-        $cmd = sprintf(DockerSock::GET_NETWORKS, $params);
-        return shell_exec($cmd . ' 2>&1');
+        $cmd = sprintf(DockerSock::GET_NETWORKS, $this->shell->prepare($params));
+        return $this->shell->exec($cmd . ' 2>&1');
     }
 
     public function pruneNetwork()
     {
         $cmd = DockerSock::PRUNE_NETWORK;
-        return shell_exec($cmd . ' 2>&1');
+        return $this->shell->exec($cmd . ' 2>&1');
     }
 
     public function removeNetwork($network)
     {
-        $cmd = sprintf(DockerSock::REMOVE_NETWORK, $network);
-        return shell_exec($cmd . ' 2>&1');
+        $cmd = sprintf(DockerSock::REMOVE_NETWORK, $this->shell->prepare($network));
+        return $this->shell->exec($cmd . ' 2>&1');
     }
 }

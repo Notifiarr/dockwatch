@@ -20,7 +20,7 @@ trait Process
         }
         logger(SYSTEM_LOG, '$cmd=' . $cmd);
 
-        $shell = shell_exec($cmd . ' 2>&1');
+        $shell = $this->shell->exec($cmd . ' 2>&1');
         logger(SYSTEM_LOG, 'dockerProcessList <-');
 
         return $shell;
