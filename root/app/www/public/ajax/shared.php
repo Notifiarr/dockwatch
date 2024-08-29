@@ -17,3 +17,8 @@ if (file_exists('../../loader.php')) {
     define('ABSOLUTE_PATH', '../../');
 }
 require ABSOLUTE_PATH . 'loader.php';
+
+if (!$_SESSION['IN_DOCKWATCH']) {
+    http_response_code(400);
+    exit('Error: You should use the UI, its much prettier.');
+}

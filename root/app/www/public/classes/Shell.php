@@ -2,7 +2,7 @@
 
 /*
 ----------------------------------
- ------  Created: 042124   ------
+ ------  Created: 082624   ------
  ------  Austin Best	   ------
 ----------------------------------
 */
@@ -26,7 +26,7 @@ class Shell
 
     public function prepare($arg)
     {
-        $prepared = preg_replace("/[^A-Za-z0-9 -|_]/", '', $arg);
+        $prepared = preg_replace("/[^A-Za-z0-9 -_]/", '', $arg);
 
         return $prepared;
     }

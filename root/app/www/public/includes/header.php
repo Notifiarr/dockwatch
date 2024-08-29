@@ -7,6 +7,8 @@
 ----------------------------------
 */
 
+$_SESSION['IN_DOCKWATCH'] = true;
+
 $fetchServers = false;
 if (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300) < time()) {
     $fetchServers = true;
