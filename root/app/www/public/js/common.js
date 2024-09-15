@@ -112,6 +112,9 @@ function initPage(page, menu = false)
                         'colvis'
                     ],
                     initComplete: function () {
+                        $('#container-table_filter label').addClass('text-secondary');
+                        $('#container-table_filter input').attr('placeholder', 'Search').removeClass('form-control').addClass('text-muted form-control-sm');
+
                         $('.buttons-colvis').on('click', function () {
                             $('.dt-button-collection').addClass('bg-secondary');
                         });
@@ -120,7 +123,7 @@ function initPage(page, menu = false)
                             $('.container-group-row').show();
                         });
 
-                        $('.dt-buttons').prepend($('#check-all-btn'))
+                        $('.dt-buttons').prepend($('#check-all-btn')).append($('#group-restore-btn'));
 
                         $('.dataTables_filter').addClass('dt-buttons');
 

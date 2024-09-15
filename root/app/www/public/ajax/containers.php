@@ -163,6 +163,7 @@ if ($_POST['m'] == 'init') {
                             <td colspan="4">
                                 <div style="float: right;">
                                     <button id="check-all-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
+                                    <button id="group-restore-btn" style="display: none;" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
                                 </div>
                             </td>
                         </tr>
