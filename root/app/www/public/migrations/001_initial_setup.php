@@ -243,7 +243,7 @@ foreach ($q as $query) {
     $db->query($query);
 
 	if ($database->error() != 'not an error') {
-		logger(MIGRATION_LOG, '<span class="text-info">[R]</span> '  .$database->error(), 'error');
+		logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $database->error(), 'error');
 	} else {
 		logger(MIGRATION_LOG, '<span class="text-info">[R]</span> query applied!');
 	}
@@ -264,6 +264,10 @@ if ($settingsFile) {
 
                     if ($group['id'] && $container['id']) {
                         $containerLinkRows[] = "('" . $group['id'] . "', '" . $container['id'] . "')";
+                    } else {
+                        logger(MIGRATION_LOG, 'Could not match container hash (' . $groupContainerHash . ') with group hash (' . $groupHash. ') to an existing group', 'error');
+                        logger(MIGRATION_LOG, '$container=' . json_encode($container));
+                        logger(MIGRATION_LOG, '$group=' . json_encode($group));
                     }
                 }
             }
@@ -274,6 +278,8 @@ if ($settingsFile) {
                     (`group_id`, `container_id`) 
                     VALUES " . implode(', ', $containerLinkRows);
         }
+    } else {
+        logger(MIGRATION_LOG, 'No \'containerGroups\' found in the settings file');
     }
 
     foreach ($q as $query) {

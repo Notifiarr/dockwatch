@@ -94,22 +94,55 @@ class Database
         $database   = $this;
         $db         = $this->db;
 
+        //-- DONT RUN MIGRATIONS IF IT IS ALREADY RUNNING
+        if (file_exists(MIGRATION_FILE)) {
+            return;
+        }
+
+        setFile(MIGRATION_FILE, ['started' => date('c')]);
+
         if (filesize(DATABASE_PATH . 'dockwatch.db') == 0) { //-- INITIAL SETUP
             logger(SYSTEM_LOG, 'Creating database and applying migration 001_initial_setup');
+            logger(MIGRATION_LOG, '====================|');
+            logger(MIGRATION_LOG, '====================| migrations');
+            logger(MIGRATION_LOG, '====================|');
             logger(MIGRATION_LOG, 'migration 001 ->');
             require MIGRATIONS_PATH . '001_initial_setup.php';
             logger(MIGRATION_LOG, 'migration 001 <-');
-        } else { //-- GET CURRENT MIGRATION & CHECK FOR NEEDED MIGRATIONS
+
             $dir = opendir(MIGRATIONS_PATH);
             while ($migration = readdir($dir)) {
                 if (substr($migration, 0, 3) > $this->getSetting('migration') && str_contains($migration, '.php')) {
-                    logger(SYSTEM_LOG, 'Applying migration ' . $migration);
                     logger(MIGRATION_LOG, 'migration ' . substr($migration, 0, 3) . ' ->');
                     require MIGRATIONS_PATH . $migration;
                     logger(MIGRATION_LOG, 'migration ' . substr($migration, 0, 3) . ' <-');
                 }
             }
             closedir($dir);
+        } else { //-- GET CURRENT MIGRATION & CHECK FOR NEEDED MIGRATIONS
+            $neededMigrations = [];
+            $dir = opendir(MIGRATIONS_PATH);
+            while ($migration = readdir($dir)) {
+                if (substr($migration, 0, 3) > $this->getSetting('migration') && str_contains($migration, '.php')) {
+                    $neededMigrations[] = $migration;
+                }
+            }
+            closedir($dir);
+
+            if ($neededMigrations) {
+                logger(SYSTEM_LOG, 'Applying migrations: ' . implode(', ', $neededMigrations));
+                logger(MIGRATION_LOG, '====================|');
+                logger(MIGRATION_LOG, '====================| migrations');
+                logger(MIGRATION_LOG, '====================|');
+
+                foreach ($neededMigrations as $neededMigration) {
+                    logger(MIGRATION_LOG, 'migration ' . substr($neededMigration, 0, 3) . ' ->');
+                    require MIGRATIONS_PATH . $neededMigration;
+                    logger(MIGRATION_LOG, 'migration ' . substr($neededMigration, 0, 3) . ' <-');
+                }
+            }
         }
+
+        deleteFile(MIGRATION_FILE);
     }
 }

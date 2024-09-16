@@ -140,9 +140,9 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 if (!$parameters['hash']) {
                     apiResponse(400, ['error' => 'Missing hash parameter']);
                 }
-                $containersTable = $database->getContainers();
+                $groupsTable = $database->getContainerGroups();
 
-                return $database->getContainerGroupFromHash($parameters['hash'], $containersTable);
+                return $database->getContainerGroupFromHash($parameters['hash'], $groupsTable);
             case 'database-getContainers':
                 return $database->getContainers();
             case 'database-getContainerGroups':

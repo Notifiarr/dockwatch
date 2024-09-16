@@ -37,3 +37,10 @@ function setFile($file, $contents)
     $contents = is_array($contents) ? json_encode($contents) : $contents;
     file_put_contents($file, $contents);
 }
+
+function deleteFile($file)
+{
+    logger(SYSTEM_LOG, 'deleteFile() ' . $file);
+
+    unlink($file);
+}

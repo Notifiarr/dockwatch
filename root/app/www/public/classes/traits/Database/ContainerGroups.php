@@ -15,6 +15,7 @@ trait ContainerGroups
             return $this->containerGroupsTable;
         }
 
+        $containerGroups = [];
         $q = "SELECT *
               FROM " . CONTAINER_GROUPS_TABLE;
         $r = $this->query($q);
@@ -23,12 +24,13 @@ trait ContainerGroups
         }
 
         $this->containerGroupsTable = $containerGroups;
-        return $containerGroups ?? [];
+        return $containerGroups;
     }
 
     public function getContainerGroupFromHash($hash, $groups)
     {
         if (!$groups) {
+            $this->containerGroupsTable = '';
             $groups = $this->getContainerGroups();
         }
 
