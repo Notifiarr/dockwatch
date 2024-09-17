@@ -14,11 +14,7 @@ logger(SYSTEM_LOG, 'Cron: running housekeeper');
 logger(CRON_HOUSEKEEPER_LOG, 'run ->');
 echo date('c') . ' Cron: housekeeper ->' . "\n";
 
-if ($settingsTable['tasksHousekeepingDisabled']) {
-    logger(CRON_HOUSEKEEPER_LOG, 'Cron cancelled: disabled in tasks menu');
-    logger(CRON_HOUSEKEEPER_LOG, 'run <-');
-    echo date('c') . ' Cron: housekeeper cancelled, disabled in tasks menu' . "\n";
-    echo date('c') . ' Cron: housekeeper <-' . "\n";
+if (!canCronRun('housekeeper', $settingsTable)) {
     exit();
 }
 

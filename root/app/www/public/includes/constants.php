@@ -62,6 +62,7 @@ define('STATS_FILE', APP_DATA_PATH . 'stats.json');
 define('DEPENDENCY_FILE', APP_DATA_PATH . 'dependencies.json');
 define('SSE_FILE', APP_DATA_PATH . 'sse.json');
 define('MIGRATION_FILE', APP_DATA_PATH . 'migration-in-progress.txt');
+define('IS_MIGRATION_RUNNING', (file_exists(MIGRATION_FILE) ? true : false));
 
 //-- LOG FILES
 define('SYSTEM_LOG', LOGS_PATH . 'system/app.log');

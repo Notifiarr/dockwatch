@@ -14,19 +14,7 @@ logger(SYSTEM_LOG, 'Cron: running health');
 logger(CRON_HEALTH_LOG, 'run ->');
 echo date('c') . ' Cron: health ->' . "\n";
 
-if ($settingsTable['taskHealthDisabled']) {
-    logger(CRON_HEALTH_LOG, 'Cron cancelled: disabled in tasks menu');
-    logger(CRON_HEALTH_LOG, 'run <-');
-    echo date('c') . ' Cron: health cancelled, disabled in tasks menu' . "\n";
-    echo date('c') . ' Cron: health <-' . "\n";
-    exit();
-}
-
-if (!$settingsTable['restartUnhealthy'] && !apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'health'])['result']) {
-    logger(CRON_HEALTH_LOG, 'Cron cancelled: restart and notify disabled');
-    logger(CRON_HEALTH_LOG, 'run <-');
-    echo date('c') . ' Cron health cancelled: restart unhealthy and notify disabled' . "\n";
-    echo date('c') . ' Cron: health <-' . "\n";
+if (!canCronRun('health', $settingsTable)) {
     exit();
 }
 

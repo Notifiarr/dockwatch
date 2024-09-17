@@ -14,11 +14,7 @@ logger(SYSTEM_LOG, 'Cron: running stats');
 logger(CRON_STATS_LOG, 'run ->');
 echo date('c') . ' Cron: stats' . "\n";
 
-if ($settingsTable['tasksStatsDisabled']) {
-    logger(CRON_STATS_LOG, 'Cron cancelled: disabled in tasks menu');
-    logger(CRON_STATS_LOG, 'run <-');
-    echo date('c') . ' Cron: stats cancelled, disabled in tasks menu' . "\n";
-    echo date('c') . ' Cron: stats <-' . "\n";
+if (!canCronRun('stats', $settingsTable)) {
     exit();
 }
 

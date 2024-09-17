@@ -16,20 +16,7 @@ logger(SYSTEM_LOG, 'Cron: running prune');
 logger(CRON_PRUNE_LOG, 'run ->');
 echo date('c') . ' Cron: prune ->' . "\n";
 
-if ($settingsTable['tasksPruneDisabled']) {
-    logger(CRON_PRUNE_LOG, 'Cron cancelled: disabled in tasks menu');
-    logger(CRON_PRUNE_LOG, 'run <-');
-    echo date('c') . ' Cron: prune cancelled, disabled in tasks menu' . "\n";
-    echo date('c') . ' Cron: prune <-' . "\n";
-    exit();
-}
-
-$frequencyHour = $settingsTable['autoPruneHour'] ? $settingsTable['autoPruneHour'] : '12';
-if ($frequencyHour !== date('G')) {
-    logger(CRON_PRUNE_LOG, 'Cron: skipped, frequency setting will run at hour ' . $frequencyHour);
-    logger(CRON_PRUNE_LOG, 'run <-');
-    echo date('c') . ' Cron: skipped, frequency setting will run at hour ' . $frequencyHour . "\n";
-    echo date('c') . ' Cron: prune <-' . "\n";
+if (!canCronRun('prune', $settingsTable)) {
     exit();
 }
 

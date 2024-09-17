@@ -16,11 +16,7 @@ logger(SYSTEM_LOG, 'Cron: running pulls');
 logger(CRON_PULLS_LOG, 'run ->');
 echo date('c') . ' Cron: pulls ->' . "\n";
 
-if ($settingsTable['tasksPullsDisabled']) {
-    logger(CRON_PULLS_LOG, 'Cron cancelled: disabled in tasks menu');
-    logger(CRON_PULLS_LOG, 'run <-');
-    echo date('c') . ' Cron: pulls cancelled, disabled in tasks menu' . "\n";
-    echo date('c') . ' Cron: pulls <-' . "\n";
+if (!canCronRun('pulls', $settingsTable)) {
     exit();
 }
 

@@ -14,19 +14,7 @@ logger(SYSTEM_LOG, 'Cron: running state');
 logger(CRON_STATE_LOG, 'run ->');
 echo date('c') . ' Cron: state' . "\n";
 
-if ($settingsTable['taskStateDisabled']) {
-    logger(CRON_STATE_LOG, 'Cron cancelled: disabled in tasks menu');
-    logger(CRON_STATE_LOG, 'run <-');
-    echo date('c') . ' Cron: state cancelled, disabled in tasks menu' . "\n";
-    echo date('c') . ' Cron: state <-' . "\n";
-    exit();
-}
-
-if (date('i') % $settingsTable['stateCronTime'] !== 0) {
-    logger(CRON_STATE_LOG, 'Cron cancelled: not a match to minute interval');
-    logger(CRON_STATE_LOG, 'run <-');
-    echo date('c') . ' Cron: state cancelled, not a match to minute interval' . "\n";
-    echo date('c') . ' Cron: state <-' . "\n";
+if (!canCronRun('state', $settingsTable)) {
     exit();
 }
 

@@ -14,11 +14,7 @@ logger(SYSTEM_LOG, 'Cron: running sse');
 logger(CRON_SSE_LOG, 'run ->');
 echo date('c') . ' Cron: sse' . "\n";
 
-if (!$settingsTable['sseEnabled']) {
-    logger(CRON_SSE_LOG, 'Cron cancelled: disabled in tasks menu');
-    logger(CRON_SSE_LOG, 'run <-');
-    echo date('c') . ' Cron: sse cancelled, disabled in tasks menu' . "\n";
-    echo date('c') . ' Cron: sse <-' . "\n";
+if (!canCronRun('sse', $settingsTable)) {
     exit();
 }
 
