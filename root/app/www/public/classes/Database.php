@@ -89,6 +89,20 @@ class Database
         $this->db->query("VACUUM INTO '" . BACKUP_PATH . date('Ymd') . '/' . DATABASE_NAME . "'");
     }
 
+    public function getNewestMigration()
+    {
+        $newestMigration = '001';
+        $dir = opendir(MIGRATIONS_PATH);
+        while ($migration = readdir($dir)) {
+            if (intval(substr($migration, 0, 3)) > intval($newestMigration) && str_contains($migration, '.php')) {
+                $newestMigration = substr($migration, 0, 3);
+            }
+        }
+        closedir($dir);
+
+        return $newestMigration;
+    }
+
     public function migrations()
     {
         $database   = $this;
