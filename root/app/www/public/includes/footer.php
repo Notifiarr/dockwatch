@@ -40,7 +40,7 @@
     </div>
 
     <!-- Mass trigger modal -->
-    <div class="modal fade" id="massTrigger-modal" style="z-index: 9999 !important;" data-bs-backdrop="static">
+    <div class="modal fade" id="massTrigger-modal" style="z-index: 9999 !important; overflow: auto;" data-bs-backdrop="static">
         <div class="modal-dialog" style="max-width: 1000px">
             <div class="modal-content bg-dark" style="border: grey solid 1px;">
                 <div class="modal-header" style="border: grey solid 1px;">
@@ -58,7 +58,7 @@
     </div>
 
     <!-- Container group modal -->
-    <div class="modal fade" id="containerGroup-modal" style="z-index: 9999 !important;" data-bs-backdrop="static">
+    <div class="modal fade" id="containerGroup-modal" style="z-index: 9999 !important; overflow: auto;" data-bs-backdrop="static">
         <div class="modal-dialog" style="max-width: 1000px">
             <div class="modal-content bg-dark" style="border: grey solid 1px;">
                 <div class="modal-header" style="border: grey solid 1px;">
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Update options modal -->
-    <div class="modal fade" id="updateOptions-modal" style="z-index: 9999 !important;" data-bs-backdrop="static">
+    <div class="modal fade" id="updateOptions-modal" style="z-index: 9999 !important; overflow: auto;" data-bs-backdrop="static">
         <div class="modal-dialog" style="max-width: 1000px">
             <div class="modal-content bg-dark" style="border: grey solid 1px;">
                 <div class="modal-header" style="border: grey solid 1px;">
