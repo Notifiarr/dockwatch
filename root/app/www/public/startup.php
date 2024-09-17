@@ -12,6 +12,7 @@ if (!defined('ABSOLUTE_PATH')) {
 }
 
 echo 'require_once ' . ABSOLUTE_PATH . 'loader.php' . "\n";
+$skipMmigrations = true; //-- DO THIS WHEN THE UI IS LOADED, NOT THE INIT
 require_once ABSOLUTE_PATH . 'loader.php';
 
 //-- INITIALIZE THE NOTIFY CLASS

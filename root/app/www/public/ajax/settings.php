@@ -354,9 +354,7 @@ if ($_POST['m'] == 'init') {
                         </tr>
                         <tr>
                             <th scope="row">Override blacklist</th>
-                            <td>
-                                <input class="form-check-input" type="checkbox" id="globalSetting-overrideBlacklist" <?= ($settingsTable['overrideBlacklist'] ? 'checked' : '') ?>>
-                            </td>
+                            <td><input class="form-check-input" type="checkbox" id="globalSetting-overrideBlacklist" <?= ($settingsTable['overrideBlacklist'] ? 'checked' : '') ?>></td>
                             <td>Generally not recommended, it's at your own risk.</td>
                         </tr>
                         <tr>
@@ -378,6 +376,15 @@ if ($_POST['m'] == 'init') {
                                 </select>
                             </td>
                             <td>Location of webroot, requires a container restart after changing. Do not change this without working files externally!</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Debug zip</th>
+                            <td>
+                                <input class="form-check-input" type="checkbox" id="globalSetting-debugZipDatabase"> Database<br>
+                                <input class="form-check-input" type="checkbox" id="globalSetting-debugZipLogs"> Logs<br>
+                                <input class="form-check-input" type="checkbox" id="globalSetting-debugZipJson"> json
+                            </td>
+                            <td>This does not save but triggers a zip file to be created (<code><?= APP_DATA_PATH . 'dockwatch.zip' ?></code>) when clicking save. Should only be needed when asked for by developers and includes (based on selection) database/*, logs/crons/*, logs/api/*, logs/system/*, settings, state, pull, health, stats & dependency json files</td>
                         </tr>
                     </tbody>
                 </table>
@@ -466,6 +473,63 @@ if ($_POST['m'] == 'saveGlobalSettings') {
         }
 
         $serversTable = apiRequest('database-setServers', [], ['serverList' => $serverList])['result'];
+    }
+
+    if ($_POST['debugZipDatabase'] || $_POST['debugZipLogs'] || $_POST['debugZipJson']) {
+        $zipfile = APP_DATA_PATH . 'dockwatch.zip';
+
+        $zip = new ZipArchive();
+        $zip->open($zipfile, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
+
+        if ($_POST['debugZipDatabase']) {
+            $zip->addEmptyDir(str_replace(APP_DATA_PATH, '', DATABASE_PATH));
+            if (file_exists(DATABASE_PATH . DATABASE_NAME)) {
+                $zip->addFile(DATABASE_PATH . DATABASE_NAME, str_replace(APP_DATA_PATH, '', DATABASE_PATH) . DATABASE_NAME);
+            }
+        }
+
+        if ($_POST['debugZipLogs']) {
+            $zip->addEmptyDir(str_replace(APP_DATA_PATH, '', LOGS_PATH));
+            
+            $dir = opendir(LOGS_PATH);
+            while ($logType = readdir($dir)) {
+                if (str_equals_any($logType, ['api', 'crons', 'system'])) {
+                    $zip->addEmptyDir(str_replace(APP_DATA_PATH, '', LOGS_PATH) . $logType);
+
+                    $dir2 = opendir(LOGS_PATH . $logType);
+                    while ($log = readdir($dir2)) {
+                        if (str_contains($log, '.log')) {
+                            $zip->addFile(LOGS_PATH . $logType . '/' . $log, str_replace(APP_DATA_PATH, '', LOGS_PATH) . $logType . '/' . $log);
+                        }
+                    }
+                    closedir($dir2);
+                }
+            }
+            closedir($dir);
+        }
+
+        if ($_POST['debugZipJson']) {
+            if (file_exists(SETTINGS_FILE)) {
+                $zip->addFile(SETTINGS_FILE, str_replace(APP_DATA_PATH, '', SETTINGS_FILE));
+            }
+            if (file_exists(STATE_FILE)) {
+                $zip->addFile(STATE_FILE, str_replace(APP_DATA_PATH, '', STATE_FILE));
+            }
+            if (file_exists(PULL_FILE)) {
+                $zip->addFile(PULL_FILE, str_replace(APP_DATA_PATH, '', PULL_FILE));
+            }
+            if (file_exists(HEALTH_FILE)) {
+                $zip->addFile(HEALTH_FILE, str_replace(APP_DATA_PATH, '', HEALTH_FILE));
+            }
+            if (file_exists(STATS_FILE)) {
+                $zip->addFile(STATS_FILE, str_replace(APP_DATA_PATH, '', STATS_FILE));
+            }
+            if (file_exists(DEPENDENCY_FILE)) {
+                $zip->addFile(DEPENDENCY_FILE, str_replace(APP_DATA_PATH, '', DEPENDENCY_FILE));
+            }
+        }
+
+        $zip->close();
     }
 
     echo json_encode(['error' => $error, 'server' => ACTIVE_SERVER_NAME, 'serverList' => getRemoteServerSelect()]);

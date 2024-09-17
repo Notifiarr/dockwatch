@@ -69,6 +69,7 @@ define('UI_LOG', LOGS_PATH . 'system/ui.log');
 define('API_LOG', LOGS_PATH . 'system/api.log');
 define('MAINTENANCE_LOG', LOGS_PATH . 'system/maintenance.log');
 define('STARTUP_LOG', LOGS_PATH . 'system/startup.log');
+define('MIGRATION_LOG', LOGS_PATH . 'system/migrations.log');
 define('CRON_HOUSEKEEPER_LOG', LOGS_PATH . 'crons/housekeeper.log');
 define('CRON_PRUNE_LOG', LOGS_PATH . 'crons/prune.log');
 define('CRON_PULLS_LOG', LOGS_PATH . 'crons/pulls.log');
@@ -76,7 +77,6 @@ define('CRON_STATE_LOG', LOGS_PATH . 'crons/state.log');
 define('CRON_STATS_LOG', LOGS_PATH . 'crons/stats.log');
 define('CRON_HEALTH_LOG', LOGS_PATH . 'crons/health.log');
 define('CRON_SSE_LOG', LOGS_PATH . 'crons/sse.log');
-define('MIGRATION_LOG', LOGS_PATH . 'crons/migrations.log');
 define('LOG_ROTATE_SIZE', 2); //-- MB UNTIL ROTATE
 
 //-- MEMCACHE

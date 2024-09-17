@@ -66,7 +66,11 @@ if (!IS_SSE) {
 
     logger(SYSTEM_LOG, 'Init class: Database()');
     $database = new Database();
-    apiRequestLocal('database-migrations');
+
+    if (!$skipMmigrations) {
+        apiRequestLocal('database-migrations');
+    }
+
     $settingsTable  = apiRequestLocal('database-getSettings');
     $serversTable   = apiRequestLocal('database-getServers');
 
