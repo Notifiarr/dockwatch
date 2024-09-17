@@ -251,18 +251,27 @@ foreach ($q as $query) {
 
 //-- PRE-DB SUPPORT, POPULATE THE NEW TABLES WITH EXISTING DATA
 if ($settingsFile) {
+    logger(MIGRATION_LOG, 'settings file found, trying to migrate existing data...');
+
     $q                  = $containerLinkRows = [];
     $containers         = apiRequest('database-getContainers')['result'];
     $containerGroups    = apiRequest('database-getContainerGroups')['result'];
+    logger(MIGRATION_LOG, '$containers=' . json_encode($containers));
+    logger(MIGRATION_LOG, '$containerGroups=' . json_encode($containerGroups));
 
     if ($settingsFile['containerGroups']) {
+        logger(MIGRATION_LOG, 'container groups found in settings file, checking for assigned group containers...');
+
         foreach ($settingsFile['containerGroups'] as $groupHash => $groupData) {
             if ($groupData['containers']) {
+                logger(MIGRATION_LOG, 'found ' . count($groupData['containers']) .' containers assigned to the group \'' . $groupData['name'] . '\', finding their info...');
+
                 foreach ($groupData['containers'] as $groupContainerHash) {
                     $container  = apiRequest('database-getContainerFromHash', ['hash' => $groupContainerHash])['result'];
                     $group      = apiRequest('database-getContainerGroupFromHash', ['hash' => $groupHash])['result'];
 
                     if ($group['id'] && $container['id']) {
+                        logger(MIGRATION_LOG, 'found container \'' . $container['hash'] . '\', adding to the list');
                         $containerLinkRows[] = "('" . $group['id'] . "', '" . $container['id'] . "')";
                     } else {
                         logger(MIGRATION_LOG, 'Could not match container hash (' . $groupContainerHash . ') with group hash (' . $groupHash. ') to an existing group', 'error');
@@ -274,9 +283,13 @@ if ($settingsFile) {
         }
 
         if ($containerLinkRows) {
+            logger(MIGRATION_LOG, 'matched ' . count($containerLinkRows) .' container links, adding them to the database...');
+
             $q[] = "INSERT INTO " . CONTAINER_GROUPS_LINK_TABLE . "
                     (`group_id`, `container_id`) 
                     VALUES " . implode(', ', $containerLinkRows);
+
+            logger(MIGRATION_LOG, 'group link query: ' . json_encode($q));
         }
     } else {
         logger(MIGRATION_LOG, 'No \'containerGroups\' found in the settings file');
