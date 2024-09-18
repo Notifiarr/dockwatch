@@ -9,6 +9,8 @@
 
 function canCronRun($cron, $settingsTable)
 {
+    global $database;
+
     switch ($cron) {
         case 'health':
             $log    = CRON_HEALTH_LOG;
@@ -41,11 +43,18 @@ function canCronRun($cron, $settingsTable)
     }
 
     if (IS_MIGRATION_RUNNING) {
-        logger($log, 'Cron cancelled: migrations are running');
-        logger($log, 'run <-');
-        echo date('c') . ' Cron: ' . $cron . ' cancelled, migrations are running' . "\n";
-        echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
-        return false;
+        $highestMigration = $database->getNewestMigration();
+        $currentMigration = $settingsTable['migration'];
+    
+        if ($highestMigration == $currentMigration) {
+            deleteFile(MIGRATION_FILE);
+        } else {
+            logger($log, 'Cron cancelled: migrations are running');
+            logger($log, 'run <-');
+            echo date('c') . ' Cron: ' . $cron . ' cancelled, migrations are running' . "\n";
+            echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
+            return false;
+        }
     }
 
     if ($settingsTable[$field]) {
