@@ -5,7 +5,7 @@ let currentPage = 'overview';
 
 $(document).ready(function () {
     if ($('#menu-overview').length) {
-        initPage(USE_EXTERNAL_LOADING);
+        initPage(CURRENT_PAGE);
     }
 
     $('#loading-modal').modal({
@@ -35,17 +35,12 @@ function clearInitPage(page)
     $('#content-' + page).html('The <code>init</code> variable has been set to false, you can load a page without waiting now');
 }
 // -------------------------------------------------------------------------------------------
-function initPage(page, menu = false)
+function initPage(page)
 {
     $('.conatiner-links').hide();
 
     if (page == 'containers') {
         $('.conatiner-links').show();
-    }
-
-    if (menu && EXTERNAL_LOADING) {
-        window.location.href = '?page=' + page
-        return;
     }
 
     if (init) {

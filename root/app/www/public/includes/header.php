@@ -43,11 +43,10 @@ $serverList = (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300
     <link href="css/style.css" rel="stylesheet">
 
     <script type="text/javascript">
-        const USE_EXTERNAL_LOADING = '<?= $settingsTable['externalLoading'] && in_array($_GET['page'], $pages) ? $_GET['page'] : 'overview' ?>';
+        const CURRENT_PAGE = '<?= $settingsTable['currentPage'] ?: 'overview' ?>';
         let USE_SSE = <?= $settingsTable['sseEnabled'] ? 'true' : 'false' ?>;
         const SSE_SETTING = <?= intval($settingsTable['sseEnabled']) ?>;
         const APP_SERVER_ID = <?= APP_SERVER_ID ?>;
-        const EXTERNAL_LOADING = <?= $settingsTable['externalLoading'] ?>;
     </script>
 </head>
 
@@ -70,10 +69,10 @@ $serverList = (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300
                 <div class="mb-4 w-100" align="center"><div id="activeInstanceContainer"><?= $serverList ?></div></div>
                 <?php if ($_SESSION['authenticated']) { ?>
                 <div class="navbar-nav w-100">
-                    <a id="menu-overview" onclick="initPage('overview', true)" style="cursor: pointer;" class="nav-item nav-link active"><i class="fas fa-heartbeat me-2"></i>Overview</a>
+                    <a id="menu-overview" onclick="initPage('overview')" style="cursor: pointer;" class="nav-item nav-link active"><i class="fas fa-heartbeat me-2"></i>Overview</a>
                     <a id="menu-containers" class="nav-item nav-link" onmouseover="$('#menu-containers-label').addClass('text-primary')" onmouseout="containerMenuMouseOut()">
                         <div style="cursor: pointer;">
-                            <div id="menu-containers-label" onclick="initPage('containers', true)">
+                            <div id="menu-containers-label" onclick="initPage('containers')">
                                 <i class="fas fa-th me-2"></i>Containers
                             </div>
                             <div class="w-100 text-white ms-5 conatiner-links" style="display: none;">
@@ -82,13 +81,13 @@ $serverList = (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300
                             </div>
                         </div>
                     </a>
-                    <a id="menu-compose" onclick="initPage('compose', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-octopus-deploy me-2"></i>Compose</a>
-                    <a id="menu-orphans" onclick="initPage('orphans', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Orphans</a>
-                    <a id="menu-notification" onclick="initPage('notification', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-comment-dots me-2"></i>Notifications</a>
-                    <a id="menu-settings" onclick="initPage('settings', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tools me-2"></i>Settings</a>
-                    <a id="menu-tasks" onclick="initPage('tasks', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tasks me-2"></i>Tasks</a>
-                    <a id="menu-commands" onclick="initPage('commands', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-docker me-2"></i>Commands</a>
-                    <a id="menu-logs" onclick="initPage('logs', true)" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-file-code me-2"></i>Logs</a>
+                    <a id="menu-compose" onclick="initPage('compose')" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-octopus-deploy me-2"></i>Compose</a>
+                    <a id="menu-orphans" onclick="initPage('orphans')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Orphans</a>
+                    <a id="menu-notification" onclick="initPage('notification')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-comment-dots me-2"></i>Notifications</a>
+                    <a id="menu-settings" onclick="initPage('settings')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tools me-2"></i>Settings</a>
+                    <a id="menu-tasks" onclick="initPage('tasks')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tasks me-2"></i>Tasks</a>
+                    <a id="menu-commands" onclick="initPage('commands')" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-docker me-2"></i>Commands</a>
+                    <a id="menu-logs" onclick="initPage('logs')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-file-code me-2"></i>Logs</a>
                     <?php if (USE_AUTH) { ?>
                     <a onclick="logout()" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
                     <?php } ?>

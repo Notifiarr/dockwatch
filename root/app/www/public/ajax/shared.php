@@ -25,6 +25,10 @@ if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER
     }
 }
 
+$ajaxFile   = str_replace('/config/www/ajax/', '', debug_backtrace()[0]['file']);
+$page       = str_replace('.php', '', $ajaxFile);
+$database->setSetting('currentPage', $page);
+
 if (IS_MIGRATION_RUNNING) {
     ?>
     <div class="text-center">
