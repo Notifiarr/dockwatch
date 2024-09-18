@@ -36,11 +36,18 @@ if ($page == 'login' && $_SESSION['authenticated']) {
 $database->setSetting('currentPage', $page);
 
 if (IS_MIGRATION_RUNNING) {
+    $highestMigration = $database->getNewestMigration();
+    $currentMigration = $settingsTable['migration'];
+
+    if ($highestMigration == $currentMigration) {
+        deleteFile(MIGRATION_FILE);
+    }
+
     ?>
     <div class="text-center">
         <h3 class="text-primary">Migration problem</h3>
         <img src="images/error.gif"><br><br>
-        If you are seeing this, it means a migration failed to complete! The newest migration is <?= $database->getNewestMigration() ?> and you are on migration <?= $settingsTable['migration'] ?><br>
+        If you are seeing this, it means a migration failed to complete! The newest migration is <?= $highestMigration ?> and you are on migration <?= $currentMigration ?><br>
         You can find the migration log at <code><?= MIGRATION_LOG ?></code>, upload it <a class="text-info" href="https://logs.notifiarr.com" target="_blank">here</a> and join <a class="text-info" href="https://discord.gg/AURf8Yz" target="_blank">Discord</a> for assistance in the #dockwatch channel<br>
         <div class="text-start mt-5">
             <h5>Other options...</h5>

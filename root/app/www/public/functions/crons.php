@@ -23,7 +23,7 @@ function canCronRun($cron, $settingsTable)
             $field  = 'tasksPruneDisabled';
             break;
         case 'pulls':
-            $log    = CRON_STATE_LOG;
+            $log    = CRON_PULLS_LOG;
             $field  = 'tasksPullsDisabled';
             break;
         case 'sse':
