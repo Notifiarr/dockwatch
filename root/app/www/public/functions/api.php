@@ -249,6 +249,10 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
             case 'server-log':
                 return viewLog($parameters['name']);
             case 'server-ping':
+                if (getFile(MIGRATION_FILE)) {
+                    apiResponse(423, ['error' => 'Migration in progress']);
+                }
+
                 return defined('DOCKWATCH_COMMITS') && defined('DOCKWATCH_BRANCH') ? 'v' . APP_X . '.' . APP_Y . '.' . DOCKWATCH_COMMITS . ' - ' . DOCKWATCH_BRANCH : 'v0.0.0';
             default:
                 apiResponse(405, ['error' => 'Invalid GET request (endpoint=' . $endpoint . ')']);
