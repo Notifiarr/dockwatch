@@ -27,6 +27,11 @@ if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER
 
 $ajaxFile   = str_replace('/config/www/ajax/', '', debug_backtrace()[0]['file']);
 $page       = str_replace('.php', '', $ajaxFile);
+
+if ($page == 'login' && $_SESSION['authenticated']) {
+    $page = 'overview';
+}
+
 $database->setSetting('currentPage', $page);
 
 if (IS_MIGRATION_RUNNING) {
