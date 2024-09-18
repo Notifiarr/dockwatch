@@ -49,17 +49,24 @@ $containersTable = apiRequest('database-getContainers')['result'];
 foreach ($currentContainers as $currentContainer) {
     if (!in_array($currentContainer, $previousContainers)) {
         $containerHash  = md5($currentContainer);
-        $updates        = $settingsTable['updates'] ?: 3; //-- CHECK ONLY FALLBACK
-        $frequency      = $settingsTable['updatesFrequency'] ?: DEFAULT_CRON; //-- DAILY FALLBACK
-        $added[]        = ['container' => $currentContainer];
+        $exists         = apiRequest('database-getContainerFromHash', ['hash' => $containerHash]);
 
-        apiRequest('database-addContainer', [], ['hash' => $containerHash, 'updates' => $updates, 'frequency' => $frequency]);
+        if (!$exists) {
+            $updates    = $settingsTable['updates'] ?: 3; //-- CHECK ONLY FALLBACK
+            $frequency  = $settingsTable['updatesFrequency'] ?: DEFAULT_CRON; //-- DAILY FALLBACK
+
+            apiRequest('database-addContainer', [], ['hash' => $containerHash, 'updates' => $updates, 'frequency' => $frequency]);
+        }
+
+        $added[] = ['container' => $currentContainer];
     }
 }
+
 if ($added && apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'added'])['result']) {
     $notify['state']['added'] = $added;
     logger(CRON_STATE_LOG, 'Added containers: ' . json_encode($added, JSON_UNESCAPED_SLASHES));
 }
+
 logger(CRON_STATE_LOG, 'Added containers: ' . json_encode($added, JSON_UNESCAPED_SLASHES));
 
 //-- CHECK FOR REMOVED CONTAINERS
