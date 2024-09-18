@@ -254,8 +254,8 @@ if ($settingsFile) {
     logger(MIGRATION_LOG, 'settings file found, trying to migrate existing data...');
 
     $q                  = $containerLinkRows = [];
-    $containers         = apiRequest('database-getContainers')['result'];
-    $containerGroups    = apiRequest('database-getContainerGroups')['result'];
+    $containers         = $database->getContainers();
+    $containerGroups    = $database->getContainerGroups();
     logger(MIGRATION_LOG, '$containers=' . json_encode($containers));
     logger(MIGRATION_LOG, '$containerGroups=' . json_encode($containerGroups));
 
@@ -267,8 +267,8 @@ if ($settingsFile) {
                 logger(MIGRATION_LOG, 'found ' . count($groupData['containers']) .' containers assigned to the group \'' . $groupData['name'] . '\', finding their info...');
 
                 foreach ($groupData['containers'] as $groupContainerHash) {
-                    $container  = apiRequest('database-getContainerFromHash', ['hash' => $groupContainerHash])['result'];
-                    $group      = apiRequest('database-getContainerGroupFromHash', ['hash' => $groupHash])['result'];
+                    $container  = $database->getContainerFromHash($groupContainerHash);
+                    $group      = $database->getContainerGroupFromHash($groupHash, $containerGroups);
 
                     if ($group['id'] && $container['id']) {
                         logger(MIGRATION_LOG, 'found container \'' . $container['hash'] . '\', adding to the list');

@@ -7,6 +7,7 @@
 ----------------------------------
 */
 
+$q = [];
 $q[] = "INSERT INTO " . SETTINGS_TABLE . "
         (`name`, `value`) 
         VALUES 

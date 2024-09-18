@@ -121,6 +121,7 @@ class Database
             logger(MIGRATION_LOG, '====================| migrations');
             logger(MIGRATION_LOG, '====================|');
             logger(MIGRATION_LOG, 'migration 001 ->');
+            $q = [];
             require MIGRATIONS_PATH . '001_initial_setup.php';
             logger(MIGRATION_LOG, 'migration 001 <-');
 
@@ -128,6 +129,7 @@ class Database
             while ($migration = readdir($dir)) {
                 if (substr($migration, 0, 3) > $this->getSetting('migration') && str_contains($migration, '.php')) {
                     logger(MIGRATION_LOG, 'migration ' . substr($migration, 0, 3) . ' ->');
+                    $q = [];
                     require MIGRATIONS_PATH . $migration;
                     logger(MIGRATION_LOG, 'migration ' . substr($migration, 0, 3) . ' <-');
                 }
@@ -151,6 +153,7 @@ class Database
 
                 foreach ($neededMigrations as $neededMigration) {
                     logger(MIGRATION_LOG, 'migration ' . substr($neededMigration, 0, 3) . ' ->');
+                    $q = [];
                     require MIGRATIONS_PATH . $neededMigration;
                     logger(MIGRATION_LOG, 'migration ' . substr($neededMigration, 0, 3) . ' <-');
                 }
