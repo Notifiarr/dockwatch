@@ -27,6 +27,7 @@ if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER
 
 $ajaxFile   = str_replace('/config/www/ajax/', '', debug_backtrace()[0]['file']);
 $page       = str_replace('.php', '', $ajaxFile);
+$page       = in_array($page, $pages) ? $page : 'overview';
 
 if ($page == 'login' && $_SESSION['authenticated']) {
     $page = 'overview';
