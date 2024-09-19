@@ -113,8 +113,8 @@ if ($_POST['m'] == 'init') {
                                 <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('aliasFile')"></i></td>
                             </tr>
                             <tr>
-                                <td>View Dockwatch stats</td>
-                                <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('dwStats')"></i></td>
+                                <td>API: View containers</td>
+                                <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('containersList')"></i></td>
                             </tr>
                         </tbody>
                     </table>

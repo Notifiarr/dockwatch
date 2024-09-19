@@ -143,9 +143,11 @@ if (!IS_SSE) {
         $pullsFile      = apiRequest('file-pull')['result'];
     }
 
-    $fetchProc      = in_array($_POST['page'], $getProc) || $_POST['hash'] || $_GET['request'] == 'dwStats';
-    $fetchStats     = in_array($_POST['page'], $getStats) || $_POST['hash'] || $_GET['request'] == 'dwStats';
-    $fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'] || $_GET['request'] == 'dwStats';
+    $getContainersList  = $_GET['request'] === 'stats-getContainersList';
+
+    $fetchProc      = in_array($_POST['page'], $getProc) || $_POST['hash'] || $getContainersList;
+    $fetchStats     = in_array($_POST['page'], $getStats) || $_POST['hash'] || $getContainersList;
+    $fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'] || $getContainersList;
 
     $loadTimes[] = trackTime('getExpandedProcessList ->');
     $getExpandedProcessList = getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect);
@@ -156,7 +158,7 @@ if (!IS_SSE) {
     $loadTimes[] = trackTime('getExpandedProcessList <-');
 
     //-- UPDATE THE STATE FILE WHEN EVERYTHING IS FETCHED
-    if ($_POST['page'] == 'overview' || $_POST['page'] == 'containers' || $_GET['request'] == 'dwStats') {
+    if ($_POST['page'] == 'overview' || $_POST['page'] == 'containers' || $getContainersList) {
         if ($processList) {
             apiRequest('file-state', [], ['contents' => $processList]);
         }

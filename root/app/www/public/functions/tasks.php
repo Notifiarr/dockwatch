@@ -58,8 +58,8 @@ function executeTask($task)
             return json_encode(getFile(STATE_FILE), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'dependencyFile':
             return json_encode(getFile(DEPENDENCY_FILE), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-        case 'dwStats':
-            return json_encode(getStats(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        case 'containersList':
+            return json_encode(getContainersList(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         default:
             return 'Invalid task requested (task=' . $task . ')';
     }

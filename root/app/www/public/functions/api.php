@@ -206,7 +206,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 if (!$parameters['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
-    
+
                 return $docker->inspect($parameters['name'], $parameters['useCache'], $parameters['format'], $parameters['params']);
             case 'docker-logs':
                 if (!$parameters['name']) {
@@ -254,6 +254,8 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return defined('DOCKWATCH_COMMITS') && defined('DOCKWATCH_BRANCH') ? 'v' . APP_X . '.' . APP_Y . '.' . DOCKWATCH_COMMITS . ' - ' . DOCKWATCH_BRANCH : 'v0.0.0';
+            case 'stats-getContainersList':
+                return apiResponse(200, getContainersList());
             default:
                 apiResponse(405, ['error' => 'Invalid GET request (endpoint=' . $endpoint . ')']);
                 break;
