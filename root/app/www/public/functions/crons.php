@@ -57,7 +57,7 @@ function canCronRun($cron, $settingsTable)
         }
     }
 
-    if ($settingsTable[$field]) {
+    if (($cron == 'sse' && !$settingsTable[$field]) || ($cron != 'sse' && $settingsTable[$field])) {
         logger($log, 'Cron cancelled: disabled in tasks menu');
         logger($log, 'run <-');
         echo date('c') . ' Cron: ' . $cron . ' cancelled, disabled in tasks menu' . "\n";
