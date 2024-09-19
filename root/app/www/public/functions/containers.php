@@ -24,7 +24,7 @@ function renderContainerRow($nameHash, $return)
     $dockwatchWarning   = '';
     if (isDockwatchContainer($process)) {
         $isDockwatch        = true;
-        $dockwatchWarning   = ' <i class="fas fa-exclamation-circle text-danger" title="Dockwatch warning, click for more information" style="cursor: pointer;" onclick="dockwatchWarning()"></i>';
+        $dockwatchWarning   = ' <i class="fas fa-exclamation-circle text-danger" title="Dockwatch warning, click for more information" style="cursor: help;" onclick="dockwatchWarning()"></i>';
     }
 
     $skipActions        = skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions);
@@ -47,7 +47,11 @@ function renderContainerRow($nameHash, $return)
     $pullData = $pullsFile[$nameHash];
     $updateStatus = '<span class="text-danger">Unchecked</span>';
     if ($pullData) {
-        $updateStatus = $pullData['regctlDigest'] == $pullData['imageDigest'] ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
+        if (!$containerSettings['updates']) {
+            $updateStatus = '<span class="text-danger">Ignored</span>';
+        } else {
+            $updateStatus = $pullData['regctlDigest'] == $pullData['imageDigest'] ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
+        }
     }
 
     $restartUnhealthy       = $containerSettings['restartUnhealthy'];
@@ -60,17 +64,17 @@ function renderContainerRow($nameHash, $return)
     }
 
     $usesHealth = false;
-    $health     = 'Not setup';
+    $health     = '';
 
     if (str_contains($process['Status'], 'healthy')) {
         $usesHealth = true;
-        $health     = 'Healthy <i class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
+        $health     = 'Healthy <i style="cursor: help;" class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
     } elseif (str_contains($process['Status'], 'unhealthy')) {
         $usesHealth = true;
-        $health     = 'Unhealthy <i class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
+        $health     = 'Unhealthy <i style="cursor: help;" class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
     } elseif (str_contains($process['Status'], 'health:')) {
         $usesHealth = true;
-        $health     = 'Waiting <i class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
+        $health     = 'Waiting <i style="cursor: help;" class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
     }
 
     if (str_contains($process['Status'], 'Exit')) {
@@ -298,7 +302,7 @@ function renderContainerRow($nameHash, $return)
                 </div>
             </td>
             <!-- COLUMN: UPDATES, HASH -->
-            <td id="<?= $nameHash ?>-update" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
+            <td id="<?= $nameHash ?>-update" style="cursor: help;" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
                 <?= $updateStatus ?><br>
                 <span class="text-muted small-text" title="<?= $pullData['imageDigest'] ?>"><?= truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) ?></span>
             </td>
