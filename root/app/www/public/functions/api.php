@@ -45,6 +45,10 @@ function apiGetActiveServer()
 
 function apiResponse($code, $response)
 {
+    if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/'])) {
+        return ['code' => $code, 'result' => $response];
+    }
+
     session_unset();
     session_destroy();
 
@@ -418,13 +422,14 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 setFile($fileConstant, $payload['contents']);
                 return $fileConstant . ' contents updated';
             case 'notify-test':
-                $testNotification = $notifications->sendTestNotification($payload['linkId']);
+                $testNotification = $notifications->sendTestNotification($payload['linkId'], $payload['name']);
 
-                if ($testNotification) {
-                    apiResponse(400, ['error' => 'Test notification failed: ' . $testNotification]);
+                if ($testNotification['code'] != 200) {
+                    $result = 'Test notification failed: ' . $testNotification['result'];
+                    apiResponse($testNotification['code'], ['error' => $result]);
                 }
 
-                return $testNotification;
+                return ['code' => $testNotification['code'], 'result' => $result];
             case 'server-deleteLog';
                 if (!$payload['log']) {
                     apiResponse(400, ['error' => 'Missing log parameter']);

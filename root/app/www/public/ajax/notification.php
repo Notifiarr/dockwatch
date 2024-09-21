@@ -57,7 +57,7 @@ if ($_POST['m'] == 'init') {
                                     <h4 class="mt-3">
                                         <?= $notificationLink['name'] ?> 
                                         <i class="fas fa-tools text-light ms-3" style="cursor: pointer;" title="Update this sender triggers" onclick="openNotificationTriggers(<?= $notificationLink['platform_id'] ?>, <?= $notificationLink['id'] ?>)"></i>
-                                        <i class="far fa-bell text-light ms-1" style="cursor: pointer;" title="Send test notification" onclick="testNotify(<?= $notificationLink['id'] ?>)"></i>
+                                        <i class="far fa-bell text-light ms-1" style="cursor: pointer;" title="Send test notification" onclick="testNotify(<?= $notificationLink['id'] ?>, 'test')"></i>
                                     </h4>
                                     <div class="row text-left">
                                         <?php 
@@ -97,6 +97,7 @@ if ($_POST['m'] == 'openNotificationTriggers') {
     $platformName               = $notifications->getNotificationPlatformNameFromId($_POST['platformId'], $notificationPlatformTable);
     $linkRow                    = $notificationLinkTable[$_POST['linkId']];
     $existingTriggers           = $existingParameters = [];
+    $tests                      = $notifications->getTestPayloads();
 
     if ($linkRow) {
         $existingTriggers   = $linkRow['trigger_ids'] ? json_decode($linkRow['trigger_ids'], true) : [];
@@ -112,7 +113,7 @@ if ($_POST['m'] == 'openNotificationTriggers') {
                 <thead>
                     <tr>
                         <th><input type="checkbox" class="form-check-input" onchange="$('.notification-trigger').prop('checked', $(this).prop('checked'))"></th>
-                        <th width="20%">Trigger</th>
+                        <th width="25%">Trigger</th>
                         <th>Description</th>
                         <th>Event</th>
                     </tr>
@@ -123,7 +124,7 @@ if ($_POST['m'] == 'openNotificationTriggers') {
                         ?>
                         <tr>
                             <td><input <?= in_array($notificationTrigger['id'], $existingTriggers) ? 'checked' : '' ?> type="checkbox" class="form-check-input notification-trigger" id="notificationTrigger-<?= $notificationTrigger['id'] ?>"></td>
-                            <td><?= $notificationTrigger['label'] ?></td>
+                            <td><i class="far fa-bell text-light" style="cursor: pointer;" title="Send test notification" onclick="testNotify(<?= $linkRow['id'] ?>, '<?= $notificationTrigger['name'] ?>')"></i> <?= $notificationTrigger['label'] ?></td>
                             <td><?= $notificationTrigger['description'] ?></td>
                             <td><?= $notificationTrigger['event'] ?></td>
                         </tr>
@@ -283,12 +284,12 @@ if ($_POST['m'] == 'deleteNotification') {
 }
 
 if ($_POST['m'] == 'testNotify') {
-    $apiResponse = apiRequest('notify-test', [], ['linkId' => $_POST['linkId']]);
+    $apiResponse = apiRequest('notify-test', [], ['linkId' => $_POST['linkId'], 'name' => $_POST['name']]);
 
-    if ($apiResponse['code'] == 200) {
+    if (($apiResponse['result']['code'] && $apiResponse['result']['code'] == 200) || (!$apiResponse['result']['code'] && $apiResponse['code'] == 200)) {
         $result = 'Test notification sent on server ' . ACTIVE_SERVER_NAME;
     } else {
-        $error = 'Failed to send test notification on server ' . ACTIVE_SERVER_NAME . '. ' . $apiResponse['result'];
+        $error = 'Failed to send test notification on server ' . ACTIVE_SERVER_NAME . '. ' . ($apiResponse['result']['result'] ? $apiResponse['result']['result'] : $apiResponse['result']);
     }
 
     echo json_encode(['error' => $error, 'result' => $result]);

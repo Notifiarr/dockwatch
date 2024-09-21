@@ -148,14 +148,14 @@ function openNotificationTriggers(platformId, linkId = 0)
     });
 }
 // ---------------------------------------------------------------------------------------------
-function testNotify(linkId)
+function testNotify(linkId, name)
 {
     loadingStart();
 
     $.ajax({
         type: 'POST',
         url: '../ajax/notification.php',
-        data: '&m=testNotify&linkId=' + linkId,
+        data: '&m=testNotify&linkId=' + linkId + '&name=' + name,
         dataType: 'json',
         success: function (resultData) {
             if (resultData.error) {

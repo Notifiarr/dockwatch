@@ -12,10 +12,11 @@ loadClassExtras('Notifications');
 
 class Notifications
 {
-    use Notifiarr;
     use NotificationTemplates;
+    use NotificationTests;
+    use Notifiarr;
+    use Telegram;
 
-    protected $platforms;
     protected $headers;
     protected $logpath;
     protected $serverName;
@@ -26,7 +27,6 @@ class Notifications
         global $platforms, $settingsTable, $database;
 
         $this->database     = $database ?? new Database();
-        $this->platforms    = $platforms; //-- includes/platforms.php
         $this->logpath      = LOGS_PATH . 'notifications/';
 
         $settingsTable      = $settingsTable ?? apiRequest('database-getSettings');
@@ -38,20 +38,38 @@ class Notifications
         return 'Notifications initialized';
     }
 
-    public function sendTestNotification($linkId)
-    {    
-        $payload    = ['event' => 'test', 'title' => APP_NAME . ' test', 'message' => 'This is a test message sent from ' . APP_NAME];
-        $return     = '';
-        $result     = $this->notify($linkId, 'test', $payload);
+    public function sendTestNotification($linkId, $name)
+    {
+        $linkIds                    = [];
+        $return                     = $notificationLinkData = '';
+        $tests                      = $this->getTestPayloads();
+        $notificationPlatformTable  = $this->database->getNotificationPlatforms();
+        $notificationLinkTable      = $this->database->getNotificationLinks();
+
+        foreach ($notificationLinkTable as $notificationLink) {
+            if ($notificationLink['id'] == $linkId) {
+                $notificationLinkData = $notificationLink;
+                break;
+            }
+        }
+        $notificationPlatform = $notificationPlatformTable[$notificationLinkData['platform_id']];
+
+        $logfile = $this->logpath . $notificationPlatform['platform'] . '.log';
+        logger($logfile, 'test notification request to ' . $notificationPlatform['platform']);
+        logger($logfile, 'test=' . $name);
+        logger($logfile, 'tests=' . json_encode($tests));
+        logger($logfile, 'test payload=' . json_encode($tests[$name]));
+
+        $result = $this->notify($linkId, $name, $tests[$name], true);
     
         if ($result['code'] != 200) {
             $return = 'Code ' . $result['code'] . ', ' . $result['error'];
         }
     
-        return $return;
+        return ['code' => $result['code'], 'result' => $return];
     }
 
-    public function notify($linkId, $trigger, $payload)
+    public function notify($linkId, $trigger, $payload, $test = false)
     {
         $linkIds                    = [];
         $notificationPlatformTable  = $this->database->getNotificationPlatforms();
@@ -114,7 +132,9 @@ class Notifications
 
             switch ($platformId) {
                 case NotificationPlatforms::NOTIFIARR:
-                    return $this->notifiarr($logfile, $platformParameters['apikey'], $payload);
+                    return $this->notifiarr($logfile, $platformParameters['apikey'], $payload, $test);
+                case NotificationPlatforms::TELEGRAM:
+                    return $this->telegram($logfile, $platformParameters['botToken'], $platformParameters['chatId'], $payload, $test);
             }
         }
     }

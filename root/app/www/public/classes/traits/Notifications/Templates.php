@@ -52,12 +52,14 @@ trait NotificationTemplates
             case 'memHigh':
                 return [
                         'event'         => '', 
+                        'container'     => '',
+                        'usage'         => '',
                         'cpu'           => '', 
                         'cpuThreshold'  => '',
                         'mem'           => '',
                         'memThreshold'  => ''
                 ];
-            default: 
+            default:
                 return [];
         }
     }
