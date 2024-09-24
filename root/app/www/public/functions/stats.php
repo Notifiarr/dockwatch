@@ -7,12 +7,10 @@
 ----------------------------------
 */
 
-function getContainersList() {
-    global $docker;
-
+function getContainerStats()
+{
     $stateFile = getFile(STATE_FILE);
     $pullsFile = getFile(PULL_FILE);
-
     $containers = [];
 
     foreach ($stateFile as $container) {
@@ -49,12 +47,12 @@ function getContainersList() {
 
             //-- GET PRIVATE PORT
             if (preg_match('/->(\d+)\//', $port, $matches)) {
-                $privatePort     = $matches[1];
+                $privatePort    = $matches[1];
             }
 
             //-- GET PUBLIC PORT
             if (preg_match('/:(\d+)->|->(\d+)\//', $port, $matches)) {
-                $publicPort    = $matches[1];
+                $publicPort     = $matches[1];
             }
 
             //-- GET EXPOSED PORT
@@ -115,4 +113,107 @@ function getContainersList() {
     }
 
     return $containers;
+}
+
+function getOverviewStats()
+{
+    $data = getContainerStats();
+    $stats = [
+                'status'    => [
+                    'running'   => 0,
+                    'stopped'   => 0,
+                    'total'     => 0
+                ],
+                'health'    => [
+                    'healthy'   => 0,
+                    'unhealthy' => 0,
+                    'unknown'   => 0
+                ],
+                'updates'   => [
+                    'uptodate'  => 0,
+                    'outdated'  => 0,
+                    'unchecked' => 0
+                ],
+                'usage'     => [
+                    'disk'      => 0,
+                    'cpu'       => 0,
+                    'memory'    => 0,
+                    'netIO'     => 0
+                ],
+                'network'   => [],
+                'ports'     => []
+    ];
+
+    foreach ($data as $container) {
+        // -- STATUS
+        if ($container['status'] == 'running') {
+            $stats['status']['running']++;
+        }
+        if ($container['status'] == 'exited') {
+            $stats['status']['stopped']++;
+        }
+        $stats['status']['total'] = $stats['status']['running'] + $stats['status']['stopped'];
+
+        // -- HEALTH
+        if ($container['health'] == 'healthy') {
+            $stats['health']['healthy']++;
+        }
+        if ($container['health'] == 'unhealthy') {
+            $stats['health']['unhealthy']++;
+        }
+        if ($container['health'] == null) {
+            $stats['health']['unknown']++;
+        }
+
+        // -- UPDATES
+        if (!empty($container['dockwatch']) && $container['dockwatch']['pull'] == 'Up to date') {
+            $stats['updates']['uptodate']++;
+        }
+        if (!empty($container['dockwatch']) && $container['dockwatch']['pull'] == 'Outdated') {
+            $stats['updates']['outdated']++;
+        }
+        if (empty($container['dockwatch'])) {
+            $stats['updates']['unchecked']++;
+        }
+
+        // -- USAGE
+        if ($container['imageSize'] !== null) {
+            $stats['usage']['disk'] += bytesFromString($container['imageSize']);
+        }
+        if ($container['usage']['cpuPerc'] !== null) {
+            $stats['usage']['cpu'] += floatval(str_replace('%', '', $container['usage']['cpuPerc']));
+        }
+        if ($container['usage']['memPerc'] !== null) {
+            $stats['usage']['memory'] += floatval(str_replace('%', '', $container['usage']['memPerc']));
+        }
+        if ($container['usage']['netIO'] !== null) {
+            list($netUsed, $netAllowed) = explode(' / ', $container['usage']['netIO']);
+            $stats['usage']['netIO'] += bytesFromString($netUsed);
+        }
+
+        // -- NETWORK
+        if ($container['networkMode'] !== null && !$stats['network'][$container['networkMode']]) {
+            $stats['network'][$container['networkMode']] = 0;
+        }
+        $stats['network'][$container['networkMode']]++;
+
+        // -- PORTS
+        if (!$stats['ports'][$container['name']]) {
+            if (str_starts_with($container['networkMode'], 'container:')) {
+                continue;
+            }
+            if (str_starts_with($container['networkMode'], 'host')) {
+                continue;
+            }
+
+            $stats['ports'][$container['name']] = [];
+        }
+        foreach ($container['ports'] as $port) {
+            if (!empty($port['publicPort']) && !in_array($port['publicPort'], $stats['ports'][$container['name']])) {
+                $stats['ports'][$container['name']][] = $port['publicPort'];
+            }
+        }
+    }
+
+    return $stats;
 }

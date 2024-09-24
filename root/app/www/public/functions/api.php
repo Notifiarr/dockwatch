@@ -259,7 +259,9 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
 
                 return defined('DOCKWATCH_COMMITS') && defined('DOCKWATCH_BRANCH') ? 'v' . APP_X . '.' . APP_Y . '.' . DOCKWATCH_COMMITS . ' - ' . DOCKWATCH_BRANCH : 'v0.0.0';
             case 'stats-getContainersList':
-                return apiResponse(200, getContainersList());
+                return apiResponse(200, getContainerStats());
+            case 'stats-getOverview':
+                return apiResponse(200, getOverviewStats());
             default:
                 apiResponse(405, ['error' => 'Invalid GET request (endpoint=' . $endpoint . ')']);
                 break;

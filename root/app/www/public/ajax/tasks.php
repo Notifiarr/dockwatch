@@ -116,6 +116,10 @@ if ($_POST['m'] == 'init') {
                                 <td>API: View containers</td>
                                 <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('containersList')"></i></td>
                             </tr>
+                            <tr>
+                                <td>API: Get overview stats</td>
+                                <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('overviewStats')"></i></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
