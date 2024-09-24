@@ -94,8 +94,9 @@ $serverList = (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300
                 </div>
                 <?php } ?>
                 <div class="navbar-brand w-100 mb-1 text-center">
-                    <a href="https://github.com/Notifiarr/dockwatch" target="_blank"><i class="fab fa-github btn-secondary me-2"></i></a>
-                    <a href="https://notifiarr.com/discord" target="_blank"><i class="fab fa-discord btn-secondary"></i></a>
+                    <a href="https://dockwatch.wiki" target="_blank" title="Visit the <?= APP_NAME ?> wiki"><i class="fab fa-wikipedia-w btn-secondary me-2"></i></a>
+                    <a href="https://github.com/Notifiarr/dockwatch" title="Visit the <?= APP_NAME ?> github" target="_blank"><i class="fab fa-github btn-secondary me-2"></i></a>
+                    <a href="https://notifiarr.com/discord" title="Get some help if the wiki does not cover it" target="_blank"><i class="fab fa-discord btn-secondary"></i></a>
                 </div>
             </nav>
             <div class="w-100 text-center small-text" style="position: absolute; bottom: 0;">
