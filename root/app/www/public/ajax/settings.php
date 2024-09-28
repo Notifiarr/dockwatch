@@ -354,7 +354,7 @@ if ($_POST['m'] == 'init') {
                         </tr>
                         <tr>
                             <th scope="row">Override blacklist</th>
-                            <td><input class="form-check-input" type="checkbox" id="globalSetting-overrideBlacklist" <?= ($settingsTable['overrideBlacklist'] ? 'checked' : '') ?>></td>
+                            <td><input class="form-check-input" type="checkbox" id="globalSetting-overrideBlacklist" <?= $settingsTable['overrideBlacklist'] ? 'checked' : '' ?>></td>
                             <td>Generally not recommended, it's at your own risk.</td>
                         </tr>
                         <tr>
@@ -375,6 +375,11 @@ if ($_POST['m'] == 'init') {
                                 <input class="form-check-input" type="checkbox" id="globalSetting-debugZipJson"> json
                             </td>
                             <td>This does not save but triggers a zip file to be created (<code><?= APP_DATA_PATH . 'dockwatch.zip' ?></code>) when clicking save. Should only be needed when asked for by developers and includes (based on selection) database/*, logs/crons/*, logs/api/*, logs/system/*, settings, state, pull, health, stats & dependency json files</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Telemetry</th>
+                            <td><input class="form-check-input" type="checkbox" id="globalSetting-telemetry" <?= $settingsTable['telemetry'] ? 'checked' : '' ?>></td>
+                            <td>Allow telemetry information to be collected. There is nothing personal or identifiable and what is sent can be seen in the Tasks menu or <a href="https://github.com/Notifiarr/dockwatch/blob/develop/root/app/www/public/functions/telemetry.php" target="_blank">here on github</a></td>
                         </tr>
                     </tbody>
                 </table>

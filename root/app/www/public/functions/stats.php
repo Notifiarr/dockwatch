@@ -9,8 +9,8 @@
 
 function getContainerStats()
 {
-    $stateFile = getFile(STATE_FILE);
-    $pullsFile = getFile(PULL_FILE);
+    $stateFile  = getFile(STATE_FILE);
+    $pullsFile  = getFile(PULL_FILE);
     $containers = [];
 
     foreach ($stateFile as $container) {
@@ -37,27 +37,27 @@ function getContainerStats()
 
             //-- GET PROTOCOL
             if (preg_match('/\/(\w+)/', $port, $matches)) {
-                $protocol       = $matches[1];
+                $protocol = $matches[1];
             }
 
             //-- GET IP
             if (preg_match('/^(\d+.\d+.\d+.\d+|::)\:/', trim($port), $matches)) {
-                $ip             = $matches[1];
+                $ip = $matches[1];
             }
 
             //-- GET PRIVATE PORT
             if (preg_match('/->(\d+)\//', $port, $matches)) {
-                $privatePort    = $matches[1];
+                $privatePort = $matches[1];
             }
 
             //-- GET PUBLIC PORT
             if (preg_match('/:(\d+)->|->(\d+)\//', $port, $matches)) {
-                $publicPort     = $matches[1];
+                $publicPort = $matches[1];
             }
 
             //-- GET EXPOSED PORT
             if (preg_match('/:(\d+)\/|^(\d+)\//', $port, $matches)) {
-                $exposedPort    = $matches[1];
+                $exposedPort = $matches[1];
             }
 
             if (empty($privatePort) && empty($publicPort)) {
@@ -68,20 +68,15 @@ function getContainerStats()
                             'ip'            => $ip,
                             'publicPort'    => !empty($publicPort) ? $publicPort : $exposedPort,
                             'privatePort'   => $privatePort,
-                            'protocol'      => $protocol,
-            ];
+                            'protocol'      => $protocol
+                        ];
         }
 
         $dockwatch = [];
         foreach ($pullsFile as $hash => $pull) {
             if (md5($name) == $hash) {
-                if ($pull['regctlDigest'] == $pull['imageDigest']) {
-                    $dockwatch['pull'] = 'Up to date';
-                } else {
-                    $dockwatch['pull'] = 'Outdated';
-                }
-
-                $checked               = (new DateTime());
+                $dockwatch['pull'] = $pull['regctlDigest'] == $pull['imageDigest'] ? 'Up to date' : 'Outdated';
+                $checked = new DateTime();
                 $checked->setTimestamp($pull['checked']);
                 $dockwatch['lastPull'] = $checked->format('Y-m-d H:i:s');
 
@@ -96,7 +91,7 @@ function getContainerStats()
         $usage['blockIO']   = $container['stats']['BlockIO'];
         $usage['netIO']     = $container['stats']['NetIO'];
 
-        $containers[] = [
+        $containers[]   = [
                             'id'            => $id,
                             'name'          => $name,
                             'image'         => $image,
@@ -109,7 +104,7 @@ function getContainerStats()
                             'ports'         => $ports,
                             'dockwatch'     => $dockwatch,
                             'usage'         => $usage
-        ];
+                        ];
     }
 
     return $containers;
@@ -118,31 +113,31 @@ function getContainerStats()
 function getOverviewStats()
 {
     $data = getContainerStats();
-    $stats = [
+    $stats  = [
                 'status'    => [
-                    'running'   => 0,
-                    'stopped'   => 0,
-                    'total'     => 0
-                ],
+                                'running'   => 0,
+                                'stopped'   => 0,
+                                'total'     => 0
+                            ],
                 'health'    => [
-                    'healthy'   => 0,
-                    'unhealthy' => 0,
-                    'unknown'   => 0
-                ],
+                                'healthy'   => 0,
+                                'unhealthy' => 0,
+                                'unknown'   => 0
+                            ],
                 'updates'   => [
-                    'uptodate'  => 0,
-                    'outdated'  => 0,
-                    'unchecked' => 0
-                ],
+                                'uptodate'  => 0,
+                                'outdated'  => 0,
+                                'unchecked' => 0
+                            ],
                 'usage'     => [
-                    'disk'      => 0,
-                    'cpu'       => 0,
-                    'memory'    => 0,
-                    'netIO'     => 0
-                ],
+                                'disk'      => 0,
+                                'cpu'       => 0,
+                                'memory'    => 0,
+                                'netIO'     => 0
+                            ],
                 'network'   => [],
                 'ports'     => []
-    ];
+            ];
 
     foreach ($data as $container) {
         // -- STATUS

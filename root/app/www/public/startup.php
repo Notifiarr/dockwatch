@@ -28,6 +28,11 @@ logger(STARTUP_LOG, 'Container init (Start/Restart) ->');
 
 $name = file_exists(TMP_PATH . 'restart.txt') || file_exists(TMP_PATH . 'update.txt') ? 'dockwatch-maintenance' : 'dockwatch';
 
+//-- STARTUP TELEMETRY CHECK
+if ($name == 'dockwatch') {
+    telemetry(true);
+}
+
 //-- STARTUP NOTIFICATION
 $notify['state']['changed'][] = ['container' => $name, 'previous' => '.....', 'current' => 'Started/Restarted'];
 

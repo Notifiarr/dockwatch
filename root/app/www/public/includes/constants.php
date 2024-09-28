@@ -23,6 +23,9 @@ define('ICON_URL', 'https://gh.notifiarr.com/images/icons/');
 //-- REMOTES
 define('DEFAULT_REMOTE_SERVER_TIMEOUT', 20);
 
+//-- TELEMETRY
+define('TELEMETRY_URL', 'https://notifiarr.com/api/v1/system/dockwatch-telemetry/dockwatc-htel-emet-ryen-dpoint-2024-'); //-- THIS APIKEY HAS BEEN HARDCODED TO ONLY WORK ON THIS ENDPOINT
+
 //-- DATABASE
 define('DATABASE_NAME', 'dockwatch.db');
 define('SETTINGS_TABLE', 'settings');

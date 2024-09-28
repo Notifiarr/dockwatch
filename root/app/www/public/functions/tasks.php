@@ -9,11 +9,13 @@
 
 function executeTask($task)
 {
-    global $shell;
+    global $database, $shell;
 
     $return = '[]';
 
     switch ($task) {
+        case 'telemetry':
+            return json_encode(telemetry(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'processList';
             $getExpandedProcessList = getExpandedProcessList(true, true, true);
             $processList            = $getExpandedProcessList['processList'];

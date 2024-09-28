@@ -14,6 +14,13 @@ logger(SYSTEM_LOG, 'Cron: running housekeeper');
 logger(CRON_HOUSEKEEPER_LOG, 'run ->');
 echo date('c') . ' Cron: housekeeper ->' . "\n";
 
+//-- TELEMETRY CHECK (DAILY @ MIDNIGHT)
+if (date('H') == 0 && date('i') <= 5) {
+    logger(CRON_HOUSEKEEPER_LOG, 'Telemetry (daily @ midnight)');
+    $telemetry = telemetry(true);
+    logger(CRON_HOUSEKEEPER_LOG, '$telemetry=' . json_encode($telemetry));
+}
+
 if (!canCronRun('housekeeper', $settingsTable)) {
     exit();
 }

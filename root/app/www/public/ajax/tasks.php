@@ -85,6 +85,10 @@ if ($_POST['m'] == 'init') {
                         </thead>
                         <tbody>
                             <tr>
+                                <td>View telemetry</td>
+                                <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('telemetry')"></i></td>
+                            </tr>
+                            <tr>
                                 <td>View server variables</td>
                                 <td align="center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('server')"></i></td>
                             </tr>
@@ -134,6 +138,7 @@ if ($_POST['m'] == 'runTask') {
     logger(SYSTEM_LOG, 'Run task: ' . $_POST['task']);
 
     $apiRequest = apiRequest('server-runTask', [], ['task' => $_POST['task']]);
+
     $result = $error = '';
     if ($apiRequest['code'] == 200) {
         $result = $apiRequest['result'];
