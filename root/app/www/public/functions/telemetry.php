@@ -25,7 +25,9 @@ function telemetry($send = false)
     $notificationTable  = $database->getNotificationLinks();
 
     //-- ONE WAY HASH() OF AN MD5() HASHED HOSTNAME + APIKEY TO KEEP THINGS UNIQUE
-    $telemetry['token']     = hash('sha256', md5($_SERVER['HOSTNAME'] . $serversTable[1]['apikey']));
+    $telemetry['token'] = hash('sha256', md5($_SERVER['HOSTNAME'] . $serversTable[1]['apikey']));
+
+    //-- INSTANCE INFO
     $telemetry['branch']    = gitBranch();
     $telemetry['version']   = gitVersion();
 
