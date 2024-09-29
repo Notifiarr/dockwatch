@@ -257,7 +257,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                     apiResponse(423, ['error' => 'Migration in progress']);
                 }
 
-                return defined('DOCKWATCH_COMMITS') && defined('DOCKWATCH_BRANCH') ? 'v' . APP_X . '.' . APP_Y . '.' . DOCKWATCH_COMMITS . ' - ' . DOCKWATCH_BRANCH : 'v0.0.0';
+                return 'v' . gitVersion();
             case 'stats-getContainersList':
                 return apiResponse(200, getContainerStats());
             case 'stats-getOverview':
@@ -467,7 +467,7 @@ function apiRequestServerPings()
     $servers = [];
     foreach ($serversTable as $server) {
         if ($server['id'] == APP_SERVER_ID) {
-            $servers[strtolower($server['name'])] = ['id' => $server['id'], 'name' => $server['name'] . ' [' . (defined('DOCKWATCH_COMMITS') && defined('DOCKWATCH_BRANCH') ? 'v' . APP_X . '.' . APP_Y . '.' . DOCKWATCH_COMMITS . ' - ' . DOCKWATCH_BRANCH : 'v0.0.0') . ']', 'code' => 200];
+            $servers[strtolower($server['name'])] = ['id' => $server['id'], 'name' => $server['name'] . ' [v' . gitVersion() . ']', 'code' => 200];
         } else {
             apiSetActiveServer($server['id'], $serversTable);
 
