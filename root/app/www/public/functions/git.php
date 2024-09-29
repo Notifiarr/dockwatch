@@ -37,7 +37,7 @@ function gitMessage()
 function gitVersion($full = false)
 {
     if (!defined('DOCKWATCH_COMMITS') && !defined('DOCKWATCH_BRANCH')) {
-        return ($full ? 'v' : '') . '0.0.0 - ' . gitBranch();
+        return ($full ? 'v' : '') . '0.0.0' . ($full ? ' - ' . gitBranch() : '');
     }
 
     if ($full) {
