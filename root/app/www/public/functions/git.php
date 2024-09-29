@@ -34,11 +34,15 @@ function gitMessage()
     return DOCKWATCH_COMMIT_MSG;
 }
 
-function gitVersion()
+function gitVersion($full = false)
 {
     if (!defined('DOCKWATCH_COMMITS') && !defined('DOCKWATCH_BRANCH')) {
-        return '0.0.0';
+        return ($full ? 'v' : '') . '0.0.0 - ' . gitBranch();
     }
 
-    return APP_X . '.' . APP_Y . '.' . DOCKWATCH_COMMITS . ' - ' . DOCKWATCH_BRANCH;
+    if ($full) {
+        return 'v' . APP_X . '.' . APP_Y . '.' . DOCKWATCH_COMMITS . ' - ' . gitBranch();
+    }
+
+    return APP_X . '.' . APP_Y . '.' . DOCKWATCH_COMMITS;
 }
