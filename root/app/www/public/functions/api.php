@@ -397,6 +397,32 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $docker->removeNetwork($payload['id']);
+            case 'docker-restartContainer':
+                if (!$payload['name']) {
+                    apiResponse(400, ['error' => 'Missing name parameter']);
+                }
+
+                $dependencyFile = getFile(DEPENDENCY_FILE);
+                $dependencies   = $dependencyFile[$payload['name']]['containers'];
+                $dependencies   = is_array($dependencies) ? $dependencies : [];
+
+                $stopContainer = $docker->stopContainer($payload['name']);
+                $return[] = 'docker-stopContainer: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
+                $startContainer = $docker->startContainer($payload['name']);
+                $return[] = 'docker-startContainer: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
+
+                if ($dependencies) {
+                    $return[] = 'restarting dependenices...';
+        
+                    foreach ($dependencies as $dependency) {
+                        $stopContainer = $docker->stopContainer($dependency);
+                        $return[] = 'docker-stopContainer: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
+                        $startContainer = $docker->startContainer($dependency);
+                        $return[] = 'docker-startContainer: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
+                    }
+                }
+
+                return $return;
             case 'docker-startContainer':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
