@@ -402,39 +402,77 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $dependencyFile = getFile(DEPENDENCY_FILE);
-                $dependencies   = $dependencyFile[$payload['name']]['containers'];
-                $dependencies   = is_array($dependencies) ? $dependencies : [];
-
                 $stopContainer = $docker->stopContainer($payload['name']);
                 $return[] = 'docker-stopContainer: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
                 $startContainer = $docker->startContainer($payload['name']);
                 $return[] = 'docker-startContainer: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
 
-                if ($dependencies) {
-                    $return[] = 'restarting dependenices...';
-        
-                    foreach ($dependencies as $dependency) {
-                        $stopContainer = $docker->stopContainer($dependency);
-                        $return[] = 'docker-stopContainer: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
-                        $startContainer = $docker->startContainer($dependency);
-                        $return[] = 'docker-startContainer: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
+                if ($payload['dependencies']) {
+                    $dependencyFile = getFile(DEPENDENCY_FILE);
+                    $dependencies   = $dependencyFile[$payload['name']]['containers'];
+                    $dependencies   = is_array($dependencies) ? $dependencies : [];
+
+                    if ($dependencies) {
+                        $return[] = 'restarting dependenices...';
+            
+                        foreach ($dependencies as $dependency) {
+                            $stopContainer = $docker->stopContainer($dependency);
+                            $return[] = 'docker-stopContainer: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
+                            $startContainer = $docker->startContainer($dependency);
+                            $return[] = 'docker-startContainer: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
+                        }
                     }
                 }
 
-                return $return;
+                return $payload['dependencies'] ? $return : $startContainer;
             case 'docker-startContainer':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                return $docker->startContainer($payload['name']);
+                $startContainer = $docker->startContainer($payload['name']);
+                $return[] = 'docker-startContainer: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
+
+                if ($payload['dependencies']) {
+                    $dependencyFile = getFile(DEPENDENCY_FILE);
+                    $dependencies   = $dependencyFile[$payload['name']]['containers'];
+                    $dependencies   = is_array($dependencies) ? $dependencies : [];
+
+                    if ($dependencies) {
+                        $return[] = 'starting dependenices...';
+            
+                        foreach ($dependencies as $dependency) {
+                            $startContainer = $docker->startContainer($dependency);
+                            $return[] = 'docker-startContainer: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
+                        }
+                    }
+                }
+
+                return $payload['dependencies'] ? $return : $startContainer;
             case 'docker-stopContainer':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                return $docker->stopContainer($payload['name']);
+                $stopContainer = $docker->stopContainer($payload['name']);
+                $return[] = 'docker-stopContainer: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
+
+                if ($payload['dependencies']) {
+                    $dependencyFile = getFile(DEPENDENCY_FILE);
+                    $dependencies   = $dependencyFile[$payload['name']]['containers'];
+                    $dependencies   = is_array($dependencies) ? $dependencies : [];
+
+                    if ($dependencies) {
+                        $return[] = 'restarting dependenices...';
+            
+                        foreach ($dependencies as $dependency) {
+                            $stopContainer = $docker->stopContainer($dependency);
+                            $return[] = 'docker-stopContainer: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
+                        }
+                    }
+                }
+
+                return $payload['dependencies'] ? $return : $stopContainer;
             case 'file-dependency':
             case 'file-pull':
             case 'file-sse':
