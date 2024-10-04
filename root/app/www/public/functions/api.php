@@ -463,7 +463,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                     $dependencies   = is_array($dependencies) ? $dependencies : [];
 
                     if ($dependencies) {
-                        $return[] = 'restarting dependenices...';
+                        $return[] = 'stopping dependenices...';
             
                         foreach ($dependencies as $dependency) {
                             $stopContainer = $docker->stopContainer($dependency);
