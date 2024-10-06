@@ -1,2 +1,3 @@
 /root/app/www/public/logs/*
 /root/app/www/public/api/container-alias.json
+/.vscode/*

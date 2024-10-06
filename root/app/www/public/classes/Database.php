@@ -125,37 +125,48 @@ class Database
             require MIGRATIONS_PATH . '001_initial_setup.php';
             logger(MIGRATION_LOG, 'migration 001 <-');
 
-            $dir = opendir(MIGRATIONS_PATH);
-            while ($migration = readdir($dir)) {
-                if (substr($migration, 0, 3) > $this->getSetting('migration') && str_contains($migration, '.php')) {
-                    logger(MIGRATION_LOG, 'migration ' . substr($migration, 0, 3) . ' ->');
-                    $q = [];
-                    require MIGRATIONS_PATH . $migration;
-                    logger(MIGRATION_LOG, 'migration ' . substr($migration, 0, 3) . ' <-');
-                }
-            }
-            closedir($dir);
-        } else { //-- GET CURRENT MIGRATION & CHECK FOR NEEDED MIGRATIONS
             $neededMigrations = [];
             $dir = opendir(MIGRATIONS_PATH);
             while ($migration = readdir($dir)) {
                 if (substr($migration, 0, 3) > $this->getSetting('migration') && str_contains($migration, '.php')) {
-                    $neededMigrations[] = $migration;
+                    $neededMigrations[substr($migration, 0, 3)] = $migration;
                 }
             }
             closedir($dir);
 
             if ($neededMigrations) {
-                logger(SYSTEM_LOG, 'Applying migrations: ' . implode(', ', $neededMigrations));
+                ksort($neededMigrations);
+
+                foreach ($neededMigrations as $migrationNumber => $neededMigration) {
+                    logger(MIGRATION_LOG, 'migration ' . $migrationNumber . ' ->');
+                    $q = [];
+                    require MIGRATIONS_PATH . $neededMigration;
+                    logger(MIGRATION_LOG, 'migration ' . $migrationNumber . ' <-');
+                }
+            }
+        } else { //-- GET CURRENT MIGRATION & CHECK FOR NEEDED MIGRATIONS
+            $neededMigrations = [];
+            $dir = opendir(MIGRATIONS_PATH);
+            while ($migration = readdir($dir)) {
+                if (substr($migration, 0, 3) > $this->getSetting('migration') && str_contains($migration, '.php')) {
+                    $neededMigrations[substr($migration, 0, 3)] = $migration;
+                }
+            }
+            closedir($dir);
+
+            if ($neededMigrations) {
+                ksort($neededMigrations);
+
+                logger(SYSTEM_LOG, 'Applying migrations: ' . implode(', ', array_keys($neededMigrations)));
                 logger(MIGRATION_LOG, '====================|');
                 logger(MIGRATION_LOG, '====================| migrations');
                 logger(MIGRATION_LOG, '====================|');
 
-                foreach ($neededMigrations as $neededMigration) {
-                    logger(MIGRATION_LOG, 'migration ' . substr($neededMigration, 0, 3) . ' ->');
+                foreach ($neededMigrations as $migrationNumber => $neededMigration) {
+                    logger(MIGRATION_LOG, 'migration ' . $migrationNumber . ' ->');
                     $q = [];
                     require MIGRATIONS_PATH . $neededMigration;
-                    logger(MIGRATION_LOG, 'migration ' . substr($neededMigration, 0, 3) . ' <-');
+                    logger(MIGRATION_LOG, 'migration ' . $migrationNumber . ' <-');
                 }
             }
         }
