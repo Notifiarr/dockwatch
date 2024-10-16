@@ -390,13 +390,13 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                return $docker->removeVolume($payload['name']);
+                return $docker->removeNetwork($payload['id']);
             case 'docker-removeVolume':
                 if (!$payload['id']) {
                     apiResponse(400, ['error' => 'Missing id parameter']);
                 }
 
-                return $docker->removeNetwork($payload['id']);
+                return $docker->removeVolume($payload['name']);
             case 'docker-restartContainer':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);

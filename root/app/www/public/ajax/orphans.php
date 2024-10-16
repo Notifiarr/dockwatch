@@ -26,7 +26,7 @@ if ($_POST['m'] == 'init') {
                 <table class="table">
                     <thead>
                         <tr>
-                            <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.orphanImages-check').prop('checked', $(this).prop('checked'));"></th>
+                            <th scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanImages-check').prop('checked', $(this).prop('checked'));"></th>
                             <th scope="col">ID</th>
                             <th scope="col">Created</th>
                             <th scope="col">Repository</th>
@@ -56,7 +56,7 @@ if ($_POST['m'] == 'init') {
                 <table class="table">
                     <thead>
                         <tr>
-                            <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.orphanVolumes-check').prop('checked', $(this).prop('checked'));"></th>
+                            <th scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanVolumes-check').prop('checked', $(this).prop('checked'));"></th>
                             <th scope="col">Name</th>
                             <th scope="col">Mount</th>
                         </tr>
@@ -82,7 +82,7 @@ if ($_POST['m'] == 'init') {
                 <table class="table">
                     <thead>
                         <tr>
-                            <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.orphanNetworks-check').prop('checked', $(this).prop('checked'));"></th>
+                            <th scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanNetworks-check').prop('checked', $(this).prop('checked'));"></th>
                             <th scope="col">ID</th>
                             <th scope="col">Name</th>
                             <th scope="col">Type</th>

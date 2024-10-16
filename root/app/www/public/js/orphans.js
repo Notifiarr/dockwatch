@@ -4,6 +4,8 @@ function removeOrphans()
         return;
     }
 
+    $('.orphan-checkall').prop('checked', false);
+
     loadingStart();
 
     let action = '';
