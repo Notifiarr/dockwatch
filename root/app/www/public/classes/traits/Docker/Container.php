@@ -42,6 +42,28 @@ trait Container
         return $this->shell->exec($cmd . ' 2>&1');
     }
 
+    public function getUnusedContainers()
+    {
+        $unused = [];
+        $cmd = DockerSock::UNUSED_CONTAINERS;
+        $containers = $this->shell->exec($cmd . ' 2>&1');
+
+        if ($containers) {
+            $containerList = explode("\n", $containers);
+            foreach ($containerList as $container) {
+                list($id, $image, $tag) = explode(':', $container);
+
+                if (!$id) {
+                    continue;
+                }
+
+                $unused[] = ['ID' => $id, 'Repository' => $image, 'Tag' => $tag];
+            }
+        }
+
+        return json_encode($unused);
+    }
+
     public function getOrphanContainers()
     {
         $cmd = DockerSock::ORPHAN_CONTAINERS;    

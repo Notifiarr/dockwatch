@@ -7,6 +7,11 @@
 ----------------------------------
 */
 
+function stri_contains(string|null $haystack, string $needle)
+{
+    return str_contains(strtolower($haystack), strtolower($needle));
+}
+
 function str_equals_any(string|null $haystack, array $needles): bool
 {
     if (!$haystack) {

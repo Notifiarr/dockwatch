@@ -10,18 +10,19 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $images     = apiRequest('docker-getOrphanContainers');
-    $images     = json_decode($images['result'], true);
-    $volumes    = apiRequest('docker-getOrphanVolumes');
-    $volumes    = json_decode($volumes['result'], true);
-    $networks   = apiRequest('docker-getOrphanNetworks');
-    $networks   = json_decode($networks['result'], true);
-
+    $images             = apiRequest('docker-getOrphanContainers');
+    $images             = json_decode($images['result'], true);
+    $volumes            = apiRequest('docker-getOrphanVolumes');
+    $volumes            = json_decode($volumes['result'], true);
+    $networks           = apiRequest('docker-getOrphanNetworks');
+    $networks           = json_decode($networks['result'], true);
+    $unusedContainers   = apiRequest('docker-getUnusedContainers');
+    $unusedContainers   = json_decode($unusedContainers['result'], true);
     ?>
     <div class="container-fluid pt-4 px-4 mb-5">
         <div class="bg-secondary rounded h-100 p-4">
             <h4 class="mt-3 mb-0">Images</h4>
-            <span class="small-text text-muted">docker images -f dangling=true</span>
+            <span class="small-text text-muted"><?= DockerSock::ORPHAN_CONTAINERS ?></span>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -50,8 +51,36 @@ if ($_POST['m'] == 'init') {
                     </tbody>
                 </table>
             </div>
+            <h4 class="mt-3 mb-0">Unused containers</h4>
+            <span class="small-text text-muted"><?= DockerSock::UNUSED_CONTAINERS ?></span>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanUnusedContainers-check').prop('checked', $(this).prop('checked'));"></th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Repository</th>
+                            <th scope="col">Tag</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        foreach ($unusedContainers as $container) {
+                            ?>
+                            <tr id="unused-<?= $container['ID'] ?>">
+                                <th scope="row"><input id="unusedContainer-<?= $container['ID'] ?>" type="checkbox" class="form-check-input orphanUnusedContainers-check orphan"></th>
+                                <td><?= $container['ID'] ?></td>
+                                <td><?= $container['Repository'] ?></td>
+                                <td><?= $container['Tag'] ?></td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
             <h4 class="mt-3 mb-0">Volumes</h4>
-            <span class="small-text text-muted">docker volume ls -qf dangling=true</span>
+            <span class="small-text text-muted"><?= DockerSock::ORPHAN_VOLUMES ?></span>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -77,7 +106,7 @@ if ($_POST['m'] == 'init') {
                 </table>
             </div>
             <h4 class="mt-3 mb-0">Networks</h4>
-            <span class="small-text text-muted">docker network ls -qf dangling=true</span>
+            <span class="small-text text-muted"><?= DockerSock::ORPHAN_NETWORKS ?></span>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -125,21 +154,21 @@ if ($_POST['m'] == 'init') {
 if ($_POST['m'] == 'removeOrphans') {
     switch ($_POST['action']) {
         case 'remove':
-            if ($_POST['type'] == 'image') {
+            if ($_POST['type'] == 'image' || $_POST['type'] == 'unused') {
                 $apiRequest = apiRequest('docker-removeImage', [], ['image' => $_POST['orphan']])['result'];
-                if (stripos($apiRequest, 'error') !== false || stripos($apiRequest, 'help') !== false) {
+                if (stri_contains($apiRequest, 'error') || stri_contains($apiRequest, 'help')) {
                     echo $apiRequest;
                 }
             }
             if ($_POST['type'] == 'network') {
                 $apiRequest = apiRequest('docker-removeNetwork', [], ['id' => $_POST['orphan']])['result'];
-                if (stripos($apiRequest, 'error') !== false || stripos($apiRequest, 'help') !== false) {
+                if (stri_contains($apiRequest, 'error') || stri_contains($apiRequest, 'help')) {
                     echo $apiRequest;
                 }
             }
             if ($_POST['type'] == 'volume') {
                 $apiRequest = apiRequest('docker-removeVolume', [], ['name' => $_POST['orphan']])['result'];
-                if (stripos($apiRequest, 'error') !== false || stripos($apiRequest, 'help') !== false) {
+                if (stri_contains($apiRequest, 'error') || stri_contains($apiRequest, 'help')) {
                     echo $apiRequest;
                 }
             }

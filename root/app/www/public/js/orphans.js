@@ -28,6 +28,8 @@ function removeOrphans()
                 type = 'volume';
             } else if (split[0] == 'orphanNetwork') {
                 type = 'network';
+            } else if (split[0] == 'unusedContainer') {
+                type = 'unused';
             }
 
             selectedOrphans.push({'orphan': split[1], 'type': type});

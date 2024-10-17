@@ -204,6 +204,8 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 return $docker->getOrphanNetworks();
             case 'docker-getOrphanVolumes':
                 return $docker->getOrphanVolumes();
+            case 'docker-getUnusedContainers':
+                return $docker->getUnusedContainers();
             case 'docker-imageSizes':
                 return $docker->getImageSizes();
             case 'docker-inspect':
