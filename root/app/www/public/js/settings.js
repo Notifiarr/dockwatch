@@ -34,3 +34,18 @@ function saveGlobalSettings()
 
 }
 // ---------------------------------------------------------------------------------------------
+function unlinkRemoteServer(serverId)
+{
+    if (confirm('Are you sure you want to remove this remote server?')) {
+        $.ajax({
+            type: 'POST',
+            url: '../ajax/settings.php',
+            data: '&m=unlinkRemoteServer&id=' + serverId,
+            success: function (resultData) {
+                $('#remoteServer-' + serverId).remove();
+                toast('Remote server', 'The remote server has been removed', 'success');
+            }
+        });
+    }
+}
+// ---------------------------------------------------------------------------------------------

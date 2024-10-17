@@ -122,8 +122,11 @@ if ($_POST['m'] == 'init') {
                                     continue;
                                 }
                                 ?>
-                                <tr>
-                                    <th scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['name'] ?>"></th>
+                                <tr id="remoteServer-<?= $serverSettings['id'] ?>">
+                                    <th scope="row">
+                                        <i class="far fa-trash-alt text-danger d-inline-block" style="cursor: pointer;" title="Unlink remote server" onclick="unlinkRemoteServer('<?= $serverSettings['id'] ?>')"></i> 
+                                        <input class="form-control d-inline-block" style="width: 90%;" type="text" id="globalSetting-serverList-name-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['name'] ?>">
+                                    </th>
                                     <td><input class="form-control" type="text" id="globalSetting-serverList-url-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['url'] ?>"></td>
                                     <td><input class="form-control" type="text" id="globalSetting-serverList-apikey-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['apikey'] ?>"></td>
                                 </tr>
@@ -450,23 +453,6 @@ if ($_POST['m'] == 'saveGlobalSettings') {
             }
         }
 
-        //-- REMOVE SERVER FROM LIST
-        foreach ($_POST as $key => $val) {
-            if (!str_contains($key, 'serverList-apikey')) {
-                continue;
-            }
-
-            list($name, $field, $instanceId) = explode('-', $key);
-
-            if (!is_numeric($instanceId)) {
-                continue;
-            }
-
-            if (!$_POST['serverList-name-' . $instanceId] && !$_POST['serverList-url-' . $instanceId] && !$_POST['serverList-apikey-' . $instanceId]) {
-                $serverList[$instanceId]['remove'] = true;
-            }
-        }
-
         $serversTable = apiRequest('database-setServers', [], ['serverList' => $serverList])['result'];
     }
 
@@ -534,4 +520,9 @@ if ($_POST['m'] == 'saveGlobalSettings') {
 if ($_POST['m'] == 'updateActiveServer') {
     apiSetActiveServer(intval($_POST['id']));
     $_SESSION['serverList'] = '';
+}
+
+if ($_POST['m'] == 'unlinkRemoteServer') {
+    $serversTable[intval($_POST['id'])]['remove'] = true;
+    apiRequest('database-setServers', [], ['serverList' => $serversTable]);
 }
