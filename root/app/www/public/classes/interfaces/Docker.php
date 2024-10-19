@@ -32,7 +32,7 @@ interface DockerSock
     public const START_CONTAINER = '/usr/bin/docker container start %s';
     public const STOP_CONTAINER = '/usr/bin/docker container stop %s%s';
     public const ORPHAN_CONTAINERS = '/usr/bin/docker images -f dangling=true --format="{{json . }}" | jq -s --tab .';
-    public const UNUSED_CONTAINERS = '/usr/bin/docker images --format \'{{.ID}}:{{.Repository}}:{{.Tag}}\' | grep -v "$(docker ps --format {{.Image}})"';
+    public const UNUSED_CONTAINERS = '/usr/bin/docker images --format \'{{.ID}}:{{.Repository}}:{{.Tag}}\' | grep -v "$(docker ps -a --format {{.Image}})"';
     public const CONTAINER_PORT = '/usr/bin/docker port %s %s';
     //-- IMAGE SPECIFIC
     public const REMOVE_IMAGE = '/usr/bin/docker image rm %s';

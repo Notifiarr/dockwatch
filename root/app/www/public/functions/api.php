@@ -126,6 +126,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
 
     if (!$payload) { //-- GET
         switch ($endpoint) {
+            case 'database/container/hash':
             case 'database-getContainerFromHash':
                 if (!$parameters['hash']) {
                     apiResponse(400, ['error' => 'Missing hash parameter']);
@@ -140,6 +141,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $container;
+            case 'database/group/hash':
             case 'database-getContainerGroupFromHash':
                 if (!$parameters['hash']) {
                     apiResponse(400, ['error' => 'Missing hash parameter']);
@@ -147,12 +149,16 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 $groupsTable = $database->getContainerGroups();
 
                 return $database->getContainerGroupFromHash($parameters['hash'], $groupsTable);
+            case 'database/containers';
             case 'database-getContainers':
                 return $database->getContainers();
+            case 'database/groups';
             case 'database-getContainerGroups':
                 return $database->getContainerGroups();
+            case 'database/grouplinks';
             case 'database-getContainerGroupLinks':
                 return $database->getContainerGroupLinks();
+            case 'database/grouplinks/containers/group':
             case 'database-getGroupLinkContainersFromGroupId';
                 if (!$parameters['group']) {
                     apiResponse(400, ['error' => 'Missing group parameter']);
@@ -161,28 +167,36 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 $containerLinksTable    = $database->getContainerGroupLinks();
 
                 return $database->getGroupLinkContainersFromGroupId($containerLinksTable, $containersTable, $parameters['group']);
+            case 'database/notification/links':
             case 'database-getNotificationLinks':
                 return $database->getNotificationLinks();
+            case 'database/notification/link/platform/name':
             case 'database-getNotificationLinkPlatformFromName':
                 if (!$parameters['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
                 return $database->getNotificationLinkPlatformFromName($parameters['name']);
+            case 'database/notification/platforms':
             case 'database-getNotificationPlatforms':
                 return $database->getNotificationPlatforms();
+            case 'database/notification/triggers':
             case 'database-getNotificationTriggers':
                 return $database->getNotificationTriggers();
+            case 'database/servers':
             case 'database-getServers':
                 return $database->getServers();
+            case 'database/settings':
             case 'database-getSettings':
                 return $database->getSettings();
+            case 'database/notification/trigger/enabled':
             case 'database-isNotificationTriggerEnabled':
                 if (!$parameters['trigger']) {
                     apiResponse(400, ['error' => 'Missing trigger parameter']);
                 }
 
                 return $database->isNotificationTriggerEnabled($parameters['trigger']);
+            case 'database/migrations':
             case 'database-migrations':
                 $database->migrations();
                 return 'migrations applied';
@@ -245,10 +259,15 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return json_encode($docker->apiCreateContainer($inspect));
+            case 'file/dependency':
             case 'file-dependency':
+            case 'file/pull':
             case 'file-pull':
+            case 'file/sse':
             case 'file-sse':
+            case 'file/state':
             case 'file-state':
+            case 'file/stats':
             case 'file-stats':
                 $file = strtoupper(str_replace('file-', '', $endpoint));
                 return getFile(constant($file . '_FILE'));
@@ -475,10 +494,15 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $payload['dependencies'] ? $return : $stopContainer;
+            case 'file/dependency':
             case 'file-dependency':
+            case 'file/pull':
             case 'file-pull':
+            case 'file/sse':
             case 'file-sse':
+            case 'file/state':
             case 'file-state':
+            case 'file/stats':
             case 'file-stats':
                 $fileName       = strtoupper(str_replace('file-', '', $endpoint));
                 $fileConstant   = constant($fileName . '_FILE');

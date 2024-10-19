@@ -22,6 +22,11 @@ if ($apikey != $serversTable[APP_SERVER_ID]['apikey']) {
     apiResponse(401, ['error' => 'Invalid apikey']);
 }
 
+//-- DO ANYTHING SPECIAL NEEDED BEFORE SENDING IT
+if ($_GET['endpoint']) {
+    $_GET['request'] = $_GET['endpoint'];
+}
+
 $_POST      = json_decode(file_get_contents('php://input'), true);
 $response   = ['result' => apiRequestLocal($_GET['request'], ($_POST ?: $_GET), $_POST)];
 
