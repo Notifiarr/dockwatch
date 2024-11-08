@@ -155,10 +155,10 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
             case 'database/groups';
             case 'database-getContainerGroups':
                 return $database->getContainerGroups();
-            case 'database/grouplinks';
+            case 'database/group/links';
             case 'database-getContainerGroupLinks':
                 return $database->getContainerGroupLinks();
-            case 'database/grouplinks/containers/group':
+            case 'database/group/container/links':
             case 'database-getGroupLinkContainersFromGroupId';
                 if (!$parameters['group']) {
                     apiResponse(400, ['error' => 'Missing group parameter']);
@@ -314,30 +314,35 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
         unset($payload['request']);
 
         switch ($endpoint) {
+            case 'database/container/add':
             case 'database-addContainer':
                 if (!$payload['hash']) {
                     apiResponse(400, ['error' => 'Missing hash parameter']);
                 }
 
                 return $database->addContainer($payload);
+            case 'database/container/group/add':
             case 'database-addContainerGroup':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
                 return $database->addContainerGroup($payload['name']);
+            case 'database/notification/link/add':
             case 'database-addNotificationLink':
                 if (!$parameters['platformId']) {
                     apiResponse(400, ['error' => 'Missing platformId parameter']);
                 }
 
                 return $database->addNotificationLink($parameters['platformId'], $payload['triggerIds'], $payload['platformParameters'], $payload['senderName']);
+            case 'database/container/group/delete':
             case 'database-deleteContainerGroup':
                 if (!$payload['id']) {
                     apiResponse(400, ['error' => 'Missing id parameter']);
                 }
 
                 return $database->deleteContainerGroup($payload['id']);
+            case 'database/notification/link/delete':
             case 'database-deleteNotificationLink':
                 if (!$payload['linkId']) {
                     apiResponse(400, ['error' => 'Missing linkId parameter']);
