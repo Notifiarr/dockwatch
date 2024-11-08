@@ -349,6 +349,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $database->deleteNotificationLink($payload['linkId']);
+            case 'database/group/container/update':
             case 'database-updateContainerGroup':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
@@ -358,6 +359,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $database->updateContainerGroup($payload['id'], ['name' => $database->prepare($payload['name'])]);
+            case 'database/group/container/link/add':
             case 'database-addContainerGroupLink':
                 if (!$payload['groupId']) {
                     apiResponse(400, ['error' => 'Missing groupId parameter']);
@@ -367,6 +369,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $database->addContainerGroupLink($payload['groupId'], $payload['containerId']);
+            case 'database/group/container/link/remove':
             case 'database-removeContainerGroupLink':
                 if (!$payload['groupId']) {
                     apiResponse(400, ['error' => 'Missing groupId parameter']);
@@ -376,12 +379,14 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $database->removeContainerGroupLink($payload['groupId'], $payload['containerId']);
+            case 'database/servers':
             case 'database-setServers':
                 if (!$payload['serverList']) {
                     apiResponse(400, ['error' => 'Missing serverList parameter']);
                 }
 
                 return $database->setServers($payload['serverList']);
+            case 'database/setting':
             case 'database-setSetting':
                 if (!$payload['setting']) {
                     apiResponse(400, ['error' => 'Missing setting parameter']);
@@ -391,6 +396,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $database->setSetting($payload['setting'], $payload['value']);
+            case 'database/settings':
             case 'database-setSettings':
                 if (!$payload['newSettings']) {
                     apiResponse(400, ['error' => 'Missing newSettings parameter']);
@@ -398,54 +404,63 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 $settingsTable = $database->getSettings();
 
                 return $database->setSettings($payload['newSettings'], $settingsTable);
+            case 'database/container/update':
             case 'database-updateContainer':
                 if (!$payload['hash']) {
                     apiResponse(400, ['error' => 'Missing hash parameter']);
                 }
 
                 return $database->updateContainer($payload['hash'], $payload);
+            case 'database/notification/link/update':
             case 'database-updateNotificationLink':
                 if (!$payload['linkId']) {
                     apiResponse(400, ['error' => 'Missing linkId parameter']);
                 }
 
                 return $database->updateNotificationLink($payload['linkId'], $payload['triggerIds'], $payload['platformParameters'], $payload['senderName']);
+            case 'docker/container/create':
             case 'docker-createContainer':
                 if (!$payload['inspect']) {
                     apiResponse(400, ['error' => 'Missing inspect parameter']);
                 }
 
                 return dockerCreateContainer(json_decode($payload['inspect'], true));
+            case 'docker/container/pull':
             case 'docker-pullContainer':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
                 return $docker->pullImage($payload['name']);
+            case 'docker/container/remove':
             case 'docker-removeContainer':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
                 return $docker->removeContainer($payload['name']);
+            case 'docker/image/remove':
             case 'docker-removeImage':
                 if (!$payload['image']) {
                     apiResponse(400, ['error' => 'Missing image parameter']);
                 }
 
                 return $docker->removeImage($payload['image']);
+            case 'docker/network/remove':
             case 'docker-removeNetwork':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
                 return $docker->removeNetwork($payload['id']);
+            case 'docker/volume/remove':
             case 'docker-removeVolume':
                 if (!$payload['id']) {
                     apiResponse(400, ['error' => 'Missing id parameter']);
                 }
 
                 return $docker->removeVolume($payload['name']);
+            case 'docker/container/restart':
             case 'docker-restartContainer':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
@@ -474,6 +489,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $payload['dependencies'] ? $return : $startContainer;
+            case 'docker/container/start':
             case 'docker-startContainer':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
@@ -498,6 +514,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $payload['dependencies'] ? $return : $startContainer;
+            case 'docker/container/stop':
             case 'docker-stopContainer':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
@@ -541,6 +558,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
 
                 setFile($fileConstant, $payload['contents']);
                 return $fileConstant . ' contents updated';
+            case 'notification/test':
             case 'notify-test':
                 $testNotification = $notifications->sendTestNotification($payload['linkId'], $payload['name']);
 
@@ -550,18 +568,21 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return ['code' => $testNotification['code'], 'result' => $result];
+            case 'server/log/delete':
             case 'server-deleteLog';
                 if (!$payload['log']) {
                     apiResponse(400, ['error' => 'Missing log parameter']);
                 }
 
                 return deleteLog($payload['log']);
+            case 'server/log/purge':
             case 'server-purgeLogs':
                 if (!$payload['group']) {
                     apiResponse(400, ['error' => 'Missing group parameter']);
                 }
 
                 return purgeLogs($payload['group']);
+            case 'server/task/run':
             case 'server-runTask':
                 if (!$payload['task']) {
                     apiResponse(400, ['error' => 'Missing task parameter']);
