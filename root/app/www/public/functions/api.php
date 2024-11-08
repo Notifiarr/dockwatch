@@ -16,7 +16,7 @@ function apiSetActiveServer($serverId, $serversTable = [])
 {
     global $database;
 
-    $serversTable                   = $serversTable ?: $database->getServers();
+    $serversTable ??= $database->getServers();
     $_SESSION['activeServerId']     = $serversTable[$serverId]['id'];
     $_SESSION['activeServerName']   = $serversTable[$serverId]['name'];
     $_SESSION['activeServerUrl']    = rtrim($serversTable[$serverId]['url'], '/');
@@ -200,54 +200,69 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
             case 'database-migrations':
                 $database->migrations();
                 return 'migrations applied';
+            case 'docker/create/compose':
             case 'docker-autoCompose':
                 if (!$parameters['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
                 return dockerAutoCompose($parameters['name']);
+            case 'docker/create/run':
             case 'docker-autoRun':
                 if (!$parameters['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
                 return dockerAutoRun($parameters['name']);
+            case 'docker/orphans/containers':
             case 'docker-getOrphanContainers':
                 return $docker->getOrphanContainers();
+            case 'docker/orphans/networks':
             case 'docker-getOrphanNetworks':
                 return $docker->getOrphanNetworks();
+            case 'docker/orphans/volumes':
             case 'docker-getOrphanVolumes':
                 return $docker->getOrphanVolumes();
+            case 'docker/unused/containers':
             case 'docker-getUnusedContainers':
                 return $docker->getUnusedContainers();
+            case 'docker/images/sizes':
             case 'docker-imageSizes':
                 return $docker->getImageSizes();
+            case 'docker/container/inspect':
             case 'docker-inspect':
                 if (!$parameters['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
                 return $docker->inspect($parameters['name'], $parameters['useCache'], $parameters['format'], $parameters['params']);
+            case 'docker/container/logs':
             case 'docker-logs':
                 if (!$parameters['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
                 return $docker->logs($parameters['name']);
+            case 'docker/networks':
             case 'docker-networks':
                 return $docker->getNetworks($parameters['params']);
+            case 'docker/permissions':
             case 'docker-permissionCheck':
                 return dockerPermissionCheck();
+            case 'docker/container/ports':
             case 'docker-port':
                 if (!$parameters['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
                 return $docker->getContainerPort($parameters['name'], $parameters['params']);
+            case 'docker/processList':
             case 'docker-processList':
                 return $docker->processList($parameters['useCache'], $parameters['format'], $parameters['params']);
+            case 'docker/stats':
             case 'docker-stats':
                 return $docker->stats($parameters['useCache']);
+            case 'dockerAPI/container/create':
             case 'dockerAPI-createContainer':
                 if (!$parameters['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
@@ -271,16 +286,24 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
             case 'file-stats':
                 $file = strtoupper(str_replace('file-', '', $endpoint));
                 return getFile(constant($file . '_FILE'));
+            case 'server/log':
             case 'server-log':
+                if (!$parameters['name']) {
+                    apiResponse(400, ['error' => 'Missing name parameter']);
+                }
+
                 return viewLog($parameters['name']);
+            case 'server/ping':
             case 'server-ping':
                 if (getFile(MIGRATION_FILE)) {
                     apiResponse(423, ['error' => 'Migration in progress']);
                 }
 
                 return gitVersion(true);
+            case 'stats/containers':
             case 'stats-getContainersList':
                 return apiResponse(200, getContainerStats());
+            case 'stats/overview':
             case 'stats-getOverview':
                 return apiResponse(200, getOverviewStats());
             default:
@@ -551,8 +574,8 @@ function apiRequestServerPings()
 {
     global $database;
 
-    $database       = $database ?? new Database();
-    $serversTable   = $database->getServers();
+    $database ??= new Database();
+    $serversTable = $database->getServers();
 
     $servers = [];
     foreach ($serversTable as $server) {
