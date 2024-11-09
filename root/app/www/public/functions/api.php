@@ -16,7 +16,7 @@ function apiSetActiveServer($serverId, $serversTable = [])
 {
     global $database;
 
-    $serversTable ??= $database->getServers();
+    $serversTable                   = $serversTable ?: $database->getServers();
     $_SESSION['activeServerId']     = $serversTable[$serverId]['id'];
     $_SESSION['activeServerName']   = $serversTable[$serverId]['name'];
     $_SESSION['activeServerUrl']    = rtrim($serversTable[$serverId]['url'], '/');
