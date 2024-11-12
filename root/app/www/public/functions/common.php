@@ -40,6 +40,11 @@ function isDockwatchContainer($container)
     return false;
 }
 
+function isComposeContainer($container)
+{
+    return file_exists(COMPOSE_PATH . $container . '/docker-compose.yml');
+}
+
 function automation()
 {
     //-- CREATE DIRECTORIES

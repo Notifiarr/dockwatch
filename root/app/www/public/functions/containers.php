@@ -240,6 +240,8 @@ function renderContainerRow($nameHash, $return)
             $network = 'container:' . $docker->findContainer(['id' => $containerId, 'data' => $processList]);
         }
 
+        $isCompose = isComposeContainer($process['Names']) ? '<i class="fab fa-octopus-deploy me-2 text-muted" title="This container has a compose file" style="cursor:pointer;" onclick="initPage(\'compose\')"></i>' : '';
+
         ?>
         <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ?>>
             <!-- COLUMN: CHECKBOX -->
@@ -254,7 +256,7 @@ function renderContainerRow($nameHash, $return)
                     <!-- NAME, MENU, REPOSITORY -->
                     <div class="col-sm-10">
                         <!-- NAME -->
-                        <span id="menu-<?= $nameHash ?>" style="cursor: pointer;" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?= $notificationIcon . $process['Names'] ?></span>
+                        <span id="menu-<?= $nameHash ?>" style="cursor: pointer;" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?= $notificationIcon . $isCompose . $process['Names'] ?></span>
                         <!-- CONTAINER MENU -->
                         <ul style="max-width: 200px" class="dropdown-menu dropdown-menu-dark p-2" role="menu" aria-labelledby="menu-<?= $nameHash ?>">
                             <li <?= $skipActions ? 'class="d-none"' : '' ?>><i class="fas fa-tools fa-fw text-muted me-1"></i> <a onclick="openEditContainer('<?= $nameHash ?>')" tabindex="-1" href="#" class="text-white">Edit</a></li>
