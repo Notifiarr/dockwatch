@@ -14,6 +14,8 @@ class Notifications
 {
     use NotificationTemplates;
     use NotificationTests;
+
+    use Mattermost;
     use Notifiarr;
     use Telegram;
 
@@ -135,6 +137,8 @@ class Notifications
                     return $this->notifiarr($logfile, $platformParameters['apikey'], $payload, $test);
                 case NotificationPlatforms::TELEGRAM:
                     return $this->telegram($logfile, $platformParameters['botToken'], $platformParameters['chatId'], $payload, $test);
+                case NotificationPlatforms::MATTERMOST:
+                    return $this->mattermost($logfile, $platformParameters['url'], $payload, $test);
             }
         }
     }
