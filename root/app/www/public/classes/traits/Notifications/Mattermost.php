@@ -64,15 +64,27 @@ trait Mattermost
                 if ($payload['network']) {
                     $pruned = [];
                     foreach ($payload['network'] as $network) {
-                        $pruned[] = str_replace('_', '\_', $network);
+                        if (!trim($network)) {
+                            continue;
+                        }
+
+                        $pruned[] = $network;
                     }
 
-                    $table[] = '| Networks | ' . implode(', ', $pruned) . ' |';
+                    if ($pruned) {
+                        $table[] = '| Networks | ' . implode(', ', $pruned) . ' |';
+                    }
                 }
                 if ($payload['volume']) {
                     $pruned = [];
                     foreach ($payload['volume'] as $volume) {
-                        $pruned[] = truncateMiddle($volume, 20);
+                        if (!trim($volume)) {
+                            continue;
+                        }
+
+                        if ($pruned) {
+                            $pruned[] = truncateMiddle($volume, 20);
+                        }
                     }
 
                     $table[] = '| Volumes | ' . implode(', ', $pruned) . ' |';
@@ -80,7 +92,13 @@ trait Mattermost
                 if ($payload['image']) {
                     $pruned = [];
                     foreach ($payload['image'] as $image) {
-                        $pruned[] = $image;
+                        if (!trim($image)) {
+                            continue;
+                        }
+
+                        if ($pruned) {
+                            $pruned[] = $image;
+                        }
                     }
 
                     $table[] = '| Images | ' . implode(', ', $pruned) . ' |';
@@ -88,13 +106,27 @@ trait Mattermost
                 if ($payload['imageList']) {
                     $pruned = [];
                     foreach ($payload['imageList'] as $imageList) {
-                        $pruned[] = $imageList['cr'] . ' (' . byteConversion($imageList['size']) . ')';
+                        if (!trim($imageList['cr'])) {
+                            continue;
+                        }
+
+                        if ($pruned) {
+                            $pruned[] = $imageList['cr'] . ' (' . byteConversion($imageList['size']) . ')';
+                        }
                     }
 
-                    $table[] = '| Image List | ' . implode(', ', $pruned) . ' |';
+                    if ($pruned) {
+                        $table[] = '| Image List | ' . implode(', ', $pruned) . ' |';
+                    } else {
+                        $table = [];
+                    }
                 }
 
-                $message .= implode("\n", $table) . "\n";
+                if (count($table) > 2) {
+                    $message .= implode("\n", $table) . "\n";
+                } else {
+                    $message = '';
+                }
                 break;
             case 'state':
                 $message .= '##### ' . APP_NAME . ': Container state change' . "\n";
@@ -107,34 +139,53 @@ trait Mattermost
                 if ($payload['added']) {
                     $state = [];
                     foreach ($payload['added'] as $added) {
+                        if (!trim($added['container'])) {
+                            continue;
+                        }
+
                         $state[] = $added['container'];
                     }
-                    $table[] = '| Added | ' . implode(', ', $state) . ' |';
-                } else {
-                    $table[] = '| Added | None |';
+
+                    if ($state) {
+                        $table[] = '| Added | ' . implode(', ', $state) . ' |';
+                    }
                 }
 
                 if ($payload['removed']) {
                     $state = [];
                     foreach ($payload['removed'] as $removed) {
+                        if (!trim($removed['container'])) {
+                            continue;
+                        }
+
                         $state[] = $removed['container'];
                     }
-                    $table[] = '| Removed | ' . implode(', ', $state) . ' |';
-                } else {
-                    $table[] = '| Removed | None |';
+
+                    if ($state) {
+                        $table[] = '| Removed | ' . implode(', ', $state) . ' |';
+                    }
                 }
 
                 if ($payload['changes']) {
                     $state = [];
                     foreach ($payload['changes'] as $changes) {
+                        if (!trim($changes['container'])) {
+                            continue;
+                        }
+
                         $state[] = $changes['container'] . ' [' . $changes['previous'] . ' → ' . $changes['current'] . ']';
                     }
-                    $table[] = '| Changed | ' . implode("\n", $state) . ' |';
-                } else {
-                    $table[] = '| Changed | None |';
+
+                    if (!$state) {
+                        $table[] = '| Changed | ' . implode("\n", $state) . ' |';
+                    }
                 }
 
-                $message .= implode("\n", $table) . "\n";
+                if (count($table) > 2) {
+                    $message .= implode("\n", $table) . "\n";
+                } else {
+                    $message = '';
+                }
                 break;
             case 'updates':
                 $message .= '##### ' . APP_NAME . ': Updates' . "\n";
@@ -147,23 +198,38 @@ trait Mattermost
                 if ($payload['available']) {
                     $updates = [];
                     foreach ($payload['available'] as $available) {
+                        if (!trim($available['container'])) {
+                            continue;
+                        }
+
                         $updates[] = $available['container'];
                     }
-                    $table[] = '| Available | ' . implode(', ', $updates) . ' |';
-                } else {
-                    $table[] = '| Available | None |';
+
+                    if ($updates) {
+                        $table[] = '| Available | ' . implode(', ', $updates) . ' |';
+                    }
                 }
+
                 if ($payload['updated']) {
                     $updates = [];
                     foreach ($payload['updated'] as $updated) {
+                        if (!trim($updated['container'])) {
+                            continue;
+                        }
+
                         $updates[] = $updated['container'] . ' [' . $updated['pre'] . ' → ' . $updated['post'] . ']';
                     }
-                    $table[] = '| Updated | ' . implode("\n", $updates) . ' |';
-                } else {
-                    $table[] = '| Updated | None |';
+
+                    if ($updates) {
+                        $table[] = '| Updated | ' . implode("\n", $updates) . ' |';
+                    }
                 }
 
-                $message .= implode("\n", $table) . "\n";
+                if (count($table) > 2) {
+                    $message .= implode("\n", $table) . "\n";
+                } else {
+                    $message = '';
+                }
                 break;
             case 'usage':
                 $message .= '##### :warning: ' . APP_NAME . ': High usage' . "\n";

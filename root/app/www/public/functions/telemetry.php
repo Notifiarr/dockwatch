@@ -64,9 +64,10 @@ function telemetry($send = false)
 
         $telemetry['telemetry']['compose']['total'] = count($existingComposeFolders);
 
-        //-- NOTIFICATIONS INFO
-        $telemetry['telemetry']['notifications']['notifiarr']    = 0;
-        $telemetry['telemetry']['notifications']['telegram']     = 0;
+        //-- NOTIFICATION INFO
+        $telemetry['telemetry']['notifications']['notifiarr']   = 0;
+        $telemetry['telemetry']['notifications']['telegram']    = 0;
+        $telemetry['telemetry']['notifications']['mattermost']  = 0;
 
         if ($notificationTable) {
             foreach ($notificationTable as $notificationLink) {
@@ -75,6 +76,9 @@ function telemetry($send = false)
                 }
                 if ($notificationLink['platform_id'] == NotificationPlatforms::TELEGRAM) {
                     $telemetry['telemetry']['notifications']['telegram']++;
+                }
+                if ($notificationLink['platform_id'] == NotificationPlatforms::MATTERMOST) {
+                    $telemetry['telemetry']['notifications']['mattermost']++;
                 }
             }
         }
