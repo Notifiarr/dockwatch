@@ -4,18 +4,12 @@ function toggleAllContainers()
     $('[attr-dockwatch=true]').prop('checked', false);
 }
 // ---------------------------------------------------------------------------------------------
-function updateContainerOption(option, hash)
+function updateContainerOption(option, hash, setting)
 {
-    var setting =  ($('#' + option + '-' + hash).prop('checked') ? 1 : 0);
+    if (setting == '-1') {
+        setting = $('#' + option).val();
 
-    if (option == 'shutdownDelaySeconds') {
-        setting = $('#shutdownDelay-input-' + hash).val();
-
-        if (!$(`#shutdownDelay-${hash}`).prop('checked')) {
-            return;
-        }
-
-        if (isNaN(parseInt(setting)) || parseInt(setting) < 5) {
+        if (option == 'shutdownDelaySeconds' && (isNaN(parseInt(setting)) || parseInt(setting) < 5)) {
             toast('Container option', 'Shutdown delay needs to be a number and atleast 5 seconds long', 'error');
             return;
         }
@@ -28,36 +22,31 @@ function updateContainerOption(option, hash)
         success: function (resultData) {
             toast('Container option', 'The container option setting has been saved', 'success');
 
-            if (option == 'blacklist') {
-                if ($('#' + option + '-' + hash).prop('checked')) {
-                    $('#start-btn-' + hash + ', #restart-btn-' + hash + ', #stop-btn-' + hash).hide();
-                } else {
+            switch (option) {
+                case 'blacklist':
                     $('#restart-btn-' + hash + ', #stop-btn-' + hash).show();
-                }
-            }
 
-            if (option == 'restartUnhealthy') {
-                if ($('#' + option + '-' + hash).prop('checked')) {
-                    $('.restartUnhealthy-icon-' + hash).removeClass('text-warning').addClass('text-success');
-                } else {
+                    if ($('#' + option + '-' + hash).prop('checked')) {
+                        $('#start-btn-' + hash + ', #restart-btn-' + hash + ', #stop-btn-' + hash).hide();
+                    }
+                    break;
+                case 'restartUnhealthy':
                     $('.restartUnhealthy-icon-' + hash).removeClass('text-success').addClass('text-warning');
-                }
-            }
 
-            if (option == 'disableNotifications') {
-                if ($('#disableNotifications-' + hash).prop('checked')) {
-                    $('#disableNotifications-icon-' + hash).show();
-                } else {
+                    if ($('#' + option + '-' + hash).prop('checked')) {
+                        $('.restartUnhealthy-icon-' + hash).removeClass('text-warning').addClass('text-success');
+                    }
+                    break;
+                case 'disableNotifications':
                     $('#disableNotifications-icon-' + hash).hide();
-                }
-            }
 
-            if (option == 'shutdownDelay') {
-                if ($('#shutdownDelay-input-' + hash).prop('readonly')) {
-                    $('#shutdownDelay-input-' + hash).prop('readonly', false);
-                } else {
-                    $('#shutdownDelay-input-' + hash).prop('readonly', true);
-                }
+                    if ($('#disableNotifications-' + hash).prop('checked')) {
+                        $('#disableNotifications-icon-' + hash).show();
+                    }
+                    break;
+                case 'shutdownDelay':
+                    $('#shutdownDelay-input-' + hash).prop('readonly', $('#shutdownDelay-input-' + hash).prop('readonly'));
+                    break;
             }
         }
     });
@@ -162,8 +151,20 @@ function controlContainer(containerHash, action)
     });
 }
 // ---------------------------------------------------------------------------------------------
-function massApplyContainerTrigger(dependencyTrigger = false)
+function massApplyContainerTrigger(dependencyTrigger = false, action = 0, container = '')
 {
+    if (action) {
+        $('#massContainerTrigger').val(action);
+    }
+
+    if (container) {
+        $.each($('[id^=massTrigger-]'), function () {
+            $(this).prop('checked', false)
+        });
+
+        $('#massTrigger-' + container).prop('checked', true);
+    }
+
     let retries = 0;
     let dependencies = [];
     let selected = 0;
@@ -173,7 +174,8 @@ function massApplyContainerTrigger(dependencyTrigger = false)
         }
     });
 
-    if (!selected || $('#massContainerTrigger').val() == 0) {
+    if (!selected) {
+        toast('Container Actions', 'Please select at least one container before trying to do this.', 'error');
         return;
     }
 
@@ -565,3 +567,23 @@ function massChangeFrequency(option)
     }
 }
 // ---------------------------------------------------------------------------------------------
+function containerInfo(hash)
+{
+    pageLoadingStart();
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/containers.php',
+        data: '&m=containerInfo&hash=' + hash,
+        success: function (resultData) {
+            new popup('#left-slider', {
+                content: resultData,
+                duration: 500,
+                classes: 'bg-secondary p-2',
+            }).popupLeft();
+
+            pageLoadingStop();
+        }
+    });
+}
+// -------------------------------------------------------------------------------------------

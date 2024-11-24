@@ -81,6 +81,7 @@ $serverList = (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300
                             </div>
                         </div>
                     </a>
+                    <a id="menu-networks" onclick="initPage('networks')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-network-wired me-2"></i>Networks</a>
                     <a id="menu-compose" onclick="initPage('compose')" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-octopus-deploy me-2"></i>Compose</a>
                     <a id="menu-orphans" onclick="initPage('orphans')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Orphans</a>
                     <a id="menu-notification" onclick="initPage('notification')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-comment-dots me-2"></i>Notifications</a>

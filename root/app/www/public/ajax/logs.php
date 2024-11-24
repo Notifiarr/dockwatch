@@ -46,59 +46,57 @@ if ($_POST['m'] == 'init') {
         echo 'No log files have been generated yet.';
     } else {
         ?>
-        <div class="container-fluid pt-4 px-4">
-            <div class="bg-secondary rounded h-100 p-4">
-                <div class="row">
-                    <div class="col-sm-3">
-                        <ul>
-                            <?php 
-                            foreach ($logFiles as $group => $groupLogs) { 
-                                ?>
-                                <h4 style="display: inline;" class="mt-3 mb-0"><?= $group ?></h4> <i class="far fa-trash-alt" style="display: inline; color: red; cursor: pointer;" title="Delete all <?= $group ?> log files" onclick="purgeLogs('<?= $group ?>')"></i><br>
-                                <?php if ($group == 'login failures') { ?>
-                                    <span class="small-text text-muted"><?= APP_DATA_PATH ?></span>
-                                <?php } else { ?>
-                                    <span class="small-text text-muted"><?= LOGS_PATH . $group ?>/</span>
-                                <?php } ?>
-                                <div class="mb-3" style="max-height: 300px; overflow: auto;">
-                                <?php
+        <div class="bg-secondary rounded p-4">
+            <div class="row">
+                <div class="col-sm-3">
+                    <ul>
+                        <?php 
+                        foreach ($logFiles as $group => $groupLogs) { 
+                            ?>
+                            <h4 style="display: inline;" class="mt-3 mb-0"><?= $group ?></h4> <i class="far fa-trash-alt" style="display: inline; color: red; cursor: pointer;" title="Delete all <?= $group ?> log files" onclick="purgeLogs('<?= $group ?>')"></i><br>
+                            <?php if ($group == 'login failures') { ?>
+                                <span class="small-text text-muted"><?= APP_DATA_PATH ?></span>
+                            <?php } else { ?>
+                                <span class="small-text text-muted"><?= LOGS_PATH . $group ?>/</span>
+                            <?php } ?>
+                            <div class="mb-3" style="max-height: 300px; overflow: auto;">
+                            <?php
 
-                                if (!$groupLogs) {
+                            if (!$groupLogs) {
+                                continue;
+                            }
+                            $rotated = [];
+
+                            foreach ($groupLogs as $log) {
+                                if (str_contains($log['name'], '-')) {
+                                    $rotated[] = $log;
                                     continue;
                                 }
-                                $rotated = [];
 
-                                foreach ($groupLogs as $log) {
-                                    if (str_contains($log['name'], '-')) {
-                                        $rotated[] = $log;
-                                        continue;
-                                    }
-
-                                    $logHash = md5($log['name']);
-                                    $group = str_contains_any($group, ['login failures']) ? '' : $group . '/';
-                                    ?>
-                                    <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group . $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group . $log['name'] ?>')"></i></li>
-                                    <?php
-                                }
-
-                                if ($rotated) {
-                                    ?><hr><?php
-                                    foreach ($rotated as $log) {
-                                        $logHash = md5($log['name']);
-                                        ?>
-                                        <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i></li>
-                                        <?php
-                                    }
-                                }
+                                $logHash = md5($log['name']);
+                                $group = str_contains_any($group, ['login failures']) ? '' : $group . '/';
                                 ?>
-                                </div>
+                                <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group . $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group . $log['name'] ?>')"></i></li>
                                 <?php
                             }
+
+                            if ($rotated) {
+                                ?><hr><?php
+                                foreach ($rotated as $log) {
+                                    $logHash = md5($log['name']);
+                                    ?>
+                                    <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i></li>
+                                    <?php
+                                }
+                            }
                             ?>
-                        </ul>
-                    </div>
-                    <div class="col-sm-9"><span id="logHeader"></span><pre id="logViewer" style="max-height: 500px; overflow: auto;">Select a log from the left to view</pre></div>
+                            </div>
+                            <?php
+                        }
+                        ?>
+                    </ul>
                 </div>
+                <div class="col-sm-9"><span id="logHeader"></span><pre id="logViewer" style="max-height: 500px; overflow: auto;">Select a log from the left to view</pre></div>
             </div>
         </div>
         <?php

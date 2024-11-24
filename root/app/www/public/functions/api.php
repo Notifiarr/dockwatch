@@ -425,6 +425,13 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return dockerCreateContainer(json_decode($payload['inspect'], true));
+            case 'docker/container/kill':
+            case 'docker-killContainer':
+                if (!$payload['name']) {
+                    apiResponse(400, ['error' => 'Missing name parameter']);
+                }
+
+                return $docker->killContainer($payload['name']);
             case 'docker/container/pull':
             case 'docker-pullContainer':
                 if (!$payload['name']) {

@@ -45,6 +45,7 @@ if ($loadError) {
 ?>
     <div id="content-overview" style="display: none;"></div>
     <div id="content-containers" style="display: none;"></div>
+    <div id="content-networks" style="display: none;"></div>
     <div id="content-compose" style="display: none;"></div>
     <div id="content-orphans" style="display: none;"></div>
     <div id="content-notification" style="display: none;"></div>

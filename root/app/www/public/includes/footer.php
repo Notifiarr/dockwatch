@@ -17,6 +17,9 @@
         <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
     </div>
 
+    <!-- Slider -->
+    <div id="left-slider"></div>
+
     <!-- Toast container -->
     <div class="toast-container bottom-0 end-0 p-3" style="z-index: 10001 !important; position: fixed;"></div>
 
@@ -95,7 +98,7 @@
 
     <!-- Generic modal -->
     <div id="dialog-modal-container">
-        <div class="modal fade" id="dialog-modal" style="z-index: 9999 !important;" data-bs-backdrop="static">
+        <div class="modal fade" id="dialog-modal" style="z-index: 99999 !important;" data-bs-backdrop="static">
             <div class="modal-dialog modal-dialog-scrollable">
                 <div class="modal-content bg-dark" style="border: grey solid 1px;">
                     <div class="modal-header" style="border: grey solid 1px;">
@@ -195,6 +198,7 @@
     <script src="libraries/jquery/jquery-ui-1.13.2.min.js"></script>
     <script src="libraries/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="libraries/datatable/datatables.min.js"></script>
+    <script src="libraries/kpopup/kpopup.js"></script>
 
     <!-- Javascript -->
     <?= loadJS() ?>

@@ -27,6 +27,12 @@ trait Container
         return $this->shell->exec($cmd . ' 2>&1');
     }
 
+    public function killContainer($containerName)
+    {
+        $cmd = sprintf(DockerSock::KILL_CONTAINER, $this->shell->prepare($containerName));    
+        return $this->shell->exec($cmd . ' 2>&1');
+    }
+
     public function stopContainer($containerName)
     {
         $nameHash   = md5($containerName);

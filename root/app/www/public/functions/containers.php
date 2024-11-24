@@ -20,20 +20,14 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
-    $isDockwatch        = false;
-    $dockwatchWarning   = '';
-    if (isDockwatchContainer($process)) {
-        $isDockwatch        = true;
-        $dockwatchWarning   = ' <i class="fas fa-exclamation-circle text-danger" title="Dockwatch warning, click for more information" style="cursor: help;" onclick="dockwatchWarning()"></i>';
-    }
-
+    $isDockwatch        = isDockwatchContainer($process) ? true : false;
     $skipActions        = skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions);
     $containerSettings  = apiRequest('database-getContainerFromHash', ['hash' => $nameHash])['result'];
     $logo               = getIcon($process['inspect']);
     $notificationIcon   = '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container" style="display: ' . ($containerSettings['disableNotifications'] ? 'inline-block' : 'none') . '"></i> ';
 
     if ($process['State'] == 'running') {
-        $control = '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i><br>';
+        $control = '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn me-2" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i>';
         $control .= '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="stop-btn-' . $nameHash . '" class="fas fa-power-off text-danger container-stop-btn" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"></i>';
     } else {
         $control = '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="start-btn-' . $nameHash . '" class="fas fa-play text-success container-start-btn" title="Start" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"></i>';
@@ -45,36 +39,27 @@ function renderContainerRow($nameHash, $return)
     }
 
     $pullData = $pullsFile[$nameHash];
-    $updateStatus = '<span class="text-danger">Unchecked</span>';
+    $updateStatus = '<span class="badge bg-light w-75">Unchecked</span>';
     if ($pullData) {
+        $updateStatus = $pullData['regctlDigest'] == $pullData['imageDigest'] ? '<span class="badge bg-success w-75">Updated</span>' : '<span class="badge bg-warning w-75">Outdated</span>';
+
         if (!$containerSettings['updates']) {
-            $updateStatus = '<span class="text-danger">Ignored</span>';
-        } else {
-            $updateStatus = $pullData['regctlDigest'] == $pullData['imageDigest'] ? '<span class="text-success">Up to date</span>' : '<span class="text-warning">Outdated</span>';
+            $updateStatus = '<span class="badge bg-light w-75">Ignored</span>';
         }
     }
 
-    $restartUnhealthy       = $containerSettings['restartUnhealthy'];
-    $healthyRestartClass    = 'text-success';
-    $healthyRestartText     = 'Auto restart when unhealthy';
-
-    if (!$restartUnhealthy) {
-        $healthyRestartClass    = 'text-warning';
-        $healthyRestartText     = 'Not set to auto restart when unhealthy';
-    }
-
-    $usesHealth = false;
-    $health     = '';
-
-    if (str_contains($process['Status'], 'healthy')) {
-        $usesHealth = true;
-        $health     = 'Healthy <i style="cursor: help;" class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
-    } elseif (str_contains($process['Status'], 'unhealthy')) {
-        $usesHealth = true;
-        $health     = 'Unhealthy <i style="cursor: help;" class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
-    } elseif (str_contains($process['Status'], 'health:')) {
-        $usesHealth = true;
-        $health     = 'Waiting <i style="cursor: help;" class="fas fa-sync-alt ' . $healthyRestartClass . ' restartUnhealthy-icon-' . $nameHash . '" title="' . $healthyRestartText . '"></i>';
+    switch (true) {
+        case str_contains($process['Status'], 'healthy'):
+            $health = '<span class="badge bg-success">Healthy</span>';
+            break;
+        case str_contains($process['Status'], 'unhealthy'):
+            $health = '<span class="badge bg-warning">Unhealthy</span>';
+            break;
+        case str_contains($process['Status'], 'health:'):
+            $health = '<span class="badge bg-light">Waiting</span>';
+            break;
+        default:
+            $health = '';
     }
 
     if (str_contains($process['Status'], 'Exit')) {
@@ -196,51 +181,13 @@ function renderContainerRow($nameHash, $return)
             }
         }
 
-        $networkDependencies = $docker->getContainerNetworkDependencies($process['ID'], $processList);
-        sort($networkDependencies);
-        $networkDependencyList = implode(', ', $networkDependencies);
-
-        if (count($networkDependencies) > 3) {
-            $show = array_slice($networkDependencies, 0, 3);
-            $networkDependencyList = implode(', ', $show);
-            $networkDependencyList .= '<span class="depenency-list-toggle">';
-            $networkDependencyList .= ' <br><input type="checkbox" class="depenency-list-toggle" onclick="$(\'.depenency-list-toggle\').toggle().prop(\'checked\', false);"> Show '. (count($networkDependencies) - 3) .' more';
-            $networkDependencyList .= '</span>';
-
-            $hide = array_slice($networkDependencies, 3, count($networkDependencies));
-            $networkDependencyList .= '<span class="depenency-list-toggle" style="display: none;">';
-            $networkDependencyList .= ', ' . implode(', ', $hide);
-            $networkDependencyList .= ' <br><input type="checkbox" class="depenency-list-toggle" style="display: none;" onclick="$(\'.depenency-list-toggle\').toggle().prop(\'checked\', false);"> Hide '. (count($networkDependencies) - 3) .' more';
-            $networkDependencyList .= '</span>';
-        }
-
-        if (!$networkDependencies) {
-            $labelDependencies = $docker->getContainerLabelDependencies($process['Names'], $processList);
-            sort($labelDependencies);
-            $labelDependencyList = implode(', ', $labelDependencies);
-
-            if (count($labelDependencies) > 3) {
-                $show = array_slice($labelDependencies, 0, 3);
-                $labelDependencyList = implode(', ', $show);
-                $labelDependencyList .= '<span class="depenency-list-toggle">';
-                $labelDependencyList .= ' <br><input type="checkbox" class="depenency-list-toggle" onclick="$(\'.depenency-list-toggle\').toggle().prop(\'checked\', false);"> Show '. (count($labelDependencies) - 3) .' more';
-                $labelDependencyList .= '</span>';
-
-                $hide = array_slice($labelDependencies, 3, count($labelDependencies));
-                $labelDependencyList .= '<span class="depenency-list-toggle" style="display: none;">';
-                $labelDependencyList .= ', ' . implode(', ', $hide);
-                $labelDependencyList .= ' <br><input type="checkbox" class="depenency-list-toggle" style="display: none;" onclick="$(\'.depenency-list-toggle\').toggle().prop(\'checked\', false);"> Hide '. (count($labelDependencies) - 3) .' more';
-                $labelDependencyList .= '</span>';
-            }
-        }
-
         $network = $process['inspect'][0]['HostConfig']['NetworkMode'];
         if (str_contains($network, ':')) {
             list($null, $containerId) = explode(':', $network);
             $network = 'container:' . $docker->findContainer(['id' => $containerId, 'data' => $processList]);
         }
 
-        $isCompose = isComposeContainer($process['Names']) ? '<i class="fab fa-octopus-deploy me-2 text-muted" title="This container has a compose file" style="cursor:pointer;" onclick="initPage(\'compose\')"></i>' : '';
+        $isCompose = isComposeContainer($process['Names']) ? '<i class="fab fa-octopus-deploy me-2 text-muted" title="This container has a compose file"></i>' : '';
 
         ?>
         <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ?>>
@@ -252,53 +199,10 @@ function renderContainerRow($nameHash, $return)
             <td>
                 <div class="row m-0 p-0">
                     <!-- STOP/START ICONS -->
-                    <div class="col-sm-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
-                    <!-- NAME, MENU, REPOSITORY -->
-                    <div class="col-sm-10">
-                        <!-- NAME -->
-                        <span id="menu-<?= $nameHash ?>" style="cursor: pointer;" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><?= $notificationIcon . $isCompose . $process['Names'] ?></span>
-                        <!-- CONTAINER MENU -->
-                        <ul style="max-width: 200px" class="dropdown-menu dropdown-menu-dark p-2" role="menu" aria-labelledby="menu-<?= $nameHash ?>">
-                            <li <?= $skipActions ? 'class="d-none"' : '' ?>><i class="fas fa-tools fa-fw text-muted me-1"></i> <a onclick="openEditContainer('<?= $nameHash ?>')" tabindex="-1" href="#" class="text-white">Edit</a></li>
-                            <li <?= $skipActions ? 'class="d-none"' : '' ?>><hr class="dropdown-divider"></li>
-                            <li class="dropdown-submenu">
-                                <i class="fas fa-ellipsis-v fa-fw text-muted me-1"></i> <a tabindex="-1" href="#" class="text-white">Actions</a>
-                                <ul class="dropdown-menu dropdown-menu-dark p-2" style="width: 250px;">
-                                    <li><i class="far fa-file-alt fa-fw text-muted me-1"></i> <a onclick="containerLogs('<?= $process['Names'] ?>')" tabindex="-1" href="#" class="text-white">View logs</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><i class="fas fa-cloud-download-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 4)" tabindex="-1" href="#" class="text-white">Pull</a></li>
-                                    <li <?= $skipActions ? 'class="d-none"' : '' ?>><i class="fas fa-trash-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 9)" tabindex="-1" href="#" class="text-white">Remove</a></li>
-                                    <li <?= $skipActions ? 'class="d-none"' : '' ?>><i class="fas fa-cloud-upload-alt fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 7)" tabindex="-1" href="#" class="text-white">Update: Apply</a></li>
-                                    <li><i class="fas fa-cloud fa-fw text-muted me-1"></i> <a onclick="applyContainerAction('<?= $nameHash ?>', 11)" tabindex="-1" href="#" class="text-white">Update: Check</a></li>
-                                </ul>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li class="dropdown-submenu">
-                                <i class="fas fa-ellipsis-v fa-fw text-muted me-1"></i> <a tabindex="-1" href="#" class="text-white">Options</a>
-                                <ul class="dropdown-menu dropdown-menu-dark p-2" style="width: 300px;">
-                                    <li><input <?= $containerSettings['disableNotifications'] ? 'checked' : '' ?> type="checkbox" class="form-check-input" id="disableNotifications-<?= $nameHash ?>" onclick="updateContainerOption('disableNotifications', '<?= $nameHash ?>')"> Disable notifications</li>
-                                    <li><input <?= $skipActions == SKIP_FORCE ? 'disabled checked' : ($containerSettings['blacklist'] ? 'checked' : '') ?> type="checkbox" class="form-check-input" id="blacklist-<?= $nameHash ?>" onclick="updateContainerOption('blacklist', '<?= $nameHash ?>')"> Blacklist (no state changes)</li>
-                                    <?php if ($usesHealth) { ?>
-                                    <li><input <?= $skipActions ? 'disabled' : ($containerSettings['restartUnhealthy'] ? 'checked' : '') ?> type="checkbox" class="form-check-input" id="restartUnhealthy-<?= $nameHash ?>" onclick="updateContainerOption('restartUnhealthy', '<?= $nameHash ?>')"> Restart when unhealthy</li>
-                                    <?php } ?>
-                                    <li><input <?= $containerSettings['shutdownDelay'] ? 'checked' : '' ?> type="checkbox" class="form-check-input" id="shutdownDelay-<?= $nameHash ?>" onclick="updateContainerOption('shutdownDelay', '<?= $nameHash ?>');"> Delay shutdown <input type="text" id="shutdownDelay-input-<?= $nameHash ?>" onfocusout="updateContainerOption('shutdownDelaySeconds', '<?= $nameHash ?>');" class="form-control d-inline-block" style="height: 24px; width: 20%;" value="<?= $containerSettings['shutdownDelaySeconds'] ?: '120' ?>" <?= !$containerSettings['shutdownDelay'] ? 'readonly' : '' ?>></li>
-                                </ul>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li class="text-center mb-1">Info</li>
-                            <?php if ($version) { ?>
-                            <li class="ms-1 small-text"><span class="small-text">Version:</span> <?= $version ?></li>
-                            <?php } ?>
-                            <li class="ms-1 small-text"><span class="small-text">Size:</span> <?= $process['size'] ?></li>
-                            <li class="ms-1 small-text"><span class="small-text">Network:</span> <?= $network ?></li>
-                            <?php if ($networkDependencies) { ?>
-                            <li class="ms-1 small-text"><span class="small-text">Dependencies:</span> <?= $networkDependencyList ?></li>
-                            <?php } elseif ($labelDependencies) { ?>
-                                <li class="ms-1 small-text"><span class="small-text">Dependencies:</span> <?= $labelDependencyList ?></li>
-                            <?php } ?>
-                        </ul>
-                        <?= $dockwatchWarning ?>
-                        <!-- REPOSITORY -->
+                    <div class="col-sm-12 col-lg-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
+                    <!-- NAME, REPOSITORY -->
+                    <div class="col-sm-12 col-lg-10" style="cursor:pointer;" onclick="containerInfo('<?= $nameHash ?>')">
+                        <span><?= $notificationIcon . $isCompose . $process['Names'] ?></span>
                         <br><span class="text-muted small-text" title="<?= $docker->isIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle($docker->isIO($process['inspect'][0]['Config']['Image']), 30) ?></span>
                     </div>
                 </div>
