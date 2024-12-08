@@ -168,7 +168,7 @@ trait Telegram
 
     public function escapeTelegramNotification($message)
     {
-        $chars = ['-', '.', '(', ')', '<', '>', '=', '[', ']'];
+        $chars = ['-', '.', '(', ')', '<', '>', '=', '[', ']', '_'];
         foreach ($chars as $char) {
             $message = str_replace($char, '\\' . $char, $message);
         }
