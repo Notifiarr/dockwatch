@@ -199,6 +199,8 @@
     <script src="libraries/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="libraries/datatable/datatables.min.js"></script>
     <script src="libraries/kpopup/kpopup.js"></script>
+    <script src="libraries/chart/chart.umd.min.js"></script>
+    <script src="libraries/chart/chartjs.plugin.datalabels.min.js"></script>
 
     <!-- Javascript -->
     <?= loadJS() ?>

@@ -26,7 +26,7 @@ if ($_POST['m'] == 'init') {
 
     ?>
     <div class="bg-secondary rounded p-4">
-        <h4>General</h4>
+        <h4 class="text-primary">Instance</h4>
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -61,7 +61,36 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4>Login failures</h4>
+        <h4 class="text-primary">UI</h4>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col" width="15%">Name</th>
+                        <th scope="col" width="30%">Setting</th>
+                        <th scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Default page</th>
+                        <td>
+                            <select class="form-select" id="globalSetting-defaultPage">
+                            <?php 
+                            $defaultPages = ['overview', 'containers', 'networks', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs'];
+
+                            foreach ($defaultPages as $defaultPage) {
+                                ?><option <?= $settingsTable['defaultPage'] == $defaultPage ? 'selected' : '' ?> value="<?= $defaultPage ?>"><?= ucfirst($defaultPage) ?></option><?php
+                            }
+                            ?>
+                            </select>
+                        </td>
+                        <td>Which page should be loaded when <?= APP_NAME ?> first opens</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="text-primary">Login failures</h4>
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -89,7 +118,7 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4><?= APP_NAME ?> servers</h4>
+        <h4 class="text-primary"><?= APP_NAME ?> servers</h4>
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -123,7 +152,7 @@ if ($_POST['m'] == 'init') {
                             ?>
                             <tr id="remoteServer-<?= $serverSettings['id'] ?>">
                                 <th scope="row">
-                                    <i class="far fa-trash-alt text-danger d-inline-block" style="cursor: pointer;" title="Unlink remote server" onclick="unlinkRemoteServer('<?= $serverSettings['id'] ?>')"></i> 
+                                    <i class="far fa-trash-alt text-warning d-inline-block" style="cursor: pointer;" title="Unlink remote server" onclick="unlinkRemoteServer('<?= $serverSettings['id'] ?>')"></i> 
                                     <input class="form-control d-inline-block" style="width: 90%;" type="text" id="globalSetting-serverList-name-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['name'] ?>">
                                 </th>
                                 <td><input class="form-control" type="text" id="globalSetting-serverList-url-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['url'] ?>"></td>
@@ -151,7 +180,7 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4>New containers</h4>
+        <h4 class="text-primary">New containers</h4>
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -177,7 +206,7 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4>Auto prune</h4>
+        <h4 class="text-primary">Auto prune</h4>
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -227,7 +256,7 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="mt-3">Thresholds</h4>
+        <h4 class="mt-3 text-primary">Thresholds</h4>
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -262,7 +291,7 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="mt-3">SSE</h4>
+        <h4 class="mt-3 text-primary">SSE</h4>
         <div class="table-responsive mt-2">
             <table class="table">
                 <thead>
@@ -283,7 +312,7 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="mt-3">Logging</h4>
+        <h4 class="mt-3 text-primary">Logging</h4>
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -325,7 +354,7 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="mt-3"><i class="far fa-plus-square text-light development-settings" onclick="$('.development-settings').toggle()"></i> <i class="far fa-minus-square text-light development-settings" onclick="$('.development-settings').toggle()" style="display: none;"></i> Development</h4>
+        <h4 class="mt-3"><i class="far fa-plus-square text-light development-settings" onclick="$('.development-settings').toggle()"></i> <i class="far fa-minus-square text-light development-settings" onclick="$('.development-settings').toggle()" style="display: none;"></i> <span class="text-primary">Development</span></h4>
         <div class="table-responsive development-settings" style="display: none;">
             <table class="table">
                 <thead>

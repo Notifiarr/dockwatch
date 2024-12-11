@@ -43,6 +43,7 @@ $serverList = (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300
     <link href="css/style.css" rel="stylesheet">
 
     <script type="text/javascript">
+        const DEFAULT_PAGE = '<?= $settingsTable['defaultPage'] ?: 'overview' ?>';
         const CURRENT_PAGE = '<?= $settingsTable['currentPage'] && in_array($settingsTable['currentPage'], $pages) ? $settingsTable['currentPage'] : 'overview' ?>';
         let USE_SSE = <?= $settingsTable['sseEnabled'] ? 'true' : 'false' ?>;
         const SSE_SETTING = <?= intval($settingsTable['sseEnabled']) ?>;

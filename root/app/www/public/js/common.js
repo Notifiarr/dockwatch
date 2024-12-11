@@ -3,10 +3,16 @@ let containerTableDrawn = false;
 let restoreGroups = false;
 let currentPage = 'overview';
 
+let GRAPH_UTILIZATION_CPU_LABELS            = '';
+let GRAPH_UTILIZATION_CPU_DATA              = '';
+let GRAPH_UTILIZATION_MEMORY_PERCENT_LABELS = '';
+let GRAPH_UTILIZATION_MEMORY_PERCENT_DATA   = '';
+let GRAPH_UTILIZATION_MEMORY_SIZE_LABELS    = '';
+let GRAPH_UTILIZATION_MEMORY_SIZE_DATA      = '';
+let GRAPH_UTILIZATION_MEMORY_SIZE_COLORS    = '';
+
 $(document).ready(function () {
-    if ($('#menu-overview').length) {
-        initPage(CURRENT_PAGE);
-    }
+    initPage(DEFAULT_PAGE);
 
     $('#loading-modal').modal({
         keyboard: false,
@@ -14,6 +20,12 @@ $(document).ready(function () {
     });
 
     initializeSSE();
+
+    if (CURRENT_PAGE == 'overview') {
+        setTimeout(function() {
+            drawOverview();
+        }, 1000);
+    }
 }).keyup(function (e) {
     if ($('#username').length) {
         if (e.keyCode === 13) {
@@ -73,6 +85,10 @@ function initPage(page)
         success: function (resultData) {
             init = false;
             $('#content-' + page).html(resultData);
+
+            if (page == 'overview') {
+                drawOverview();
+            }
 
             if (page == 'containers') {
                 $('#sse-timer').html(sseCountdown);

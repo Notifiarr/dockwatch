@@ -35,11 +35,12 @@ $loadTimes  = [];
 $start      = microtime(true);
 
 //-- DIRECTORIES TO LOAD FILES FROM, ORDER IS IMPORTANT
-$autoloads          = ['includes', 'functions', 'functions/helpers', 'classes'];
+$autoloadDirs       = ['includes', 'functions', 'functions/helpers', 'classes'];
+$autoloadFiles      = ['classes/interfaces/UI.php'];
 $ignoreAutoloads    = ['header.php', 'footer.php'];
 
-foreach ($autoloads as $autoload) {
-    $dir = ABSOLUTE_PATH . $autoload;
+foreach ($autoloadDirs as $autoloadDir) {
+    $dir = ABSOLUTE_PATH . $autoloadDir;
 
     if (is_dir($dir)) {
         $handle = opendir($dir);
@@ -50,6 +51,10 @@ foreach ($autoloads as $autoload) {
         }
         closedir($handle);
     }
+}
+
+foreach ($autoloadFiles as $autoloadFile) {
+    require $autoloadFile;
 }
 
 $loadTimes[] = trackTime('page ->', $start);
