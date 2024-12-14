@@ -33,156 +33,164 @@ if ($_POST['m'] == 'init') {
     }
     ?>
     <div class="bg-secondary rounded p-4">
-        <?php if ($pullsNotice) { ?>
-            <div class="rounded m-2 p-2" style="background-color: var(--primary);">
-                There is currently no pull data available to show the Updates state. If the Updates column is set to Ignore then no checks will be made for that container. If you want current data, please set all the Update Options to Check for updates or Auto update and click save at the bottom. Once that is done you can click the check all and select Update: Check or Pull from the list. This will take a minute or two as it has to check every image.
+        <div class="row">
+            <?php if ($pullsNotice) { ?>
+            <div class="col-sm-12">
+                <div class="rounded m-2 p-2" style="background-color: var(--primary);">
+                    There is currently no pull data available to show the Updates state. If the Updates column is set to Ignore then no checks will be made for that container. If you want current data, please set all the Update Options to Check for updates or Auto update and click save at the bottom. Once that is done you can click the check all and select Update: Check or Pull from the list. This will take a minute or two as it has to check every image.
+                </div>
             </div>
-        <?php } ?>
-        <div class="table-responsive">
-            <div class="text-end mb-2">
-                <span class="small-text text-muted">
-                    Real time updates: <span class="small-text text-muted" title="<?= $sseTitle ?>"><?= $sseLabel ?></span>
-                </span>
+            <?php } ?>
+            <div class="col-sm-12">
+                <div id="container-control-buttons" class="text-center" style="z-index:99999; width:80% !important; position:fixed;">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i> Pull</button>
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 2)"><i class="fas fa-sync-alt fa-xs me-1"></i> Restart</button>
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 1)"><i class="fas fa-play fa-xs me-1"></i> Start</button>
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 3)"><i class="fas fa-power-off fa-xs me-1"></i> Stop</button>
+                        <button type="button" class="btn btn-outline-warning bg-secondary" onclick="massApplyContainerTrigger(false, 13)"><i class="fas fa-skull-crossbones fa-xs me-1"></i> Kill</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-danger bg-secondary" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i> Remove</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-info bg-secondary disabled">Updates:</button>
+                        <button type="button" class="btn btn-outline-info bg-secondary" onclick="massApplyContainerTrigger(false, 11)">Check</button>
+                        <button type="button" class="btn btn-outline-info bg-secondary" onclick="massApplyContainerTrigger(false, 7)">Apply</button>
+                    </div>
+                </div>
             </div>
-            <table class="table" id="container-table">
-                <thead>
-                    <tr>
-                        <th scope="col" class="noselect no-sort"></th>
-                        <th scope="col" class="noselect no-sort"></th>
-                        <th scope="col" class="noselect">Name</th>
-                        <th scope="col" class="noselect">Updates</th>
-                        <th scope="col" class="noselect">State</th>
-                        <th scope="col" class="noselect">Health</th>
-                        <th scope="col" class="noselect no-sort">Mounts</th>
-                        <th scope="col" class="noselect no-sort">Environment</th>
-                        <th scope="col" class="noselect no-sort">Ports</th>
-                        <th scope="col" class="noselect no-sort">CPU/MEM</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    //-- GROUPS
-                    $groupContainerHashes = [];
-                    if ($containerLinksTable) {
-                        foreach ($containerGroupsTable as $containerGroup) {
-                            $groupHash          = $containerGroup['hash'];
-                            $groupContainers    = apiRequest('database-getGroupLinkContainersFromGroupId', ['group' => $containerGroup['id']])['result'];
-                            $groupCPU           = $groupMemory = $groupContainerCount = 0;
+            <div class="col-sm-12">
+                <div class="text-end mb-2">
+                    <span class="small-text text-muted">
+                        Real time updates: <span class="small-text text-muted" title="<?= $sseTitle ?>"><?= $sseLabel ?></span>
+                    </span>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="table-responsive">
+                    <table class="table" id="container-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="noselect no-sort"></th>
+                                <th scope="col" class="noselect no-sort"></th>
+                                <th scope="col" class="noselect">Name</th>
+                                <th scope="col" class="noselect">Updates</th>
+                                <th scope="col" class="noselect">State</th>
+                                <th scope="col" class="noselect">Health</th>
+                                <th scope="col" class="noselect no-sort">Mounts</th>
+                                <th scope="col" class="noselect no-sort">Environment</th>
+                                <th scope="col" class="noselect no-sort">Ports</th>
+                                <th scope="col" class="noselect no-sort">CPU/MEM</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            //-- GROUPS
+                            $groupContainerHashes = [];
+                            if ($containerLinksTable) {
+                                foreach ($containerGroupsTable as $containerGroup) {
+                                    $groupHash          = $containerGroup['hash'];
+                                    $groupContainers    = apiRequest('database-getGroupLinkContainersFromGroupId', ['group' => $containerGroup['id']])['result'];
+                                    $groupCPU           = $groupMemory = $groupContainerCount = 0;
 
+                                    foreach ($processList as $process) {
+                                        $nameHash = md5($process['Names']);
+
+                                        foreach ($groupContainers as $groupContainer) {
+                                            if ($nameHash == $groupContainer['hash']) {
+                                                $memUsage = floatval(str_replace('%', '', $process['stats']['MemPerc']));
+                                                $groupMemory += $memUsage;
+
+                                                $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
+                                                if (intval($settingsTable['cpuAmount']) > 0) {
+                                                    $cpuUsage = number_format(($cpuUsage / intval($settingsTable['cpuAmount'])), 2);
+                                                }
+                                                $groupCPU += $cpuUsage;
+
+                                                $groupContainerCount++;
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                    <tr id="<?= $groupHash ?>" class="container-group" style="background-color: #1c2029;">
+                                        <td><input type="checkbox" class="form-check-input containers-check" onchange="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></td>
+                                        <td><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
+                                        <td>
+                                            <span class="text-info container-group-label" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br>
+                                            <span class="text-muted small-text">Containers: <?= $groupContainerCount ?></span>
+                                        </td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <td><?= $groupCPU ?>%<br><?= $groupMemory ?>%</td>
+                                    </tr>
+                                    <?php
+
+                                    foreach ($groupContainers as $groupContainer) {
+                                        foreach ($processList as $process) {
+                                            $nameHash = md5($process['Names']);
+
+                                            if ($nameHash == $groupContainer['hash']) {
+                                                $groupContainerHashes[] = $nameHash;
+                                                renderContainerRow($nameHash, 'html');
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //-- NON GROUPS
+                            $groupHash  = '';
                             foreach ($processList as $process) {
                                 $nameHash = md5($process['Names']);
 
-                                foreach ($groupContainers as $groupContainer) {
-                                    if ($nameHash == $groupContainer['hash']) {
-                                        $memUsage = floatval(str_replace('%', '', $process['stats']['MemPerc']));
-                                        $groupMemory += $memUsage;
-
-                                        $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
-                                        if (intval($settingsTable['cpuAmount']) > 0) {
-                                            $cpuUsage = number_format(($cpuUsage / intval($settingsTable['cpuAmount'])), 2);
-                                        }
-                                        $groupCPU += $cpuUsage;
-
-                                        $groupContainerCount++;
+                                if ($groupContainerHashes) {
+                                    if (in_array($nameHash, $groupContainerHashes)) {
+                                        continue;
                                     }
                                 }
+
+                                renderContainerRow($nameHash, 'html');
                             }
                             ?>
-                            <tr id="<?= $groupHash ?>" class="container-group" style="background-color: #1c2029;">
-                                <td><input type="checkbox" class="form-check-input containers-check" onchange="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></td>
-                                <td><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
-                                <td>
-                                    <span class="text-info container-group-label" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br>
-                                    <span class="text-muted small-text">Containers: <?= $groupContainerCount ?></span>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="10">
+                                    <div style="float: right;">
+                                        <button id="check-all-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
+                                        <button id="group-restore-btn" style="display: none;" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
+                                    </div>
                                 </td>
-                                <td>&nbsp;</td>
-                                <td>&nbsp;</td>
-                                <td>&nbsp;</td>
-                                <td>&nbsp;</td>
-                                <td>&nbsp;</td>
-                                <td>&nbsp;</td>
-                                <td><?= $groupCPU ?>%<br><?= $groupMemory ?>%</td>
                             </tr>
-                            <?php
-
-                            foreach ($groupContainers as $groupContainer) {
-                                foreach ($processList as $process) {
-                                    $nameHash = md5($process['Names']);
-
-                                    if ($nameHash == $groupContainer['hash']) {
-                                        $groupContainerHashes[] = $nameHash;
-                                        renderContainerRow($nameHash, 'html');
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    //-- NON GROUPS
-                    $groupHash  = '';
-                    foreach ($processList as $process) {
-                        $nameHash = md5($process['Names']);
-
-                        if ($groupContainerHashes) {
-                            if (in_array($nameHash, $groupContainerHashes)) {
-                                continue;
-                            }
-                        }
-
-                        renderContainerRow($nameHash, 'html');
-                    }
-                    ?>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="8">
-                            <div class="btn-group mt-2 mb-2" role="group">
-                                <button type="button" class="btn btn-outline-light" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i> Pull</button>
-                                <button type="button" class="btn btn-outline-light" onclick="massApplyContainerTrigger(false, 2)"><i class="fas fa-sync-alt fa-xs me-1"></i> Restart</button>
-                                <button type="button" class="btn btn-outline-light" onclick="massApplyContainerTrigger(false, 1)"><i class="fas fa-play fa-xs me-1"></i> Start</button>
-                                <button type="button" class="btn btn-outline-light" onclick="massApplyContainerTrigger(false, 3)"><i class="fas fa-power-off fa-xs me-1"></i> Stop</button>
-                                <button type="button" class="btn btn-outline-warning" onclick="massApplyContainerTrigger(false, 13)"><i class="fas fa-skull-crossbones fa-xs me-1"></i> Kill</button>
-                            </div>
-                            <button type="button" class="btn btn-outline-danger ms-2" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i> Remove</button>
-                            <div class="btn-group ms-3 mt-2 mb-2" role="group">
-                                <button type="button" class="btn btn-outline-info disabled">Updates:</button>
-                                <button type="button" class="btn btn-outline-info" onclick="massApplyContainerTrigger(false, 11)">Check</button>
-                                <button type="button" class="btn btn-outline-info" onclick="massApplyContainerTrigger(false, 7)">Apply</button>
-                            </div>
-
-                            <select id="massContainerTrigger" class="d-none">
-                                <option value="0">-- Select option --</option>
-                                <optgroup label="Control">
-                                    <option value="4">Pull</option>
-                                    <option value="1">Start</option>
-                                    <option value="3">Stop</option>
-                                    <option value="13">Kill</option>
-                                    <option value="2">Restart</option>
-                                    <option value="9">Remove</option>
-                                    <option value="12">Re-create</option>
-                                    <option value="7">Update: Apply</option>
-                                    <option value="11">Update: Check</option>
-                                </optgroup>
-                                <optgroup label="Information">
-                                    <option value="8">Mount compare</option>
-                                    <option value="10">Generate docker api create</option>
-                                    <option value="6">Generate docker-compose</option>
-                                    <option value="5">Generate docker run</option>
-                                </optgroup>
-                            </select>
-                        </td>
-                        <td colspan="2">
-                            <div style="float: right;">
-                                <button id="check-all-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
-                                <button id="group-restore-btn" style="display: none;" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
-                            </div>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
+    <!-- Check all BC -->
+    <select id="massContainerTrigger" class="d-none">
+        <option value="0">-- Select option --</option>
+        <option value="4">Pull</option>
+        <option value="1">Start</option>
+        <option value="3">Stop</option>
+        <option value="13">Kill</option>
+        <option value="2">Restart</option>
+        <option value="9">Remove</option>
+        <option value="12">Re-create</option>
+        <option value="7">Update: Apply</option>
+        <option value="11">Update: Check</option>
+        <option value="8">Mount compare</option>
+        <option value="10">Generate docker api create</option>
+        <option value="6">Generate docker-compose</option>
+        <option value="5">Generate docker run</option>
+    </select>
     <?php
 }
 

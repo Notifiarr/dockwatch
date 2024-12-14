@@ -1,7 +1,11 @@
-let init = false;
+let init                = false;
 let containerTableDrawn = false;
-let restoreGroups = false;
-let currentPage = 'overview';
+let restoreGroups       = false;
+let currentPage         = 'overview';
+let smScreen            = false;
+const smScreenWidth     = 750;
+let mdScreen            = false;
+const mdScreenWidth     = 1300;
 
 let GRAPH_UTILIZATION_CPU_LABELS            = '';
 let GRAPH_UTILIZATION_CPU_DATA              = '';
@@ -12,6 +16,7 @@ let GRAPH_UTILIZATION_MEMORY_SIZE_DATA      = '';
 let GRAPH_UTILIZATION_MEMORY_SIZE_COLORS    = '';
 
 $(document).ready(function () {
+    setScreenSizeVars();
     initPage(DEFAULT_PAGE);
 
     $('#loading-modal').modal({
@@ -34,6 +39,13 @@ $(document).ready(function () {
     }
 });
 // -------------------------------------------------------------------------------------------
+function setScreenSizeVars()
+{
+    smScreen = window.matchMedia('only screen and (max-width: ' + smScreenWidth + 'px)').matches;
+    mdScreen = window.matchMedia('only screen and (max-width: ' + mdScreenWidth + 'px) and (min-width: ' + smScreenWidth + 'px)').matches;
+
+}
+// ---------------------------------------------------------------------------------------------
 function containerMenuMouseOut()
 {
     if (currentPage != 'containers') {
@@ -91,6 +103,10 @@ function initPage(page)
             }
 
             if (page == 'containers') {
+                if (smScreen) {
+                    $('#container-control-buttons').prop('style', '');
+                }
+
                 $('#sse-timer').html(sseCountdown);
 
                 containerTableDrawn = false;
