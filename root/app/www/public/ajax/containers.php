@@ -42,7 +42,7 @@ if ($_POST['m'] == 'init') {
             </div>
             <?php } ?>
             <div class="col-sm-12">
-                <div id="container-control-buttons" class="text-center" style="z-index:99999; width:80% !important; position:fixed;">
+                <div id="container-control-buttons" class="text-center" style="z-index:9999; width:80% !important; position:fixed;">
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i> Pull</button>
                         <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 2)"><i class="fas fa-sync-alt fa-xs me-1"></i> Restart</button>
