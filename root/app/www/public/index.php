@@ -53,6 +53,7 @@ if ($loadError) {
     <div id="content-logs" style="display: none;"></div>
     <div id="content-tasks" style="display: none;"></div>
     <div id="content-commands" style="display: none;"></div>
+    <div id="content-database" style="display: none;"></div>
     <div id="content-dockerPermissions" style="display: <?= $dockerPerms ? 'none' : 'block' ?>;">
         If you are seeing this, it means the user:group running this container does not have permission to run docker commands. Please fix that, restart the container and try again.<br><br>
         <div class="bg-secondary rounded p-4">

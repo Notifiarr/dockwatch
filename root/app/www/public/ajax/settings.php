@@ -412,6 +412,11 @@ if ($_POST['m'] == 'init') {
                         <td><input class="form-check-input" type="checkbox" id="globalSetting-telemetry" <?= $settingsTable['telemetry'] ? 'checked' : '' ?>></td>
                         <td>Allow telemetry information to be collected. There is nothing personal or identifiable and what is sent can be seen in the Tasks menu or <a href="https://github.com/Notifiarr/dockwatch/blob/develop/root/app/www/public/functions/telemetry.php" target="_blank">here on github</a></td>
                     </tr>
+                    <tr>
+                        <th scope="row">Database</th>
+                        <td><button class="btn btn-sm btn-info" onclick="initPage('database')">Browse</button></td>
+                        <td>Browse the <?= APP_NAME ?> database</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
