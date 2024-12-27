@@ -114,6 +114,19 @@ if ($containersTable) {
                                                 'imageDigest'   => $imageDigest
                                             ];
 
+                //-- SKIP IF AGE < MINAGE
+                $digestTag = explode(':', $image)[0] . '@' . $regctlDigest;
+                $checkImageAge = regctlGetCreatedDate($digestTag);
+                if ($checkImageAge < $containerSettings['minage']) {
+                    $msg = 'Skipping container update: ' . $containerState['Names'] . ' (does not meet the minimum age requirement of '.$containerSettings['minage'].' days, got '.$checkImageAge.' days)';
+                    logger(CRON_PULLS_LOG, $msg);
+                    echo date('c') . ' ' . $msg . "\n";
+
+                    if ($containerSettings['updates'] == 1) {
+                        $containerSettings['updates'] = 2;
+                    }
+                }
+
                 //-- DONT AUTO UPDATE THIS CONTAINER, CHECK ONLY
                 if (skipContainerActions($image, $skipContainerActions)) {
                     if ($isDockwatch) {
@@ -314,7 +327,11 @@ if ($containersTable) {
                             break;
                         case 2: //-- Check for updates
                             if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'updates'])['result'] && !$containerSettings['disableNotifications'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
-                                $notify['available'][] = ['container' => $containerState['Names']];
+                                $notify['available'][] = [
+                                    'container' => $containerState['Names'],
+                                    'minage' => $containerSettings['minage'] ?? 0,
+                                    'currentage' => $checkImageAge ?? 0
+                                ];
                             }
                             break;
                     }

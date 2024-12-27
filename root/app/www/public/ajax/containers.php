@@ -937,6 +937,7 @@ if ($_POST['m'] == 'updateOptions') {
                         <th scope="col">Name</th>
                         <th scope="col">Update</th>
                         <th scope="col">Frequency</th>
+                        <th scope="col">Minimum Age (Days)</th>
                     </tr>
                 </thead>
                 <tbody id="containerUpdateRows">
@@ -961,6 +962,9 @@ if ($_POST['m'] == 'updateOptions') {
                         <td>
                             <input id="container-frequency-<?= $nameHash ?>" type="text" class="form-control container-frequency" onclick="frequencyCronEditor(this.value, '<?= $nameHash ?>', '<?= $process['Names'] ?>')" value="<?= $container['frequency'] ?>" readonly>
                         </td>
+                        <td>
+                            <input id="container-update-minage-<?= $nameHash ?>" type="number" class="form-control container-update-minage" value="<?= $container['minage'] ?? 0 ?>">
+                        </td>
                     </tr>
                     <?php
                 }
@@ -969,7 +973,7 @@ if ($_POST['m'] == 'updateOptions') {
             </table>
         </div>
         <div class="row">
-            <div class="col-sm-12 col-lg-6 text-end">
+            <div class="col-sm-12 col-lg-4 text-end">
                 <select id="container-update-all" class="form-select d-inline-block w-75">
                     <option value="-1">-- Select Option --</option>
                     <option value="0">Ignore</option>
@@ -979,10 +983,15 @@ if ($_POST['m'] == 'updateOptions') {
                 <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeContainerUpdates(1)" title="Apply to selected containers"></i>
                 <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeContainerUpdates(2)" title="Apply to all containers"></i>
             </div>
-            <div class="col-sm-12 col-lg-6 text-end">
+            <div class="col-sm-12 col-lg-4 text-end">
                 <input id="container-frequency-all" type="text"  class="form-control d-inline-block w-75" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
                 <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeFrequency(1)" title="Apply to selected containers"></i>
                 <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeFrequency(2)" title="Apply to all containers"></i>
+            </div>
+            <div class="col-sm-12 col-lg-4 text-end">
+                <input id="container-update-minage-all" type="number"  class="form-control d-inline-block w-75" value="0">
+                <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeMinAge(1)" title="Apply to selected containers"></i>
+                <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeMinAge(2)" title="Apply to all containers"></i>
             </div>
         </div>
     </div>
@@ -1004,7 +1013,10 @@ if ($_POST['m'] == 'saveUpdateOptions') {
 
         list($minute, $hour, $dom, $month, $dow) = explode(' ', $val);
         $frequency  = $minute . ' ' . $hour . ' ' . $dom . ' ' . $month . ' ' . $dow;
+
         $updates    = intval($_POST['container-update-' . $hash]);
+
+        $minage     = intval($_POST['container-update-minage-' . $hash]);
 
         try {
             $cron = Cron\CronExpression::factory($frequency);
@@ -1014,8 +1026,8 @@ if ($_POST['m'] == 'saveUpdateOptions') {
 
         //-- ONLY UPDATE WHAT HAS CHANGED
         $container = apiRequest('database-getContainerFromHash', ['hash' => $hash])['result'];
-        if ($container['updates'] != $updates || $container['frequency'] != $frequency) {
-            apiRequest('database-updateContainer', [], ['hash' => $hash, 'updates' => $updates, 'frequency' => $database->prepare($frequency)]);
+        if ($container['updates'] != $updates || $container['frequency'] != $frequency || $container['minage'] != $minage) {
+            apiRequest('database-updateContainer', [], ['hash' => $hash, 'updates' => $updates, 'frequency' => $database->prepare($frequency), 'minage' => $database->prepare($minage)]);
         }
     }
 }
