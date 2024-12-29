@@ -67,7 +67,7 @@ $serverList = (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300
                 <a href="index.php" class="navbar-brand mx-4">
                     <h3 class="text-primary mb-0"><?= APP_NAME ?></h3>
                 </a>
-                <div class="mb-4 w-100" align="center"><div id="activeInstanceContainer"><?= $serverList ?></div></div>
+                <div class="mt-3 mb-4 w-100" align="center"><div id="activeInstanceContainer"><?= $serverList ?></div></div>
                 <?php if ($_SESSION['authenticated']) { ?>
                 <div class="navbar-nav w-100">
                     <a id="menu-overview" onclick="initPage('overview')" style="cursor: pointer;" class="nav-item nav-link active"><i class="fas fa-heartbeat me-2"></i>Overview</a>

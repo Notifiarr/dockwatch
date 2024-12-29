@@ -105,6 +105,7 @@ function initPage(page)
             if (page == 'containers') {
                 if (smScreen) {
                     $('#container-control-buttons').prop('style', '');
+                    $('.container-control-button-label').remove();
                 }
 
                 $('#sse-timer').html(sseCountdown);

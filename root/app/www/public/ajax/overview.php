@@ -220,51 +220,51 @@ if ($_POST['m'] == 'init') {
     <div class="row">
         <div class="col-sm-12">
             <div class="row bg-secondary rounded p-4">
-                <div class="col-sm-12 col-lg-4" style="cursor:pointer;" onclick="initPage('containers')">
+                <div class="col-12 col-lg-4" style="cursor:pointer;" onclick="initPage('containers')">
                     <div class="row">
-                        <div class="col-sm-12 col-lg-3 text-center">
+                        <div class="col-12 col-lg-3 text-center">
                             <span class="h4 text-primary">Status</span>
                         </div>
-                        <div class="col-sm-12 col-lg-3 h5">
-                            <span class="badge bg-success w-100">Running: <?= $running ?></span>
+                        <div class="col-4 col-lg-3 h5">
+                            <span class="badge bg-success">Running: <?= $running ?></span>
                         </div>
-                        <div class="col-sm-12 col-lg-3 h5">
-                            <span class="badge bg-warning w-100">Stopped: <?= $stopped ?></span>
+                        <div class="col-4 col-lg-3 h5">
+                            <span class="badge bg-warning">Stopped: <?= $stopped ?></span>
                         </div>
-                        <div class="col-sm-12 col-lg-3 h5">
-                            <span class="badge bg-light w-100">Total: <?= $running + $stopped ?></span>
+                        <div class="col-4 col-lg-3 h5">
+                            <span class="badge bg-light">Total: <?= $running + $stopped ?></span>
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-12 col-lg-4" style="cursor:pointer;" onclick="initPage('containers')">
+                <div class="col-12 col-lg-4" style="cursor:pointer;" onclick="initPage('containers')">
                     <div class="row">
-                        <div class="col-sm-12 col-lg-3 text-center">
+                        <div class="col-12 col-lg-3 text-center">
                             <span class="h4 text-primary">Health</span>
                         </div>
-                        <div class="col-sm-12 col-lg-3 h5">
-                            <span class="badge bg-success w-100">Healthy: <?= $healthy ?></span>
+                        <div class="col-4 col-lg-3 h5">
+                            <span class="badge bg-success">Healthy: <?= $healthy ?></span>
                         </div>
-                        <div class="col-sm-12 col-lg-3 h5">
-                            <span class="badge bg-warning w-100">Unhealthy: <?= $unhealthy ?></span>
+                        <div class="col-4 col-lg-3 h5">
+                            <span class="badge bg-warning">Unhealthy: <?= $unhealthy ?></span>
                         </div>
-                        <div class="col-sm-12 col-lg-3 h5">
-                            <span class="badge bg-light w-100">Unknown: <?= $unknownhealth ?></span>
+                        <div class="col-4 col-lg-3 h5">
+                            <span class="badge bg-light">Unknown: <?= $unknownhealth ?></span>
                         </div>
                     </div>
                 </div>
-                <div class="col-sm-12 col-lg-4" style="cursor:pointer;" onclick="openUpdateOptions()">
+                <div class="col-12 col-lg-4" style="cursor:pointer;" onclick="openUpdateOptions()">
                     <div class="row">
-                        <div class="col-sm-12 col-lg-3 text-center">
+                        <div class="col-12 col-lg-3 text-center">
                             <span class="h4 text-primary">Updates</span>
                         </div>
-                        <div class="col-sm-12 col-lg-3 h5">
-                            <span class="badge bg-success w-100">Updated: <?= $updated ?></span>
+                        <div class="col-4 col-lg-3 h5">
+                            <span class="badge bg-success">Updated: <?= $updated ?></span>
                         </div>
-                        <div class="col-sm-12 col-lg-3 h5">
-                            <span class="badge bg-warning w-100">Outdated: <?= $outdated ?></span>
+                        <div class="col-4 col-lg-3 h5">
+                            <span class="badge bg-warning">Outdated: <?= $outdated ?></span>
                         </div>
-                        <div class="col-sm-12 col-lg-3 h5">
-                            <span class="badge bg-light w-100">Unchecked: <?= ($running + $stopped) - ($updated + $outdated) ?></span>
+                        <div class="col-4 col-lg-3 h5">
+                            <span class="badge bg-light">Unchecked: <?= ($running + $stopped) - ($updated + $outdated) ?></span>
                         </div>
                     </div>
                 </div>

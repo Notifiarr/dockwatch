@@ -32,6 +32,28 @@ if ($_POST['m'] == 'init') {
         }
     }
     ?>
+    <div class="bg-secondary rounded p-4 mb-2" style="height:65px;">
+        <div class="row" style="z-index:998; width:80% !important; position:fixed; top:100px;">
+            <div class="col-sm-12">
+                <div id="container-control-buttons" class="text-center bg-secondary">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i><span class="container-control-button-label text-light"> Pull</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 2)"><i class="fas fa-sync-alt fa-xs me-1"></i><span class="container-control-button-label text-light"> Restart</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 1)"><i class="fas fa-play fa-xs me-1"></i><span class="container-control-button-label text-light"> Start</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 3)"><i class="fas fa-power-off fa-xs me-1"></i><span class="container-control-button-label text-light"> Stop</span></button>
+                        <button type="button" class="btn btn-outline-warning bg-secondary" onclick="massApplyContainerTrigger(false, 13)"><i class="fas fa-skull-crossbones fa-xs me-1"></i><span class="container-control-button-label text-warning"> Kill</span></button>
+                        <button type="button" class="btn btn-outline-danger bg-secondary" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i><span class="container-control-button-label text-danger"> Remove</span></button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-info bg-secondary disabled">Updates:</button>
+                        <button type="button" class="btn btn-outline-info bg-secondary" onclick="massApplyContainerTrigger(false, 11)">Check</button>
+                        <button type="button" class="btn btn-outline-info bg-secondary" onclick="massApplyContainerTrigger(false, 7)">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-secondary rounded p-4">
         <div class="row">
             <?php if ($pullsNotice) { ?>
@@ -41,25 +63,6 @@ if ($_POST['m'] == 'init') {
                 </div>
             </div>
             <?php } ?>
-            <div class="col-sm-12">
-                <div id="container-control-buttons" class="text-center" style="z-index:9999; width:80% !important; position:fixed;">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i> Pull</button>
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 2)"><i class="fas fa-sync-alt fa-xs me-1"></i> Restart</button>
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 1)"><i class="fas fa-play fa-xs me-1"></i> Start</button>
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 3)"><i class="fas fa-power-off fa-xs me-1"></i> Stop</button>
-                        <button type="button" class="btn btn-outline-warning bg-secondary" onclick="massApplyContainerTrigger(false, 13)"><i class="fas fa-skull-crossbones fa-xs me-1"></i> Kill</button>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-danger bg-secondary" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i> Remove</button>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-info bg-secondary disabled">Updates:</button>
-                        <button type="button" class="btn btn-outline-info bg-secondary" onclick="massApplyContainerTrigger(false, 11)">Check</button>
-                        <button type="button" class="btn btn-outline-info bg-secondary" onclick="massApplyContainerTrigger(false, 7)">Apply</button>
-                    </div>
-                </div>
-            </div>
             <div class="col-sm-12">
                 <div class="text-end mb-2">
                     <span class="small-text text-muted">
