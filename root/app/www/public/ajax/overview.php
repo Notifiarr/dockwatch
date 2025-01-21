@@ -222,49 +222,70 @@ if ($_POST['m'] == 'init') {
             <div class="row bg-secondary rounded p-4">
                 <div class="col-12 col-lg-4" style="cursor:pointer;" onclick="initPage('containers')">
                     <div class="row">
-                        <div class="col-12 col-lg-3 text-center">
-                            <span class="h4 text-primary">Status</span>
+                        <div class="col-12 mb-2">
+                            <span class="h5"><i class="fas fa-box-open"></i> Status</span>
                         </div>
-                        <div class="col-4 col-lg-3 h5">
-                            <span class="badge bg-success">Running: <?= $running ?></span>
-                        </div>
-                        <div class="col-4 col-lg-3 h5">
-                            <span class="badge bg-warning">Stopped: <?= $stopped ?></span>
-                        </div>
-                        <div class="col-4 col-lg-3 h5">
-                            <span class="badge bg-light">Total: <?= $running + $stopped ?></span>
+                        <div class="col-12 mb-2">
+                            <div class="row">
+                                <div class="col-4">
+                                    <span class="text-success">Running</span><br>
+                                    <?= $running ?>
+                                </div>
+                                <div class="col-4">
+                                    <span class="text-danger">Stopped</span><br>
+                                    <?= $stopped ?>
+                                </div>
+                                <div class="col-4">
+                                    Total<br>
+                                    <?= $running + $stopped ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-12 col-lg-4" style="cursor:pointer;" onclick="initPage('containers')">
                     <div class="row">
-                        <div class="col-12 col-lg-3 text-center">
-                            <span class="h4 text-primary">Health</span>
+                        <div class="col-12 mb-2">
+                            <span class="h5"><i class="fas fa-heartbeat"></i> Health</span>
                         </div>
-                        <div class="col-4 col-lg-3 h5">
-                            <span class="badge bg-success">Healthy: <?= $healthy ?></span>
-                        </div>
-                        <div class="col-4 col-lg-3 h5">
-                            <span class="badge bg-warning">Unhealthy: <?= $unhealthy ?></span>
-                        </div>
-                        <div class="col-4 col-lg-3 h5">
-                            <span class="badge bg-light">Unknown: <?= $unknownhealth ?></span>
+                        <div class="col-12 mb-2">
+                            <div class="row">
+                                <div class="col-4">
+                                    <span class="text-success">Healthy</span><br>
+                                    <?= $healthy ?>
+                                </div>
+                                <div class="col-4">
+                                    <span class="text-danger">Unhealthy</span><br>
+                                    <?= $unhealthy ?>
+                                </div>
+                                <div class="col-4">
+                                    <span class="text-warning">Unknown</span><br>
+                                    <?= $unknownhealth ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-12 col-lg-4" style="cursor:pointer;" onclick="openUpdateOptions()">
                     <div class="row">
-                        <div class="col-12 col-lg-3 text-center">
-                            <span class="h4 text-primary">Updates</span>
+                        <div class="col-12 mb-2">
+                            <span class="h5"><i class="fas fa-database"></i> Updates</span>
                         </div>
-                        <div class="col-4 col-lg-3 h5">
-                            <span class="badge bg-success">Updated: <?= $updated ?></span>
-                        </div>
-                        <div class="col-4 col-lg-3 h5">
-                            <span class="badge bg-warning">Outdated: <?= $outdated ?></span>
-                        </div>
-                        <div class="col-4 col-lg-3 h5">
-                            <span class="badge bg-light">Unchecked: <?= ($running + $stopped) - ($updated + $outdated) ?></span>
+                        <div class="col-12 mb-2">
+                            <div class="row">
+                                <div class="col-4">
+                                    <span class="text-success">Updated</span><br>
+                                    <?= $updated ?>
+                                </div>
+                                <div class="col-4">
+                                    <span class="text-warning">Outdated</span><br>
+                                    <?= $outdated ?>
+                                </div>
+                                <div class="col-4">
+                                    Unchecked<br>
+                                    <?= ($running + $stopped) - ($updated + $outdated) ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
