@@ -24,6 +24,7 @@ if ($_POST['m'] == 'init') {
     }
     closedir($dir);
 
+    $serverTime = apiRequest('server/time')['result']['result'];
     ?>
     <div class="bg-secondary rounded p-4">
         <h4 class="text-primary">Instance</h4>
@@ -37,6 +38,13 @@ if ($_POST['m'] == 'init') {
                     </tr>
                 </thead>
                 <tbody>
+                    <tr>
+                        <th scope="row">Server timezone</th>
+                        <td>
+                            <?= $serverTime['timezone'] ?>
+                        </td>
+                        <td>The current timezone being used for this instance. Datetime: <?= $serverTime['time'] ?></td>
+                    </tr>
                     <tr>
                         <th scope="row">Server name</th>
                         <td>

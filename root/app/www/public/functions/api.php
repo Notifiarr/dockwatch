@@ -300,6 +300,9 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return gitVersion(true);
+            case 'server/time':
+            case 'server-time':
+                return apiResponse(200, ['timezone' => date_default_timezone_get(), 'time' => date('c')]);
             case 'stats/containers':
             case 'stats-getContainersList':
                 return apiResponse(200, getContainerStats());
