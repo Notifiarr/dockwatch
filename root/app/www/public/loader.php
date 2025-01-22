@@ -10,6 +10,10 @@
 // This will NOT report uninitialized variables
 error_reporting(E_ERROR | E_PARSE);
 
+if ($_SERVER['TZ']) {
+    date_default_timezone_set($_SERVER['TZ']);
+}
+
 //-- USE THIS VARIABLE TO BYPASS THINGS NOT NEEDED FOR THE SSE EVENT, ~250ms to ~80MS
 define('IS_SSE', (str_contains($_SERVER['PHP_SELF'], 'sse') && !str_contains($_SERVER['PHP_SELF'], 'cron') ? true : false));
 
