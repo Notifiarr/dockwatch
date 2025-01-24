@@ -1,10 +1,10 @@
-function drawOverview() 
+function drawOverview()
 {
     $('#chart-cpu-container').html('<canvas id="chart-cpu" class="bg-secondary"><i class="fas fa-chart-line fa-spin fa-lg"></i> Loading graph...</canvas>');
     drawLineChart('cpu');
     $('#chart-memoryPercent-container').html('<canvas id="chart-memoryPercent" class="bg-secondary"><i class="fas fa-chart-line fa-spin fa-lg"></i> Loading graph...</canvas>');
     drawLineChart('memoryPercent');
-    $('#chart-memorySize-container').html('<center style="height:75vh;"><canvas id="chart-memorySize" class="bg-secondary"><i class="fas fa-chart-line fa-spin fa-lg"></i> Loading graph...</canvas></center>');
+    $('#chart-memorySize-container').html('<center><canvas id="chart-memorySize" class="bg-secondary"><i class="fas fa-chart-line fa-spin fa-lg"></i> Loading graph...</canvas></center>');
     drawPieChart('memorySize');
 }
 // -------------------------------------------------------------------------------------------
@@ -38,6 +38,8 @@ function drawPieChart(type)
     };
 
     let options = {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             datalabels: {
                 display: data.labels.length < 10 ? true : false,
@@ -65,7 +67,7 @@ function drawPieChart(type)
     });
 }
 // -------------------------------------------------------------------------------------------
-function drawLineChart(type) 
+function drawLineChart(type)
 {
     let typeLabels = typeData = [];
     let typeLabel = '';
@@ -99,6 +101,8 @@ function drawLineChart(type)
     };
 
     let options = {
+        responsive: true,
+        maintainAspectRatio: false,
         aspectRatio: typeLabels.length > 10 ? true : false,
         responsive: true,
         indexAxis: 'y',

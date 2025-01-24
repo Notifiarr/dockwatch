@@ -26,6 +26,22 @@ function bytesFromString($string)
     return $number * (1000 ** $exponent);
 }
 
+function binaryBytesFromString($string)
+{
+    $binaryUnits = ['b', 'kib', 'mib', 'gib', 'tib'];
+
+    $string = strtolower(trim($string));
+    $stringUnit = preg_replace('/[^a-z]/', '', $string);
+    $number = floatval(preg_replace('/[^0-9.]/', '', $string));
+
+    if (in_array($stringUnit, $binaryUnits)) {
+        $exponent = array_flip($binaryUnits)[$stringUnit];
+        return $number * (1024 ** $exponent);
+    }
+
+    return $number;
+}
+
 function byteConversion($bytes, $measurement = false, $dec = 2)
 {
     if (!$bytes || $bytes <= 0) {

@@ -14,82 +14,45 @@ if ($_POST['m'] == 'init') {
     $ports = $networks = $graphs = [];
     $running = $stopped = $memory = $cpu = $network = $size = $updated = $outdated = $healthy = $unhealthy = $unknownhealth = 0;
 
-    foreach ($processList as $process) {
-        $size += bytesFromString($process['size']);
+    $overviewApiResult = apiRequest('stats/overview')['result']['result']; //-- Why is it like this?
+    $containersApiResult = apiRequest('stats/containers')['result']['result']; //-- Same thing
 
-        if (str_contains($process['Status'], 'healthy')) {
-            $healthy++;
-        } elseif (str_contains($process['Status'], 'unhealthy')) {
-            $unhealthy++;
-        } elseif (!str_contains($process['Status'], 'health')) {
-            $unknownhealth++;
-        }
+    //-- HEALTH STATS
+    $healthy = $overviewApiResult['health']['healthy'];
+    $unhealthy = $overviewApiResult['health']['unhealthy'];
+    $unknownhealth = $overviewApiResult['health']['unknown'];
 
-        if ($process['State'] == 'running') {
-            $running++;
-        } else {
-            $stopped++;
-        }
+    //-- CONTAINER STATES
+    $running = $overviewApiResult['status']['running'];
+    $stopped = $overviewApiResult['status']['stopped'];
 
-        //-- GET UPDATES
-        if ($pullsFile) {
-            foreach ($pullsFile as $hash => $pull) {
-                if (md5($process['Names']) == $hash) {
-                    if ($pull['regctlDigest'] == $pull['imageDigest']) {
-                        $updated++;
-                    } else {
-                        $outdated++;
-                    }
-                    break;
-                }
-            }
-        }
+    //-- UPDATE STATS
+    $updated = $overviewApiResult['updates']['uptodate'];
+    $outdated = $overviewApiResult['updates']['outdated'];
+    $unchecked = $overviewApiResult['updates']['unchecked'];
 
-        //-- GET USED NETWORKS
-        if ($process['inspect'][0]['NetworkSettings']['Networks']) {
-            $networkKeys = array_keys($process['inspect'][0]['NetworkSettings']['Networks']);
-            foreach ($networkKeys as $networkKey) {
-                $networks[$networkKey]++;
-            }
-        } else {
-            $containerNetwork = $process['inspect'][0]['HostConfig']['NetworkMode'];
-            if (str_contains($containerNetwork, ':')) {
-                list($null, $containerId) = explode(':', $containerNetwork);
-                $containerNetwork = 'container:' . $docker->findContainer(['id' => $containerId, 'data' => $processList]);
-            }
+    //-- USAGE
+    $size = $overviewApiResult['usage']['disk'];
+    $memory = $overviewApiResult['usage']['memory'];
+    $cpu = $overviewApiResult['usage']['cpu'];
+    $network = $overviewApiResult['usage']['netIO'];
 
-            $networks[$containerNetwork]++;
-        }
+    //-- NETWORKS
+    $networks = $overviewApiResult['network'];
+    $ports = $overviewApiResult['ports'];
 
-        //-- GET USED PORTS
-        if ($process['inspect'][0]['HostConfig']['PortBindings']) {
-            foreach ($process['inspect'][0]['HostConfig']['PortBindings'] as $internalBind => $portBinds) {
-                foreach ($portBinds as $portBind) {
-                    if ($portBind['HostPort']) {
-                        $ports[$process['Names']][] = $portBind['HostPort'];
-                    }
-                }
-            }
-        }
-
-        //-- GET MEMORY UAGE
-        $memory += floatval(str_replace('%', '', $process['stats']['MemPerc']));
-
-        //-- GET CPU USAGE
-        $cpu += floatval(str_replace('%', '', $process['stats']['CPUPerc']));
-
-        //-- GET NETWORK USAGE
-        list($netUsed, $netAllowed) = explode(' / ', $process['stats']['NetIO']);
-        $network += bytesFromString($netUsed);
-
+    //-- CONTAINER GRAPHS
+    foreach ($containersApiResult as $result) {
+        //-- CPU USAGE
         $graphs['utilization']['cpu']['total']['percent'] = 100;
-        $graphs['utilization']['cpu']['containers'][$process['Names']] = str_replace('%', '', $process['stats']['CPUPerc']);
+        $graphs['utilization']['cpu']['containers'][$result['name']] = str_replace('%', '', $result['usage']['cpuPerc']);
 
-        list($memUsed, $memTotal) = explode('/', $process['stats']['MemUsage']);
-        $graphs['utilization']['memory']['total']['size'] = trim($memTotal);
+        //-- MEM USAGE
+        list($memUsed, $memTotal) = explode('/', $result['usage']['memSize']);
+        $graphs['utilization']['memory']['total']['size'] = trim(byteConversion(binaryBytesFromString($memTotal), 'MiB'));
         $graphs['utilization']['memory']['total']['percent'] = 100;
-        $graphs['utilization']['memory']['containers'][$process['Names']]['percent'] = str_replace('%', '', $process['stats']['MemPerc']);
-        $graphs['utilization']['memory']['containers'][$process['Names']]['size'] = trim($memUsed);
+        $graphs['utilization']['memory']['containers'][$result['name']]['percent'] = str_replace('%', '', $result['usage']['memPerc']);
+        $graphs['utilization']['memory']['containers'][$result['name']]['size'] = trim(byteConversion(binaryBytesFromString($memUsed), 'MiB'));
     }
 
     if (intval($settingsTable['cpuAmount']) > 0) {
@@ -195,7 +158,7 @@ if ($_POST['m'] == 'init') {
                             }
                             ksort($portArray);
                             $portArray = formatPortRanges($portArray);
-                            
+
                             if ($portArray) {
                                 $portList = '<div style="max-height: 250px; overflow: auto;">';
 
@@ -203,7 +166,7 @@ if ($_POST['m'] == 'init') {
                                     $portList .= '<div class="row flex-nowrap p-0 m-0">';
                                     $portList .= '  <div class="col text-end">' . $port . '</div>';
                                     $portList .= '  <div class="col text-end" title="' . $container . '">' . truncateMiddle($container, 14) . '</div>';
-                                    $portList .= '</div>';    
+                                    $portList .= '</div>';
                                 }
 
                                 $portList .= '</div>';
@@ -293,106 +256,112 @@ if ($_POST['m'] == 'init') {
         </div>
     </div>
     <div class="row mt-2">
-        <div class="col-sm-12">
-            <div class="row">
-                <div class="col-sm-12 col-lg-4">
-                    <div class="bg-secondary rounded p-2 mt-2">
-                        <div class="row">
-                            <div class="col-sm-6 text-primary">Disk usage</div>
-                            <div class="col-sm-6"><?= byteConversion($size) ?></div>
-                        </div>
-                    </div>
+        <div class="d-flex flex-wrap flex-lg-nowrap gap-3" style="justify-content: center;">
+            <div class="bg-secondary rounded px-2 w-100">
+                <div class="d-flex flex-row mt-2">
+                    <p class="text-primary" style="font-size: 18px;">Disk Usage</p>
+                    <i class="fas fa-hdd ms-auto p-2"></i>
                 </div>
-                <div class="col-sm-12 col-lg-4">
-                    <div class="bg-secondary rounded p-2 mt-2">
-                        <div class="row">
-                            <div class="col-sm-6 text-primary">Network I/O</div>
-                            <div class="col-sm-6"><?= byteConversion($network) ?></div>
-                        </div>
-                    </div>
+                <p style="font-size: 20px;"><?= byteConversion($size) ?></p>
+            </div>
+            <div class="bg-secondary rounded px-2 w-100">
+                <div class="d-flex flex-row mt-2">
+                    <p class="text-primary" style="font-size: 18px;">Network I/O</p>
+                    <i class="fas fa-wifi ms-auto p-2"></i>
                 </div>
-                <div class="col-sm-12 col-lg-4">
-                    <div class="bg-secondary rounded p-2 mt-2">
-                        <div class="row">
-                            <div class="col-sm-6 col-lg-2 text-primary">CPU</div>
-                            <div class="col-sm-6 col-lg-4 text-center"><span title="Docker reported CPU"><?= $cpu ?>%</span><?= $cpuActual ? ' <span title="Calculated CPU">(' . $cpuActual . '%)</span>' : '' ?></div>
-                            <div class="col-sm-6 col-lg-2 text-primary">Memory</div>
-                            <div class="col-sm-6 col-lg-4 text-center"><?= $memory ?>%</div>
-                        </div>
-                    </div>
+                <p style="font-size: 20px;"><?= byteConversion($network) ?></p>
+            </div>
+            <div class="bg-secondary rounded px-2 w-100">
+                <div class="d-flex flex-row mt-2">
+                    <p class="text-primary" style="font-size: 18px;">CPU Usage</p>
+                    <i class="fas fa-microchip ms-auto p-2"></i>
                 </div>
-                <div class="col-sm-12 col-lg-6">
-                    <div class="bg-secondary rounded p-2 mt-2" style="cursor:pointer;" onclick="initPage('networks')">
-                        <div class="table-responsive-sm" style="max-height:50vh; overflow:auto;">
-                            <table class="table table-sm table-hover">
-                                <thead>
-                                    <tr>
-                                        <th class="w-50">Network</th>
-                                        <th>Containers</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($networks as $networkName => $networkCount) { ?>
-                                    <tr>
-                                        <td><?= $networkName ?></td>
-                                        <td><?= $networkCount?></td>
-                                    </tr>
-                                    <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <p style="font-size: 20px;"><span title="Docker reported CPU"><?= $cpu ?>%</span><?= $cpuActual ? ' <span title="Calculated CPU">(' . $cpuActual . '%)</span>' : '' ?></p>
+            </div>
+            <div class="bg-secondary rounded px-2 w-100">
+                <div class="d-flex flex-row mt-2">
+                    <p class="text-primary" style="font-size: 18px;">Memory Usage</p>
+                    <i class="fas fa-memory ms-auto p-2"></i>
                 </div>
-                <div class="col-sm-12 col-lg-6">
-                    <div class="bg-secondary rounded p-2 mt-2">
-                        <div class="table-responsive-sm" style="max-height:50vh; overflow:auto;">
-                            <table class="table table-sm table-hover">
-                                <thead>
-                                    <tr>
-                                        <th class="w-50">Container</th>
-                                        <th>Port</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    if ($ports) {
-                                        foreach ($ports as $container => $containerPorts) {
-                                            foreach ($containerPorts as $containerPort) {
-                                                $portArray[$containerPort] = $container;
-                                            }
-                                        }
-                                        ksort($portArray);
-                                        $portArray = formatPortRanges($portArray);
-                                        
-                                        if ($portArray) {
-                                            foreach ($portArray as $port => $container) {
-                                                ?>
-                                                <tr>
-                                                    <td><?= $container ?></td>
-                                                    <td><?= $port?></td>
-                                                </tr>
-                                                <?php  
-                                            }
-                                        }
-                                    }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <p style="font-size: 20px;"><?= $memory ?>%</p>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-sm-12 col-lg-6">
+            <div class="bg-secondary rounded p-2 mt-2" style="cursor:pointer;" onclick="initPage('networks')">
+                <div class="table-responsive-sm" style="max-height:50vh; overflow:auto;">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th class="w-50">Network</th>
+                                <th>Containers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($networks as $networkName => $networkCount) { ?>
+                            <tr>
+                                <td><?= $networkName ?></td>
+                                <td><?= $networkCount?></td>
+                            </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
         <div class="col-sm-12 col-lg-6">
-            <div id="chart-cpu-container" class="bg-secondary rounded p-2 mt-2"></div>
+            <div class="bg-secondary rounded p-2 mt-2">
+                <div class="table-responsive-sm" style="max-height:50vh; overflow:auto;">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th class="w-50">Container</th>
+                                <th>Port</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            if ($ports) {
+                                foreach ($ports as $container => $containerPorts) {
+                                    foreach ($containerPorts as $containerPort) {
+                                        $portArray[$containerPort] = $container;
+                                    }
+                                }
+                                ksort($portArray);
+                                $portArray = formatPortRanges($portArray);
+
+                                if ($portArray) {
+                                    foreach ($portArray as $port => $container) {
+                                        ?>
+                                        <tr>
+                                            <td><?= $container ?></td>
+                                            <td><?= $port?></td>
+                                        </tr>
+                                        <?php
+                                    }
+                                }
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="col-sm-12 col-lg-6">
-            <div id="chart-memoryPercent-container" class="bg-secondary rounded p-2 mt-2"></div>
+    </div>
+    <div class="row mt-2 mb-3">
+        <div class="d-flex flex-wrap flex-lg-nowrap gap-3" style="justify-content: center;">
+            <div class="bg-secondary rounded px-2 w-25">
+                <div id="chart-cpu-container" class="bg-secondary rounded"></div>
+            </div>
+            <div class="bg-secondary rounded px-2 w-25">
+                <div id="chart-memoryPercent-container" class="bg-secondary rounded"></div>
+            </div>
+            <div class="bg-secondary rounded px-2 w-25 h-2">
+                <div id="chart-memorySize-container" class="bg-secondary rounded"></div>
+            </div>
         </div>
-        <div class="col-sm-12 col-lg-6"></div>
-        <div class="col-sm-12 col-lg-6">
-            <div id="chart-memorySize-container" class="bg-secondary rounded p-2 mt-2"></div>
-        </div>
+    </div>
     </div>
     <?php
     }
