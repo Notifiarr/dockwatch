@@ -35,7 +35,7 @@ if ($containersTable) {
         if ($containerSettings['autoRestart'] && $containerState) {
             try {
                 $cron = Cron\CronExpression::factory($containerSettings['autoRestartFrequency']);
-                if (!$cron->isDue($startStamp)) {
+                if ($cron->isDue($startStamp)) {
                     $msg = 'Auto Restarting: ' . $containerState['Names'];
                     logger(CRON_PULLS_LOG, $msg);
                     echo date('c') . ' ' . $msg . "\n";
