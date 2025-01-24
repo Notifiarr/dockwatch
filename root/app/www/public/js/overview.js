@@ -50,7 +50,7 @@ function drawPieChart(type)
             },
             legend: {
                 display: true,
-                position: data.labels.length < 10 ? 'bottom' : 'left'
+                position: 'bottom'
             },
             title: {
                 display: true,
