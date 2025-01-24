@@ -88,6 +88,12 @@ function frequencyCronEditor(frequency, hash, name)
                 return;
             }
 
+            if (hash == "autoRestart") {
+                $(`#autoRestartFrequency`).val(expression);
+                $(`#autoRestartFrequency`).change();
+                return;
+            }
+
             $(`#container-frequency-${hash}`).val(expression);
         },
     });

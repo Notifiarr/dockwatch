@@ -352,6 +352,24 @@ if ($_POST['m'] == 'containerInfo') {
             <td><input onchange="updateContainerOption('shutdownDelaySeconds', '<?= $_POST['hash'] ?>', -1)" type="number" class="form-control w-50 d-inline-block" id="shutdownDelaySeconds" value="<?= $containerSettings['shutdownDelaySeconds'] <= 5 ? 5 : $containerSettings['shutdownDelaySeconds'] ?>"> seconds</td>
         </tr>
         <tr>
+            <td>Auto restart</td>
+            <td>
+                <div class="btn-group btn-group-sm" role="group">
+                    <input <?= $skipActions == SKIP_FORCE ? 'checked disabled' : '' ?> onclick="updateContainerOption('autoRestart', '<?= $_POST['hash'] ?>', 1)" type="radio" class="btn-check" name="autoRestartGroup" id="autoRestart-yes" autocomplete="off" <?= $containerSettings['autoRestart'] ? 'checked' : '' ?>>
+                    <label class="btn btn-outline-light" for="autoRestart-yes">Yes</label>
+
+                    <input <?= $skipActions == SKIP_FORCE ? 'disabled' : '' ?> onclick="updateContainerOption('autoRestart', '<?= $_POST['hash'] ?>', 0)" type="radio" class="btn-check" name="autoRestartGroup" id="autoRestart-no" autocomplete="off" <?= !$containerSettings['autoRestart'] ? 'checked' : '' ?>>
+                    <label class="btn btn-outline-light" for="autoRestart-no">No</label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Auto restart frequency</td>
+            <td>
+                <input type="text" class="form-control d-inline-block w-75" id="autoRestartFrequency" onchange="updateContainerOption('autoRestartFrequency', '<?= $_POST['hash'] ?>', -1)" onclick="frequencyCronEditor(this.value, 'autoRestart', 'autoRestart')" value="<?= $containerSettings['autoRestartFrequency'] ?? $settingsTable['updatesFrequency'] ?>" readonly> <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
+            </td>
+        </tr>
+        <tr>
             <td>Blacklist<br>No state changes</td>
             <td>
                 <div class="btn-group btn-group-sm" role="group">

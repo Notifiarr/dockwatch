@@ -29,13 +29,39 @@ if ($containersTable) {
 
     foreach ($containersTable as $containerSettings) {
         $containerHash = $containerSettings['hash'];
+        $containerState = $docker->findContainer(['hash' => $containerHash, 'data' => $stateFile]);
+
+        //-- AUTO RESTART IF ENABLED
+        if ($containerSettings['autoRestart'] && $containerState) {
+            try {
+                $cron = Cron\CronExpression::factory($containerSettings['autoRestartFrequency']);
+                if (!$cron->isDue($startStamp)) {
+                    $msg = 'Auto Restarting: ' . $containerState['Names'];
+                    logger(CRON_PULLS_LOG, $msg);
+                    echo date('c') . ' ' . $msg . "\n";
+
+                    $apiRequest = apiRequest('docker-restartContainer', [], ['name' => $containerState['Names'], 'dependencies' => 1]);
+
+                    $msg = 'Auto Restart: ' . json_encode($apiRequest);
+                    logger(CRON_PULLS_LOG, $msg);
+                    echo date('c') . ' ' . $msg . "\n";
+
+                    $msg = 'Auto Restarted: ' . $containerState['Names'];
+                    logger(CRON_PULLS_LOG, $msg);
+                    echo date('c') . ' ' . $msg . "\n";
+                }
+            } catch (Exception $e) {
+                $msg = 'Skipping Auto Restart: ' . $containerState['Names'] . ' frequency setting is not a valid cron syntax \'' . $containerSettings['autoRestartFrequency'] . '\'';
+                logger(CRON_PULLS_LOG, $msg);
+                echo date('c') . ' ' . $msg . "\n";
+            }
+        }
 
         //-- SET TO IGNORE
         if (!$containerSettings['updates']) {
             continue;
         }
 
-        $containerState = $docker->findContainer(['hash' => $containerHash, 'data' => $stateFile]);
         $preVersion = $postVersion = $cron = '';
         if ($containerState) {
             $isDockwatch = isDockwatchContainer($containerState) ? true : false;
