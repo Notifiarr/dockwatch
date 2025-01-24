@@ -117,6 +117,10 @@ function apiRequestRemote($endpoint, $parameters = [], $payload = [])
     $result['result']   = $curl['response']['response']['result'];
     $result['error']    = $curl['response']['error'];
 
+    if ($endpoint == 'stats/overview' || $endpoint == 'stats/containers') {
+        $result['result']['result'] = $curl['response']['response'];
+    }
+
     return $result;
 }
 
@@ -488,7 +492,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
 
                     if ($dependencies) {
                         $return[] = 'restarting dependenices...';
-            
+
                         foreach ($dependencies as $dependency) {
                             $stopContainer = $docker->stopContainer($dependency);
                             $return[] = 'docker-stopContainer: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
@@ -515,7 +519,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
 
                     if ($dependencies) {
                         $return[] = 'starting dependenices...';
-            
+
                         foreach ($dependencies as $dependency) {
                             $startContainer = $docker->startContainer($dependency);
                             $return[] = 'docker-startContainer: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
@@ -540,7 +544,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
 
                     if ($dependencies) {
                         $return[] = 'stopping dependenices...';
-            
+
                         foreach ($dependencies as $dependency) {
                             $stopContainer = $docker->stopContainer($dependency);
                             $return[] = 'docker-stopContainer: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);

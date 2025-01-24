@@ -4,7 +4,7 @@ function drawOverview()
     drawLineChart('cpu');
     $('#chart-memoryPercent-container').html('<canvas id="chart-memoryPercent" class="bg-secondary"><i class="fas fa-chart-line fa-spin fa-lg"></i> Loading graph...</canvas>');
     drawLineChart('memoryPercent');
-    $('#chart-memorySize-container').html('<center><canvas id="chart-memorySize" class="bg-secondary"><i class="fas fa-chart-line fa-spin fa-lg"></i> Loading graph...</canvas></center>');
+    $('#chart-memorySize-container').html('<center><canvas id="chart-memorySize" class="bg-secondary p-2"><i class="fas fa-chart-line fa-spin fa-lg"></i> Loading graph...</canvas></center>');
     drawPieChart('memorySize');
 }
 // -------------------------------------------------------------------------------------------
@@ -50,7 +50,8 @@ function drawPieChart(type)
             },
             legend: {
                 display: true,
-                position: 'bottom'
+                position: data.labels.length < 10 ? 'bottom' : 'left',
+                fullSize: false
             },
             title: {
                 display: true,
