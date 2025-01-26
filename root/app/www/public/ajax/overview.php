@@ -360,9 +360,14 @@ if ($_POST['m'] == 'init') {
                 <div id="chart-memoryPercent-container" class="bg-secondary rounded p-2"></div>
             </div>
         </div>
-        <div class="col-lg-12 mt-2">
-            <div class="bg-secondary rounded px-2 w-100 h-2">
-                <div id="chart-memorySize-container" class="bg-secondary rounded"></div>
+        <div class="col-lg-6"></div>
+        <div class="col-lg-6 mt-2">
+            <div class="bg-secondary rounded px-2 w-100 h-2 d-flex flex-column" style="justify-content: center;">
+                <div class="text-center text-primary mt-2">Memory Usage - MiB</div>
+                <div class="d-flex flex-lg-row gap-lg-3 flex-column mt-2 mt-lg-0" style="justify-content: center;">
+                    <div id="chart-memorySizeLegend-container" class="bg-secondary rounded px-4" style="place-self: anchor-center; height:auto; max-height:25vh; overflow:auto;"></div>
+                    <div id="chart-memorySize-container" class="bg-secondary rounded"></div>
+                </div>
             </div>
         </div>
     </div>
