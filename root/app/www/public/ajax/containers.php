@@ -398,7 +398,7 @@ if ($_POST['m'] == 'containerInfo') {
         </tr>
         <tr>
             <td>Network</td>
-            <td><?= $process['Networks'] ?></td>
+            <td><?= empty($process['Networks']) ? 'container:' . explode(':', $process['inspect'][0]['Config']['Labels']['com.docker.compose.depends_on'])[0] : $process['Networks'] ?></td>
         </tr>
         <?php if ($networkDependencies || $labelDependencies) { ?>
             <tr>

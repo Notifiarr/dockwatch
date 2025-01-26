@@ -105,7 +105,6 @@ function drawLineChart(type)
         responsive: true,
         maintainAspectRatio: false,
         aspectRatio: typeLabels.length > 10 ? true : false,
-        responsive: true,
         indexAxis: 'y',
         scales: {
             y: {

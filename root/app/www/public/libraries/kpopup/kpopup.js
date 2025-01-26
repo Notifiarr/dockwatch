@@ -6,7 +6,7 @@ var popup = function (dom, options) {
     var $popupContentEl = $(dom).find('.loa-popup-content');
 
     var popupMaskCss = 'position: fixed;top: 0;left: 0;right: 0;bottom: 0;background: rgb(0, 0, 0); opacity: 0.1;z-index: 1001;display: none;';
-    var popupContentCss = 'position: fixed;z-index: 99999;;overflow: hidden;box-shadow: 1px 1px 50px rgba(0,0,0,.3);';
+    var popupContentCss = 'position: fixed;z-index: 99999;;overflow: auto;box-shadow: 1px 1px 50px rgba(0,0,0,.3);';
     var popupContentHideCss = 'position: fixed;z-index: 99999;;overflow: hidden;';
 
     $popupMaskEl.attr('style', popupMaskCss);
@@ -91,7 +91,7 @@ var popup = function (dom, options) {
         rightCss = '';
         return this;
     };
-    
+
     function synthesisStyle() {
         return popupContentCss + topCss + rightCss + bottomCss + leftCss + 'width:' + width + ';' + 'height:' + height;
     }
@@ -111,7 +111,7 @@ var popup = function (dom, options) {
 
         });
     }
-    
+
     function renderContent() {
         var type = $.type(content);
         if (type === 'object') {

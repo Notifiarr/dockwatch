@@ -378,3 +378,19 @@ pre {
     opacity: 1;
     cursor: pointer;
 }
+
+/* Scrollbar */
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3) !important;
+    background-color: var(--dark) !important;
+}
+
+::-webkit-scrollbar {
+    width: 4px !important;
+    background-color: var(--secondary) !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--primary) !important;
+    border-radius: 12px !important;
+}
