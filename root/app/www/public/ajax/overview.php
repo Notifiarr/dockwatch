@@ -256,7 +256,7 @@ if ($_POST['m'] == 'init') {
         </div>
     </div>
     <div class="row mt-2">
-        <div class="d-flex flex-wrap flex-lg-nowrap gap-3" style="justify-content: center;">
+        <div class="d-flex flex-wrap flex-lg-nowrap gap-sm-2 gap-lg-4" style="justify-content: center;">
             <div class="bg-secondary rounded px-2 w-100">
                 <div class="d-flex flex-row mt-2">
                     <p class="text-primary" style="font-size: 18px;">Disk Usage</p>
@@ -289,7 +289,7 @@ if ($_POST['m'] == 'init') {
     </div>
     <div class="row mt-2">
         <div class="col-sm-12 col-lg-6">
-            <div class="bg-secondary rounded p-2 mt-2" style="cursor:pointer;" onclick="initPage('networks')">
+            <div class="bg-secondary rounded p-2" style="cursor:pointer;" onclick="initPage('networks')">
                 <div class="table-responsive-sm" style="height:25vh; max-height:25vh; overflow:auto;">
                     <table class="table table-sm table-hover">
                         <thead>
@@ -310,8 +310,8 @@ if ($_POST['m'] == 'init') {
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-lg-6">
-            <div class="bg-secondary rounded p-2 mt-2">
+        <div class="col-sm-12 col-lg-6 mt-sm-2 mt-lg-0">
+            <div class="bg-secondary rounded p-2">
                 <div class="table-responsive-sm" style="height:25vh; max-height:25vh; overflow:auto;">
                     <table class="table table-sm table-hover">
                         <thead>
@@ -350,14 +350,18 @@ if ($_POST['m'] == 'init') {
         </div>
     </div>
     <div class="row mt-2 mb-3">
-        <div class="d-flex flex-wrap flex-lg-nowrap gap-3" style="justify-content: center;">
-            <div class="bg-secondary rounded px-2 w-25">
+        <div class="col-lg-6" style="justify-content: center;">
+            <div class="bg-secondary rounded px-2 w-100">
                 <div id="chart-cpu-container" class="bg-secondary rounded p-2"></div>
             </div>
-            <div class="bg-secondary rounded px-2 w-25">
+        </div>
+        <div class="col-lg-6">
+            <div class="bg-secondary rounded px-2 w-100">
                 <div id="chart-memoryPercent-container" class="bg-secondary rounded p-2"></div>
             </div>
-            <div class="bg-secondary rounded px-2 w-50 h-2">
+        </div>
+        <div class="col-lg-6 mt-2">
+            <div class="bg-secondary rounded px-2 w-100 h-2">
                 <div id="chart-memorySize-container" class="bg-secondary rounded"></div>
             </div>
         </div>
