@@ -39,7 +39,7 @@ function drawPieChart(type)
 
     let options = {
         responsive: true,
-        maintainAspectRatio: false,
+        maintainAspectRatio: true,
         plugins: {
             datalabels: {
                 display: data.labels.length < 10 ? true : false,
