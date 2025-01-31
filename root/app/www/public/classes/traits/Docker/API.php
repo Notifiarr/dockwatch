@@ -19,18 +19,18 @@ trait DockersApi
     {
         if ($_SERVER['DOCKER_HOST']) { //-- IF A DOCKER HOST IS PROVIDED, DONT EVEN TRY TO USE THE SOCK
             $curl = curl($_SERVER['DOCKER_HOST']);
-    
+
             if ($curl['code'] == 403) {
                 return true;
             }
-    
+
             return false;
         }
 
         if (file_exists('/var/run/docker.sock')) {
             return true;
         }
-    
+
         return false;
     }
 
@@ -39,7 +39,7 @@ trait DockersApi
         $cmd    = sprintf(DockerSock::VERSION, '| grep "API"');
         $shell  = $this->shell->exec($cmd . ' 2>&1');
         preg_match_all("/([0-9]\.[0-9]{1,3})/", $shell, $matches);
-    
+
         return $matches[0][1];
     }
 
@@ -49,22 +49,22 @@ trait DockersApi
         $endpoint   = $request['endpoint'];
         $container  = $request['container'];
         $debug      = $request['debug'];
-    
+
         //-- WRITE THE PAYLOAD TO A FILE
         $filename = $container . '_' . time() . '.json';
         file_put_contents(TMP_PATH . $filename, json_encode($payload, JSON_UNESCAPED_SLASHES));
-    
+
         //-- BUILD THE CURL CALL
         $headers    = '-H "Content-Type: application/json"';
         $cmd        = 'curl --silent ' . (strtolower($method) == 'post' ? '-X POST' : '');
-    
+
         if ($_SERVER['DOCKER_HOST']) {
             $cmd        .= ' ' . $_SERVER['DOCKER_HOST'] . $endpoint;
         } else {
             $version    = $this->apiVersion();
             $cmd        .= ' --unix-socket /var/run/docker.sock http://v'. $version . $endpoint;
         }
-    
+
         if ($headers) {
             $cmd .= ' ' . $headers;
         }
@@ -72,21 +72,21 @@ trait DockersApi
             $cmd .= ' -d @' . TMP_PATH . $filename;
         }
         $shell = $this->shell->exec($cmd . ' 2>&1');
-    
+
         if (!$shell) {
             $shell = ['result' => 'failed', 'cmd' => $cmd, 'shell' => $shell];
         } else {
             $shell = json_decode($shell, true);
-    
+
             if (!is_array($shell)) {
                 $shell = ['result' => 'failed', 'cmd' => $cmd, 'shell' => $shell];
             } else {
                 $shell['cmd'] = $cmd;
             }
         }
-    
+
         $shell['debug'] = $debug;
-    
+
         return $shell;
     }
 
@@ -96,7 +96,7 @@ trait DockersApi
         /*
             Only added as a simple way to test it.
             $docker->apiStopContainer('container');
-            $apiResponse if it works: 
+            $apiResponse if it works:
                 Array
                 (
                     [message] => No such container: container
@@ -160,6 +160,9 @@ trait DockersApi
                 if (empty($payload['NetworkingConfig']['EndpointsConfig'][$endpoint]['IPAMConfig'])) {
                     $payload['NetworkingConfig']['EndpointsConfig'][$endpoint]['IPAMConfig'] = new StdClass();
                 }
+
+                //-- SPECIFIC TO NETWORK AND STORAGE VOLUMES, DOCKER WILL ERROR/IGNORE IF THIS IS PASSED TO A CONTAINER
+                $payload['NetworkingConfig']['EndpointsConfig'][$endpoint]['DriverOpts'] = new StdClass();
             }
         }
 
@@ -198,7 +201,7 @@ trait DockersApi
 
             //-- MAKE SURE THE ID IS UPDATED
             $dependencyFile = makeArray(apiRequest('file-dependency')['result']);
-    
+
             foreach ($dependencyFile as $parent => $parentSettings) {
                 if (in_array($containerName, $parentSettings['containers'])) {
                     $payload['HostConfig']['NetworkMode'] = 'container:' . $parentSettings['id'];
@@ -235,9 +238,9 @@ trait DockersApi
         }
 
         return [
-                'container' => $containerName, 
-                'endpoint'  => sprintf(DockerApi::CREATE_CONTAINER, $this->shell->prepare($containerName)), 
-                'payload'   => $payload, 
+                'container' => $containerName,
+                'endpoint'  => sprintf(DockerApi::CREATE_CONTAINER, $this->shell->prepare($containerName)),
+                'payload'   => $payload,
                 'debug'     => ['dependencyFile' => $dependencyFile]
             ];
     }
