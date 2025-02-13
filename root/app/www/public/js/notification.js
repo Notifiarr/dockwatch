@@ -34,14 +34,14 @@ function saveNotification(platformId, linkId)
         return;
     }
 
-    loadingStart();
+    pageLoadingStart();
     $.ajax({
         type: 'POST',
         url: '../ajax/notification.php',
         data: '&m=saveNotification&platformId=' + platformId + '&linkId=' + linkId + params,
         dataType: 'json',
         success: function (resultData) {
-            loadingStop();
+            pageLoadingStop();
             if (resultData.error) {
                 toast('Notifications', resultData.error, 'error');
                 return;
@@ -91,14 +91,14 @@ function addNotification(platformId)
         return;
     }
 
-    loadingStart();
+    pageLoadingStart();
     $.ajax({
         type: 'POST',
         url: '../ajax/notification.php',
         data: '&m=addNotification&platformId=' + platformId + params,
         dataType: 'json',
         success: function (resultData) {
-            loadingStop();
+            pageLoadingStop();
             if (resultData.error) {
                 toast('Notifications', resultData.error, 'error');
                 return;
@@ -115,13 +115,13 @@ function addNotification(platformId)
 function deleteNotification(linkId)
 {
     if (confirm('Are you sure you want to delete this notification?')) {
-        loadingStart();
+        pageLoadingStart();
         $.ajax({
             type: 'POST',
             url: '../ajax/notification.php',
             data: '&m=deleteNotification&linkId=' + linkId,
             success: function (resultData) {
-                loadingStop();
+                pageLoadingStop();
 
                 dialogClose('openNotificationTriggers');
                 toast('Notifications', 'Notification changes have been saved', 'success');
@@ -150,7 +150,7 @@ function openNotificationTriggers(platformId, linkId = 0)
 // ---------------------------------------------------------------------------------------------
 function testNotify(linkId, name)
 {
-    loadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -163,7 +163,7 @@ function testNotify(linkId, name)
             } else {
                 toast('Notifications', resultData.result, 'success');
             }
-            loadingStop();
+            pageLoadingStop();
         }
     });
 }

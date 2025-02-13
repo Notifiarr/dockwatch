@@ -1,6 +1,6 @@
 function viewLog(name, hash)
 {
-    loadingStart();
+    pageLoadingStart();
 
     $('[id^=logList-]').removeClass('*').addClass('text-info');
     $('#logList-' + hash).removeClass('text-info').addClass('text-success');
@@ -12,7 +12,7 @@ function viewLog(name, hash)
         data: '&m=viewLog&name=' + name,
         dataType: 'json',
         success: function (resultData) {
-            loadingStop();
+            pageLoadingStop();
 
             if (resultData.error) {
                 $('#logHeader').html('');
@@ -28,7 +28,7 @@ function viewLog(name, hash)
 // ---------------------------------------------------------------------------------------------
 function purgeLogs(group)
 {
-    loadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -36,7 +36,7 @@ function purgeLogs(group)
         data: '&m=purgeLogs&group=' + group,
         success: function (resultData) {
             initPage('logs');
-            loadingStop();
+            pageLoadingStop();
         }
     });
 
@@ -44,7 +44,7 @@ function purgeLogs(group)
 // ---------------------------------------------------------------------------------------------
 function deleteLog(log)
 {
-    loadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -52,7 +52,7 @@ function deleteLog(log)
         data: '&m=deleteLog&log=' + log,
         success: function (resultData) {
             initPage('logs');
-            loadingStop();
+            pageLoadingStop();
         }
     });
 

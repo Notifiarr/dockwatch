@@ -1,6 +1,6 @@
 function saveGlobalSettings()
 {
-    loadingStart();
+    pageLoadingStart();
 
     let params = '';
     $.each($('[id^=globalSetting-]'), function () {
@@ -27,7 +27,7 @@ function saveGlobalSettings()
                 initPage('settings');
             }
 
-            loadingStop();
+            pageLoadingStop();
         }
     });
 

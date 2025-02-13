@@ -142,7 +142,7 @@ function updateContainerRowText(hash, data)
 // ---------------------------------------------------------------------------------------------
 function controlContainer(containerHash, action)
 {
-    loadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -151,7 +151,7 @@ function controlContainer(containerHash, action)
         dataType: 'json',
         success: function (resultData) {
             updateContainerRowText(containerHash, resultData);
-            loadingStop();
+            pageLoadingStop();
             toast('Containers', 'Request processed: ' + action, 'success');
         }
     });
@@ -384,13 +384,13 @@ function saveContainerGroup()
         return;
     }
 
-    loadingStart();
+    pageLoadingStart();
     $.ajax({
         type: 'POST',
         url: '../ajax/containers.php',
         data: '&m=saveContainerGroup&groupId=' + $('#groupSelection').val() + '&name=' + $('#groupName').val() + '&delete=' + ($('#groupDelete').prop('checked') ? 1 : 0) + params,
         success: function (resultData) {
-            loadingStop();
+            pageLoadingStop();
 
             if (resultData) {
                 toast('Group Management', 'Error saving group: ' + resultData, 'error');
@@ -417,21 +417,21 @@ function openUpdateOptions()
     $('#updateOptions-modal').hide();
     $('#updateOptions-modal').modal('show');
 
-    loadingStart();
+    pageLoadingStart();
     $.ajax({
         type: 'POST',
         url: '../ajax/containers.php',
-        data: '&m=updateOptions',
+        data: '&m=openUpdateOptions',
         success: function (resultData) {
             $('#updateOptions-containers').html(resultData);
-            loadingStop();
+            pageLoadingStop();
         }
     });
 }
 // ---------------------------------------------------------------------------------------------
 function saveUpdateOptions()
 {
-    loadingStart();
+    pageLoadingStart();
 
     let params = '';
     $.each($('[id^=container-]'), function () {
@@ -450,7 +450,7 @@ function saveUpdateOptions()
         url: '../ajax/containers.php',
         data: '&m=saveUpdateOptions' + params,
         success: function (resultData) {
-            loadingStop();
+            pageLoadingStop();
             toast('Update options', 'Update settings saved', 'success');
         }
     });
@@ -512,7 +512,7 @@ function hideContainerPorts(containerHash)
 // ---------------------------------------------------------------------------------------------
 function containerLogs(container)
 {
-    pageLoadingStart();
+    pagepageLoadingStart();
     $.ajax({
         type: 'POST',
         url: '../ajax/containers.php',
@@ -524,7 +524,7 @@ function containerLogs(container)
                 size: 'xl',
                 body: resultData,
                 onOpen: function () {
-                    pageLoadingStop();
+                    pagepageLoadingStop();
                 }
             });
         }
@@ -594,7 +594,7 @@ function massChangeMinAge(option)
 // ---------------------------------------------------------------------------------------------
 function containerInfo(hash)
 {
-    pageLoadingStart();
+    pagepageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -607,7 +607,7 @@ function containerInfo(hash)
                 classes: 'bg-secondary p-2',
             }).popupLeft();
 
-            pageLoadingStop();
+            pagepageLoadingStop();
         }
     });
 }

@@ -1,6 +1,6 @@
 function runTask(task)
 {
-    loadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -14,7 +14,7 @@ function runTask(task)
                 toast('Tasks', 'Task request sent to server ' + resultData.server, 'success');
                 $('#taskViewer').html(resultData.result);
             }
-            loadingStop();
+            pageLoadingStop();
         }
     });
 
@@ -22,7 +22,7 @@ function runTask(task)
 // ---------------------------------------------------------------------------------------------
 function updateTaskDisabled(task, state)
 {
-    loadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -35,7 +35,7 @@ function updateTaskDisabled(task, state)
             } else {
                 toast('Tasks', 'Task disabled state updated on server ' + resultData.server, 'success');
             }
-            loadingStop();
+            pageLoadingStop();
         }
     });
 }

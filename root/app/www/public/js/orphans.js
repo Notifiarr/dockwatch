@@ -6,7 +6,7 @@ function removeOrphans()
 
     $('.orphan-checkall').prop('checked', false);
 
-    loadingStart();
+    pageLoadingStart();
 
     let action = '';
     if ($('#massOrphanTrigger').val() == '1') {
@@ -42,7 +42,7 @@ function removeOrphans()
         if (o == selectedOrphans.length) {
             $('#massOrphanTrigger').val('0');
             $('.orphans').prop('checked', false);
-            loadingStop();
+            pageLoadingStop();
             return;
         }
 

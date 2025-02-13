@@ -1,6 +1,6 @@
 function serverListToggle()
 {
-    pageLoadingStart();
+    pagepageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -13,7 +13,7 @@ function serverListToggle()
                 classes: 'bg-secondary p-2'
             }).popupLeft();
 
-            pageLoadingStop();
+            pagepageLoadingStop();
         }
     });
 }

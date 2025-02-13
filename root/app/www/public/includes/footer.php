@@ -86,7 +86,7 @@
             <div class="modal-dialog" style="max-width: 1000px">
                 <div class="modal-content bg-dark" style="border: grey solid 1px;">
                     <div class="modal-header" style="border: grey solid 1px;">
-                        <h5 class="modal-title text-primary">Group Management</h5>
+                        <h5 class="modal-title text-info">Group Management</h5>
                     </div>
                     <div class="modal-body" style="border: grey solid 1px;">
                         <div id="containerGroup-containers" style="max-height: 600px; overflow: auto;"></div>
@@ -104,7 +104,7 @@
             <div class="modal-dialog" style="max-width: 1000px">
                 <div class="modal-content bg-dark" style="border: grey solid 1px;">
                     <div class="modal-header" style="border: grey solid 1px;">
-                        <h5 class="modal-title text-primary">Container update options</h5>
+                        <h5 class="modal-title text-info">Container update options</h5>
                     </div>
                     <div class="modal-body" style="border: grey solid 1px;">
                         <div id="updateOptions-containers" style="max-height: 600px; overflow: auto;"></div>

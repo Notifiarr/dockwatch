@@ -178,7 +178,7 @@ function initPage(page)
                             $('.container-group-row').show();
                         });
 
-                        $('.dt-buttons').prepend($('#check-all-btn')).append($('#group-restore-btn'));
+                        $('.dt-buttons').prepend($('#check-all-btn')).append($('#group-restore-btn')).append($('#container-groups-btn')).append($('#container-updates-btn'));
 
                         $('.dataTables_filter').addClass('dt-buttons');
 
@@ -208,7 +208,7 @@ function login()
         return;
     }
 
-    loadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -222,7 +222,7 @@ function login()
 
             if (resultData.error) {
                 toast('Login', 'Error: ' + resultData.error, 'error');
-                loadingStop();
+                pageLoadingStop();
                 return;
             }
 
@@ -233,7 +233,7 @@ function login()
 // ---------------------------------------------------------------------------------------------
 function logout()
 {
-    loadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -280,29 +280,6 @@ function toast(title, message, type)
     setTimeout(function () {
         $('#toast-' + uniqueId).remove();
     }, 10000);
-
-}
-// -------------------------------------------------------------------------------------------
-function loadingStart()
-{
-    if ($('#loading-modal .btn-close').is(':visible')) {
-        loadingStop();
-    }
-
-    $('#loading-modal .btn-close').hide();
-    $('#loading-modal').modal('show');
-
-    $('#loading-modal .modal-header').dblclick(function () {
-        $('#loading-modal .btn-close').show();
-    });
-
-}
-// -------------------------------------------------------------------------------------------
-function loadingStop()
-{
-    setTimeout(function () {
-        $('#loading-modal').modal('hide');
-    }, 100);
 
 }
 // -------------------------------------------------------------------------------------------

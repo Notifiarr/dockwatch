@@ -171,6 +171,8 @@ if ($_POST['m'] == 'init') {
                                     <div style="float:right;">
                                         <button id="check-all-btn" class="no-mobile dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
                                         <button id="group-restore-btn" style="display:none;" class="dt-button buttons-collection" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
+                                        <button id="container-groups-btn" class="no-mobile dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openContainerGroups()">Groups</button>
+                                        <button id="container-updates-btn" class="no-mobile dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openUpdateOptions()">Updates</button>
                                     </div>
                                 </td>
                             </tr>
@@ -765,10 +767,10 @@ if ($_POST['m'] == 'openContainerGroups') {
     ?>
     <div class="bg-secondary rounded h-100 p-4">
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-sm">
                 <tr>
-                    <td>Group</td>
-                    <td>
+                    <td class="bg-secondary">Group</td>
+                    <td class="bg-secondary">
                         <select class="form-select" id="groupSelection" onchange="loadContainerGroup()">
                             <option value="0">New Group</option>
                             <?php
@@ -780,16 +782,16 @@ if ($_POST['m'] == 'openContainerGroups') {
                             ?>
                         </select>
                     </td>
-                    <td>Name: <input id="groupName" type="text" class="form-control w-75 d-inline-block" placeholder="Group Name Here"></td>
-                    <td style="display: none;" id="deleteGroupContainer">Delete: <input id="groupDelete" type="checkbox" class="form-check-input"></td>
+                    <td class="bg-secondary">Name: <input id="groupName" type="text" class="form-control w-75 d-inline-block" placeholder="Group Name Here"></td>
+                    <td class="bg-secondary" style="display: none;" id="deleteGroupContainer">Delete: <input id="groupDelete" type="checkbox" class="form-check-input"></td>
                 </tr>
             </table>
-            <table class="table">
+            <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.group-check').prop('checked', $(this).prop('checked'));"></th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Existing Group</th>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input" onclick="$('.group-check').prop('checked', $(this).prop('checked'));"></th>
+                        <th class="bg-primary ps-3" scope="col">Name</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col">Existing Group</th>
                     </tr>
                 </thead>
                 <tbody id="containerGroupRows">
@@ -812,10 +814,10 @@ if ($_POST['m'] == 'openContainerGroups') {
                         }
                     }
                     ?>
-                    <tr>
-                        <th scope="row"><?= $inGroup ? '' : '<input id="groupContainer-' . $container['id'] . '" type="checkbox" class="form-check-input group-check">' ?></th>
-                        <td><?= $process['Names'] ?></td>
-                        <td><?= $inGroup ?: '<span class="text-warning">Not assigned</span>' ?></td>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row"><?= $inGroup ? '' : '<input id="groupContainer-' . $container['id'] . '" type="checkbox" class="form-check-input group-check">' ?></td>
+                        <td class="bg-secondary"><?= $process['Names'] ?></td>
+                        <td class="bg-secondary"><?= $inGroup ?: '<span class="text-warning">Not assigned</span>' ?></td>
                     </tr>
                     <?php
                 }
@@ -945,7 +947,7 @@ if ($_POST['m'] == 'saveContainerGroup') {
     echo $error;
 }
 
-if ($_POST['m'] == 'updateOptions') {
+if ($_POST['m'] == 'openUpdateOptions') {
     $containersTable    = apiRequest('database-getContainers')['result'];
     $processList        = apiRequest('docker-processList', ['format' => true]);
     $processList        = json_decode($processList['result'], true);
@@ -954,14 +956,14 @@ if ($_POST['m'] == 'updateOptions') {
     ?>
     <div class="bg-secondary rounded h-100 p-4">
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th scope="col"><input type="checkbox" class="form-check-input" onclick="$('.container-update-checkbox').prop('checked', $(this).prop('checked'));"></th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Update</th>
-                        <th scope="col">Frequency</th>
-                        <th scope="col">Minimum Age (Days)</th>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input" onclick="$('.container-update-checkbox').prop('checked', $(this).prop('checked'));"></th>
+                        <th class="bg-primary ps-3" scope="col">Name</th>
+                        <th class="bg-primary ps-3" scope="col">Update</th>
+                        <th class="bg-primary ps-3" scope="col">Frequency</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col">Minimum Age (Days)</th>
                     </tr>
                 </thead>
                 <tbody id="containerUpdateRows">
@@ -970,12 +972,12 @@ if ($_POST['m'] == 'updateOptions') {
                     $nameHash = md5($process['Names']);
                     $container = apiRequest('database-getContainerFromHash', ['hash' => $nameHash])['result'];
                     ?>
-                    <tr>
-                        <th scope="row">
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">
                             <input id="container-update-<?= $nameHash ?>-checkbox" type="checkbox" class="form-check-input container-update-checkbox">
-                        </th>
-                        <td><?= $process['Names'] ?></td>
-                        <td>
+                        </td>
+                        <td class="bg-secondary"><?= $process['Names'] ?></td>
+                        <td class="bg-secondary">
                             <select id="container-update-<?= $nameHash ?>" class="form-select container-update">
                                 <option <?= $container['updates'] == '-1' ? 'selected' : '' ?> value="-1">-- Select Option --</option>
                                 <option <?= $container['updates'] == '0'  ? 'selected' : '' ?> value="0">Ignore</option>
@@ -983,10 +985,10 @@ if ($_POST['m'] == 'updateOptions') {
                                 <option <?= $container['updates'] == '2'  ? 'selected' : '' ?> value="2">Check for updates</option>
                             </select>
                         </td>
-                        <td>
+                        <td class="bg-secondary">
                             <input id="container-frequency-<?= $nameHash ?>" type="text" class="form-control container-frequency" onclick="frequencyCronEditor(this.value, '<?= $nameHash ?>', '<?= $process['Names'] ?>')" value="<?= $container['frequency'] ?>" readonly>
                         </td>
-                        <td>
+                        <td class="bg-secondary">
                             <input id="container-update-minage-<?= $nameHash ?>" type="number" class="form-control container-update-minage" value="<?= $container['minage'] ?? 0 ?>">
                         </td>
                     </tr>
