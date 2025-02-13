@@ -37,7 +37,7 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
         <link href="libraries/datatable/datatables.min.css" rel="stylesheet">
 
         <!-- Template Stylesheet -->
-        <link href="css/style.css" rel="stylesheet">
+        <link href="css/style.css?t=<?= filemtime('css/style.css') ?>" rel="stylesheet">
 
         <script type="text/javascript">
             const DEFAULT_PAGE = '<?= $settingsTable['defaultPage'] ?: 'overview' ?>';
