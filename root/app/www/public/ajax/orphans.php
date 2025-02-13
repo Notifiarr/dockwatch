@@ -19,128 +19,147 @@ if ($_POST['m'] == 'init') {
     $unusedContainers   = apiRequest('docker-getUnusedContainers');
     $unusedContainers   = json_decode($unusedContainers['result'], true);
     ?>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
+        <li class="breadcrumb-item active" aria-current="page">Orphans</li>
+    </ol>
     <div class="bg-secondary rounded h-100 p-4">
         <h4 class="mt-3 mb-0">Images</h4>
-        <span class="small-text text-muted"><?= DockerSock::ORPHAN_CONTAINERS ?></span>
+        <span class="text-muted"><code><?= DockerSock::ORPHAN_CONTAINERS ?></code></span>
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanImages-check').prop('checked', $(this).prop('checked'));"></th>
-                        <th scope="col">ID</th>
-                        <th scope="col">Created</th>
-                        <th scope="col">Repository</th>
-                        <th scope="col">Size</th>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanImages-check').prop('checked', $(this).prop('checked'));"></th>
+                        <th class="bg-primary ps-3" scope="col">ID</th>
+                        <th class="bg-primary ps-3" scope="col">Created</th>
+                        <th class="bg-primary ps-3" scope="col">Repository</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col">Size</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    foreach ($images as $image) {
-                        ?>
-                        <tr id="image-<?= $image['ID'] ?>">
-                            <th scope="row"><input id="orphanImage-<?= $image['ID'] ?>" type="checkbox" class="form-check-input orphanImages-check orphan"></th>
-                            <td><?= $image['ID'] ?></td>
-                            <td><?= $image['CreatedSince'] ?></td>
-                            <td><?= $image['Repository'] ?></td>
-                            <td><?= $image['Size'] ?></td>
-                        </tr>
-                        <?php
+                    if ($images) {
+                        foreach ($images as $image) {
+                            ?>
+                            <tr class="border border-dark border-top-0 border-start-0 border-end-0" id="image-<?= $image['ID'] ?>">
+                                <td class="bg-secondary" scope="row"><input id="orphanImage-<?= $image['ID'] ?>" type="checkbox" class="form-check-input orphanImages-check orphan"></td>
+                                <td class="bg-secondary"><?= $image['ID'] ?></td>
+                                <td class="bg-secondary"><?= $image['CreatedSince'] ?></td>
+                                <td class="bg-secondary"><?= $image['Repository'] ?></td>
+                                <td class="bg-secondary"><?= $image['Size'] ?></td>
+                            </tr>
+                            <?php
+                        }
+                    } else {
+                        ?><td class="bg-secondary" colspan="5">No orphaned images found</td><?php
                     }
                     ?>
                 </tbody>
             </table>
         </div>
         <h4 class="mt-3 mb-0">Unused containers</h4>
-        <span class="small-text text-muted"><?= DockerSock::UNUSED_CONTAINERS ?></span>
+        <span class="text-muted"><code><?= DockerSock::UNUSED_CONTAINERS ?></code></span>
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanUnusedContainers-check').prop('checked', $(this).prop('checked'));"></th>
-                        <th scope="col">ID</th>
-                        <th scope="col">Repository</th>
-                        <th scope="col">Tag</th>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanUnusedContainers-check').prop('checked', $(this).prop('checked'));"></th>
+                        <th class="bg-primary ps-3" scope="col">ID</th>
+                        <th class="bg-primary ps-3" scope="col">Repository</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col">Tag</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    foreach ($unusedContainers as $container) {
-                        ?>
-                        <tr id="unused-<?= $container['ID'] ?>">
-                            <th scope="row"><input id="unusedContainer-<?= $container['ID'] ?>" type="checkbox" class="form-check-input orphanUnusedContainers-check orphan"></th>
-                            <td><?= $container['ID'] ?></td>
-                            <td><?= $container['Repository'] ?></td>
-                            <td><?= $container['Tag'] ?></td>
-                        </tr>
-                        <?php
+                    if ($unusedContainers) {
+                        foreach ($unusedContainers as $container) {
+                            ?>
+                            <tr class="border border-dark border-top-0 border-start-0 border-end-0" id="unused-<?= $container['ID'] ?>">
+                                <td class="bg-secondary" scope="row"><input id="unusedContainer-<?= $container['ID'] ?>" type="checkbox" class="form-check-input orphanUnusedContainers-check orphan"></td>
+                                <td class="bg-secondary"><?= $container['ID'] ?></td>
+                                <td class="bg-secondary"><?= $container['Repository'] ?></td>
+                                <td class="bg-secondary"><?= $container['Tag'] ?></td>
+                            </tr>
+                            <?php
+                        }
+                    } else {
+                        ?><td class="bg-secondary" colspan="4">No unused containers found</td><?php
                     }
                     ?>
                 </tbody>
             </table>
         </div>
         <h4 class="mt-3 mb-0">Volumes</h4>
-        <span class="small-text text-muted"><?= DockerSock::ORPHAN_VOLUMES ?></span>
+        <span class="text-muted"><code><?= DockerSock::ORPHAN_VOLUMES ?></code></span>
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanVolumes-check').prop('checked', $(this).prop('checked'));"></th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Mount</th>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanVolumes-check').prop('checked', $(this).prop('checked'));"></th>
+                        <th class="bg-primary ps-3" scope="col">Name</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col">Mount</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    foreach ($volumes as $volume) {
-                        ?>
-                        <tr id="volume-<?= $volume['Name'] ?>">
-                            <th scope="row"><input id="orphanVolume-<?= $volume['Name'] ?>" type="checkbox" class="form-check-input orphanVolumes-check orphan"></th>
-                            <td><?= $volume['Name'] ?></td>
-                            <td><?= $volume['Mountpoint'] ?></td>
-                        </tr>
-                        <?php
+                    if ($volumes) {
+                        foreach ($volumes as $volume) {
+                            ?>
+                            <tr class="border border-dark border-top-0 border-start-0 border-end-0" id="volume-<?= $volume['Name'] ?>">
+                                <td class="bg-secondary" scope="row"><input id="orphanVolume-<?= $volume['Name'] ?>" type="checkbox" class="form-check-input orphanVolumes-check orphan"></td>
+                                <td class="bg-secondary"><?= $volume['Name'] ?></td>
+                                <td class="bg-secondary"><?= $volume['Mountpoint'] ?></td>
+                            </tr>
+                            <?php
+                        }
+                    } else {
+                        ?><td class="bg-secondary" colspan="3">No orphaned volumes found</td><?php
                     }
                     ?>
                 </tbody>
             </table>
         </div>
         <h4 class="mt-3 mb-0">Networks</h4>
-        <span class="small-text text-muted"><?= DockerSock::ORPHAN_NETWORKS ?></span>
+        <span class="text-muted"><code><?= DockerSock::ORPHAN_NETWORKS ?></code></span>
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanNetworks-check').prop('checked', $(this).prop('checked'));"></th>
-                        <th scope="col">ID</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Type</th>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanNetworks-check').prop('checked', $(this).prop('checked'));"></th>
+                        <th class="bg-primary ps-3" scope="col">ID</th>
+                        <th class="bg-primary ps-3" scope="col">Name</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col">Type</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    foreach ($networks as $network) {
-                        ?>
-                        <tr id="network-<?= $network['ID'] ?>">
-                            <th scope="row"><input id="orphanNetwork-<?= $network['ID'] ?>" type="checkbox" class="form-check-input orphanNetworks-check orphan"></th>
-                            <td><?= $network['ID'] ?></td>
-                            <td><?= $network['Name'] ?></td>
-                            <td><?= $network['Driver'] ?></td>
-                        </tr>
-                        <?php
+                    if ($networks) {
+                        foreach ($networks as $network) {
+                            ?>
+                            <tr class="border border-dark border-top-0 border-start-0 border-end-0" id="network-<?= $network['ID'] ?>">
+                                <td class="bg-secondary" scope="row"><input id="orphanNetwork-<?= $network['ID'] ?>" type="checkbox" class="form-check-input orphanNetworks-check orphan"></td>
+                                <td class="bg-secondary"><?= $network['ID'] ?></td>
+                                <td class="bg-secondary"><?= $network['Name'] ?></td>
+                                <td class="bg-secondary"><?= $network['Driver'] ?></td>
+                            </tr>
+                            <?php
+                        }
+                    } else {
+                        ?><td class="bg-secondary" colspan="4">No orphaned networks found</td><?php
                     }
                     ?>
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="2">
+                        <td class="rounded-bottom-left-1 rounded-bottom-right-1 bg-primary ps-3" colspan="4">
                             With selected:
-                            <select id="massOrphanTrigger" class="form-control d-inline-block w-50">
+                            <select id="massOrphanTrigger" class="form-select d-inline-block w-50">
                                 <option value="0">-- Select option --</option>
                                 <option value="1">Remove</option>
                             </select>
-                            <button type="button" class="btn btn-outline-info" onclick="removeOrphans()">Apply</button>
+                            <button type="button" class="btn btn-secondary" onclick="removeOrphans()">Apply</button>
                         </td>
-                        <td>&nbsp;</td>
                     </tr>
                 </tfoot>
             </table>

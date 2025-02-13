@@ -14,32 +14,32 @@ if ($_POST['m'] == 'init') {
     $ports = $networks = $graphs = [];
     $running = $stopped = $memory = $cpu = $network = $size = $updated = $outdated = $healthy = $unhealthy = $unknownhealth = 0;
 
-    $overviewApiResult = apiRequest('stats/overview')['result']['result']; //-- Why is it like this?
-    $containersApiResult = apiRequest('stats/containers')['result']['result']; //-- Same thing
+    $overviewApiResult      = apiRequest('stats/overview')['result']['result'];
+    $containersApiResult    = apiRequest('stats/containers')['result']['result'];
 
     //-- HEALTH STATS
-    $healthy = $overviewApiResult['health']['healthy'];
-    $unhealthy = $overviewApiResult['health']['unhealthy'];
-    $unknownhealth = $overviewApiResult['health']['unknown'];
+    $healthy        = $overviewApiResult['health']['healthy'];
+    $unhealthy      = $overviewApiResult['health']['unhealthy'];
+    $unknownhealth  = $overviewApiResult['health']['unknown'];
 
     //-- CONTAINER STATES
-    $running = $overviewApiResult['status']['running'];
-    $stopped = $overviewApiResult['status']['stopped'];
+    $running        = $overviewApiResult['status']['running'];
+    $stopped        = $overviewApiResult['status']['stopped'];
 
     //-- UPDATE STATS
-    $updated = $overviewApiResult['updates']['uptodate'];
-    $outdated = $overviewApiResult['updates']['outdated'];
-    $unchecked = $overviewApiResult['updates']['unchecked'];
+    $updated        = $overviewApiResult['updates']['uptodate'];
+    $outdated       = $overviewApiResult['updates']['outdated'];
+    $unchecked      = $overviewApiResult['updates']['unchecked'];
 
     //-- USAGE
-    $size = $overviewApiResult['usage']['disk'];
-    $memory = $overviewApiResult['usage']['memory'];
-    $cpu = $overviewApiResult['usage']['cpu'];
-    $network = $overviewApiResult['usage']['netIO'];
+    $size           = $overviewApiResult['usage']['disk'];
+    $memory         = $overviewApiResult['usage']['memory'];
+    $cpu            = $overviewApiResult['usage']['cpu'];
+    $network        = $overviewApiResult['usage']['netIO'];
 
     //-- NETWORKS
-    $networks = $overviewApiResult['network'];
-    $ports = $overviewApiResult['ports'];
+    $networks       = $overviewApiResult['network'];
+    $ports          = $overviewApiResult['ports'];
 
     //-- CONTAINER GRAPHS
     foreach ($containersApiResult as $result) {
@@ -60,203 +60,72 @@ if ($_POST['m'] == 'init') {
     }
 
     ?>
-    <div class="row mb-2">
-        <div class="col-sm-6"><?= APP_NAME ?> at a glance</div>
-        <div class="col-sm-6 d-flex justify-content-end">
-            <div class="form-check form-switch">
-                <label class="form-check-label" for="overviewDetailed">Detailed</label>
-                <input class="form-check-input bg-primary" type="checkbox" role="switch" id="overviewDetailed" onchange="toggleOverviewView()" <?= $settingsTable['overviewLayout'] == UI::OVERVIEW_DETAILED ? 'checked' : '' ?>>
-            </div>
-        </div>
-    </div>
-    <?php
-    if (!$settingsTable['overviewLayout'] || $settingsTable['overviewLayout'] == UI::OVERVIEW_SIMPLE) {
-    ?>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2" style="cursor:pointer;" onclick="initPage('containers')">
-                <div class="row bg-secondary rounded p-4 me-2">
-                    <div class="col-sm-12 col-lg-4">
-                        <h3>Status</h3>
-                    </div>
-                    <div class="col-sm-12 col-lg-8 text-end">
-                        Running: <?= $running ?><br>
-                        Stopped: <?= $stopped ?><br>
-                        Total: <?= $running + $stopped ?>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2" style="cursor:pointer;" onclick="initPage('containers')">
-                <div class="row bg-secondary rounded p-4 me-2">
-                    <div class="col-sm-12 col-lg-4">
-                        <h3>Health</h3>
-                    </div>
-                    <div class="col-sm-12 col-lg-8 text-end">
-                        Healthy: <?= $healthy ?><br>
-                        Unhealthy: <?= $unhealthy ?><br>
-                        Unknown: <?= $unknownhealth ?>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2" style="cursor:pointer;" onclick="openUpdateOptions()">
-                <div class="row bg-secondary rounded p-4 me-2">
-                    <div class="col-sm-12 col-lg-4">
-                        <h3>Updates</h3>
-                    </div>
-                    <div class="col-sm-12 col-lg-8 text-end">
-                        Up to date: <?= $updated ?><br>
-                        Outdated: <?= $outdated ?><br>
-                        Unchecked: <?= ($running + $stopped) - ($updated + $outdated) ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2">
-                <div class="row bg-secondary rounded p-4 me-2">
-                    <div class="col-sm-12 col-lg-4">
-                        <h3>Usage</h3>
-                    </div>
-                    <div class="col-sm-12 col-lg-8 text-end">
-                        Disk:  <?= byteConversion($size) ?><br>
-                        CPU: <span title="Docker reported CPU"><?= $cpu ?>%</span><?= $cpuActual ? ' <span title="Calculated CPU">(' . $cpuActual . '%)</span>' : '' ?><br>
-                        Memory: <?= $memory ?>%<br>
-                        Network I/O: <?= byteConversion($network) ?>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2" style="cursor:pointer;" onclick="initPage('networks')">
-                <div class="row bg-secondary rounded p-4 me-2">
-                    <div class="col-sm-12 col-lg-4">
-                        <h3>Network</h3>
-                    </div>
-                    <div class="col-sm-12 col-lg-8 text-end">
-                        <?php
-                        $networkList = '';
-                        foreach ($networks as $networkName => $networkCount) {
-                            $networkList .= ($networkList ? '<br>' : '') . truncateMiddle($networkName, 30) . ': ' . $networkCount;
-                        }
-                        echo '<div style="max-height: 250px; overflow: auto;">' . $networkList . '</div>';
-                        ?>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-12 col-lg-6 col-xl-4 mt-2">
-                <div class="row bg-secondary rounded p-4 me-2">
-                    <div class="col-sm-12 col-lg-2">
-                        <h3>Ports</h3>
-                    </div>
-                    <div class="col-sm-12 col-lg-10">
-                        <?php
-                        $portArray = [];
-                        $portList = '';
-                        if ($ports) {
-                            foreach ($ports as $container => $containerPorts) {
-                                foreach ($containerPorts as $containerPort) {
-                                    $portArray[$containerPort] = $container;
-                                }
-                            }
-                            ksort($portArray);
-                            $portArray = formatPortRanges($portArray);
-
-                            if ($portArray) {
-                                $portList = '<div style="max-height: 250px; overflow: auto;">';
-
-                                foreach ($portArray as $port => $container) {
-                                    $portList .= '<div class="row flex-nowrap p-0 m-0">';
-                                    $portList .= '  <div class="col text-end">' . $port . '</div>';
-                                    $portList .= '  <div class="col text-end" title="' . $container . '">' . truncateMiddle($container, 14) . '</div>';
-                                    $portList .= '</div>';
-                                }
-
-                                $portList .= '</div>';
-                            }
-                        }
-                        echo $portList;
-                    ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php } elseif ($settingsTable['overviewLayout'] == UI::OVERVIEW_DETAILED) { ?>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page"><?= $_SESSION['activeServerName'] ?></li>
+    </ol>
     <div class="row">
-        <div class="col-sm-12">
-            <div class="row bg-secondary rounded p-4">
-                <div class="col-12 col-lg-4" style="cursor:pointer;" onclick="initPage('containers')">
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <span class="h5"><i class="fas fa-box-open"></i> Status</span>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <div class="row">
-                                <div class="col-4">
-                                    <span class="text-success">Running</span><br>
-                                    <?= $running ?>
-                                </div>
-                                <div class="col-4">
-                                    <span class="text-danger">Stopped</span><br>
-                                    <?= $stopped ?>
-                                </div>
-                                <div class="col-4">
-                                    Total<br>
-                                    <?= $running + $stopped ?>
-                                </div>
-                            </div>
-                        </div>
+        <div class="d-flex flex-wrap flex-lg-nowrap" style="justify-content:center;">
+            <div class="bg-secondary p-2 w-100 rounded-start" style="cursor:pointer;" onclick="initPage('containers')">
+                <div class="d-flex flex-row">
+                    <span class="h5"><i class="fas fa-box-open"></i> Status</span>
+                </div>
+                <div class="d-flex flex-row">
+                    <div class="p-2 flex-fill bd-highlight">
+                        <span class="text-success">Running</span><br>
+                        <?= $running ?>
+                    </div>
+                    <div class="p-2 flex-fill bd-highlight">
+                        <span class="text-danger">Stopped</span><br>
+                        <?= $stopped ?>
+                    </div>
+                    <div class="p-2 flex-fill bd-highlight">
+                        Total<br>
+                        <?= $running + $stopped ?>
                     </div>
                 </div>
-                <div class="col-12 col-lg-4" style="cursor:pointer;" onclick="initPage('containers')">
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <span class="h5"><i class="fas fa-heartbeat"></i> Health</span>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <div class="row">
-                                <div class="col-4">
-                                    <span class="text-success">Healthy</span><br>
-                                    <?= $healthy ?>
-                                </div>
-                                <div class="col-4">
-                                    <span class="text-danger">Unhealthy</span><br>
-                                    <?= $unhealthy ?>
-                                </div>
-                                <div class="col-4">
-                                    <span class="text-warning">Unknown</span><br>
-                                    <?= $unknownhealth ?>
-                                </div>
-                            </div>
-                        </div>
+            </div>
+            <div class="bg-secondary p-2 w-100" style="cursor:pointer;" onclick="initPage('containers')">
+                <div class="d-flex flex-row">
+                    <span class="h5"><i class="fas fa-heartbeat"></i> Health</span>
+                </div>
+                <div class="d-flex flex-row">
+                    <div class="p-2 flex-fill bd-highlight">
+                        <span class="text-success">Healthy</span><br>
+                        <?= $healthy ?>
+                    </div>
+                    <div class="p-2 flex-fill bd-highlight">
+                        <span class="text-danger">Unhealthy</span><br>
+                        <?= $unhealthy ?>
+                    </div>
+                    <div class="p-2 flex-fill bd-highlight">
+                        <span class="text-warning">Unknown</span><br>
+                        <?= $unknownhealth ?>
                     </div>
                 </div>
-                <div class="col-12 col-lg-4" style="cursor:pointer;" onclick="openUpdateOptions()">
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <span class="h5"><i class="fas fa-database"></i> Updates</span>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <div class="row">
-                                <div class="col-4">
-                                    <span class="text-success">Updated</span><br>
-                                    <?= $updated ?>
-                                </div>
-                                <div class="col-4">
-                                    <span class="text-warning">Outdated</span><br>
-                                    <?= $outdated ?>
-                                </div>
-                                <div class="col-4">
-                                    Unchecked<br>
-                                    <?= ($running + $stopped) - ($updated + $outdated) ?>
-                                </div>
-                            </div>
-                        </div>
+            </div>
+            <div class="bg-secondary p-2 w-100 rounded-end" style="cursor:pointer;" onclick="openUpdateOptions()">
+                <div class="d-flex flex-row">
+                    <span class="h5"><i class="fas fa-database"></i> Updates</span>
+                </div>
+                <div class="d-flex flex-row">
+                    <div class="p-2 flex-fill bd-highlight">
+                        <span class="text-success">Updated</span><br>
+                        <?= $updated ?>
+                    </div>
+                    <div class="p-2 flex-fill bd-highlight">
+                        <span class="text-warning">Outdated</span><br>
+                        <?= $outdated ?>
+                    </div>
+                    <div class="p-2 flex-fill bd-highlight">
+                        Unchecked<br>
+                        <?= ($running + $stopped) - ($updated + $outdated) ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="row mt-2">
-        <div class="d-flex flex-wrap flex-lg-nowrap gap-sm-2 gap-lg-4 gap-2" style="justify-content: center;">
+        <div class="d-flex flex-wrap flex-lg-nowrap gap-sm-2" style="justify-content:center;">
             <div class="bg-secondary rounded px-2 w-100">
                 <div class="d-flex flex-row mt-2">
                     <p class="text-primary" style="font-size: 18px;">Disk Usage</p>
@@ -287,22 +156,22 @@ if ($_POST['m'] == 'init') {
             </div>
         </div>
     </div>
-    <div class="row mt-2">
-        <div class="col-sm-12 col-lg-6">
+    <div class="row g-2 mt-2">
+        <div class="col-sm-12 col-lg-6 mt-sm-0">
             <div class="bg-secondary rounded p-2" style="cursor:pointer;" onclick="initPage('networks')">
-                <div class="table-responsive-sm" style="height:25vh; max-height:25vh; overflow:auto;">
-                    <table class="table table-sm table-hover">
+                <div class="table-responsive bg-secondary" style="height:25vh; max-height:25vh; overflow:auto;">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
-                                <th class="w-50">Network</th>
-                                <th>Containers</th>
+                                <th class="w-50 rounded-top-left-1 bg-primary ps-3">Network</th>
+                                <th class="w-50 rounded-top-right-1 bg-primary ps-3">Containers</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($networks as $networkName => $networkCount) { ?>
-                            <tr>
-                                <td><?= $networkName ?></td>
-                                <td><?= $networkCount?></td>
+                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                                <td class="bg-secondary"><?= $networkName ?></td>
+                                <td class="bg-secondary"><?= $networkCount?></td>
                             </tr>
                             <?php } ?>
                         </tbody>
@@ -310,14 +179,14 @@ if ($_POST['m'] == 'init') {
                 </div>
             </div>
         </div>
-        <div class="col-sm-12 col-lg-6 mt-lg-0 mt-2">
+        <div class="col-sm-12 col-lg-6 mt-sm-0">
             <div class="bg-secondary rounded p-2">
                 <div class="table-responsive-sm" style="height:25vh; max-height:25vh; overflow:auto;">
-                    <table class="table table-sm table-hover">
+                    <table class="table table-sm">
                         <thead>
                             <tr>
-                                <th class="w-50">Container</th>
-                                <th>Port</th>
+                                <th class="w-50 rounded-top-left-1 bg-primary ps-3">Container</th>
+                                <th class="w-50 rounded-top-right-1 bg-primary ps-3">Port</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -334,9 +203,9 @@ if ($_POST['m'] == 'init') {
                                 if ($portArray) {
                                     foreach ($portArray as $port => $container) {
                                         ?>
-                                        <tr>
-                                            <td><?= $container ?></td>
-                                            <td><?= $port?></td>
+                                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                                            <td class="bg-secondary"><?= $container ?></td>
+                                            <td class="bg-secondary"><?= $port?></td>
                                         </tr>
                                         <?php
                                     }
@@ -349,21 +218,21 @@ if ($_POST['m'] == 'init') {
             </div>
         </div>
     </div>
-    <div class="row mb-2 mt-lg-2">
-        <div class="col-lg-6 mt-lg-0 mt-2">
+    <div class="row g-2 mt-1">
+        <div class="col-lg-6 mt-sm-1">
             <div class="bg-secondary rounded px-2 w-100" style="height:auto; max-height:50vh; overflow:auto;">
                 <div id="chart-cpu-container" class="bg-secondary rounded p-2"></div>
             </div>
         </div>
-        <div class="col-lg-6 mt-lg-0 mt-2">
+        <div class="col-lg-6 mt-sm-1">
             <div class="bg-secondary rounded px-2 w-100" style="height:auto; max-height:50vh; overflow:auto;">
                 <div id="chart-memoryPercent-container" class="bg-secondary rounded p-2"></div>
             </div>
         </div>
-        <div class="col-lg-6"></div>
-        <div class="col-lg-6 mt-2">
+        <div class="col-lg-6 mt-sm-1"></div>
+        <div class="col-lg-6 mt-sm-2">
             <div class="bg-secondary rounded px-2 w-100 h-2 d-flex flex-column" style="justify-content: center;">
-                <div class="text-center text-primary mt-2">Memory Usage - MiB</div>
+                <div class="text-center text-light mt-2">Memory Usage - MiB</div>
                 <div class="d-flex flex-lg-row gap-lg-3 flex-column mt-2 mt-lg-0" style="justify-content: center;">
                     <div id="chart-memorySizeLegend-container" class="bg-secondary rounded px-4" style="place-self: anchor-center; height:auto; max-height:25vh; overflow:auto;"></div>
                     <div id="chart-memorySize-container" class="bg-secondary rounded"></div>
@@ -371,9 +240,7 @@ if ($_POST['m'] == 'init') {
             </div>
         </div>
     </div>
-    </div>
     <?php
-    }
 
     displayTimeTracking($loadTimes);
 
@@ -410,9 +277,4 @@ if ($_POST['m'] == 'init') {
         GRAPH_UTILIZATION_MEMORY_SIZE_COLORS    = '<?= json_encode($utilizationmemorySizeColors) ?>';
     </script>
     <?php
-}
-
-if ($_POST['m'] == 'toggleOverviewView') {
-    $layout = $_POST['enabled'] ? UI::OVERVIEW_DETAILED : UI::OVERVIEW_SIMPLE;
-    $database->setSetting('overviewLayout', $layout);
 }

@@ -46,6 +46,10 @@ if ($_POST['m'] == 'init') {
         echo 'No log files have been generated yet.';
     } else {
         ?>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
+            <li class="breadcrumb-item active" aria-current="page">Logs</li>
+        </ol>
         <div class="bg-secondary rounded p-4">
             <div class="row">
                 <div class="col-sm-3">
@@ -96,7 +100,10 @@ if ($_POST['m'] == 'init') {
                         ?>
                     </ul>
                 </div>
-                <div class="col-sm-9"><span id="logHeader"></span><pre id="logViewer" style="max-height: 500px; overflow: auto;">Select a log from the left to view</pre></div>
+                <div class="col-sm-9">
+                    <span id="logHeader"></span>
+                    <pre id="logViewer" style="max-height: 600px; overflow: auto;">Select a log from the left to view</pre>
+                </div>
             </div>
         </div>
         <?php

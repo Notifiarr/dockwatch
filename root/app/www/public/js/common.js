@@ -39,11 +39,34 @@ $(document).ready(function () {
     }
 });
 // -------------------------------------------------------------------------------------------
+$(window).resize(function() {
+    setScreenSizeVars();
+});
+// -------------------------------------------------------------------------------------------
+function swapLightDark(swap) {
+    $.each($('[data-bs-theme]'), function() {
+        $(this).attr('data-bs-theme', swap);
+    });
+
+    updateSetting('defaultThemeMode', swap);
+}
+// -------------------------------------------------------------------------------------------
 function setScreenSizeVars()
 {
     smScreen = window.matchMedia('only screen and (max-width: ' + smScreenWidth + 'px)').matches;
     mdScreen = window.matchMedia('only screen and (max-width: ' + mdScreenWidth + 'px) and (min-width: ' + smScreenWidth + 'px)').matches;
 
+    //-- UNHIDE THINGS DURING A RESIZE
+    $('#footer-themes').show();
+    $('.no-mobile').show();
+    $('.buttons-colvis').show();
+
+    //-- HIDE THINGS ON MOBILE
+    if (smScreen) {
+        $('#footer-themes').hide();
+        $('.no-mobile').hide();
+        $('.buttons-colvis').hide();
+    }
 }
 // ---------------------------------------------------------------------------------------------
 function containerMenuMouseOut()
@@ -62,6 +85,7 @@ function clearInitPage(page)
 function initPage(page)
 {
     $('.conatiner-links').hide();
+    $('#left-slider').html('');
 
     if (page == 'containers') {
         $('.conatiner-links').show();
@@ -103,9 +127,12 @@ function initPage(page)
             }
 
             if (page == 'containers') {
+                $('.no-mobile').show();
+
                 if (smScreen) {
                     $('#container-control-buttons').prop('style', '');
                     $('.container-control-button-label').remove();
+                    $('.no-mobile').hide();
                 }
 
                 $('#sse-timer').html(sseCountdown);
@@ -167,6 +194,8 @@ function initPage(page)
                     }
                 });
             }
+
+            setScreenSizeVars();
         }
     });
 
@@ -277,12 +306,9 @@ function loadingStop()
 
 }
 // -------------------------------------------------------------------------------------------
-function updateActiveServer()
+function updateActiveServer(serverId)
 {
-    $('[id^=external-server-icon-link-]').hide();
-    $('#external-server-icon-link-' + $('#activeServerId').val()).show();
-
-    if ($('#activeServerId').val() != APP_SERVER_ID) {
+    if (serverId != APP_SERVER_ID) {
         sseSource.close();
         USE_SSE = false;
         console.log('SSE: Disabled (Remote management)');
@@ -294,7 +320,7 @@ function updateActiveServer()
     $.ajax({
         type: 'POST',
         url: '../ajax/settings.php',
-        data: '&m=updateActiveServer&id=' + $('#activeServerId').val(),
+        data: '&m=updateActiveServer&id=' + serverId,
         success: function (resultData) {
             initPage(currentPage);
         }

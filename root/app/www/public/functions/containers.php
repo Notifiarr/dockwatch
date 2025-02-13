@@ -192,11 +192,11 @@ function renderContainerRow($nameHash, $return)
         ?>
         <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ?>>
             <!-- COLUMN: CHECKBOX -->
-            <td><input <?= $isDockwatch ? 'attr-dockwatch="true"' : '' ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" data-id="<?= $containerSettings['id'] ?>" type="checkbox" class="form-check-input containers-check <?= $groupHash ? 'group-' . $groupHash . '-check' : '' ?>"></td>
+            <td class="container-table-row bg-secondary"><input <?= $isDockwatch ? 'attr-dockwatch="true"' : '' ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" data-id="<?= $containerSettings['id'] ?>" type="checkbox" class="form-check-input containers-check <?= $groupHash ? 'group-' . $groupHash . '-check' : '' ?>"></td>
             <!-- COLUMN: ICON -->
-            <td><?= $logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '' ?></td>
+            <td class="container-table-row bg-secondary"><?= $logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '' ?></td>
             <!-- COLUMN: STOP/START ICON, NAME, MENU, REPOSITORY -->
-            <td>
+            <td class="container-table-row bg-secondary">
                 <div class="row m-0 p-0">
                     <!-- STOP/START ICONS -->
                     <div class="col-sm-12 col-lg-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
@@ -208,25 +208,25 @@ function renderContainerRow($nameHash, $return)
                 </div>
             </td>
             <!-- COLUMN: UPDATES, HASH -->
-            <td id="<?= $nameHash ?>-update" style="cursor: help;" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
+            <td class="container-table-row bg-secondary" id="<?= $nameHash ?>-update" style="cursor: help;" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
                 <?= $updateStatus ?><br>
                 <span class="text-muted small-text" title="<?= $pullData['imageDigest'] ?>"><?= truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) ?></span>
             </td>
             <!-- COLUMN: STATE -->
-            <td>
+            <td class="container-table-row bg-secondary">
                 <span id="<?= $nameHash ?>-state"><?= $process['State'] ?></span><br>
                 <span class="text-muted small-text" id="<?= $nameHash ?>-length"><?= $length ?></span>
             </td>
             <!-- COLUMN: HEALTH -->
-            <td id="<?= $nameHash ?>-health"><?= $health ?></td>
+            <td class="container-table-row bg-secondary" id="<?= $nameHash ?>-health"><?= $health ?></td>
             <!-- COLUMN: MOUNTS -->
-            <td id="<?= $nameHash ?>-mounts-td"><span id="<?= $nameHash ?>-mounts" class="small-text"><?= $mountList ?></span></td>
+            <td class="container-table-row bg-secondary no-mobile" id="<?= $nameHash ?>-mounts-td"><span id="<?= $nameHash ?>-mounts" class="small-text"><?= $mountList ?></span></td>
             <!-- COLUMN: ENVIRONMENTS -->
-            <td id="<?= $nameHash ?>-env-td"><span id="<?= $nameHash ?>-env" class="small-text"><?= $envList ?></span></td>
+            <td class="container-table-row bg-secondary no-mobile" id="<?= $nameHash ?>-env-td"><span id="<?= $nameHash ?>-env" class="small-text"><?= $envList ?></span></td>
             <!-- COLUMN: PORTS -->
-            <td id="<?= $nameHash ?>-ports-td"><span id="<?= $nameHash ?>-ports" class="small-text"><?= $portList ?></span></td>
+            <td class="container-table-row bg-secondary no-mobile" id="<?= $nameHash ?>-ports-td"><span id="<?= $nameHash ?>-ports" class="small-text"><?= $portList ?></span></td>
             <!-- COLUMN: MEMORT/CPU USAGE -->
-            <td id="<?= $nameHash ?>-usage"><?= $cpuUsage ?><br><?= $process['stats']['MemPerc'] ?></td>
+            <td class="container-table-row bg-secondary no-mobile" id="<?= $nameHash ?>-usage"><?= $cpuUsage ?><br><?= $process['stats']['MemPerc'] ?></td>
         </tr>
         <?php
     }

@@ -14,15 +14,20 @@ if ($_POST['m'] == 'init') {
     $neworks    = explode("\n", $apiResult);
 
     ?>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
+        <li class="breadcrumb-item active" aria-current="page">Networks</li>
+    </ol>
     <div class="bg-secondary rounded p-4">
-        <table class="table table-hover">
+        <div class="table-responsive bg-secondary">
+        <table class="table">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Driver</th>
-                    <th>Gateway</th>
-                    <th>Subnet</th>
-                    <th class="w-50">Containers</th>
+                    <th class="rounded-top-left-1 bg-primary ps-3">Name</th>
+                    <th class="bg-primary ps-3">Driver</th>
+                    <th class="bg-primary ps-3">Gateway</th>
+                    <th class="bg-primary ps-3">Subnet</th>
+                    <th class="rounded-top-right-1 bg-primary ps-3 w-50">Containers</th>
                 </tr>
             </thead>
             <?php
@@ -54,12 +59,12 @@ if ($_POST['m'] == 'init') {
                             $containers = implode(', ', $containerList);
                         }
                         ?>
-                        <tr>
-                            <td><?= $network['Name'] ?><br><span class="small-text" title="<?= $network['Id'] ?>"><?= truncateMiddle($network['Id'], 20) ?></span></td>
-                            <td><?= $network['Driver'] ?></td>
-                            <td><?= $gateway ?></td>
-                            <td><?= $subnet ?></td>
-                            <td><?= $containers ?></td>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary"><?= $network['Name'] ?><br><span class="small-text text-muted" title="<?= $network['Id'] ?>"><?= truncateMiddle($network['Id'], 30) ?></span></td>
+                            <td class="bg-secondary"><?= $network['Driver'] ?></td>
+                            <td class="bg-secondary"><?= $gateway ?></td>
+                            <td class="bg-secondary"><?= $subnet ?></td>
+                            <td class="bg-secondary"><?= $containers ?></td>
                         </tr>
                         <?php
                     }
@@ -68,6 +73,7 @@ if ($_POST['m'] == 'init') {
             }
     ?>
         </table>
+        </div>
     </div>
     <?php
 }

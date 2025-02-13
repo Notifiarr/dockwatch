@@ -25,7 +25,6 @@ function saveGlobalSettings()
             } else  {
                 toast('Settings', 'Global settings saved on server ' + resultData.server, 'success');
                 initPage('settings');
-                $('#activeInstanceContainer').html(resultData.serverList);
             }
 
             loadingStop();
@@ -47,5 +46,21 @@ function unlinkRemoteServer(serverId)
             }
         });
     }
+}
+// ---------------------------------------------------------------------------------------------
+function updateSetting(setting, value)
+{
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/settings.php',
+        data: '&m=updateSetting&setting=' + setting + '&value=' + value,
+        success: function (resultData) {
+            if (setting == 'defaultTheme') {
+                reload();
+            } else {
+                toast('Settings', 'The setting has been updated', 'success');
+            }
+        }
+    });
 }
 // ---------------------------------------------------------------------------------------------

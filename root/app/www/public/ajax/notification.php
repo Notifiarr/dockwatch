@@ -15,6 +15,10 @@ if ($_POST['m'] == 'init') {
     $notificationLinkTable      = apiRequest('database-getNotificationLinks')['result'];
 
     ?>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
+        <li class="breadcrumb-item active" aria-current="page">Notifications</li>
+    </ol>
     <div class="bg-secondary rounded mb-3 p-4">
         <span class="h6">Platforms</span>
         <div class="row mt-3">

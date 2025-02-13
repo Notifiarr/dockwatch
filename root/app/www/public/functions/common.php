@@ -182,26 +182,33 @@ function breakpoint()
     exit('breakpoint <-');
 }
 
-function getRemoteServerSelect()
+function getServers()
 {
-    $activeServer   = apiGetActiveServer();
     $serverPings    = apiRequestServerPings();
-    $links          = '';
-    $serverList     = '<select class="form-select w-75 d-inline-block" id="activeServerId" onchange="updateActiveServer()">';
+    $serverList     = ['activeServer' => apiGetActiveServer()];
+
     foreach ($serverPings as $serverPing) {
-        $disabled = $serverPing['code'] != 200 ? ' [HTTP: ' . $serverPing['code'] . ']' : '';
-
-        $serverList .= '<option ' . ($disabled ? 'disabled ' : '') . ($activeServer['id'] == $serverPing['id'] ? 'selected' : '') . ' value="' . $serverPing['id'] . '">' . $serverPing['name'] . $disabled . '</option>';
-
-        if ($serverPing['id'] != APP_SERVER_ID) {
-            $links .= ' <a style="display: ' . ($activeServer['id'] == $serverPing['id'] ? 'inline-block' : 'none') . ';" id="external-server-icon-link-' . $serverPing['id'] . '" class="text-info" href="' . $serverPing['url'] . '" target="_blank" title="Open this server in a new tab"><i class="fas fa-external-link-alt fa-lg"></i></a>';
-        }
+        $serverList['servers'][]    = [
+                                        'id'            => $serverPing['id'],
+                                        'name'          => $serverPing['name'],
+                                        'url'           => $serverPing['url'],
+                                        'disabled'      => $serverPing['code'] != 200 ? ' [HTTP: ' . $serverPing['code'] . ']' : '',
+                                    ];
     }
-    $serverList .= '</select>';
-    $serverList .= $links;
-
-    $_SESSION['serverList']         = $serverList;
-    $_SESSION['serverListUpdated']  = time();
 
     return $serverList;
+}
+
+function getThemes()
+{
+    $themesPath = ABSOLUTE_PATH . 'themes/';
+    $dir = opendir($themesPath);
+    while ($file = readdir($dir)) {
+        if (str_contains($file, '.min.css')) {
+            $themes[] = str_replace('.min.css', '', $file);
+        }
+    }
+    closedir($dir);
+
+    return $themes;
 }

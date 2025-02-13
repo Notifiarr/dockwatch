@@ -32,19 +32,23 @@ if ($_POST['m'] == 'init') {
         }
     }
     ?>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
+        <li class="breadcrumb-item active" aria-current="page">Containers</li>
+    </ol>
     <div class="bg-secondary rounded p-4 mb-2" style="height:65px;">
-        <div class="row" style="z-index:998; width:80% !important; position:fixed; top:100px;">
+        <div class="row" id="container-button-row">
             <div class="col-sm-12">
                 <div id="container-control-buttons" class="text-center bg-secondary">
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i><span class="container-control-button-label text-light"> Pull</span></button>
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 2)"><i class="fas fa-sync-alt fa-xs me-1"></i><span class="container-control-button-label text-light"> Restart</span></button>
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 1)"><i class="fas fa-play fa-xs me-1"></i><span class="container-control-button-label text-light"> Start</span></button>
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 3)"><i class="fas fa-power-off fa-xs me-1"></i><span class="container-control-button-label text-light"> Stop</span></button>
-                        <button type="button" class="btn btn-outline-warning bg-secondary" onclick="massApplyContainerTrigger(false, 13)"><i class="fas fa-skull-crossbones fa-xs me-1"></i><span class="container-control-button-label text-warning"> Kill</span></button>
-                        <button type="button" class="btn btn-outline-danger bg-secondary" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i><span class="container-control-button-label text-danger"> Remove</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i><span class="container-control-button-label text-light no-mobile"> Pull</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 2)"><i class="fas fa-sync-alt fa-xs me-1"></i><span class="container-control-button-label text-light no-mobile"> Restart</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 1)"><i class="fas fa-play fa-xs me-1"></i><span class="container-control-button-label text-light no-mobile"> Start</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 3)"><i class="fas fa-power-off fa-xs me-1"></i><span class="container-control-button-label text-light no-mobile"> Stop</span></button>
+                        <button type="button" class="btn btn-outline-warning bg-secondary" onclick="massApplyContainerTrigger(false, 13)"><i class="fas fa-skull-crossbones fa-xs me-1"></i><span class="container-control-button-label text-warning no-mobile"> Kill</span></button>
+                        <button type="button" class="btn btn-outline-danger bg-secondary" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i><span class="container-control-button-label text-danger no-mobile"> Remove</span></button>
                     </div>
-                    <div class="btn-group" role="group">
+                    <div class="btn-group no-mobile" role="group">
                         <button type="button" class="btn btn-outline-info bg-secondary disabled">Updates:</button>
                         <button type="button" class="btn btn-outline-info bg-secondary" onclick="massApplyContainerTrigger(false, 11)">Check</button>
                         <button type="button" class="btn btn-outline-info bg-secondary" onclick="massApplyContainerTrigger(false, 7)">Apply</button>
@@ -53,7 +57,6 @@ if ($_POST['m'] == 'init') {
             </div>
         </div>
     </div>
-
     <div class="bg-secondary rounded p-4">
         <div class="row">
             <?php if ($pullsNotice) { ?>
@@ -63,7 +66,7 @@ if ($_POST['m'] == 'init') {
                 </div>
             </div>
             <?php } ?>
-            <div class="col-sm-12">
+            <div class="col-sm-12 no-mobile">
                 <div class="text-end mb-2">
                     <span class="small-text text-muted">
                         Real time updates: <span class="small-text text-muted" title="<?= $sseTitle ?>"><?= $sseLabel ?></span>
@@ -75,16 +78,16 @@ if ($_POST['m'] == 'init') {
                     <table class="table" id="container-table">
                         <thead>
                             <tr>
-                                <th scope="col" class="noselect no-sort"></th>
-                                <th scope="col" class="noselect no-sort"></th>
-                                <th scope="col" class="noselect">Name</th>
-                                <th scope="col" class="noselect">Updates</th>
-                                <th scope="col" class="noselect">State</th>
-                                <th scope="col" class="noselect">Health</th>
-                                <th scope="col" class="noselect no-sort">Mounts</th>
-                                <th scope="col" class="noselect no-sort">Environment</th>
-                                <th scope="col" class="noselect no-sort">Ports</th>
-                                <th scope="col" class="noselect no-sort">CPU/MEM</th>
+                                <th scope="col" class="rounded-top-left-1 bg-primary ps-3container-table-header noselect no-sort"></th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect no-sort"></th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect">Name</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect">Updates</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect">State</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect">Health</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect no-sort no-mobile">Mounts</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect no-sort no-mobile">Environment</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect no-sort no-mobile">Ports</th>
+                                <th scope="col" class="rounded-top-right-1 bg-primary ps-3 container-table-header noselect no-sort no-mobile">CPU/MEM</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -117,19 +120,19 @@ if ($_POST['m'] == 'init') {
                                     }
                                     ?>
                                     <tr id="<?= $groupHash ?>" class="container-group" style="background-color: #1c2029;">
-                                        <td><input type="checkbox" class="form-check-input containers-check" onchange="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></td>
-                                        <td><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
-                                        <td>
+                                        <td class="container-table-row bg-secondary"><input type="checkbox" class="form-check-input containers-check" onchange="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></td>
+                                        <td class="container-table-row bg-secondary"><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
+                                        <td class="container-table-row bg-secondary">
                                             <span class="text-info container-group-label" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br>
                                             <span class="text-muted small-text">Containers: <?= $groupContainerCount ?></span>
                                         </td>
-                                        <td>&nbsp;</td>
-                                        <td>&nbsp;</td>
-                                        <td>&nbsp;</td>
-                                        <td>&nbsp;</td>
-                                        <td>&nbsp;</td>
-                                        <td>&nbsp;</td>
-                                        <td><?= $groupCPU ?>%<br><?= $groupMemory ?>%</td>
+                                        <td class="container-table-row bg-secondary">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary no-mobile">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary no-mobile">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary no-mobile">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary no-mobile"><?= $groupCPU ?>%<br><?= $groupMemory ?>%</td>
                                     </tr>
                                     <?php
 
@@ -164,10 +167,10 @@ if ($_POST['m'] == 'init') {
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="10">
-                                    <div style="float: right;">
-                                        <button id="check-all-btn" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
-                                        <button id="group-restore-btn" style="display: none;" class="dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
+                                <td class="rounded-bottom-right-1 rounded-bottom-left-1 bg-primary ps-3" colspan="10">
+                                    <div style="float:right;">
+                                        <button id="check-all-btn" class="no-mobile dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
+                                        <button id="group-restore-btn" style="display:none;" class="dt-button buttons-collection" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
                                     </div>
                                 </td>
                             </tr>

@@ -31,6 +31,8 @@ function initializeSSE()
                         $('#sse-timer').html(sseTimer);
                     }
                 });
+
+                setScreenSizeVars();
             }
         } else {
             if (sseCountdown > 0) {

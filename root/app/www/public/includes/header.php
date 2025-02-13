@@ -8,126 +8,122 @@
 */
 
 $_SESSION['IN_DOCKWATCH'] = true;
-
-$serverList = (!$_SESSION['serverList'] || ($_SESSION['serverListUpdated'] + 300) < time()) ? getRemoteServerSelect() : $_SESSION['serverList'];
+$currentPage = $settingsTable['currentPage'] && in_array($settingsTable['currentPage'], $pages) ? $settingsTable['currentPage'] : 'overview';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title><?= APP_NAME ?><?= $settingsTable['serverName'] ? ' - ' . $settingsTable['serverName'] : '' ?></title>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <meta content="" name="keywords">
-    <meta content="" name="description">
+    <head>
+        <meta charset="utf-8">
+        <title><?= APP_NAME ?><?= $settingsTable['serverName'] ? ' - ' . $settingsTable['serverName'] : '' ?></title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <!-- Favicon -->
-    <link href="images/logo.ico" rel="icon">
+        <!-- Favicon -->
+        <link href="images/logo.ico" rel="icon">
 
-    <!-- Google Web Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+        <!-- Google Web Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap" rel="stylesheet">
 
-    <!-- Icon Font Stylesheet -->
-    <link href="libraries/fontawesome/all.min.css" rel="stylesheet">
-    <link href="libraries/bootstrap/bootstrap-icons.css" rel="stylesheet">
+        <!-- Icon Font Stylesheet -->
+        <link href="libraries/fontawesome/all.min.css" rel="stylesheet">
+        <link href="libraries/bootstrap/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="libraries/bootstrap/bootstrap.min.css" rel="stylesheet">
+        <!-- Customized Bootstrap Stylesheet -->
+        <link href="themes/<?= USER_THEME ?>.min.css" rel="stylesheet">
 
-    <!-- Datatable Stylesheet -->
-    <link href="libraries/datatable/datatables.min.css" rel="stylesheet">
+        <!-- Datatable Stylesheet -->
+        <link href="libraries/datatable/datatables.min.css" rel="stylesheet">
 
-    <!-- Template Stylesheet -->
-    <link href="css/style.css" rel="stylesheet">
+        <!-- Template Stylesheet -->
+        <link href="css/style.css" rel="stylesheet">
 
-    <script type="text/javascript">
-        const DEFAULT_PAGE = '<?= $settingsTable['defaultPage'] ?: 'overview' ?>';
-        const CURRENT_PAGE = '<?= $settingsTable['currentPage'] && in_array($settingsTable['currentPage'], $pages) ? $settingsTable['currentPage'] : 'overview' ?>';
-        let USE_SSE = <?= $settingsTable['sseEnabled'] ? 'true' : 'false' ?>;
-        const SSE_SETTING = <?= intval($settingsTable['sseEnabled']) ?>;
-        const APP_SERVER_ID = <?= APP_SERVER_ID ?>;
-    </script>
-</head>
+        <script type="text/javascript">
+            const DEFAULT_PAGE = '<?= $settingsTable['defaultPage'] ?: 'overview' ?>';
+            const CURRENT_PAGE = '<?= $currentPage ?>';
+            let USE_SSE = <?= $settingsTable['sseEnabled'] ? 'true' : 'false' ?>;
+            const SSE_SETTING = <?= intval($settingsTable['sseEnabled']) ?>;
+            const APP_SERVER_ID = <?= APP_SERVER_ID ?>;
 
-<body>
-    <div class="container-fluid position-relative d-flex p-0">
-        <!-- Spinner Start -->
+            document.addEventListener('DOMContentLoaded', function(event) {
+                const showNavbar = (toggleId, navId, bodyId, headerId) => {
+                    const toggle    = document.getElementById(toggleId),
+                    nav             = document.getElementById(navId),
+                    bodypd          = document.getElementById(bodyId),
+                    headerpd        = document.getElementById(headerId)
+
+                    if (toggle && nav && bodypd && headerpd) {
+                        toggle.addEventListener('click', () => {
+                            nav.classList.toggle('show-navbar')
+                            toggle.classList.toggle('bx-x')
+                            bodypd.classList.toggle('body-pd')
+                            headerpd.classList.toggle('body-pd')
+                        })
+                    }
+                }
+            
+                showNavbar('header-toggle', 'nav-bar', 'body-pd', 'header', 'footer')
+
+                const linkColor = document.querySelectorAll('.nav_link')
+
+                function colorLink() {
+                    if (linkColor) {
+                        linkColor.forEach(l => l.classList.remove('active'))
+                        this.classList.add('active')
+                    }
+                }
+
+                linkColor.forEach(l => l.addEventListener('click', colorLink))
+            });
+        </script>
+    </head>
+
+    <body id="body-pd" data-bs-theme="<?= USER_THEME_MODE ?>">
         <div id="spinner" class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
             <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
-        <!-- Spinner End -->
 
-        <!-- Sidebar Start -->
-        <div class="sidebar pe-4 pb-3">
-            <nav class="navbar bg-secondary navbar-dark absolute h-100 gap-4" style="overflow: auto; overflow-x: hidden; justify-content: space-between;">
-                <div style="align-self: start;">
-                    <div class="navbar-brand" style="margin: 0;">
-                        <a href="/">
-                            <h3 class="text-primary text-center"><?= APP_NAME ?></h3>
-                        </a>
-                        <div class="w-100 pb-4" align="center">
-                            <div id="activeInstanceContainer"><?= $serverList ?></div>
-                        </div>
-                    </div>
-                    <?php if ($_SESSION['authenticated']) { ?>
-                    <div class="navbar-nav w-100">
-                        <a id="menu-overview" onclick="initPage('overview')" style="cursor: pointer;" class="nav-item nav-link active"><i class="fas fa-heartbeat me-2"></i>Overview</a>
-                        <a id="menu-containers" class="nav-item nav-link" onmouseover="$('#menu-containers-label').addClass('text-primary')" onmouseout="containerMenuMouseOut()">
-                            <div style="cursor: pointer;">
-                                <div id="menu-containers-label" onclick="initPage('containers')">
-                                    <i class="fas fa-th me-2"></i>Containers
-                                </div>
-                                <div class="w-100 text-white ms-5 conatiner-links" style="display: none;">
-                                    <div onclick="openContainerGroups()" style="cursor: pointer;">&middot; Groups</div>
-                                    <div onclick="openUpdateOptions()" style="cursor: pointer;">&middot; Updates</div>
-                                </div>
-                            </div>
-                        </a>
-                        <a id="menu-networks" onclick="initPage('networks')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-network-wired me-2"></i>Networks</a>
-                        <a id="menu-compose" onclick="initPage('compose')" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-octopus-deploy me-2"></i>Compose</a>
-                        <a id="menu-orphans" onclick="initPage('orphans')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-th me-2"></i>Orphans</a>
-                        <a id="menu-notification" onclick="initPage('notification')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-comment-dots me-2"></i>Notifications</a>
-                        <a id="menu-settings" onclick="initPage('settings')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tools me-2"></i>Settings</a>
-                        <a id="menu-tasks" onclick="initPage('tasks')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-tasks me-2"></i>Tasks</a>
-                        <a id="menu-commands" onclick="initPage('commands')" style="cursor: pointer;" class="nav-item nav-link"><i class="fab fa-docker me-2"></i>Commands</a>
-                        <a id="menu-logs" onclick="initPage('logs')" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-file-code me-2"></i>Logs</a>
-                        <?php if (USE_AUTH) { ?>
-                        <a onclick="logout()" style="cursor: pointer;" class="nav-item nav-link"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-                        <?php } ?>
-                    </div>
-                    <?php } ?>
-                </div>
-                <div style="align-self: end; padding-left: 20px;">
-                    <div class="navbar-brand w-100 text-center" style="transform: scale(1.2);">
-                        <a href="https://dockwatch.wiki" target="_blank" title="Visit the <?= APP_NAME ?> wiki"><i class="fab fa-wikipedia-w btn-secondary me-2"></i></a>
-                        <a href="https://github.com/Notifiarr/dockwatch" title="Visit the <?= APP_NAME ?> github" target="_blank"><i class="fab fa-github btn-secondary me-2"></i></a>
-                        <a href="https://notifiarr.com/discord" title="Get some help if the wiki does not cover it" target="_blank"><i class="fab fa-discord btn-secondary"></i></a>
-                    </div>
-                    <div class="w-100 text-center small-text">
-                        Branch: <?= gitBranch() ?>, Hash: <a href="https://github.com/Notifiarr/dockwatch/commit/<?= gitHash() ?>" target="_blank" class="text-info"><?= substr(gitHash(), 0, 7) ?></a><br>
-                        <span class="text-muted">Theme By <a href="https://htmlcodex.com" target="_blank">HTML Codex</a> | <i class="fas fa-stopwatch" onclick="$('#loadtime-debug').toggle()"></i> | <i title="Clear session" class="fas fa-sign-out-alt" onclick="resetSession()"></i></span>
+        <header class="header bg-body" id="header">
+            <div class="header_toggle"><i class="fas fa-bars" id="header-toggle"></i></div>
+            <div class="header_img">
+                <a class="nav-link dropdown-toggle d-flex align-items-center text-secondary" href="#" id="theme-menu" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme">
+                    <i class="fas fa-cloud-sun"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" onclick="swapLightDark('light')">
+                            <i class="bi bi-sun-fill"></i><span class="ms-2">Light</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" onclick="swapLightDark('dark')">
+                            <i class="bi bi-moon-stars-fill"></i><span class="ms-2">Dark</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </header>
+        <div class="l-navbar" id="nav-bar">
+            <nav class="nav">
+                <div> 
+                    <a href="#" class="nav_logo"><img src="images/logo.png" height="45"><span class="nav_logo-name">Dockwatch</span></a>
+                    <div class="nav_list"> 
+                        <a href="#" onclick="serverListToggle()" class="nav_servers_link"><i class="fas fa-server fa-fw nav_icon"></i><span class="nav_name">Servers</span></a> 
+                        <a href="#" onclick="initPage('overview')" class="nav_link active"><i class="fas fa-heartbeat fa-fw nav_icon"></i><span class="nav_name">Overview</span></a> 
+                        <a href="#" onclick="initPage('containers')" class="nav_link"><i class="fas fa-th fa-fw nav_icon"></i><span class="nav_name">Containers</span></a>
+                        <a href="#" onclick="initPage('networks')" class="nav_link"><i class="fas fa-network-wired fa-fw nav_icon"></i><span class="nav_name">Networks</span></a>
+                        <a href="#" onclick="initPage('compose')" class="nav_link"><i class="fab fa-octopus-deploy fa-fw nav_icon"></i><span class="nav_name">Compose</span></a>
+                        <a href="#" onclick="initPage('orphans')" class="nav_link"><i class="fab fa-dropbox fa-fw nav_icon"></i><span class="nav_name">Orphans</span></a>
+                        <a href="#" onclick="initPage('notification')" class="nav_link"><i class="fas fa-comment-dots fa-fw nav_icon"></i><span class="nav_name">Notifications</span></a>
+                        <a href="#" onclick="initPage('settings')" class="nav_link"><i class="fas fa-tools fa-fw nav_icon"></i><span class="nav_name">Settings</span></a>
+                        <a href="#" onclick="initPage('tasks')" class="nav_link"><i class="fas fa-tasks fa-fw nav_icon"></i><span class="nav_name">Tasks</span></a>
+                        <a href="#" onclick="initPage('commands')" class="nav_link"><i class="fab fa-docker fa-fw nav_icon"></i><span class="nav_name">Commands</span></a>
+                        <a href="#" onclick="initPage('logs')" class="nav_link"><i class="fas fa-file-code fa-fw nav_icon"></i><span class="nav_name">Logs</span></a>
                     </div>
                 </div>
             </nav>
         </div>
-        <!-- Sidebar End -->
-
-        <!-- Content Start -->
-        <div class="content">
-            <!-- Navbar Start -->
-            <nav class="navbar navbar-expand bg-secondary navbar-dark sticky-top px-4 py-0">
-                <a href="#" class="sidebar-toggler flex-shrink-0 m-2">
-                    <i class="fa fa-bars"></i>
-                </a>
-                <div align="right" style="float: right;" class="w-100">
-                    <img src="images/logo.png" height="65">
-                </div>
-            </nav>
-            <!-- Navbar End -->
-
-            <!-- App Start -->
-            <div class="container-fluid pt-4 px-4">
+        <div id="page-panel" style="margin-bottom:75px;">

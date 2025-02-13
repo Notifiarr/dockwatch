@@ -83,6 +83,10 @@ if (!IS_SSE) {
     $settingsTable  = apiRequestLocal('database-getSettings');
     $serversTable   = apiRequestLocal('database-getServers');
 
+    define('USER_THEME', $settingsTable['defaultTheme'] ?: 'darkly');
+    define('USER_THEME_MODE', $settingsTable['defaultThemeMode'] ?: 'dark');
+    $themes = getThemes();
+
     //-- SET ACTIVE INSTANCE
     if (!$_SESSION['activeServerId'] || str_contains($_SERVER['PHP_SELF'], '/api/')) {
         apiSetActiveServer(APP_SERVER_ID, $serversTable);

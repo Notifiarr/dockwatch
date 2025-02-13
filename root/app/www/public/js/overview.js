@@ -43,7 +43,6 @@ function drawPieChart(type)
         plugins: {
             datalabels: {
                 display: data.labels.length < 10 ? true : false,
-                backgroundColor: '#ccc',
                 formatter: (value) => {
                     return value + 'MiB';
                 }
@@ -139,7 +138,6 @@ function drawLineChart(type)
         datasets: [{
             label: typeLabel,
             data: typeData,
-            borderColor: 'rgba(255, 0, 0, 0.4)',
             borderWidth: 1
         }]
     };

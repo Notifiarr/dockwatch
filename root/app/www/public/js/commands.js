@@ -13,7 +13,7 @@ function runCommand()
         return;
     }
 
-    loadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -21,7 +21,7 @@ function runCommand()
         data: '&m=runCommand&command=' + $('#command').val() + '&container=' + $('#command-container').val() + '&parameters=' + $('#command-parameters').val() + '&servers=' + servers,
         success: function (resultData) {
             $('#commandResults').html(resultData);
-            loadingStop();
+            pageLoadingStop();
         }
     });
 
