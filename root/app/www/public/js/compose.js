@@ -34,7 +34,7 @@ function composeSave(composePath)
 // ---------------------------------------------------------------------------------------------
 function composePull(composePath)
 {
-    pagepageLoadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -46,18 +46,18 @@ function composePull(composePath)
             } else {
                 toast('Compose', 'docker-compose pull failed<br>' + resultData, 'error');
             }
-            pagepageLoadingStop();
+            pageLoadingStop();
         },
         error: function(jqhdr, textStatus, errorThrown) {
             toast('Compose', 'Ajax error (likely a timeout), open the dev console with F12 and try again to try and reproduce', 'error');
-            pagepageLoadingStop();
+            pageLoadingStop();
         }
     });
 }
 // ---------------------------------------------------------------------------------------------
 function composeUp(composePath)
 {
-    pagepageLoadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -69,11 +69,11 @@ function composeUp(composePath)
             } else {
                 toast('Compose', 'docker-compose up -d failed<br>' + resultData, 'error');
             }
-            pagepageLoadingStop();
+            pageLoadingStop();
         },
         error: function(jqhdr, textStatus, errorThrown) {
             toast('Compose', 'Ajax error (likely a timeout), open the dev console with F12 and try again to try and reproduce', 'error');
-            pagepageLoadingStop();
+            pageLoadingStop();
         }
     });
 }

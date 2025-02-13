@@ -512,7 +512,7 @@ function hideContainerPorts(containerHash)
 // ---------------------------------------------------------------------------------------------
 function containerLogs(container)
 {
-    pagepageLoadingStart();
+    pageLoadingStart();
     $.ajax({
         type: 'POST',
         url: '../ajax/containers.php',
@@ -524,7 +524,7 @@ function containerLogs(container)
                 size: 'xl',
                 body: resultData,
                 onOpen: function () {
-                    pagepageLoadingStop();
+                    pageLoadingStop();
                 }
             });
         }
@@ -594,7 +594,7 @@ function massChangeMinAge(option)
 // ---------------------------------------------------------------------------------------------
 function containerInfo(hash)
 {
-    pagepageLoadingStart();
+    pageLoadingStart();
 
     $.ajax({
         type: 'POST',
@@ -607,7 +607,7 @@ function containerInfo(hash)
                 classes: 'bg-secondary p-2',
             }).popupLeft();
 
-            pagepageLoadingStop();
+            pageLoadingStop();
         }
     });
 }
