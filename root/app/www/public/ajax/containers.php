@@ -74,11 +74,103 @@ if ($_POST['m'] == 'init') {
                 </div>
             </div>
             <div class="col-sm-12">
-                <div class="table-responsive">
+                <div class="table-responsive d-md-none">
+                    <table class="table" id="container-table-mobile">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="rounded-top-left-1 bg-primary ps-3 container-table-header noselect no-sort"></th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect no-sort"></th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect">Container</th>
+                                <th scope="col" class="rounded-top-right-1 bg-primary ps-3 container-table-header noselect no-sort">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            //-- GROUPS
+                            $groupContainerHashes = [];
+                            if ($containerLinksTable) {
+                                foreach ($containerGroupsTable as $containerGroup) {
+                                    $groupHash          = $containerGroup['hash'];
+                                    $groupContainers    = apiRequest('database-getGroupLinkContainersFromGroupId', ['group' => $containerGroup['id']])['result'];
+                                    $groupCPU           = $groupMemory = $groupContainerCount = 0;
+
+                                    foreach ($processList as $process) {
+                                        $nameHash = md5($process['Names']);
+
+                                        foreach ($groupContainers as $groupContainer) {
+                                            if ($nameHash == $groupContainer['hash']) {
+                                                $memUsage = floatval(str_replace('%', '', $process['stats']['MemPerc']));
+                                                $groupMemory += $memUsage;
+
+                                                $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
+                                                if (intval($settingsTable['cpuAmount']) > 0) {
+                                                    $cpuUsage = number_format(($cpuUsage / intval($settingsTable['cpuAmount'])), 2);
+                                                }
+                                                $groupCPU += $cpuUsage;
+
+                                                $groupContainerCount++;
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                    <tr id="<?= $groupHash ?>" class="container-group" style="background-color: #1c2029;">
+                                        <td class="container-table-row bg-secondary">
+                                            <input type="checkbox" class="form-check-input containers-check" onchange="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));">
+                                        </td>
+                                        <td class="container-table-row bg-secondary">
+                                            <img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32">
+                                        </td>
+                                        <td class="container-table-row bg-secondary">
+                                            <span class="text-info container-group-label" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br>
+                                            <span class="text-muted small-text">Containers: <?= $groupContainerCount ?></span>
+                                        </td>
+                                        <td class="container-table-row bg-secondary">&nbsp;</td>
+                                    </tr>
+                                    <?php
+
+                                    foreach ($groupContainers as $groupContainer) {
+                                        foreach ($processList as $process) {
+                                            $nameHash = md5($process['Names']);
+
+                                            if ($nameHash == $groupContainer['hash']) {
+                                                $groupContainerHashes[] = $nameHash;
+                                                renderContainerRow($nameHash, 'html', true);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //-- NON GROUPS
+                            $groupHash  = '';
+                            foreach ($processList as $process) {
+                                $nameHash = md5($process['Names']);
+
+                                if ($groupContainerHashes) {
+                                    if (in_array($nameHash, $groupContainerHashes)) {
+                                        continue;
+                                    }
+                                }
+
+                                renderContainerRow($nameHash, 'html', true);
+                            }
+                            ?>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="rounded-bottom-right-1 rounded-bottom-left-1 bg-primary ps-3" colspan="4">
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="table-responsive no-mobile">
                     <table class="table" id="container-table">
                         <thead>
                             <tr>
-                                <th scope="col" class="rounded-top-left-1 bg-primary ps-3container-table-header noselect no-sort"></th>
+                                <th scope="col" class="rounded-top-left-1 bg-primary ps-3 container-table-header noselect no-sort"></th>
                                 <th scope="col" class="bg-primary ps-3 container-table-header noselect no-sort"></th>
                                 <th scope="col" class="bg-primary ps-3 container-table-header noselect">Name</th>
                                 <th scope="col" class="bg-primary ps-3 container-table-header noselect">Updates</th>

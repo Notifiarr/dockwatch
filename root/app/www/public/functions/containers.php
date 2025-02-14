@@ -7,7 +7,7 @@
 ----------------------------------
 */
 
-function renderContainerRow($nameHash, $return)
+function renderContainerRow($nameHash, $return, $mobileTable = false)
 {
     global $docker, $pullsFile, $settingsTable, $processList, $skipContainerActions, $groupHash;
 
@@ -190,6 +190,8 @@ function renderContainerRow($nameHash, $return)
         $isCompose = isComposeContainer($process['Names']) ? '<i class="fab fa-octopus-deploy me-2 text-muted" title="This container has a compose file"></i>' : '';
 
         ?>
+
+        <?php if (!$mobileTable) { ?>
         <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ?>>
             <!-- COLUMN: CHECKBOX -->
             <td class="container-table-row bg-secondary"><input <?= $isDockwatch ? 'attr-dockwatch="true"' : '' ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" data-id="<?= $containerSettings['id'] ?>" type="checkbox" class="form-check-input containers-check <?= $groupHash ? 'group-' . $groupHash . '-check' : '' ?>"></td>
@@ -228,6 +230,37 @@ function renderContainerRow($nameHash, $return)
             <!-- COLUMN: MEMORT/CPU USAGE -->
             <td class="container-table-row bg-secondary no-mobile" id="<?= $nameHash ?>-usage"><?= $cpuUsage ?><br><?= $process['stats']['MemPerc'] ?></td>
         </tr>
+        <?php } else { ?>
+        <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ?>>
+            <!-- COLUMN: CHECKBOX -->
+            <td class="container-table-row bg-secondary"><input <?= $isDockwatch ? 'attr-dockwatch="true"' : '' ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" data-id="<?= $containerSettings['id'] ?>" type="checkbox" class="form-check-input containers-check <?= $groupHash ? 'group-' . $groupHash . '-check' : '' ?>"></td>
+            <!-- COLUMN: ICON -->
+            <td class="container-table-row bg-secondary"><?= $logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '' ?></td>
+            <!-- COLUMN: STOP/START ICON, NAME, MENU, REPOSITORY -->
+            <td class="container-table-row bg-secondary">
+                <div class="row m-0 p-0">
+                    <!-- STOP/START ICONS -->
+                    <div class="col-sm-12 col-lg-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
+                    <!-- NAME, STATE -->
+                    <div class="col-sm-12 col-lg-10" style="cursor:pointer;" onclick="containerInfo('<?= $nameHash ?>')">
+                        <span><?= $notificationIcon . $isCompose . $process['Names'] ?></span>
+                        <br>
+                        <span class="text-muted small-text">
+                            <?= $process['State'] ?> (<?= $length ?>)
+                        </span>
+                    </div>
+                </div>
+            </td>
+            <td class="container-table-row bg-secondary">
+                <div class="row m-0 p-0">
+                    <div class="w-100"><?= $updateStatus ?></div>
+                    <br>
+                    <div class="w-100"><?= $health ?></div>
+                </div>
+            </td>
+        </tr>
+        <?php } ?>
+
         <?php
     }
 }
