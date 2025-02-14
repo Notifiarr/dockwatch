@@ -128,28 +128,28 @@ if ($_POST['m'] == 'init') {
         <div class="d-flex flex-wrap flex-lg-nowrap gap-sm-2" style="justify-content:center;">
             <div class="bg-secondary rounded px-2 w-100">
                 <div class="d-flex flex-row mt-2">
-                    <p class="text-primary" style="font-size: 18px;">Disk Usage</p>
+                    <p class="text-info" style="font-size: 18px;">Disk Usage</p>
                     <i class="fas fa-hdd ms-auto p-2"></i>
                 </div>
                 <p style="font-size: 20px;"><?= byteConversion($size) ?></p>
             </div>
             <div class="bg-secondary rounded px-2 w-100">
                 <div class="d-flex flex-row mt-2">
-                    <p class="text-primary" style="font-size: 18px;">Network I/O</p>
+                    <p class="text-info" style="font-size: 18px;">Network I/O</p>
                     <i class="fas fa-wifi ms-auto p-2"></i>
                 </div>
                 <p style="font-size: 20px;"><?= byteConversion($network) ?></p>
             </div>
             <div class="bg-secondary rounded px-2 w-100">
                 <div class="d-flex flex-row mt-2">
-                    <p class="text-primary" style="font-size: 18px;">CPU Usage</p>
+                    <p class="text-info" style="font-size: 18px;">CPU Usage</p>
                     <i class="fas fa-microchip ms-auto p-2"></i>
                 </div>
                 <p style="font-size: 20px;"><span title="Docker reported CPU"><?= $cpu ?>%</span><?= $cpuActual ? ' <span title="Calculated CPU">(' . $cpuActual . '%)</span>' : '' ?></p>
             </div>
             <div class="bg-secondary rounded px-2 w-100">
                 <div class="d-flex flex-row mt-2">
-                    <p class="text-primary" style="font-size: 18px;">Memory Usage</p>
+                    <p class="text-info" style="font-size: 18px;">Memory Usage</p>
                     <i class="fas fa-memory ms-auto p-2"></i>
                 </div>
                 <p style="font-size: 20px;"><?= $memory ?>%</p>

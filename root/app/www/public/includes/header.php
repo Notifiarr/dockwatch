@@ -31,7 +31,8 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
         <link href="libraries/bootstrap/bootstrap-icons.css" rel="stylesheet">
 
         <!-- Customized Bootstrap Stylesheet -->
-        <link href="themes/<?= USER_THEME ?>.min.css" rel="stylesheet">
+        <link href="themes/<?= USER_THEME ?>.min.css?t=<?= filemtime('themes/' . USER_THEME . '.min.css') ?>" rel="stylesheet">
+        <link href="themes/<?= USER_THEME ?>.custom.css?t=<?= filemtime('themes/' . USER_THEME . '.custom.css') ?>" rel="stylesheet">
 
         <!-- Datatable Stylesheet -->
         <link href="libraries/datatable/datatables.min.css" rel="stylesheet">
