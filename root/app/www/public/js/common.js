@@ -58,14 +58,16 @@ function setScreenSizeVars()
 
     //-- UNHIDE THINGS DURING A RESIZE
     $('#footer-themes').show();
-    $('.no-mobile').show();
+    $('.hide-mobile, .hide-desktop').show();
     $('.buttons-colvis').show();
 
     //-- HIDE THINGS ON MOBILE
     if (smScreen) {
         $('#footer-themes').hide();
-        $('.no-mobile').hide();
+        $('.hide-mobile').hide();
         $('.buttons-colvis').hide();
+    } else {
+        $('.hide-desktop').hide();
     }
 }
 // ---------------------------------------------------------------------------------------------
@@ -127,12 +129,12 @@ function initPage(page)
             }
 
             if (page == 'containers') {
-                $('.no-mobile').show();
+                $('.hide-mobile').show();
 
                 if (smScreen) {
                     $('#container-control-buttons').prop('style', '');
                     $('.container-control-button-label').remove();
-                    $('.no-mobile').hide();
+                    $('.hide-mobile').hide();
                 }
 
                 $('#sse-timer').html(sseCountdown);

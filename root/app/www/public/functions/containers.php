@@ -188,17 +188,14 @@ function renderContainerRow($nameHash, $return, $mobileTable = false)
         }
 
         $isCompose = isComposeContainer($process['Names']) ? '<i class="fab fa-octopus-deploy me-2 text-muted" title="This container has a compose file"></i>' : '';
-
         ?>
-
-        <?php if (!$mobileTable) { ?>
         <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ?>>
             <!-- COLUMN: CHECKBOX -->
             <td class="container-table-row bg-secondary"><input <?= $isDockwatch ? 'attr-dockwatch="true"' : '' ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" data-id="<?= $containerSettings['id'] ?>" type="checkbox" class="form-check-input containers-check <?= $groupHash ? 'group-' . $groupHash . '-check' : '' ?>"></td>
             <!-- COLUMN: ICON -->
             <td class="container-table-row bg-secondary"><?= $logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '' ?></td>
             <!-- COLUMN: STOP/START ICON, NAME, MENU, REPOSITORY -->
-            <td class="container-table-row bg-secondary">
+            <td class="container-table-row bg-secondary hide-mobile">
                 <div class="row m-0 p-0">
                     <!-- STOP/START ICONS -->
                     <div class="col-sm-12 col-lg-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
@@ -210,57 +207,41 @@ function renderContainerRow($nameHash, $return, $mobileTable = false)
                 </div>
             </td>
             <!-- COLUMN: UPDATES, HASH -->
-            <td class="container-table-row bg-secondary" id="<?= $nameHash ?>-update" style="cursor: help;" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
+            <td class="container-table-row bg-secondary hide-mobile" id="<?= $nameHash ?>-update" style="cursor: help;" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
                 <?= $updateStatus ?><br>
                 <span class="text-muted small-text" title="<?= $pullData['imageDigest'] ?>"><?= truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) ?></span>
             </td>
             <!-- COLUMN: STATE -->
-            <td class="container-table-row bg-secondary">
+            <td class="container-table-row bg-secondary hide-mobile">
                 <span id="<?= $nameHash ?>-state"><?= $process['State'] ?></span><br>
                 <span class="text-muted small-text" id="<?= $nameHash ?>-length"><?= $length ?></span>
             </td>
             <!-- COLUMN: HEALTH -->
-            <td class="container-table-row bg-secondary" id="<?= $nameHash ?>-health"><?= $health ?></td>
+            <td class="container-table-row bg-secondary hide-mobile" id="<?= $nameHash ?>-health"><?= $health ?></td>
             <!-- COLUMN: MOUNTS -->
-            <td class="container-table-row bg-secondary no-mobile" id="<?= $nameHash ?>-mounts-td"><span id="<?= $nameHash ?>-mounts" class="small-text"><?= $mountList ?></span></td>
+            <td class="container-table-row bg-secondary hide-mobile" id="<?= $nameHash ?>-mounts-td"><span id="<?= $nameHash ?>-mounts" class="small-text"><?= $mountList ?></span></td>
             <!-- COLUMN: ENVIRONMENTS -->
-            <td class="container-table-row bg-secondary no-mobile" id="<?= $nameHash ?>-env-td"><span id="<?= $nameHash ?>-env" class="small-text"><?= $envList ?></span></td>
+            <td class="container-table-row bg-secondary hide-mobile" id="<?= $nameHash ?>-env-td"><span id="<?= $nameHash ?>-env" class="small-text"><?= $envList ?></span></td>
             <!-- COLUMN: PORTS -->
-            <td class="container-table-row bg-secondary no-mobile" id="<?= $nameHash ?>-ports-td"><span id="<?= $nameHash ?>-ports" class="small-text"><?= $portList ?></span></td>
+            <td class="container-table-row bg-secondary hide-mobile" id="<?= $nameHash ?>-ports-td"><span id="<?= $nameHash ?>-ports" class="small-text"><?= $portList ?></span></td>
             <!-- COLUMN: MEMORT/CPU USAGE -->
-            <td class="container-table-row bg-secondary no-mobile" id="<?= $nameHash ?>-usage"><?= $cpuUsage ?><br><?= $process['stats']['MemPerc'] ?></td>
-        </tr>
-        <?php } else { ?>
-        <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ?>>
-            <!-- COLUMN: CHECKBOX -->
-            <td class="container-table-row bg-secondary"><input <?= $isDockwatch ? 'attr-dockwatch="true"' : '' ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" data-id="<?= $containerSettings['id'] ?>" type="checkbox" class="form-check-input containers-check <?= $groupHash ? 'group-' . $groupHash . '-check' : '' ?>"></td>
-            <!-- COLUMN: ICON -->
-            <td class="container-table-row bg-secondary"><?= $logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '' ?></td>
-            <!-- COLUMN: STOP/START ICON, NAME, MENU, REPOSITORY -->
-            <td class="container-table-row bg-secondary">
+            <td class="container-table-row bg-secondary hide-mobile" id="<?= $nameHash ?>-usage"><?= $cpuUsage ?><br><?= $process['stats']['MemPerc'] ?></td>
+
+            <!-- COLUMN: STOP/START ICON, NAME (MOBILE) -->
+            <td class="container-table-row bg-secondary hide-desktop">
                 <div class="row m-0 p-0">
                     <!-- STOP/START ICONS -->
                     <div class="col-sm-12 col-lg-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
-                    <!-- NAME, STATE -->
+                    <!-- NAME, REPOSITORY -->
                     <div class="col-sm-12 col-lg-10" style="cursor:pointer;" onclick="containerInfo('<?= $nameHash ?>')">
                         <span><?= $notificationIcon . $isCompose . $process['Names'] ?></span>
-                        <br>
-                        <span class="text-muted small-text">
-                            <?= $process['State'] ?> (<?= $length ?>)
-                        </span>
+                        <br><span class="text-muted small-text" id="<?= $nameHash ?>-length"><?= $length ?></span>
                     </div>
                 </div>
             </td>
-            <td class="container-table-row bg-secondary">
-                <div class="row m-0 p-0">
-                    <div class="w-100"><?= $updateStatus ?></div>
-                    <br>
-                    <div class="w-100"><?= $health ?></div>
-                </div>
-            </td>
+            <!-- COLUMN: STATUS (MOBILE) -->
+            <td class="container-table-row bg-secondary hide-desktop" id="<?= $nameHash ?>-health"><?= $updateStatus ?><br><?= $health ?></td>
         </tr>
-        <?php } ?>
-
         <?php
     }
 }
