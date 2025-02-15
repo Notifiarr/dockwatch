@@ -217,7 +217,7 @@ trait Mattermost
                             continue;
                         }
 
-                        $updates[] = $updated['container'] . ' [' . $updated['pre'] . ' → ' . $updated['post'] . ']';
+                        $updates[] = $updated['container'] . ' [' . $updated['pre']['version'] . ' → ' . $updated['post']['version'] . ']';
                     }
 
                     if ($updates) {

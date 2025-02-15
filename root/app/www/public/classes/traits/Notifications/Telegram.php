@@ -134,7 +134,7 @@ trait Telegram
                 if ($payload['updated']) {
                     $message .= '*Updated*:' . "\n";
                     foreach ($payload['updated'] as $updated) {
-                        $message .= '- ' . $updated['container'] . ' [' . $updated['pre'] . ' → ' . $updated['post'] . ']' . "\n";
+                        $message .= '- ' . $updated['container'] . ' [' . $updated['pre']['version'] . ' → ' . $updated['post']['version'] . ']' . "\n";
                     }
                     $message .= "\n";
                 }

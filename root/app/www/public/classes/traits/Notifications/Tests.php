@@ -12,7 +12,7 @@ trait NotificationTests
     public function getTestPayloads()
     {
         return [
-                'updated'       => ['event' => 'updates', 'updated' => [['container' => APP_NAME, 'image' => APP_IMAGE, 'pre' => '0.0.0', 'post' => '0.0.1']]],
+                'updated'       => ['event' => 'updates', 'updated' => [['container' => APP_NAME, 'image' => APP_IMAGE, 'pre' => ['version' => '0.0.0', 'digest' => '1ede6888ea9ca58217f6100218548b9b5d0720390452d5be6d3f83ac2449956c'], 'post' => ['version' => '0.0.1', 'digest' => '1ede6888ea9ca58217f6100218548b9b5d0720390452d5be6d3f83ac2449956c']]]],
                 'updates'       => ['event' => 'updates', 'available' => [['container' => APP_NAME]]],
                 'stateChange'   => ['event' => 'state', 'changes' => [['container' => APP_NAME, 'previous' => 'Exited', 'current' => 'Running']]],
                 'added'         => ['event' => 'state', 'added' => [['container' => APP_NAME]]],
