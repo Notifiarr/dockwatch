@@ -90,7 +90,7 @@ if ($_POST['m'] == 'init') {
                                 <th scope="col" class="rounded-top-right-1 bg-primary ps-3 container-table-header noselect no-sort hide-mobile">CPU/MEM</th>
 
                                 <th scope="col" class="bg-primary ps-3 container-table-header noselect hide-desktop">Container</th>
-                                <th scope="col" class="bg-primary ps-3 container-table-header noselect hide-desktop">Status</th>
+                                <th scope="col" class="rounded-top-right-1 bg-primary ps-3 container-table-header noselect hide-desktop">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -122,23 +122,23 @@ if ($_POST['m'] == 'init') {
                                         }
                                     }
                                     ?>
-                                    <tr id="<?= $groupHash ?>" class="container-group" style="background-color: #1c2029;">
+                                    <tr id="<?= $groupHash ?>" class="container-group">
                                         <td class="container-table-row bg-secondary"><input type="checkbox" class="form-check-input containers-check" onchange="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></td>
                                         <td class="container-table-row bg-secondary"><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
                                         <td class="container-table-row bg-secondary">
                                             <span class="text-info container-group-label" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br>
                                             <span class="text-muted small-text">Containers: <?= $groupContainerCount ?></span>
                                         </td>
-                                        <td class="container-table-row bg-secondary">&nbsp;</td>
-                                        <td class="container-table-row bg-secondary">&nbsp;</td>
-                                        <td class="container-table-row bg-secondary">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary hide-mobile">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary hide-mobile">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary hide-mobile">&nbsp;</td>
                                         <td class="container-table-row bg-secondary hide-mobile">&nbsp;</td>
                                         <td class="container-table-row bg-secondary hide-mobile">&nbsp;</td>
                                         <td class="container-table-row bg-secondary hide-mobile">&nbsp;</td>
                                         <td class="container-table-row bg-secondary hide-mobile"><?= $groupCPU ?>%<br><?= $groupMemory ?>%</td>
 
-                                        <td class="container-table-row bg-secondary hide-desktop">&nbsp;</td>
-                                        <td class="container-table-row bg-secondary hide-desktop">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary hide-mobile hide-desktop">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary hide-mobile hide-desktop">&nbsp;</td>
                                     </tr>
                                     <?php
 

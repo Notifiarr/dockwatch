@@ -299,6 +299,7 @@ function massApplyContainerTrigger(dependencyTrigger = false, action = 0, contai
                     c++;
 
                     runTrigger();
+                    setScreenSizeVars();
                 },
                 error: function(jqhdr, textStatus, errorThrown) {
                     $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + containerName + ' ajax error (' + (errorThrown ? errorThrown : 'timeout') + ', check the console for more information using F12) ... Retrying in 5s<br>');
@@ -314,6 +315,8 @@ function massApplyContainerTrigger(dependencyTrigger = false, action = 0, contai
                         $('#massTrigger-close-btn').show();
                         $('#massTrigger-spinner').hide();
                     }
+
+                    setScreenSizeVars();
                 }
             });
         }

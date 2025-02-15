@@ -7,7 +7,7 @@
 ----------------------------------
 */
 
-function renderContainerRow($nameHash, $return, $mobileTable = false)
+function renderContainerRow($nameHash, $return)
 {
     global $docker, $pullsFile, $settingsTable, $processList, $skipContainerActions, $groupHash;
 
@@ -189,7 +189,7 @@ function renderContainerRow($nameHash, $return, $mobileTable = false)
 
         $isCompose = isComposeContainer($process['Names']) ? '<i class="fab fa-octopus-deploy me-2 text-muted" title="This container has a compose file"></i>' : '';
         ?>
-        <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row" style="display: none; background-color: #232833;"' : '' ?>>
+        <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row bg-primary" style="display: none;"' : '' ?>>
             <!-- COLUMN: CHECKBOX -->
             <td class="container-table-row bg-secondary"><input <?= $isDockwatch ? 'attr-dockwatch="true"' : '' ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" data-id="<?= $containerSettings['id'] ?>" type="checkbox" class="form-check-input containers-check <?= $groupHash ? 'group-' . $groupHash . '-check' : '' ?>"></td>
             <!-- COLUMN: ICON -->
