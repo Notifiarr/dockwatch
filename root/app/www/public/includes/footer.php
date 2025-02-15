@@ -49,12 +49,12 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content bg-dark" style="border: grey solid 1px;">
                     <div class="modal-header" style="border: grey solid 1px;">
-                        <h5 class="modal-title text-primary">Loading</h5>
+                        <h5 class="modal-title text-info">Loading</h5>
                         <button type="button" class="btn btn-outline-primary btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body" style="border: grey solid 1px;">
                         <p>
-                            <div class="spinner-border text-primary" style="margin-right: 1em;"></div>
+                            <div class="spinner-border text-info" style="margin-right: 1em;"></div>
                             <span class="text-white">I'm gathering everything needed to complete the request, give me just a moment...</span>
                         </p>
                     </div>
@@ -68,7 +68,7 @@
             <div class="modal-dialog" style="max-width: 1000px">
                 <div class="modal-content bg-dark" style="border: grey solid 1px;">
                     <div class="modal-header" style="border: grey solid 1px;">
-                        <h5 class="modal-title text-primary"><div id="massTrigger-spinner" class="spinner-border text-primary" style="margin-right: 1em;"></div> Mass Trigger: <span id="triggerAction"></span></h5>
+                        <h5 class="modal-title text-info"><div id="massTrigger-spinner" class="spinner-border text-info" style="margin-right: 1em;"></div> Mass Trigger: <span id="triggerAction"></span></h5>
                     </div>
                     <div class="modal-body" style="border: grey solid 1px;">
                         <div id="massTrigger-header"></div>

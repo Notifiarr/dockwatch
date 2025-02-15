@@ -285,7 +285,7 @@ if ($_POST['m'] == 'containerInfo') {
         <div style="float:right;"><i style="cursor:pointer;" class="far fa-window-close fa-lg text-danger popout-close"></i></div>
     </div>
     <hr>
-    <span class="h4 text-primary">Actions</span><br>
+    <span class="h4 text-info">Actions</span><br>
     <div class="text-center mt-2 mb-3">
         <?php if ($isDockwatch) { ?>
             <button class="btn btn-info" onclick="dockwatchWarning()">Manage dockwatch</button>
@@ -306,7 +306,7 @@ if ($_POST['m'] == 'containerInfo') {
         <?php } ?>
     </div>
 
-    <span class="h4 text-primary">Settings</span><br>
+    <span class="h4 text-info">Settings</span><br>
     <table class="table table-hover small-text">
         <tr>
             <td class="w-50">Internal compose</td>
@@ -393,7 +393,7 @@ if ($_POST['m'] == 'containerInfo') {
             </td>
         </tr>
     </table>
-    <span class="h4 text-primary">Container</span><br>
+    <span class="h4 text-info">Container</span><br>
     <table class="table table-hover small-text">
         <tr>
             <td>Logs</td>
@@ -1082,7 +1082,7 @@ if ($_POST['m'] == 'openEditContainer') {
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="2"><h4 class="text-primary">Container</h4></td>
+                        <td colspan="2"><h4 class="text-info">Container</h4></td>
                     </tr>
                     <tr>
                         <td width="20%">Name</td>
@@ -1108,7 +1108,7 @@ if ($_POST['m'] == 'openEditContainer') {
                     </tr>
                     <tr>
                         <td colspan="2">
-                            <div style="float: left;"><h4 class="text-primary">Environment</h4></div>
+                            <div style="float: left;"><h4 class="text-info">Environment</h4></div>
                             <div style="float: right;"><i class="fas fa-plus-circle text-success"></i></div>
                         </td>
                     </tr>
@@ -1130,7 +1130,7 @@ if ($_POST['m'] == 'openEditContainer') {
                     ?>
                     <tr>
                         <td colspan="2">
-                            <div style="float: left;"><h4 class="text-primary">Mounts</h4></div>
+                            <div style="float: left;"><h4 class="text-info">Mounts</h4></div>
                             <div style="float: right;"><i class="fas fa-plus-circle text-success"></i></div>
                         </td>
                     </tr>
@@ -1168,7 +1168,7 @@ if ($_POST['m'] == 'openEditContainer') {
                     ?>
                     <tr>
                         <td colspan="2">
-                            <div style="float: left;"><h4 class="text-primary">Labels</h4></div>
+                            <div style="float: left;"><h4 class="text-info">Labels</h4></div>
                             <div style="float: right;"><i class="fas fa-plus-circle text-success"></i></div>
                         </td>
                     </tr>

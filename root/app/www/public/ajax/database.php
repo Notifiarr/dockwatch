@@ -36,7 +36,7 @@ if ($_POST['m'] == 'init') {
         }
         ?>
         <div class="rounded bg-secondary mb-3">
-            <div class="h5 p-2 text-primary"><?= $table ?></div><hr>
+            <div class="h5 p-2 text-info"><?= $table ?></div>
             <table class="table table-hover">
                 <tr>
                     <td style="width:10%;">Schema</td>
