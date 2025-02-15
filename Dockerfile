@@ -13,7 +13,6 @@ RUN \
     NGINX_VERSION=$(curl -sL "http://dl-cdn.alpinelinux.org/alpine/v3.18/main/x86_64/APKINDEX.tar.gz" | tar -xz -C /tmp \
     && awk '/^P:nginx$/,/V:/' /tmp/APKINDEX | sed -n 2p | sed 's/^V://'); \
   fi && \
-
   apk add --no-cache --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community \
     php83-pecl-mcrypt && \
   echo "**** configure php-fpm to pass env vars ****" && \
