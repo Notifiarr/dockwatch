@@ -63,7 +63,7 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
                         })
                     }
                 }
-            
+
                 showNavbar('header-toggle', 'nav-bar', 'body-pd', 'header', 'footer')
 
                 const linkColor = document.querySelectorAll('.nav_link')
@@ -75,7 +75,10 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
                     }
                 }
 
-                linkColor.forEach(l => l.addEventListener('click', colorLink))
+                linkColor.forEach(l => {
+                    if (l.onclick.toString().match(/initPage\('(.+)'\)/)[1] == DEFAULT_PAGE) l.classList.add('active')
+                    l.addEventListener('click', colorLink)
+                })
             });
         </script>
     </head>
@@ -109,11 +112,11 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
         </header>
         <div class="l-navbar" id="nav-bar">
             <nav class="nav">
-                <div> 
+                <div>
                     <a href="#" class="nav_logo"><img src="images/logo.png" height="45"><span class="nav_logo-name">Dockwatch</span></a>
-                    <div class="nav_list"> 
-                        <a href="#" onclick="serverListToggle()" class="nav_servers_link"><i class="fas fa-server fa-fw nav_icon"></i><span class="nav_name">Servers</span></a> 
-                        <a href="#" onclick="initPage('overview')" class="nav_link active"><i class="fas fa-heartbeat fa-fw nav_icon"></i><span class="nav_name">Overview</span></a> 
+                    <div class="nav_list">
+                        <a href="#" onclick="serverListToggle()" class="nav_servers_link"><i class="fas fa-server fa-fw nav_icon"></i><span class="nav_name">Servers</span></a>
+                        <a href="#" onclick="initPage('overview')" class="nav_link"><i class="fas fa-heartbeat fa-fw nav_icon"></i><span class="nav_name">Overview</span></a>
                         <a href="#" onclick="initPage('containers')" class="nav_link"><i class="fas fa-th fa-fw nav_icon"></i><span class="nav_name">Containers</span></a>
                         <a href="#" onclick="initPage('networks')" class="nav_link"><i class="fas fa-network-wired fa-fw nav_icon"></i><span class="nav_name">Networks</span></a>
                         <a href="#" onclick="initPage('compose')" class="nav_link"><i class="fab fa-octopus-deploy fa-fw nav_icon"></i><span class="nav_name">Compose</span></a>

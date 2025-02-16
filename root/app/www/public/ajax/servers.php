@@ -17,7 +17,7 @@ if ($_POST['m'] == 'serverListToggle') {
         <div class="card-header">Loaded server</div>
         <div class="card-body">
             <div class="bg-secondary rounded w-100 text-center h4">
-                <div class="p-2"><?= $_SESSION['activeServerName'] ?></div>
+                <div class="p-2 h4"><?= $_SESSION['activeServerName'] ?></div>
             </div>
         </div>
     </div>

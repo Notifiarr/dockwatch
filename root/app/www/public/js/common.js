@@ -112,7 +112,7 @@ function initPage(page)
     currentPage = page;
     init = true;
     $('[id^=content-]').hide();
-    $('#content-' + page).html('Loading ' + page + ' page...').show();
+    $('#content-' + page).html('<div class="text-center">Loading ' + page + ' page...</div>').show();
     $('[id^=menu-]').removeClass('active');
     $('#menu-' + page).addClass('active');
 

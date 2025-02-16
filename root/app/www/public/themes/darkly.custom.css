@@ -201,6 +201,11 @@ small {font-size: var(--font-small);}
 
 .bg-secondary {
     background-color: var(--background-100) !important;
+    color: var(--text-950) !important;
+}
+
+#content-dockerPermissions, #apiError {
+    color: var(--text-950) !important;
 }
 
 .h5, .fas {
@@ -508,4 +513,20 @@ td {
     color: var(--text-950) !important;
     background-color: var(--background-100) !important;
     border-color: var(--background-200) !important;
+}
+
+.text-center {
+    color: var(--text-950) !important;
+}
+
+.table {
+    --bs-table-bg: var(--primary-500) !important;
+}
+
+.container>h3 {
+    color: var(--primary-500) !important;
+}
+
+.notification-trigger {
+    background-color: var(--background-400) !important;
 }
