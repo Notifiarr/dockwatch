@@ -45,8 +45,12 @@ function drawPieChart(type)
                 display: data.labels.length < 10 ? true : false,
                 formatter: (value) => {
                     return value + 'MiB';
+                },
+                color: '#ffffff',
+                font: {
+                    weight: 'bold',
+                    size: 16
                 }
-
             },
             legend: {
                 display: false,

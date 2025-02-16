@@ -29,9 +29,9 @@
                             }
                             ?>
                         </select>
-                        <!-- 
-                            | <i class="fas fa-stopwatch" onclick="$('#loadtime-debug').toggle()"></i> 
-                            | <i title="Clear session" class="fas fa-sign-out-alt" onclick="resetSession()"></i></span> 
+                        <!--
+                            | <i class="fas fa-stopwatch" onclick="$('#loadtime-debug').toggle()"></i>
+                            | <i title="Clear session" class="fas fa-sign-out-alt" onclick="resetSession()"></i></span>
                         -->
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                     <div class="modal-content bg-dark" style="border: grey solid 1px;">
                         <div class="modal-header" style="border: grey solid 1px;">
                             <h5 class="modal-title"></h5>
-                            <i class="far fa-window-close fa-2x" data-bs-dismiss="modal" style="cursor: pointer;"></i>
+                            <i class="far fa-window-close fa-2x ms-auto" data-bs-dismiss="modal" style="cursor: pointer;"></i>
                         </div>
                         <div class="modal-body" data-scrollbar=”true” data-wheel-propagation=”true”></div>
                         <div class="modal-footer"></div>

@@ -129,7 +129,7 @@ if ($_POST['m'] == 'init') {
                                             <span class="text-info container-group-label" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br>
                                             <span class="text-muted small-text">Containers: <?= $groupContainerCount ?></span>
                                         </td>
-                                        <td class="container-table-row bg-secondary hide-mobile">&nbsp;</td>
+                                        <td class="container-table-row bg-secondary">&nbsp;</td>
                                         <td class="container-table-row bg-secondary hide-mobile">&nbsp;</td>
                                         <td class="container-table-row bg-secondary hide-mobile">&nbsp;</td>
                                         <td class="container-table-row bg-secondary hide-mobile">&nbsp;</td>

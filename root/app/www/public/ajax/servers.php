@@ -35,10 +35,10 @@ if ($_POST['m'] == 'serverListToggle') {
                     <div class="row mt-2">
                         <div class="d-flex flex-wrap flex-lg-nowrap gap-sm-2" style="justify-content:center;">
                             <div class="bg-secondary rounded px-2 w-100">
-                                <div class="d-flex flex-row mt-2">
+                                <div class="d-flex flex-row mt-2 card-server-name">
                                     <?= $server['name'] ?>
                                 </div>
-                                <div class="d-flex flex-row mt-2">
+                                <div class="d-flex flex-row mt-2 card-server-status">
                                     <div class="col-6">
                                         Status: <?= $server['disabled'] ? '<span class="text-danger">' . $server['disabled'] . '</span>' : 'Online' ?>
                                     </div>
