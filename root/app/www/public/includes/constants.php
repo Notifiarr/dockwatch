@@ -16,7 +16,7 @@ define('APP_MAINTENANCE_IMAGE', 'ghcr.io/notifiarr/dockwatch:develop');
 define('APP_MAINTENANCE_PORT', 9998);
 define('APP_BACKUPS', 7); //-- DAYS
 define('APP_X', 0);
-define('APP_Y', 5);
+define('APP_Y', 6);
 define('ICON_REPO', 'Notifiarr/images');
 define('ICON_URL', 'https://gh.notifiarr.com/images/icons/');
 
