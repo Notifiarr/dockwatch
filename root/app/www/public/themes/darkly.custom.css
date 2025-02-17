@@ -313,26 +313,38 @@ tbody>tr>td.bg-secondary {
     font-size: var(--font-full) !important;
 }
 
+#footer-icons {
+    display: flex;
+    justify-content: center;
+}
+
+#footer-icons>a {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
 #footer-icons>a>::after, #footer-icons>a::after, #footer-icons>a::after {
     content: " ";
-    width: 5px;
+    /* width: 5px; */
     display: inline-block;
 }
 
 #footer-icons>a>i.fa-wikipedia-w {
-    font-size: calc(var(--font-small) + 11px) !important;
+    font-size: var(--font-h5) !important;
     margin: 0 !important;
     color: var(--accent-800) !important;
+    place-content: center;
 }
 
 #footer-icons>a>i.fa-github {
-    font-size: calc(var(--font-small) + 9.5px) !important;
+    font-size: var(--font-h5) !important;
     margin: 0 !important;
     color: var(--accent-800) !important;
+    margin-right: 1px !important;
 }
 
 #footer-icons>a>i.fa-discord {
-    font-size: calc(var(--font-small) + 11px) !important;
+    font-size: var(--font-h5) !important;
     margin: 0 !important;
     color: var(--accent-800) !important;
 }

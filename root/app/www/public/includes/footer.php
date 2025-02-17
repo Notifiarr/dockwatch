@@ -10,22 +10,25 @@
 ?>
         </div>
         <footer id="footer" class="footer fixed-bottom bg-body">
-            <div class="container border border-bottom-0 border-start-0 border-end-0 border-secondary">
+            <div class="container border border-bottom-0 border-start-0 border-end-0 border-secondary" style="height: 100%;">
                 <div id="footer-content" class="row">
                     <div id="footer-branch" class="col-sm-12 col-lg-4 text-center">
                         Branch: <?= gitBranch() ?>, Hash: <a href="https://github.com/Notifiarr/dockwatch/commit/<?= gitHash() ?>" target="_blank" class="text-info"><?= substr(gitHash(), 0, 7) ?></a><br>
                     </div>
                     <div id="footer-icons" class="col-sm-12 col-lg-4 text-center">
-                        <a href="https://dockwatch.wiki" target="_blank" title="Visit the <?= APP_NAME ?> wiki"><i class="fab fa-wikipedia-w fa-lg btn-secondary me-2"></i></a>
-                        <a href="https://github.com/Notifiarr/dockwatch" title="Visit the <?= APP_NAME ?> github" target="_blank"><i class="fab fa-github fa-alg btn-secondary me-2"></i></a>
-                        <a href="https://notifiarr.com/discord" title="Get some help if the wiki does not cover it" target="_blank"><i class="fab fa-discord fa-lg btn-secondary"></i></a>
+                        <a href="https://dockwatch.wiki" target="_blank" title="Visit the <?= APP_NAME ?> wiki"><i class="fab fa-wikipedia-w fa-fw btn-secondary me-2"></i></a>
+                        <a href="https://github.com/Notifiarr/dockwatch" title="Visit the <?= APP_NAME ?> github" target="_blank"><i class="fab fa-github fa-fw btn-secondary me-2"></i></a>
+                        <a href="https://notifiarr.com/discord" title="Get some help if the wiki does not cover it" target="_blank"><i class="fab fa-discord fa-fw btn-secondary"></i></a>
                     </div>
                     <div id="footer-themes" class="col-sm-12 col-lg-4 text-center">
                         <span class="text-muted">Themes by <a href="https://bootswatch.com/" target="_blank">Bootswatch</a></span>
                         <select class="form-select d-inline-block w-50" onchange="updateSetting('defaultTheme', $(this).val());">
                             <?php
                             foreach ($themes as $theme) {
-                                ?><option <?= $theme == USER_THEME ? 'selected' : '' ?> value="<?= $theme ?>"><?= $theme ?></option><?php
+                                ?><option <?= $theme == USER_THEME ? 'selected' : '' ?> value="<?= $theme ?>">
+                                    <?= $theme ?>
+                                    <?php if (str_starts_with("darkly", $theme)) { ?> (stable) <?php } else { ?> (unstable) <?php } ?>
+                                </option><?php
                             }
                             ?>
                         </select>
