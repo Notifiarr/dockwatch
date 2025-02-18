@@ -157,9 +157,9 @@ a {
         margin-bottom: 0px;
     }
     #container-button-row {
-        z-index: 998; 
-        width: 88% !important; 
-        position: fixed; 
+        z-index: 998;
+        width: 88% !important;
+        position: fixed;
         top: 145px;
     }
 }
@@ -169,9 +169,9 @@ a {
         margin-bottom: 15px;
     }
     #container-button-row {
-        z-index: 998; 
-        width: 72% !important; 
-        position: fixed; 
+        z-index: 998;
+        width: 72% !important;
+        position: fixed;
         top: 130px;
     }
 }
@@ -381,4 +381,8 @@ pre {
 
 .breadcrumb > li + li:before {
     content: '';
+}
+
+.text-uppercase {
+    text-transform: uppercase !important;
 }

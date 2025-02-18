@@ -30,14 +30,17 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
         <link href="libraries/fontawesome/all.min.css" rel="stylesheet">
         <link href="libraries/bootstrap/bootstrap-icons.css" rel="stylesheet">
 
+        <!-- Bootstrap Stylesheet -->
+        <link href="libraries/bootstrap/bootstrap.min.css" rel="stylesheet">
+
         <!-- Customized Bootstrap Stylesheet -->
+        <link href="themes/base.css?t=<?= filemtime('themes/base.css') ?>" rel="stylesheet">
         <link href="themes/<?= USER_THEME ?>.min.css?t=<?= filemtime('themes/' . USER_THEME . '.min.css') ?>" rel="stylesheet">
-        <link href="themes/<?= USER_THEME ?>.custom.css?t=<?= filemtime('themes/' . USER_THEME . '.custom.css') ?>" rel="stylesheet">
 
         <!-- Datatable Stylesheet -->
         <link href="libraries/datatable/datatables.min.css" rel="stylesheet">
 
-        <!-- Template Stylesheet -->
+        <!-- Misc Stylesheet -->
         <link href="css/style.css?t=<?= filemtime('css/style.css') ?>" rel="stylesheet">
 
         <script type="text/javascript">

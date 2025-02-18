@@ -21,14 +21,16 @@
                         <a href="https://notifiarr.com/discord" title="Get some help if the wiki does not cover it" target="_blank"><i class="fab fa-discord fa-fw btn-secondary"></i></a>
                     </div>
                     <div id="footer-themes" class="col-sm-12 col-lg-4 text-center">
-                        <span class="text-muted">Themes by <a href="https://bootswatch.com/" target="_blank">Bootswatch</a></span>
+                        <span class="text-muted">
+                            Themes by
+                            <a href="https://nzxl.space" target="_blank">
+                                <img class="nzxl_space_logo" src="/images/nzxl_space_logo.svg" width="28" alt="nzxl.space logo" />
+                            </a>
+                        </span>
                         <select class="form-select d-inline-block w-50" onchange="updateSetting('defaultTheme', $(this).val());">
                             <?php
                             foreach ($themes as $theme) {
-                                ?><option <?= $theme == USER_THEME ? 'selected' : '' ?> value="<?= $theme ?>">
-                                    <?= $theme ?>
-                                    <?php if (str_starts_with("darkly", $theme)) { ?> (stable) <?php } else { ?> (unstable) <?php } ?>
-                                </option><?php
+                                ?><option <?= $theme == USER_THEME ? 'selected' : '' ?> value="<?= $theme ?>"><?= $theme ?></option><?php
                             }
                             ?>
                         </select>

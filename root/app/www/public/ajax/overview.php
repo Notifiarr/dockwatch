@@ -60,7 +60,7 @@ if ($_POST['m'] == 'init') {
     }
 
     ?>
-    <ol class="breadcrumb">
+    <ol class="breadcrumb rounded p-1 ps-2">
         <li class="breadcrumb-item active" aria-current="page"><?= $_SESSION['activeServerName'] ?></li>
     </ol>
     <div class="row">

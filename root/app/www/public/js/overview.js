@@ -137,12 +137,17 @@ function drawLineChart(type)
             break;
     }
 
+    const rootStyles = getComputedStyle(document.documentElement);
+    const backgroundColor = rootStyles.getPropertyValue('--bs-primary').trim();
+
     let data = {
         labels: typeLabels,
         datasets: [{
             label: typeLabel,
             data: typeData,
-            borderWidth: 1
+            borderWidth: 1,
+            borderColor: backgroundColor,
+            backgroundColor: backgroundColor
         }]
     };
 

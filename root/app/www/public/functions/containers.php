@@ -39,12 +39,12 @@ function renderContainerRow($nameHash, $return)
     }
 
     $pullData = $pullsFile[$nameHash];
-    $updateStatus = '<span class="badge bg-light w-75">Unchecked</span>';
+    $updateStatus = '<span class="badge bg-gray w-75">Unchecked</span>';
     if ($pullData) {
         $updateStatus = $pullData['regctlDigest'] == $pullData['imageDigest'] ? '<span class="badge bg-success w-75">Updated</span>' : '<span class="badge bg-warning w-75">Outdated</span>';
 
         if (!$containerSettings['updates']) {
-            $updateStatus = '<span class="badge bg-light w-75">Ignored</span>';
+            $updateStatus = '<span class="badge bg-gray w-75">Ignored</span>';
         }
     }
 
@@ -56,7 +56,7 @@ function renderContainerRow($nameHash, $return)
             $health = '<span class="badge bg-warning">Unhealthy</span>';
             break;
         case str_contains($process['Status'], 'health:'):
-            $health = '<span class="badge bg-light">Waiting</span>';
+            $health = '<span class="badge bg-gray">Waiting</span>';
             break;
         default:
             $health = '';

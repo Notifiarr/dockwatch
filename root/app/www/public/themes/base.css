@@ -1,0 +1,578 @@
+@charset "UTF-8";
+
+/*!
+ * Dockwatch Base Theme (https://github.com/Notifiarr/dockwatch)
+ * Copyright 2019-2025 Notifiarr
+ * Licensed under MIT
+ * Based on Bootswatch & Bootstrap
+*/
+/*!
+ * Bootstrap  v5.3.3 (https://getbootstrap.com/)
+ * Copyright 2011-2024 The Bootstrap Authors
+ * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+ */
+
+/* Font imports */
+@import url('https://fonts.googleapis.com/css?family=Roboto%20Mono:700|Roboto:400');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+/* Root variables */
+:root {
+    /* Font sizes */
+    --font-full: 100%; /* 16px */
+    --font-h1: 4.210rem; /* 67.36px */
+    --font-h2: 3.158rem; /* 50.56px */
+    --font-h3: 2.369rem; /* 37.92px */
+    --font-h4: 1.777rem; /* 28.48px */
+    --font-h5: 1.333rem; /* 21.28px */
+    --font-small: 0.750rem; /* 12px */
+
+    /* Font names */
+    --font-normal: 'Roboto';
+    --font-monospace: 'JetBrains Mono', serif;
+}
+
+/* Light theme colors */
+:root, [data-bs-theme=light] {
+    /* Text colors */
+    --text-50: #f2f2f2;
+    --text-100: #e6e6e6;
+    --text-200: #cccccc;
+    --text-300: #b3b3b3;
+    --text-400: #999999;
+    --text-500: #808080;
+    --text-600: #666666;
+    --text-700: #4d4d4d;
+    --text-800: #333333;
+    --text-900: #1a1a1a;
+    --text-950: #0d0d0d;
+
+    /* Background colors */
+    --background-50: #f2f2f2;
+    --background-100: #e6e6e6;
+    --background-200: #cccccc;
+    --background-300: #b3b3b3;
+    --background-400: #999999;
+    --background-500: #808080;
+    --background-600: #666666;
+    --background-700: #4d4d4d;
+    --background-800: #333333;
+    --background-900: #1a1a1a;
+    --background-950: #0d0d0d;
+    --bs-body-color: var(--background-500);
+
+    /* Primary colors */
+    --primary-50: #edf2f7;
+    --primary-100: #dbe5f0;
+    --primary-200: #b8cbe0;
+    --primary-300: #94b1d1;
+    --primary-400: #7098c2;
+    --primary-500: #4d7eb3;
+    --primary-600: #3d658f;
+    --primary-700: #2e4b6b;
+    --primary-800: #1f3247;
+    --primary-900: #0f1924;
+    --primary-950: #080d12;
+    --bs-primary: var(--primary-500);
+
+    /* Secondary colors */
+    --secondary-50: #f2f2f2;
+    --secondary-100: #e6e6e6;
+    --secondary-200: #cccccc;
+    --secondary-300: #b3b3b3;
+    --secondary-400: #999999;
+    --secondary-500: #808080;
+    --secondary-600: #666666;
+    --secondary-700: #4d4d4d;
+    --secondary-800: #333333;
+    --secondary-900: #1a1a1a;
+    --secondary-950: #0d0d0d;
+    --bs-secondary: var(--secondary-500);
+
+    /* Accent colors */
+    --accent-50: #e9f4fb;
+    --accent-100: #d4e9f7;
+    --accent-200: #a8d3f0;
+    --accent-300: #7dbde8;
+    --accent-400: #52a7e0;
+    --accent-500: #2691d9;
+    --accent-600: #1f74ad;
+    --accent-700: #175782;
+    --accent-800: #0f3a57;
+    --accent-900: #081d2b;
+    --accent-950: #040f16;
+}
+
+/* Dark theme colors */
+[data-bs-theme=dark] {
+    /* Text colors */
+    --text-50: #0d0d0d;
+    --text-100: #1a1a1a;
+    --text-200: #333333;
+    --text-300: #4d4d4d;
+    --text-400: #666666;
+    --text-500: #808080;
+    --text-600: #999999;
+    --text-700: #b3b3b3;
+    --text-800: #cccccc;
+    --text-900: #e6e6e6;
+    --text-950: #f2f2f2;
+
+    /* Background colors */
+    --background-50: #0d0d0d;
+    --background-100: #1a1a1a;
+    --background-200: #333333;
+    --background-300: #4d4d4d;
+    --background-400: #666666;
+    --background-500: #808080;
+    --background-600: #999999;
+    --background-700: #b3b3b3;
+    --background-800: #cccccc;
+    --background-900: #e6e6e6;
+    --background-950: #f2f2f2;
+
+    /* Primary colors */
+    --primary-50: #080d12;
+    --primary-100: #0f1924;
+    --primary-200: #1f3247;
+    --primary-300: #2e4b6b;
+    --primary-400: #3d658f;
+    --primary-500: #4d7eb3;
+    --primary-600: #7098c2;
+    --primary-700: #94b1d1;
+    --primary-800: #b8cbe0;
+    --primary-900: #dbe5f0;
+    --primary-950: #edf2f7;
+
+    /* Secondary colors */
+    --secondary-50: #0d0d0d;
+    --secondary-100: #1a1a1a;
+    --secondary-200: #333333;
+    --secondary-300: #4d4d4d;
+    --secondary-400: #666666;
+    --secondary-500: #808080;
+    --secondary-600: #999999;
+    --secondary-700: #b3b3b3;
+    --secondary-800: #cccccc;
+    --secondary-900: #e6e6e6;
+    --secondary-950: #f2f2f2;
+
+    /* Accent colors */
+    --accent-50: #040f16;
+    --accent-100: #081d2b;
+    --accent-200: #0f3a57;
+    --accent-300: #175782;
+    --accent-400: #1f74ad;
+    --accent-500: #2691d9;
+    --accent-600: #52a7e0;
+    --accent-700: #7dbde8;
+    --accent-800: #a8d3f0;
+    --accent-900: #d4e9f7;
+    --accent-950: #e9f4fb;
+}
+
+/* General styles */
+body, html {
+    font-family: var(--font-normal) !important;
+    font-weight: 400 !important;
+    background-color: var(--background-50) !important;
+}
+
+html {
+    background: inherit !important;
+    font-size: var(--font-full) !important;
+}
+
+/* Typography */
+pre {
+    font-family: var(--font-monospace) !important;
+    font-weight: 200 !important;
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: var(--font-monospace) !important;
+    font-weight: 700 !important;
+}
+
+h1 { font-size: var(--font-h1) !important; }
+h2 { font-size: var(--font-h2) !important; }
+.h3, h3 { font-size: var(--font-h3) !important; }
+.h4, h4 { font-size: var(--font-h4) !important; }
+.h5, h5 { font-size: var(--font-h5) !important; }
+small { font-size: var(--font-small) !important; }
+
+p {
+    font-size: calc(var(--font-h5) - 3px) !important;
+    color: var(--text-950) !important;
+}
+
+/* Layout and background */
+.bg-body {
+    background-color: var(--background-100) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-400) !important;
+}
+
+.bg-secondary {
+    background-color: var(--background-100) !important;
+    color: var(--text-950) !important;
+}
+
+.bg-gray {
+    background-color: var(--background-400) !important;
+}
+
+/* Header and navigation */
+.header_toggle {
+    color: var(--accent-800) !important;
+}
+
+.nav_list > a > i {
+    color: white !important;
+}
+
+.nav_logo-name {
+    font-size: var(--font-h5) !important;
+}
+
+.nav_link.active > .fas,
+.nav_link.active > .nav_name {
+    color: var(--primary-800) !important;
+}
+
+.nav_name {
+    color: var(--text-100) !important;
+}
+
+.nav_link.active::before {
+    background-color: var(--primary-800) !important;
+}
+
+/* Breadcrumbs */
+.breadcrumb {
+    background-color: var(--background-100) !important;
+}
+
+.breadcrumb-item {
+    color: var(--text-800) !important;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    display: none !important;
+}
+
+.breadcrumb-item > a {
+    color: var(--primary-500) !important;
+    font-weight: 500 !important;
+}
+
+/* Cards */
+.card {
+    border: none !important;
+}
+
+.card, .card-header {
+    background-color: var(--background-200) !important;
+    color: var(--text-950) !important;
+}
+
+.card-server-name, .card-server-status {
+    color: var(--text-950) !important;
+}
+
+/* Dropdowns */
+.dropdown-menu {
+    background-color: var(--background-100) !important;
+    padding: 0 !important;
+}
+
+button.dropdown-item {
+    color: var(--text-950) !important;
+}
+
+button.dropdown-item:hover {
+    background-color: var(--primary-500) !important;
+    color: var(--text-50) !important;
+}
+
+/* Forms */
+.form-select, .form-control {
+    background-color: var(--background-200) !important;
+    color: var(--primary-950) !important;
+}
+
+.form-check-input {
+    background-color: var(--background-200) !important;
+    color: var(--primary-500) !important;
+}
+
+/* Buttons */
+.btn-check:checked + .btn {
+    color: var(--text-950) !important;
+    background-color: var(--primary-500) !important;
+    border-color: var(--background-200) !important;
+}
+
+.btn-outline-light {
+    color: var(--text-950) !important;
+    /* background-color: var(--background-100) !important; */
+    border-color: var(--background-400) !important;
+}
+
+.btn.btn-outline-light.bg-secondary > span {
+    color: var(--text-950) !important;
+}
+
+/* .btn-info {
+    background-color: var(--primary-500) !important;
+} */
+
+button.btn-success {
+    background-color: var(--primary-500) !important;
+    color: white !important;
+    border: none !important;
+}
+
+/* Tables */
+.table {
+    --bs-table-bg: var(--primary-500) !important;
+}
+
+td {
+    background-color: var(--background-200) !important;
+    color: var(--text-950) !important;
+}
+
+tbody > tr > td.bg-secondary {
+    color: var(--text-950) !important;
+}
+
+tr > td > button.btn-secondary {
+    background-color: var(--background-200) !important;
+    color: var(--text-950) !important;
+}
+
+td > button.btn-info {
+    background-color: var(--primary-500) !important;
+    color: var(--text-950) !important;
+    border: none !important;
+}
+
+.dataTables_info {
+    color: var(--text-950) !important;
+}
+
+.dt-button {
+    color: var(--text-950) !important;
+    background-color: var(--background-100) !important;
+    border-color: var(--background-200) !important;
+}
+
+/* Modals */
+.modal-content {
+    background-color: var(--background-100) !important;
+}
+
+.modal-header {
+    border: none !important;
+    border-bottom: 1px solid var(--bs-modal-footer-border-color) !important;
+}
+
+.modal-body {
+    border: none !important;
+}
+
+.modal-title, .modal-body {
+    color: var(--text-900) !important;
+}
+
+/* Footer */
+#footer {
+    height: 3em !important;
+}
+
+#footer-branch {
+    color: var(--text-800) !important;
+    margin-bottom: 5px;
+    font-size: var(--font-full) !important;
+}
+
+#footer-branch > a {
+    font-size: var(--font-full) !important;
+}
+
+#footer-icons {
+    display: flex !important;
+    justify-content: center !important;
+    font-size: var(--font-h5) !important;
+    transform: translateY(-3px) !important;
+}
+
+#footer-themes {
+    transform: translateY(-6.5px) !important;
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+    .breadcrumb {
+        transform: translateY(8px) !important;
+    }
+
+    .breadcrumb-item.active::before {
+        display: none !important;
+    }
+
+    #footer {
+        height: 4.5em !important;
+    }
+}
+
+/* Miscellaneous */
+hr {
+    border-color: var(--background-900) !important;
+}
+
+a {
+    color: var(--primary-500) !important;
+}
+
+.text-secondary {
+    color: var(--accent-800) !important;
+}
+
+.text-info {
+    font-size: var(--font-h5) !important;
+    font-weight: 500 !important;
+    color: var(--primary-500) !important;
+}
+
+.text-light {
+    color: var(--text-800) !important;
+}
+
+.text-white {
+    color: var(--background-950) !important;
+}
+
+.text-muted {
+    color: var(--text-950) !important;
+}
+
+.notification-trigger {
+    background-color: var(--background-400) !important;
+}
+
+#content-dockerPermissions, #apiError {
+    color: var(--text-950) !important;
+}
+
+.h5, .fas {
+    color: var(--accent-900) !important;
+}
+
+.h3 {
+    color: var(--primary-500) !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+}
+
+.h4, h4 {
+    color: var(--primary-500) !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+}
+
+.bd-highlight {
+    color: var(--text-950) !important;
+}
+
+#chart-memorySizeLegend-container > div > span {
+    color: var(--text-950) !important;
+    user-select: none;
+}
+
+ul > h4 {
+    color: var(--primary-500) !important;
+    font-weight: 500 !important;
+    text-transform: capitalize !important;
+    font-size: var(--font-h5);
+}
+
+ul > span.text-muted {
+    color: var(--text-950) !important;
+    font-size: calc(var(--font-h5) - 8px) !important;
+}
+
+div > li {
+    color: var(--text-950) !important;
+    font-size: var(--font-small) !important;
+}
+
+div > li > span.text-info {
+    color: var(--primary-500) !important;
+    font-size: var(--font-small) !important;
+}
+
+div > li > span.text-success {
+    color: var(--primary-400) !important;
+    font-size: var(--font-small) !important;
+}
+
+#logHeader {
+    color: var(--text-800) !important;
+}
+
+#command-container, #command-parameters {
+    background-color: var(--background-200) !important;
+    color: var(--primary-950) !important;
+}
+
+#commandResults > h4 {
+    color: var(--primary-500) !important;
+}
+
+#commandResults > span {
+    color: var(--text-800) !important;
+}
+
+#content-settings > div {
+    color: var(--text-950) !important;
+}
+
+#content-database > div > table > tbody > tr > td {
+    background-color: var(--background-200) !important;
+    color: var(--text-950) !important;
+}
+
+#left-slider > div.loa-popup-content > table > tbody > tr:first-child > td:first-child {
+    border-top-left-radius: 4px;
+}
+#left-slider > div.loa-popup-content > table > tbody > tr:first-child > td:last-child {
+    border-top-right-radius: 4px;
+}
+
+.fa-window-close {
+    color: var(--text-900) !important;
+}
+
+.text-center {
+    color: var(--text-950) !important;
+}
+
+.container > h3 {
+    color: var(--primary-500) !important;
+}
+
+.text-success {
+    color: var(--bs-green) !important;
+}
+
+.text-danger {
+    color: var(--bs-red) !important;
+}
+
+.nzxl_space_logo {
+    filter: invert(50%);
+}

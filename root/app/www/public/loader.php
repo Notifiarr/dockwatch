@@ -83,7 +83,7 @@ if (!IS_SSE) {
     $settingsTable  = apiRequestLocal('database-getSettings');
     $serversTable   = apiRequestLocal('database-getServers');
 
-    define('USER_THEME', $settingsTable['defaultTheme'] ?: 'darkly');
+    define('USER_THEME', $settingsTable['defaultTheme'] && file_exists('themes/' . $settingsTable['defaultTheme'] . '.min.css') ? $settingsTable['defaultTheme'] : 'nzblack');
     define('USER_THEME_MODE', $settingsTable['defaultThemeMode'] ?: 'dark');
     $themes = getThemes();
 
