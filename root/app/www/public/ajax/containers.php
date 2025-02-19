@@ -175,10 +175,10 @@ if ($_POST['m'] == 'init') {
                             <tr>
                                 <td class="rounded-bottom-right-1 rounded-bottom-left-1 bg-primary ps-3" colspan="12">
                                     <div style="float:right;">
-                                        <button id="check-all-btn" class="hide-mobile dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
+                                        <button id="check-all-btn" class="dt-button mt-2 buttons-collection" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
                                         <button id="group-restore-btn" style="display:none;" class="dt-button buttons-collection" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
-                                        <button id="container-groups-btn" class="hide-mobile dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openContainerGroups()">Groups</button>
-                                        <button id="container-updates-btn" class="hide-mobile dt-button buttons-collection buttons-colvis" tabindex="0" aria-controls="container-table" type="button" onclick="openUpdateOptions()">Updates</button>
+                                        <button id="container-groups-btn" class="dt-button mt-2 buttons-collection" tabindex="0" aria-controls="container-table" type="button" onclick="openContainerGroups()">Groups</button>
+                                        <button id="container-updates-btn" class="dt-button mt-2 buttons-collection" tabindex="0" aria-controls="container-table" type="button" onclick="openUpdateOptions()">Updates</button>
                                     </div>
                                 </td>
                             </tr>
@@ -772,11 +772,11 @@ if ($_POST['m'] == 'openContainerGroups') {
 
     ?>
     <div class="bg-secondary rounded h-100 p-4">
-        <div class="table-responsive">
-            <table class="table table-sm">
-                <tr>
-                    <td class="bg-secondary">Group</td>
-                    <td class="bg-secondary">
+        <div class="row mb-2">
+            <div class="col-sm-12 col-lg-6">
+                <div class="row">
+                    <div class="col-sm-6 col-lg-2">Group</div>
+                    <div class="col-sm-6 col-lg-10">
                         <select class="form-select" id="groupSelection" onchange="loadContainerGroup()">
                             <option value="0">New Group</option>
                             <?php
@@ -787,11 +787,20 @@ if ($_POST['m'] == 'openContainerGroups') {
                             }
                             ?>
                         </select>
-                    </td>
-                    <td class="bg-secondary">Name: <input id="groupName" type="text" class="form-control w-75 d-inline-block" placeholder="Group Name Here"></td>
-                    <td class="bg-secondary" style="display: none;" id="deleteGroupContainer">Delete: <input id="groupDelete" type="checkbox" class="form-check-input"></td>
-                </tr>
-            </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-lg-6">
+                <div class="row">
+                    <div class="col-sm-6 col-lg-2">Name</div>
+                    <div class="col-sm-6 col-lg-10"><input id="groupName" type="text" class="form-control w-75 d-inline-block" placeholder="Group Name Here"></div>
+                </div>
+            </div>
+            <div class="col-sm-12 mt-2" id="deleteGroupContainer" style="display:none;">
+                <span class="text-danger pe-2">Delete</span> <input id="groupDelete" type="checkbox" class="form-check-input">
+            </div>
+        </div>
+        <div class="table-responsive">
             <table class="table table-sm">
                 <thead>
                     <tr>
@@ -1005,7 +1014,7 @@ if ($_POST['m'] == 'openUpdateOptions') {
             </table>
         </div>
         <div class="row">
-            <div class="col-sm-12 col-lg-4 text-end">
+            <div class="col-sm-12 col-lg-4 text-end mb-2 mt-2">
                 <select id="container-update-all" class="form-select d-inline-block w-75">
                     <option value="-1">-- Select Option --</option>
                     <option value="0">Ignore</option>
@@ -1015,12 +1024,12 @@ if ($_POST['m'] == 'openUpdateOptions') {
                 <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeContainerUpdates(1)" title="Apply to selected containers"></i>
                 <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeContainerUpdates(2)" title="Apply to all containers"></i>
             </div>
-            <div class="col-sm-12 col-lg-4 text-end">
+            <div class="col-sm-12 col-lg-4 text-end mb-2 mt-2">
                 <input id="container-frequency-all" type="text"  class="form-control d-inline-block w-75" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
                 <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeFrequency(1)" title="Apply to selected containers"></i>
                 <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeFrequency(2)" title="Apply to all containers"></i>
             </div>
-            <div class="col-sm-12 col-lg-4 text-end">
+            <div class="col-sm-12 col-lg-4 text-end mb-2 mt-2">
                 <input id="container-update-minage-all" type="number"  class="form-control d-inline-block w-75" value="0">
                 <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeMinAge(1)" title="Apply to selected containers"></i>
                 <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeMinAge(2)" title="Apply to all containers"></i>
