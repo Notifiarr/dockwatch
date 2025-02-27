@@ -129,6 +129,12 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
                         <a href="#" onclick="initPage('tasks')" class="nav_link"><i class="fas fa-tasks fa-fw nav_icon"></i><span class="nav_name">Tasks</span></a>
                         <a href="#" onclick="initPage('commands')" class="nav_link"><i class="fab fa-docker fa-fw nav_icon"></i><span class="nav_name">Commands</span></a>
                         <a href="#" onclick="initPage('logs')" class="nav_link"><i class="fas fa-file-code fa-fw nav_icon"></i><span class="nav_name">Logs</span></a>
+
+                        <?php if (USE_AUTH) { ?>
+                            <div class="ms-1" style="bottom:0; position:absolute;">
+                                <a href="#" onclick="logout()" class="nav_link"><i class="fas fa-sign-out-alt fa-fw nav_icon"></i><span class="nav_name">Logout</span></a>
+                            </div>
+                        <?php } ?>
                     </div>
                 </div>
             </nav>
