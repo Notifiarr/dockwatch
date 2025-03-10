@@ -150,13 +150,13 @@ function getOverviewStats()
         $stats['status']['total'] = $stats['status']['running'] + $stats['status']['stopped'];
 
         // -- HEALTH
-        if ($container['health'] == 'healthy') {
+        if ($container['health'] == 'healthy' && $container['status'] == 'running') {
             $stats['health']['healthy']++;
         }
-        if ($container['health'] == 'unhealthy') {
+        if ($container['health'] == 'unhealthy' && $container['status'] == 'running') {
             $stats['health']['unhealthy']++;
         }
-        if ($container['health'] == null) {
+        if ($container['health'] == null && $container['status'] == 'running') {
             $stats['health']['unknown']++;
         }
 
