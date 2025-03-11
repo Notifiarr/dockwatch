@@ -118,7 +118,7 @@ if ($_POST['m'] == 'init') {
                     </div>
                     <div class="p-2 flex-fill bd-highlight">
                         Unchecked<br>
-                        <?= ($running + $stopped) - ($updated + $outdated) ?>
+                        <?= $unchecked ?>
                     </div>
                 </div>
             </div>
