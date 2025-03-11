@@ -16,6 +16,11 @@ if ($_POST['m'] == 'init') {
 
     $overviewApiResult      = apiRequest('stats/overview')['result']['result'];
     $containersApiResult    = apiRequest('stats/containers')['result']['result'];
+    $usageMetricsApiResult  = apiRequest('stats/metrics')['result']['result'];
+
+    //-- METRICS
+    $diskUsageMetric    = $usageMetricsApiResult['disk'];
+    $netIOMetric        = $usageMetricsApiResult['netIO'];
 
     //-- HEALTH STATS
     $healthy        = $overviewApiResult['health']['healthy'];
@@ -131,28 +136,32 @@ if ($_POST['m'] == 'init') {
                     <p class="text-info" style="font-size: 18px;">Disk Usage</p>
                     <i class="fas fa-hdd ms-auto p-2"></i>
                 </div>
-                <p style="font-size: 20px;"><?= byteConversion($size) ?></p>
+                <p style="font-size: 20px !important; margin: -16px 0 0 0 !important;"><?= byteConversion($size) ?></p>
+                <p style="font-size: 14px !important; margin: 0 0 10px 0 !important; color: var(--text-500) !important;"><?= $diskUsageMetric ?? "Used by docker images" ?></p>
             </div>
             <div class="bg-secondary rounded px-2 w-100">
                 <div class="d-flex flex-row mt-2">
                     <p class="text-info" style="font-size: 18px;">Network I/O</p>
                     <i class="fas fa-wifi ms-auto p-2"></i>
                 </div>
-                <p style="font-size: 20px;"><?= byteConversion($network) ?></p>
+                <p style="font-size: 20px !important; margin: -16px 0 0 0 !important;"><?= byteConversion($network) ?></p>
+                <p style="font-size: 14px !important; margin: 0 0 10px 0 !important; color: var(--text-500) !important;"><?= $netIOMetric ?? "Network traffic tracked" ?></p>
             </div>
             <div class="bg-secondary rounded px-2 w-100">
                 <div class="d-flex flex-row mt-2">
                     <p class="text-info" style="font-size: 18px;">CPU Usage</p>
                     <i class="fas fa-microchip ms-auto p-2"></i>
                 </div>
-                <p style="font-size: 20px;"><span title="Docker reported CPU"><?= $cpu ?>%</span><?= $cpuActual ? ' <span title="Calculated CPU">(' . $cpuActual . '%)</span>' : '' ?></p>
+                <p style="font-size: 20px !important; margin: -16px 0 0 0 !important;"><span title="Docker reported CPU"><?= $cpu ?>%</span><?= $cpuActual ? ' <span title="Calculated CPU">(' . $cpuActual . '%)</span>' : '' ?></p>
+                <p style="font-size: 14px !important; margin: 0 0 10px 0 !important; color: var(--text-500) !important;">Average across all containers</p>
             </div>
             <div class="bg-secondary rounded px-2 w-100">
                 <div class="d-flex flex-row mt-2">
                     <p class="text-info" style="font-size: 18px;">Memory Usage</p>
                     <i class="fas fa-memory ms-auto p-2"></i>
                 </div>
-                <p style="font-size: 20px;"><?= $memory ?>%</p>
+                <p style="font-size: 20px !important; margin: -16px 0 0 0 !important;"><?= $memory ?>%</p>
+                <p style="font-size: 14px !important; margin: 0 0 10px 0 !important; color: var(--text-500) !important;">Used across all containers</p>
             </div>
         </div>
     </div>

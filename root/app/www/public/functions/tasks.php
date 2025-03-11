@@ -64,6 +64,8 @@ function executeTask($task)
             return json_encode(getContainerStats(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'overviewStats':
             return json_encode(getOverviewStats(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        case 'metrics':
+            return json_encode(getUsageMetrics(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         default:
             return 'Invalid task requested (task=' . $task . ')';
     }

@@ -9,11 +9,12 @@
 
 function getContainerStats()
 {
-    $stateFile  = getFile(STATE_FILE);
-    $pullsFile  = getFile(PULL_FILE);
-    $containers = [];
+    $getExpandedProcessList     = getExpandedProcessList(true, true, true);
+    $processList                = $getExpandedProcessList['processList'];
+    $pullsFile                  = getFile(PULL_FILE);
+    $containers                 = [];
 
-    foreach ($stateFile as $container) {
+    foreach ($processList as $container) {
         $id         = $container['ID'];
         $name       = $container['Names'];
         $image      = $container['Image'];
@@ -212,3 +213,85 @@ function getOverviewStats()
 
     return $stats;
 }
+
+function getUsageMetrics()
+{
+    $metricsFile    = getFile(METRICS_FILE);
+    $metrics        = $metricsFile ?: ['history' => ['disk' => [], 'netIO' => []]];
+    $usageRetention = apiRequest('database-getSettings')['result']['usageMetricsRetention'];
+
+    return calculateUsageMetrics($metrics, $usageRetention);
+}
+
+function calculateUsageMetrics($metrics, $retention = 1)
+{
+    if ($retention == 0) {
+        return null;
+    }
+
+    $summary = [];
+
+    foreach (['disk', 'netIO'] as $key) {
+        //-- CALCULATE CHANGE
+        if (count($metrics['history'][$key]) > 1) {
+            $latest = end($metrics['history'][$key]);
+            $oldest = reset($metrics['history'][$key]);
+            $change = $latest['value'] - $oldest['value'];
+
+            $sign = $change > 0 ? '+' : '-';
+
+            $summary[$key] = $sign . byteConversion(binaryBytesFromString($change)) . ($change == 0 ? ' B' : '') . ' over last ' .
+            ($retention == 1 ? 'day' : ($retention == 2 ? 'week' : 'month'));
+        } else {
+            $summary[$key] = '+0 B over last ' .
+            ($retention == 1 ? 'day' : ($retention == 2 ? 'week' : 'month'));
+        }
+    }
+
+    return $summary;
+}
+
+function cacheUsageMetrics($retention = 0)
+{
+    if ($retention == 0) {
+        return null;
+    }
+
+    $currentUsage   = getOverviewStats()['usage'];
+    $metricsFile    = getFile(METRICS_FILE);
+    $metrics        = $metricsFile ?: ['history' => ['disk' => [], 'netIO' => []]];
+    $timestamp      = time();
+
+    if ($currentUsage['disk'] == 0 || $currentUsage['netIO'] == 0) {
+        return null;
+    }
+
+    $timeLimit = match ($retention) {
+        1 => strtotime('-1 day'),
+        2 => strtotime('-7 days'),
+        3 => strtotime('-30 days'),
+        default => null
+    };
+
+    foreach (['disk', 'netIO'] as $key) {
+        //-- ENSURE IT EXISTS, I TRIED empty() HERE BUT IT ALWAYS OVERWROTE THE FILE
+        if (!isset($metrics['history'][$key])) {
+            $metrics['history'][$key] = [];
+        }
+
+        //-- APPEND ENTRY
+        $metrics['history'][$key][] = ['timestamp' => $timestamp, 'value' => $currentUsage[$key]];
+
+        //-- PRUNE OLD ENTRIES
+        if ($timeLimit) {
+            $metrics['history'][$key] = array_values(array_filter(
+                $metrics['history'][$key],
+                fn($entry) => isset($entry['timestamp']) && $entry['timestamp'] >= $timeLimit
+            ));
+        }
+    }
+
+    setFile(METRICS_FILE, json_encode($metrics, JSON_PRETTY_PRINT));
+    return calculateUsageMetrics($metrics);
+}
+

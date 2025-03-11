@@ -14,6 +14,14 @@ logger(SYSTEM_LOG, 'Cron: running housekeeper');
 logger(CRON_HOUSEKEEPER_LOG, 'run ->');
 echo date('c') . ' Cron: housekeeper ->' . "\n";
 
+//-- USAGE METRICS DISK/IO (RUN EVERY HOUR)
+if (date('i') <= 5) {
+    logger(CRON_HOUSEKEEPER_LOG, 'Usage Metrics (run every hour)');
+    $usageRetention = apiRequest('database-getSettings')['result']['usageMetricsRetention'];
+    $usageMetrics   = cacheUsageMetrics(intval($usageRetention));
+    logger(CRON_HOUSEKEEPER_LOG, '$usageMetrics=' . json_encode($usageMetrics));
+}
+
 //-- TELEMETRY CHECK (DAILY @ MIDNIGHT)
 if (date('H') == 0 && date('i') <= 5) {
     logger(CRON_HOUSEKEEPER_LOG, 'Telemetry (daily @ midnight)');
@@ -87,7 +95,7 @@ if (date('H') == 0 && date('i') <= 5) {
                     if ($log[0] != '.' && !is_dir($thisDir . $log)) {
                         $daysBetween = daysBetweenDates(date('Ymd', filemtime($thisDir . $log)), date('Ymd'));
                         logger(CRON_HOUSEKEEPER_LOG, 'logfile: ' . $thisDir . $log . ', days: ' . $daysBetween);
-            
+
                         if ($daysBetween > $settings['length']) {
                             logger(CRON_HOUSEKEEPER_LOG, 'removing logfile');
                             $shell->exec('rm -rf ' . $thisDir . $log);

@@ -88,7 +88,7 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary" scope="row">Default page</td>
                         <td class="bg-secondary">
                             <select class="form-select" id="globalSetting-defaultPage">
-                            <?php 
+                            <?php
                             $defaultPages = ['overview', 'containers', 'networks', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs'];
 
                             foreach ($defaultPages as $defaultPage) {
@@ -98,6 +98,18 @@ if ($_POST['m'] == 'init') {
                             </select>
                         </td>
                         <td class="bg-secondary">Which page should be loaded when <?= APP_NAME ?> first opens</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Usage metrics retention<sup>4</sup></td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-usageMetricsRetention">
+                                <option <?= $settingsTable['usageMetricsRetention'] == 0 ? 'selected' : '' ?> value="0">Off</option>
+                                <option <?= $settingsTable['usageMetricsRetention'] == 1 ? 'selected' : '' ?> value="1">Daily</option>
+                                <option <?= $settingsTable['usageMetricsRetention'] == 2 ? 'selected' : '' ?> value="2">Weekly</option>
+                                <option <?= $settingsTable['usageMetricsRetention'] == 3 ? 'selected' : '' ?> value="3">Monthly</option>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">Specify how long past usage metrics should be kept before being cleared.</td>
                     </tr>
                 </tbody>
             </table>
@@ -164,7 +176,7 @@ if ($_POST['m'] == 'init') {
                             ?>
                             <tr id="remoteServer-<?= $serverSettings['id'] ?>">
                                 <td class="bg-secondary" scope="row">
-                                    <i class="far fa-trash-alt text-warning d-inline-block" style="cursor: pointer;" title="Unlink remote server" onclick="unlinkRemoteServer('<?= $serverSettings['id'] ?>')"></i> 
+                                    <i class="far fa-trash-alt text-warning d-inline-block" style="cursor: pointer;" title="Unlink remote server" onclick="unlinkRemoteServer('<?= $serverSettings['id'] ?>')"></i>
                                     <input class="form-control d-inline-block" style="width: 90%;" type="text" id="globalSetting-serverList-name-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['name'] ?>">
                                 </td>
                                 <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['url'] ?>"></td>
@@ -257,7 +269,7 @@ if ($_POST['m'] == 'init') {
                                 <?php
                                     $option = '';
                                     for ($x = 0; $x <= 23; $x++) {
-                                        $option .= '<option ' . ($x == intval($settingsTable['autoPruneHour']) || !$settingsTable['autoPruneHour'] && $x == 12 ? 'selected' : '') . ' value="' . $x . '">' . $x . '</option>'; 
+                                        $option .= '<option ' . ($x == intval($settingsTable['autoPruneHour']) || !$settingsTable['autoPruneHour'] && $x == 12 ? 'selected' : '') . ' value="' . $x . '">' . $x . '</option>';
                                     }
                                     echo $option;
                                 ?>
@@ -436,6 +448,7 @@ if ($_POST['m'] == 'init') {
         <sup>1</sup> Checked every 5 minutes<br>
         <sup>2</sup> Updates every minute<br>
         <sup>3</sup> Requires a page reload (F5) to take effect<br>
+        <sup>4</sup> Only for Network IO and Disk Usage<br>
     </div>
     <?php
 }
@@ -515,7 +528,7 @@ if ($_POST['m'] == 'saveGlobalSettings') {
 
         if ($_POST['debugZipLogs']) {
             $zip->addEmptyDir(str_replace(APP_DATA_PATH, '', LOGS_PATH));
-            
+
             $dir = opendir(LOGS_PATH);
             while ($logType = readdir($dir)) {
                 if (str_equals_any($logType, ['api', 'crons', 'system'])) {

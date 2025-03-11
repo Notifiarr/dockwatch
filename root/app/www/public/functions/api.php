@@ -313,6 +313,9 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
             case 'stats/overview':
             case 'stats-getOverview':
                 return apiResponse(200, getOverviewStats());
+            case 'stats/metrics':
+            case 'stats-getMetrics':
+                return apiResponse(200, getUsageMetrics());
             default:
                 apiResponse(405, ['error' => 'Invalid GET request (endpoint=' . $endpoint . ')']);
                 break;

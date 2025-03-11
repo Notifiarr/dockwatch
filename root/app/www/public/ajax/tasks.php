@@ -130,6 +130,10 @@ if ($_POST['m'] == 'init') {
                                 <td class="bg-secondary ps-3">View overview stats</td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('overviewStats')"></i></td>
                             </tr>
+                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                                <td class="bg-secondary ps-3">View usage metrics</td>
+                                <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('metrics')"></i></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
