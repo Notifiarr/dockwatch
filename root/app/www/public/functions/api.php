@@ -117,7 +117,7 @@ function apiRequestRemote($endpoint, $parameters = [], $payload = [])
     $result['result']   = $curl['response']['response']['result'];
     $result['error']    = $curl['response']['error'];
 
-    if ($endpoint == 'stats/overview' || $endpoint == 'stats/containers') {
+    if ($endpoint == 'stats/overview' || $endpoint == 'stats/containers' || $endpoint == 'stats/metrics') {
         $result['result']['result'] = $curl['response']['response'];
     }
 

@@ -17,7 +17,7 @@ echo date('c') . ' Cron: housekeeper ->' . "\n";
 //-- USAGE METRICS DISK/IO (RUN EVERY HOUR)
 if (date('i') <= 5) {
     logger(CRON_HOUSEKEEPER_LOG, 'Usage Metrics (run every hour)');
-    $usageRetention = apiRequest('database-getSettings')['result']['usageMetricsRetention'];
+    $usageRetention = apiRequestLocal('database-getSettings')['usageMetricsRetention'];
     $usageMetrics   = cacheUsageMetrics(intval($usageRetention));
     logger(CRON_HOUSEKEEPER_LOG, '$usageMetrics=' . json_encode($usageMetrics));
 }

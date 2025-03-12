@@ -9,8 +9,7 @@
 
 function getContainerStats()
 {
-    $getExpandedProcessList     = getExpandedProcessList(true, true, true);
-    $processList                = $getExpandedProcessList['processList'];
+    $processList                = getFile(STATE_FILE);
     $pullsFile                  = getFile(PULL_FILE);
     $containers                 = [];
 
@@ -113,7 +112,7 @@ function getContainerStats()
 
 function getOverviewStats()
 {
-    $data = getContainerStats();
+    $data   = getContainerStats();
     $stats  = [
                 'status'    => [
                                 'running'   => 0,
@@ -218,7 +217,7 @@ function getUsageMetrics()
 {
     $metricsFile    = getFile(METRICS_FILE);
     $metrics        = $metricsFile ?: ['history' => ['disk' => [], 'netIO' => []]];
-    $usageRetention = apiRequest('database-getSettings')['result']['usageMetricsRetention'];
+    $usageRetention = apiRequestLocal('database-getSettings')['usageMetricsRetention'];
 
     return calculateUsageMetrics($metrics, $usageRetention);
 }
