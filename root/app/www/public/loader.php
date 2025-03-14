@@ -156,11 +156,13 @@ if (!IS_SSE) {
         $pullsFile      = apiRequest('file-pull')['result'];
     }
 
-    $statsApi           = ['stats/overview', 'stats/containers', 'stats/metrics'];
+    //-- SPECIFIC PATHS THAT NEED TO HAVE AN UPDATED PROCESS LIST
+    $apiPaths           = ['stats/overview', 'stats/containers', 'stats/metrics'];
+    $internalPaths      = ['housekeeper.php'];
 
-    $fetchProc      = in_array($_POST['page'], $getProc) || $_POST['hash'] || in_array($_GET['endpoint'], $statsApi);
-    $fetchStats     = in_array($_POST['page'], $getStats) || $_POST['hash'] || in_array($_GET['endpoint'], $statsApi);
-    $fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'] || in_array($_GET['endpoint'], $statsApi);
+    $fetchProc      = in_array($_POST['page'], $getProc) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array(basename($_SERVER['PHP_SELF']), $internalPaths);
+    $fetchStats     = in_array($_POST['page'], $getStats) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array(basename($_SERVER['PHP_SELF']), $internalPaths);
+    $fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array(basename($_SERVER['PHP_SELF']), $internalPaths);
 
     $loadTimes[] = trackTime('getExpandedProcessList ->');
     $getExpandedProcessList = getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect);
@@ -171,7 +173,7 @@ if (!IS_SSE) {
     $loadTimes[] = trackTime('getExpandedProcessList <-');
 
     //-- UPDATE THE STATE FILE WHEN EVERYTHING IS FETCHED
-    if ($_POST['page'] == 'overview' || $_POST['page'] == 'containers' || in_array($_GET['endpoint'], $statsApi)) {
+    if ($_POST['page'] == 'overview' || $_POST['page'] == 'containers' || in_array($_GET['endpoint'], $apiPaths) || in_array(basename($_SERVER['PHP_SELF']), $internalPaths)) {
         if ($processList) {
             apiRequest('file-state', [], ['contents' => $processList]);
         }
