@@ -386,3 +386,22 @@ pre {
 .text-uppercase {
     text-transform: uppercase !important;
 }
+
+.dw-tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    background: #333;
+    color: #fff;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+}
+
+.dw-tooltip-icon:hover + .dw-tooltip {
+    display: block;
+}

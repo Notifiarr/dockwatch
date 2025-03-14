@@ -144,7 +144,15 @@ if ($_POST['m'] == 'init') {
                     <p class="text-info" style="font-size: 18px;">Network I/O</p>
                     <i class="fas fa-wifi ms-auto p-2"></i>
                 </div>
-                <p style="font-size: 20px !important; margin: -16px 0 0 0 !important;"><?= byteConversion($network) ?></p>
+                <p style="font-size: 20px !important; margin: -16px 0 0 0 !important;">
+                    <?= byteConversion($network) ?>
+                    <?php if ($netIOMetric) { ?>
+                        <span class="position-relative">
+                            <i class="fas fa-exclamation-triangle dw-tooltip-icon" style="font-size: 12px !important; transform: translateY(-2px); color: yellow !important;"></i>
+                            <span class="dw-tooltip">This value may not reflect the correct traffic usage due to Docker Engine not persisting</span>
+                        </span>
+                    <?php } ?>
+                </p>
                 <p style="font-size: 14px !important; margin: 0 0 10px 0 !important; color: var(--text-500) !important;"><?= $netIOMetric ?? "Network traffic tracked" ?></p>
             </div>
             <div class="bg-secondary rounded px-2 w-100">
