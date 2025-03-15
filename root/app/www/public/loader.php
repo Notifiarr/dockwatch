@@ -119,8 +119,8 @@ if (!IS_SSE) {
 
 if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
     //-- LOGIN, DEFINE AFTER LOADING SETTINGS
-    define('LOGIN_FAILURE_LIMIT', ($settingsTable['loginFailures'] ? $settingsTable['loginFailures']: 10));
-    define('LOGIN_FAILURE_TIMEOUT', ($settingsTable['loginFailures'] ? $settingsTable['loginTimeout']: 10)); //-- MINUTES TO DISABLE LOGINS
+    define('LOGIN_FAILURE_LIMIT', $settingsTable['loginFailures'] ?: 10);
+    define('LOGIN_FAILURE_TIMEOUT', $settingsTable['loginFailures'] ?: 10); //-- MINUTES TO DISABLE LOGINS
 
     if (file_exists(LOGIN_FILE) && !str_contains($_SERVER['PHP_SELF'], '/crons/')) {
         define('USE_AUTH', true);
@@ -146,6 +146,8 @@ if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER
 }
 
 if (!IS_SSE) {
+    $baseFile = basename($_SERVER['PHP_SELF']);
+
     //-- FLIP TO REMOTE MANAGEMENT IF NEEDED
     $activeServer = $activeServer ?: apiGetActiveServer();
 
@@ -160,9 +162,9 @@ if (!IS_SSE) {
     $apiPaths           = ['stats/overview', 'stats/containers', 'stats/metrics'];
     $internalPaths      = ['housekeeper.php'];
 
-    $fetchProc      = in_array($_POST['page'], $getProc) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array(basename($_SERVER['PHP_SELF']), $internalPaths);
-    $fetchStats     = in_array($_POST['page'], $getStats) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array(basename($_SERVER['PHP_SELF']), $internalPaths);
-    $fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array(basename($_SERVER['PHP_SELF']), $internalPaths);
+    $fetchProc      = in_array($_POST['page'], $getProc) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array($baseFile, $internalPaths);
+    $fetchStats     = in_array($_POST['page'], $getStats) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array($baseFile, $internalPaths);
+    $fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array($baseFile, $internalPaths);
 
     $loadTimes[] = trackTime('getExpandedProcessList ->');
     $getExpandedProcessList = getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect);
@@ -173,7 +175,7 @@ if (!IS_SSE) {
     $loadTimes[] = trackTime('getExpandedProcessList <-');
 
     //-- UPDATE THE STATE FILE WHEN EVERYTHING IS FETCHED
-    if ($_POST['page'] == 'overview' || $_POST['page'] == 'containers' || in_array($_GET['endpoint'], $apiPaths) || in_array(basename($_SERVER['PHP_SELF']), $internalPaths)) {
+    if (str_equals_any($_POST['page'], ['overview', 'containers']) || in_array($_GET['endpoint'], $apiPaths) || in_array($baseFile, $internalPaths)) {
         if ($processList) {
             apiRequest('file-state', [], ['contents' => $processList]);
         }

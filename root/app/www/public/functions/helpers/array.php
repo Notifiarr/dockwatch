@@ -39,3 +39,14 @@ function array_sort_by_key(&$array, $field, $direction = 'asc')
         }
     });
 }
+
+function array_contains_any($haystack, $needles)
+{
+    foreach ($needles as $needle) {
+        if (in_array($haystack, $needle)) {
+            return true;
+        }
+    }
+
+    return false;
+}
