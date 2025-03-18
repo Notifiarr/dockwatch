@@ -146,7 +146,7 @@ function displayTimeTracking($loadTimes = [])
 }
 
 //-- TAKE ARRAY INPUT OF PORTS AND GROUP THEM TO A RANGE IF THEY ARE WITHIN A SINGLE DIGIT
-function formatPortRanges($ports) 
+function formatPortRanges($ports)
 {
     $ranges = [];
     $rangeStart = $rangeStop = 0;
@@ -197,6 +197,26 @@ function getServers()
     }
 
     return $serverList;
+}
+
+function validateServers($servers = [])
+{
+    if (empty($servers)) {
+        return [];
+    }
+
+    $availableServers   = apiRequestLocal('database/servers');
+    $matchingServers    = [];
+
+    foreach ($availableServers as $server) {
+        $serverName = strtoupper($server['name']);
+
+        if (in_array($serverName, array_map('strtoupper', $servers))) {
+            $matchingServers[] = $server;
+        }
+    }
+
+    return $matchingServers;
 }
 
 function getThemes()

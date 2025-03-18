@@ -7,11 +7,31 @@
 ----------------------------------
 */
 
-function getContainerStats()
+function getContainerStats($servers = [])
 {
     $processList                = getFile(STATE_FILE);
     $pullsFile                  = getFile(PULL_FILE);
     $containers                 = [];
+
+    if (!empty($servers)) {
+        foreach ($servers as $server) {
+            if (strtoupper(APP_NAME) == strtoupper($server['name'])) {
+                continue;
+            }
+
+            $processListRemote  = apiRequestRemote('file-state', [], [], $server)['result'] ?: [];
+            $pullsFileRemote    = apiRequestRemote('file-pull', [], [], $server)['result'] ?: [];
+
+            //-- ADD SERVER IDENTIFIER TO CONTAINERS
+            foreach ($processListRemote as &$container) {
+                $container['server'] = $server['name'];
+            }
+
+            //-- MERGE ARRAYS
+            $processList = array_merge($processList, $processListRemote);
+            $pullsFile = array_merge($pullsFile, $pullsFileRemote);
+        }
+    }
 
     foreach ($processList as $container) {
         $id         = $container['ID'];
@@ -21,6 +41,7 @@ function getContainerStats()
         $status     = $container['State'];
         $health     = $container['inspect'][0]['State']['Health']['Status'];
         $createdAt  = $container['CreatedAt'];
+        $server     = $container['server'] ?: 'local';
 
         $startedAt  = $container['inspect'][0]['State']['StartedAt'];
         $uptime     = (new DateTime())->diff(new DateTime($startedAt));
@@ -103,123 +124,192 @@ function getContainerStats()
                             'networkMode'   => $networkMode,
                             'ports'         => $ports,
                             'dockwatch'     => $dockwatch,
-                            'usage'         => $usage
+                            'usage'         => $usage,
+                            'server'        => $server
                         ];
     }
 
     return $containers;
 }
 
-function getOverviewStats()
+function initializeStats() {
+    return [
+        'status' => [
+            'running' => 0,
+            'stopped' => 0,
+            'total' => 0
+        ],
+        'health' => [
+            'healthy' => 0,
+            'unhealthy' => 0,
+            'unknown' => 0
+        ],
+        'updates' => [
+            'uptodate' => 0,
+            'outdated' => 0,
+            'unchecked' => 0
+        ],
+        'usage' => [
+            'disk' => 0,
+            'cpu' => 0,
+            'memory' => 0,
+            'netIO' => 0
+        ],
+        'network' => [],
+        'ports' => []
+    ];
+}
+
+function updateContainerStats(&$stats, $container, $serverKey = '')
 {
-    $data   = getContainerStats();
-    $stats  = [
-                'status'    => [
-                                'running'   => 0,
-                                'stopped'   => 0,
-                                'total'     => 0
-                            ],
-                'health'    => [
-                                'healthy'   => 0,
-                                'unhealthy' => 0,
-                                'unknown'   => 0
-                            ],
-                'updates'   => [
-                                'uptodate'  => 0,
-                                'outdated'  => 0,
-                                'unchecked' => 0
-                            ],
-                'usage'     => [
-                                'disk'      => 0,
-                                'cpu'       => 0,
-                                'memory'    => 0,
-                                'netIO'     => 0
-                            ],
-                'network'   => [],
-                'ports'     => []
-            ];
+    $target = $serverKey ? ['servers', $serverKey] : [];
 
-    foreach ($data as $container) {
-        // -- STATUS
-        if ($container['status'] == 'running') {
-            $stats['status']['running']++;
-        }
-        if ($container['status'] == 'exited') {
-            $stats['status']['stopped']++;
-        }
+    //-- STATUS
+    if ($serverKey) {
+        $stats['servers'][$serverKey]['status']['running'] += ($container['status'] == 'running' ? 1 : 0);
+        $stats['servers'][$serverKey]['status']['stopped'] += ($container['status'] == 'exited' ? 1 : 0);
+        $stats['servers'][$serverKey]['status']['total'] = $stats['servers'][$serverKey]['status']['running'] + $stats['servers'][$serverKey]['status']['stopped'];
+    } else {
+        $stats['status']['running'] += ($container['status'] == 'running' ? 1 : 0);
+        $stats['status']['stopped'] += ($container['status'] == 'exited' ? 1 : 0);
         $stats['status']['total'] = $stats['status']['running'] + $stats['status']['stopped'];
+    }
 
-        // -- HEALTH
-        if ($container['health'] == 'healthy' && $container['status'] == 'running') {
-            $stats['health']['healthy']++;
+    //-- HEALTH
+    if ($container['status'] == 'running') {
+        if ($serverKey) {
+            $stats['servers'][$serverKey]['health']['healthy'] += ($container['health'] == 'healthy' ? 1 : 0);
+            $stats['servers'][$serverKey]['health']['unhealthy'] += ($container['health'] == 'unhealthy' ? 1 : 0);
+            $stats['servers'][$serverKey]['health']['unknown'] += ($container['health'] === null ? 1 : 0);
+        } else {
+            $stats['health']['healthy'] += ($container['health'] == 'healthy' ? 1 : 0);
+            $stats['health']['unhealthy'] += ($container['health'] == 'unhealthy' ? 1 : 0);
+            $stats['health']['unknown'] += ($container['health'] === null ? 1 : 0);
         }
-        if ($container['health'] == 'unhealthy' && $container['status'] == 'running') {
-            $stats['health']['unhealthy']++;
-        }
-        if ($container['health'] == null && $container['status'] == 'running') {
-            $stats['health']['unknown']++;
-        }
+    }
 
-        // -- UPDATES
-        if (!empty($container['dockwatch']) && $container['dockwatch']['pull'] == 'Up to date') {
-            $stats['updates']['uptodate']++;
+    //-- UPDATES
+    if ($serverKey) {
+        if (!empty($container['dockwatch'])) {
+            $stats['servers'][$serverKey]['updates']['uptodate'] += ($container['dockwatch']['pull'] == 'Up to date' ? 1 : 0);
+            $stats['servers'][$serverKey]['updates']['outdated'] += ($container['dockwatch']['pull'] == 'Outdated' ? 1 : 0);
+        } else {
+            $stats['servers'][$serverKey]['updates']['unchecked']++;
         }
-        if (!empty($container['dockwatch']) && $container['dockwatch']['pull'] == 'Outdated') {
-            $stats['updates']['outdated']++;
-        }
-        if (empty($container['dockwatch'])) {
+    } else {
+        if (!empty($container['dockwatch'])) {
+            $stats['updates']['uptodate'] += ($container['dockwatch']['pull'] == 'Up to date' ? 1 : 0);
+            $stats['updates']['outdated'] += ($container['dockwatch']['pull'] == 'Outdated' ? 1 : 0);
+        } else {
             $stats['updates']['unchecked']++;
         }
+    }
 
-        // -- USAGE
-        if ($container['imageSize'] !== null) {
-            $stats['usage']['disk'] += bytesFromString($container['imageSize']);
+    //-- USAGE
+    if ($serverKey) {
+        $stats['servers'][$serverKey]['usage']['disk'] += ($container['imageSize'] !== null ? bytesFromString($container['imageSize']) : 0);
+        $stats['servers'][$serverKey]['usage']['cpu'] += ($container['usage']['cpuPerc'] !== null ? floatval(str_replace('%', '', $container['usage']['cpuPerc'])) : 0);
+        $stats['servers'][$serverKey]['usage']['memory'] += ($container['usage']['memPerc'] !== null ? floatval(str_replace('%', '', $container['usage']['memPerc'])) : 0);
+
+        if ($container['usage']['netIO'] !== null && !str_starts_with($container['networkMode'], 'container:')) {
+            list($netUsed, $netAllowed) = explode(' / ', $container['usage']['netIO']);
+            $stats['servers'][$serverKey]['usage']['netIO'] += bytesFromString($netUsed);
         }
-        if ($container['usage']['cpuPerc'] !== null) {
-            $stats['usage']['cpu'] += floatval(str_replace('%', '', $container['usage']['cpuPerc']));
-        }
-        if ($container['usage']['memPerc'] !== null) {
-            $stats['usage']['memory'] += floatval(str_replace('%', '', $container['usage']['memPerc']));
-        }
+    } else {
+        $stats['usage']['disk'] += ($container['imageSize'] !== null ? bytesFromString($container['imageSize']) : 0);
+        $stats['usage']['cpu'] += ($container['usage']['cpuPerc'] !== null ? floatval(str_replace('%', '', $container['usage']['cpuPerc'])) : 0);
+        $stats['usage']['memory'] += ($container['usage']['memPerc'] !== null ? floatval(str_replace('%', '', $container['usage']['memPerc'])) : 0);
+
         if ($container['usage']['netIO'] !== null && !str_starts_with($container['networkMode'], 'container:')) {
             list($netUsed, $netAllowed) = explode(' / ', $container['usage']['netIO']);
             $stats['usage']['netIO'] += bytesFromString($netUsed);
         }
+    }
 
-        // -- NETWORK
-        if ($container['networkMode'] !== null && !$stats['network'][$container['networkMode']]) {
-            $stats['network'][$container['networkMode']] = 0;
+    //-- NETWORK
+    $networkKey = $container['networkMode'];
+    if ($networkKey !== null) {
+        if ($serverKey) {
+            $stats['servers'][$serverKey]['network'][$networkKey] = ($stats['servers'][$serverKey]['network'][$networkKey] ?? 0) + 1;
+        } else {
+            $stats['network'][$networkKey] = ($stats['network'][$networkKey] ?? 0) + 1;
         }
-        $stats['network'][$container['networkMode']]++;
+    }
 
-        // -- PORTS
-        if (!$stats['ports'][$container['name']]) {
-            if (str_starts_with($container['networkMode'], 'container:')) {
-                continue;
+    //-- PORTS
+    $containerKey = $container['name'];
+    if (!str_starts_with($container['networkMode'], 'container:') &&
+        !str_starts_with($container['networkMode'], 'host')) {
+        if ($serverKey) {
+            $stats['servers'][$serverKey]['ports'][$containerKey] = $stats['servers'][$serverKey]['ports'][$containerKey] ?? [];
+            foreach ($container['ports'] as $port) {
+                if (!empty($port['publicPort']) && !in_array($port['publicPort'], $stats['servers'][$serverKey]['ports'][$containerKey])) {
+                    $stats['servers'][$serverKey]['ports'][$containerKey][] = $port['publicPort'];
+                }
             }
-            if (str_starts_with($container['networkMode'], 'host')) {
-                continue;
+        } else {
+            $stats['ports'][$containerKey] = $stats['ports'][$containerKey] ?? [];
+            foreach ($container['ports'] as $port) {
+                if (!empty($port['publicPort']) && !in_array($port['publicPort'], $stats['ports'][$containerKey])) {
+                    $stats['ports'][$containerKey][] = $port['publicPort'];
+                }
             }
-
-            $stats['ports'][$container['name']] = [];
         }
-        foreach ($container['ports'] as $port) {
-            if (!empty($port['publicPort']) && !in_array($port['publicPort'], $stats['ports'][$container['name']])) {
-                $stats['ports'][$container['name']][] = $port['publicPort'];
+    }
+}
+
+function getOverviewStats($servers = [])
+{
+    $data = getContainerStats($servers);
+    $stats = initializeStats();
+
+    foreach ($data as $container) {
+        $isRemote = $container['server'] !== 'local';
+        if ($isRemote) {
+            if (!isset($stats['servers'][$container['server']])) {
+                $stats['servers'][$container['server']] = initializeStats();
             }
+            updateContainerStats($stats, $container, $container['server']);
+        } else {
+            updateContainerStats($stats, $container);
         }
     }
 
     return $stats;
 }
 
-function getUsageMetrics()
+function getUsageMetrics($servers = [])
 {
-    $metricsFile    = getFile(METRICS_FILE);
-    $metrics        = $metricsFile ?: ['history' => ['disk' => [], 'netIO' => []]];
-    $usageRetention = apiRequestLocal('database-getSettings')['usageMetricsRetention'];
+    $metricsFile = getFile(METRICS_FILE);
+    $metrics = $metricsFile ?: ['history' => ['disk' => [], 'netIO' => []]];
+    $allMetrics = ['local' => $metrics];
+    $retentions = ['local' => apiRequestLocal('database-getSettings')['usageMetricsRetention']];
 
-    return calculateUsageMetrics($metrics, $usageRetention);
+    if (!empty($servers)) {
+        foreach ($servers as $server) {
+            if (strtoupper(APP_NAME) == strtoupper($server['name'])) {
+                continue;
+            }
+
+            $remoteMetrics = apiRequestRemote('file-metrics', [], [], $server)['result'] ?: ['history' => ['disk' => [], 'netIO' => []]];
+            $remoteSettings = apiRequestRemote('database-getSettings', [], [], $server)['result'] ?: ['usageMetricsRetention' => 0];
+
+            $allMetrics[$server['name']] = $remoteMetrics;
+            $retentions[$server['name']] = $remoteSettings['usageMetricsRetention'];
+        }
+    }
+
+    $summary = [];
+
+    foreach ($allMetrics as $serverName => $serverMetrics) {
+        if ($serverName === 'local') {
+            $summary = calculateUsageMetrics($serverMetrics, $retentions[$serverName]);
+        } else {
+            $summary['servers'][$serverName] = calculateUsageMetrics($serverMetrics, $retentions[$serverName]);
+        }
+    }
+
+    return $summary;
 }
 
 function calculateUsageMetrics($metrics, $retention = 1)

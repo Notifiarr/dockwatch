@@ -81,9 +81,11 @@ function apiRequest($endpoint, $parameters = [], $payload = [])
     return apiRequestRemote($endpoint, $parameters, $payload);
 }
 
-function apiRequestRemote($endpoint, $parameters = [], $payload = [])
+function apiRequestRemote($endpoint, $parameters = [], $payload = [], $activeServer = [])
 {
-    $activeServer = apiGetActiveServer();
+    if (empty($activeServer)) {
+        $activeServer = apiGetActiveServer();
+    }
     logger(SYSTEM_LOG, 'apiRequestRemote() ' . $endpoint . ' for server ' . $activeServer['name']);
 
     if ($payload) {
@@ -289,6 +291,8 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
             case 'file-state':
             case 'file/stats':
             case 'file-stats':
+            case 'file/metrics':
+            case 'file-metrics':
                 $file = strtoupper(str_replace('file-', '', $endpoint));
                 return getFile(constant($file . '_FILE'));
             case 'server/log':
@@ -310,13 +314,16 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 return apiResponse(200, ['timezone' => date_default_timezone_get(), 'time' => date('c')]);
             case 'stats/containers':
             case 'stats-getContainersList':
-                return apiResponse(200, getContainerStats());
+                $request = explode(',', $_GET['servers']) ?: [];
+                return apiResponse(200, getContainerStats(validateServers($request)));
             case 'stats/overview':
             case 'stats-getOverview':
-                return apiResponse(200, getOverviewStats());
+                $request = explode(',', $_GET['servers']) ?: [];
+                return apiResponse(200, getOverviewStats(validateServers($request)));
             case 'stats/metrics':
             case 'stats-getMetrics':
-                return apiResponse(200, getUsageMetrics());
+                $request = explode(',', $_GET['servers']) ?: [];
+                return apiResponse(200, getUsageMetrics(validateServers($request)));
             default:
                 apiResponse(405, ['error' => 'Invalid GET request (endpoint=' . $endpoint . ')']);
                 break;
