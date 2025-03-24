@@ -273,7 +273,7 @@ function cacheUsageMetrics($retention = 0)
     };
 
     foreach (['disk', 'netIO'] as $key) {
-        //-- ENSURE IT EXISTS, I TRIED empty() HERE BUT IT ALWAYS OVERWROTE THE FILE
+        //-- ENSURE IT EXISTS
         if (!isset($metrics['history'][$key])) {
             $metrics['history'][$key] = [];
         }
@@ -283,7 +283,7 @@ function cacheUsageMetrics($retention = 0)
             $lastEntry = end($metrics['history'][$key]);
             if ($lastEntry['value'] > $currentUsage[$key]) {
                 //-- ADD CURRENT VALUE TO PREVIOUS ONE
-                $currentUsage[$key] = $lastEntry['value'] + $currentUsage[$key];
+                $currentUsage[$key] = $lastEntry['value'];
             }
         }
 
