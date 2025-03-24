@@ -181,7 +181,7 @@ function getOverviewStats()
         if ($container['usage']['memPerc'] !== null) {
             $stats['usage']['memory'] += floatval(str_replace('%', '', $container['usage']['memPerc']));
         }
-        if ($container['usage']['netIO'] !== null) {
+        if ($container['usage']['netIO'] !== null && !str_starts_with($container['networkMode'], 'container:')) {
             list($netUsed, $netAllowed) = explode(' / ', $container['usage']['netIO']);
             $stats['usage']['netIO'] += bytesFromString($netUsed);
         }
