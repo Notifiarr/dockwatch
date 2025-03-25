@@ -1,0 +1,72 @@
+name: Bug Report
+description: File a bug report to help us improve Dockwatch
+title: "Bug - "
+labels: ["bug", "triage"]
+type: bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Bug Report
+        Thanks for taking the time to fill out this bug report!
+        Please fill out the information below as detailed as possible.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: Tell us what happened...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+      placeholder: Tell us what should have happened...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: input
+    id: dockwatch-version
+    attributes:
+      label: Dockwatch Version
+      description: |
+        What version of Dockwatch are you running?
+        You can find your Dockwatch version on the bottom left side of the footer.
+      placeholder: "Branch: develop, Hash: fe55f12"
+    validations:
+      required: true
+
+  - type: input
+    id: docker-version
+    attributes:
+      label: Docker Version
+      description: |
+        What version of Docker are you running?
+        You can find your Docker version by running: `docker version` and `docker compose version`.
+      placeholder: "Docker Engine Version: 27.4.1 - Docker Compose Version: v2.32.1"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here (logs, screenshots, etc.).
+      placeholder: Any additional information...
