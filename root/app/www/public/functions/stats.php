@@ -368,12 +368,11 @@ function cacheUsageMetrics($retention = 0)
             $metrics['history'][$key] = [];
         }
 
-        //-- CHECK IF PREVIOUS VALUE EXISTS AND IS LARGER THAN CURRENT
+        //-- HANDLE NETWORK I/O TRACKING
         if ($key === 'netIO' && !empty($metrics['history'][$key])) {
             $lastEntry = end($metrics['history'][$key]);
-            if ($lastEntry['value'] > $currentUsage[$key]) {
-                //-- ADD CURRENT VALUE TO PREVIOUS ONE
-                $currentUsage[$key] = $lastEntry['value'];
+            if ($currentUsage[$key] < $lastEntry['value']) {
+                $metrics['history'][$key] = []; //-- RESET COUNTER
             }
         }
 
