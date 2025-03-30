@@ -25,8 +25,9 @@ function renderContainerRow($nameHash, $return)
     $containerSettings  = apiRequest('database-getContainerFromHash', ['hash' => $nameHash])['result'];
     $logo               = getIcon($process['inspect']);
     $notificationIcon   = '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container" style="display: ' . ($containerSettings['disableNotifications'] ? 'inline-block' : 'none') . '"></i> ';
+    $isRunning          = $process['State'] == 'running';
 
-    if ($process['State'] == 'running') {
+    if ($isRunning) {
         $control = '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn me-2" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i>';
         $control .= '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="stop-btn-' . $nameHash . '" class="fas fa-power-off text-danger container-stop-btn" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"></i>';
     } else {
@@ -106,7 +107,7 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
-    $portList = $previewPort = '';
+    $portList = $previewPort = $tcpPort = '';
     if ($process['inspect'][0]['HostConfig']['PortBindings']) {
         $ports = [];
 
@@ -114,6 +115,11 @@ function renderContainerRow($nameHash, $return)
             foreach ($portBinds as $portBind) {
                 if ($portBind['HostPort']) {
                     $ports[] = $internalBind . ' &rarr; ' . $portBind['HostPort'];
+
+                    //-- TODO: This is likely not the best way to find the right port when multiple ports are used
+                    if (str_contains($internalBind, 'tcp')) {
+                        $tcpPort = $portBind['HostPort'];
+                    }
                 }
             }
         }
@@ -134,6 +140,10 @@ function renderContainerRow($nameHash, $return)
                 $portList .= '</div>';
             }
         }
+    }
+
+    if ($tcpPort) {
+        $containerLink = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] . ':' . $tcpPort;
     }
 
     $envList = $previewEnv = '';
@@ -187,7 +197,9 @@ function renderContainerRow($nameHash, $return)
             $network = 'container:' . $docker->findContainer(['id' => $containerId, 'data' => $processList]);
         }
 
-        $isCompose = isComposeContainer($process['Names']) ? '<i class="fab fa-octopus-deploy me-2 text-muted" title="This container has a compose file"></i>' : '';
+        $isCompose  = isComposeContainer($process['Names']) ? '<i class="fab fa-octopus-deploy me-2 text-muted" title="This container has a compose file"></i>' : '';
+        //-- TODO: This is likely not to work in every scenario (other networks, reverse proxies, etc)
+        $openLink   = $isRunning && $tcpPort && !$isDockwatch ? ' <i style="cursor:pointer;" class="text-primary fas fa-external-link-alt fa-xs" title="Open container" onclick="window.open(\'' . $containerLink . '\')"></i>' : '';
         ?>
         <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row bg-primary" style="display: none;"' : '' ?>>
             <!-- COLUMN: CHECKBOX -->
@@ -200,9 +212,9 @@ function renderContainerRow($nameHash, $return)
                     <!-- STOP/START ICONS -->
                     <div class="col-sm-12 col-lg-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
                     <!-- NAME, REPOSITORY -->
-                    <div class="col-sm-12 col-lg-10" style="cursor:pointer;" onclick="containerInfo('<?= $nameHash ?>')">
-                        <span><?= $notificationIcon . $isCompose . $process['Names'] ?></span>
-                        <br><span class="text-muted small-text" title="<?= $docker->isIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle($docker->isIO($process['inspect'][0]['Config']['Image']), 30) ?></span>
+                    <div class="col-sm-12 col-lg-10">
+                        <span style="cursor:pointer;" onclick="containerInfo('<?= $nameHash ?>')"><?= $notificationIcon . $isCompose . $process['Names'] ?></span><?= $openLink ?>
+                        <br><span style="cursor:pointer;" onclick="containerInfo('<?= $nameHash ?>')" class="text-muted small-text" title="<?= $docker->isIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle($docker->isIO($process['inspect'][0]['Config']['Image']), 30) ?></span>
                     </div>
                 </div>
             </td>

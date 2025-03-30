@@ -42,7 +42,8 @@ function isDockwatchContainer($container)
 
 function isComposeContainer($container)
 {
-    return file_exists(COMPOSE_PATH . $container . '/docker-compose.yml');
+    $path = COMPOSE_PATH . preg_replace('/[^ \w]+/', '', $container);
+    return file_exists($path . '/docker-compose.yml');
 }
 
 function automation()
