@@ -41,17 +41,25 @@ if ($_POST['m'] == 'init') {
             <div class="col-sm-12">
                 <div id="container-control-buttons" class="text-center bg-secondary">
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Pull</span></button>
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 2)"><i class="fas fa-sync-alt fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Restart</span></button>
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 1)"><i class="fas fa-play fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Start</span></button>
-                        <button type="button" class="btn btn-outline-light bg-secondary" onclick="massApplyContainerTrigger(false, 3)"><i class="fas fa-power-off fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Stop</span></button>
-                        <button type="button" class="btn btn-outline-warning bg-secondary" onclick="massApplyContainerTrigger(false, 13)"><i class="fas fa-skull-crossbones fa-xs me-1"></i><span class="container-control-button-label text-warning hide-mobile"> Kill</span></button>
-                        <button type="button" class="btn btn-outline-danger bg-secondary" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i><span class="container-control-button-label text-danger hide-mobile"> Remove</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Pull</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 2)"><i class="fas fa-sync-alt fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Restart</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 1)"><i class="fas fa-play fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Start</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 3)"><i class="fas fa-power-off fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Stop</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 13)"><i class="fas fa-skull-crossbones fa-xs me-1"></i><span class="container-control-button-label text-warning hide-mobile"> Kill</span></button>
+                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i><span class="container-control-button-label text-danger hide-mobile"> Remove</span></button>
                     </div>
                     <div class="btn-group hide-mobile" role="group">
-                        <button type="button" class="btn btn-outline-info bg-secondary disabled">Updates:</button>
-                        <button type="button" class="btn btn-outline-info bg-secondary" onclick="massApplyContainerTrigger(false, 11)">Check</button>
-                        <button type="button" class="btn btn-outline-info bg-secondary" onclick="massApplyContainerTrigger(false, 7)">Apply</button>
+                        <button class="btn btn-outline-light bg-secondary dropdown-toggle btn-sm" type="button" id="dropBtnUpdates" data-bs-toggle="dropdown" aria-expanded="false">Updates</button>
+                        <ul class="dropdown-menu" aria-labelledby="dropBtnUpdates">
+                            <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 11)">Check</a></li>
+                            <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 7)">Apply</a></li>
+                        </ul>
+
+                        <button class="btn btn-outline-light bg-secondary dropdown-toggle btn-sm" type="button" id="dropBtnGenerate" data-bs-toggle="dropdown" aria-expanded="false">Generate</button>
+                        <ul class="dropdown-menu" aria-labelledby="dropBtnGenerate">
+                            <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 6)">Compose</a></li>
+                            <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 5)">Run</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -295,14 +303,24 @@ if ($_POST['m'] == 'containerInfo') {
                 <button type="button" class="btn btn-outline-light popout-close" onclick="massApplyContainerTrigger(false, 2, '<?= $_POST['hash'] ?>')"><i class="fas fa-sync-alt fa-xs me-1"></i> Restart</button>
                 <button type="button" class="btn btn-outline-light popout-close" onclick="massApplyContainerTrigger(false, 1, '<?= $_POST['hash'] ?>')"><i class="fas fa-play fa-xs me-1"></i> Start</button>
                 <button type="button" class="btn btn-outline-light popout-close" onclick="massApplyContainerTrigger(false, 3, '<?= $_POST['hash'] ?>')"><i class="fas fa-power-off fa-xs me-1"></i> Stop</button>
-                <button type="button" class="btn btn-outline-warning popout-close <?= $skipActions ? 'd-none' : '' ?>" onclick="massApplyContainerTrigger(false, 13, '<?= $_POST['hash'] ?>')"><i class="fas fa-skull-crossbones fa-xs me-1"></i> Kill</button>
+                <button type="button" class="btn btn-outline-light popout-close <?= $skipActions ? 'd-none' : '' ?>" onclick="massApplyContainerTrigger(false, 13, '<?= $_POST['hash'] ?>')"><i class="fas fa-skull-crossbones fa-xs me-1"></i> Kill</button>
             </div>
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-outline-info disabled">Updates:</button>
-                <button type="button" class="btn btn-outline-info popout-close" onclick="massApplyContainerTrigger(false, 11, '<?= $_POST['hash'] ?>')">Check</button>
-                <button type="button" class="btn btn-outline-info popout-close <?= $skipActions ? 'd-none' : '' ?>" onclick="massApplyContainerTrigger(false, 7, '<?= $_POST['hash'] ?>')">Apply</button>
+
+            <div class="btn-group hide-mobile" role="group">
+                <button class="btn btn-outline-light bg-secondary dropdown-toggle btn-sm" type="button" id="dropBtnUpdates" data-bs-toggle="dropdown" aria-expanded="false">Updates</button>
+                <ul class="dropdown-menu" aria-labelledby="dropBtnUpdates">
+                    <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 11, '<?= $_POST['hash'] ?>')">Check</a></li>
+                    <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 7, '<?= $_POST['hash'] ?>')">Apply</a></li>
+                </ul>
+
+                <button class="btn btn-outline-light bg-secondary dropdown-toggle btn-sm" type="button" id="dropBtnGenerate" data-bs-toggle="dropdown" aria-expanded="false">Generate</button>
+                <ul class="dropdown-menu" aria-labelledby="dropBtnGenerate">
+                    <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 6, '<?= $_POST['hash'] ?>')">Compose</a></li>
+                    <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 5, '<?= $_POST['hash'] ?>')">Run</a></li>
+                </ul>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-danger popout-close <?= $skipActions ? 'd-none' : '' ?>" onclick="massApplyContainerTrigger(false, 9, '<?= $_POST['hash'] ?>')"><i class="far fa-trash-alt fa-xs me-1"></i> Remove</button>
+
+            <button type="button" class="btn btn-sm btn-outline-light popout-close <?= $skipActions ? 'd-none' : '' ?>" onclick="massApplyContainerTrigger(false, 9, '<?= $_POST['hash'] ?>')"><i class="far fa-trash-alt fa-xs me-1"></i> Remove</button>
         <?php } ?>
     </div>
 
