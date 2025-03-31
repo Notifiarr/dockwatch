@@ -9,11 +9,13 @@
 
 require 'shared.php';
 
-$composeExample = 'version: "2.1"
-services:
+$composeExample = 'services:
   dockwatch:
-    container_name: dockwatch
-    image: ghcr.io/notifiarr/dockwatch:main
+    image: "ghcr.io/notifiarr/dockwatch:main"
+    container_name: "dockwatch"
+    hostname: "dockwatch"
+    network_mode: "bridge"
+    restart: "unless-stopped"
     ports:
       - ' . APP_PORT . ':80/tcp
     environment:
@@ -30,9 +32,10 @@ while ($folder = readdir($dir)) {
         continue;
     }
 
-    $existingComposeFolders[] = COMPOSE_PATH . $folder;
+    $existingComposeFolders[strtolower($folder)] = COMPOSE_PATH . $folder;
 }
 closedir($dir);
+sort($existingComposeFolders);
 
 if ($_POST['m'] == 'init') {
     if ($_SESSION['activeServerId'] != APP_SERVER_ID) {
