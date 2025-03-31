@@ -88,7 +88,7 @@ if ($_POST['m'] == 'init') {
                             <tr>
                                 <th scope="col" class="rounded-top-left-1 bg-primary ps-3 container-table-header noselect no-sort"></th>
                                 <th scope="col" class="bg-primary ps-3 container-table-header noselect no-sort"></th>
-                                <th scope="col" class="bg-primary ps-3 container-table-header noselect hide-mobile">Name</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect">Name</th>
                                 <th scope="col" class="bg-primary ps-3 container-table-header noselect hide-mobile">Updates</th>
                                 <th scope="col" class="bg-primary ps-3 container-table-header noselect hide-mobile">State</th>
                                 <th scope="col" class="bg-primary ps-3 container-table-header noselect hide-mobile">Health</th>
@@ -97,7 +97,6 @@ if ($_POST['m'] == 'init') {
                                 <th scope="col" class="bg-primary ps-3 container-table-header noselect no-sort hide-mobile">Ports</th>
                                 <th scope="col" class="rounded-top-right-1 bg-primary ps-3 container-table-header noselect no-sort hide-mobile">CPU/MEM</th>
 
-                                <th scope="col" class="bg-primary ps-3 container-table-header noselect hide-desktop">Container</th>
                                 <th scope="col" class="rounded-top-right-1 bg-primary ps-3 container-table-header noselect hide-desktop">Status</th>
                             </tr>
                         </thead>
@@ -146,7 +145,6 @@ if ($_POST['m'] == 'init') {
                                         <td class="container-table-row bg-secondary hide-mobile"><?= $groupCPU ?>%<br><?= $groupMemory ?>%</td>
 
                                         <td class="container-table-row bg-secondary hide-mobile hide-desktop">&nbsp;</td>
-                                        <td class="container-table-row bg-secondary hide-mobile hide-desktop">&nbsp;</td>
                                     </tr>
                                     <?php
 
@@ -181,7 +179,7 @@ if ($_POST['m'] == 'init') {
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td class="rounded-bottom-right-1 rounded-bottom-left-1 bg-primary ps-3" colspan="12">
+                                <td class="rounded-bottom-right-1 rounded-bottom-left-1 bg-primary ps-3" colspan="11">
                                     <div style="float:right;">
                                         <button id="check-all-btn" class="dt-button mt-2 buttons-collection" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
                                         <button id="group-restore-btn" style="display:none;" class="dt-button buttons-collection" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>

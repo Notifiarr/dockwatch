@@ -28,10 +28,10 @@ function renderContainerRow($nameHash, $return)
     $isRunning          = $process['State'] == 'running';
 
     if ($isRunning) {
-        $control = '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="restart-btn-' . $nameHash . '" class="fas fa-sync-alt text-success container-restart-btn me-2" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"></i>';
-        $control .= '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="stop-btn-' . $nameHash . '" class="fas fa-power-off text-danger container-stop-btn" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"></i>';
+        $control = '<li style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="restart-btn-' . $nameHash . '"><a class="dropdown-item" href="javascript:void;" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"><i class="fas fa-sync-alt fa-xs text-success container-restart-btn me-1"></i> Restart</a></li>';
+        $control .= '<li style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="stop-btn-' . $nameHash . '"><a class="dropdown-item" href="javascript:void;" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"><i class="fas fa-power-off fa-xs text-danger container-stop-btn me-1"></i> Stop</a></li>';
     } else {
-        $control = '<i style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="start-btn-' . $nameHash . '" class="fas fa-play text-success container-start-btn" title="Start" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"></i>';
+        $control = '<li style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="start-btn-' . $nameHash . '"><a class="dropdown-item" href="javascript:void;" title="Start" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"><i class="fas fa-play fa-xs text-success container-start-btn me-1"></i> Start</a></li>';
     }
 
     $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
@@ -171,7 +171,7 @@ function renderContainerRow($nameHash, $return)
     if ($return == 'json') {
         return [
                 'control'   => $control,
-                'update'    => $updateStatus . '<br><span class="text-muted small-text" title="' . $pullData['imageDigest'] .'">' . truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) . '</span>',
+                'update'    => $updateStatus . '<br><span class="text-muted small-text" title="' . $pullData['imageDigest'] .'">' . truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 20) . '</span>',
                 'state'     => $process['State'],
                 'mounts'    => $mountList,
                 'ports'     => $portList,
@@ -183,23 +183,14 @@ function renderContainerRow($nameHash, $return)
                 'health'    => $health
             ];
     } else {
-        $version = '';
-        foreach ($process['inspect'][0]['Config']['Labels'] as $label => $val) {
-            if (str_contains($label, 'image.version')) {
-                $version = $val;
-                break;
-            }
-        }
-
         $network = $process['inspect'][0]['HostConfig']['NetworkMode'];
         if (str_contains($network, ':')) {
             list($null, $containerId) = explode(':', $network);
             $network = 'container:' . $docker->findContainer(['id' => $containerId, 'data' => $processList]);
         }
 
-        $isCompose  = isComposeContainer($process['Names']) ? '<i class="fab fa-octopus-deploy me-2 text-muted" title="This container has a compose file"></i>' : '';
         //-- TODO: This is likely not to work in every scenario (other networks, reverse proxies, etc)
-        $openLink   = $isRunning && $tcpPort && !$isDockwatch ? ' <i style="cursor:pointer;" class="text-primary fas fa-external-link-alt fa-xs" title="Open container" onclick="window.open(\'' . $containerLink . '\')"></i>' : '';
+        $gui = $isRunning && $tcpPort && !$isDockwatch ? '<li><a class="dropdown-item" href="javascript:void;" style="cursor:pointer;" title="Open container" onclick="window.open(\'' . $containerLink . '\')"><i class="text-primary fas fa-external-link-alt fa-xs me-1"></i> GUI</a></li>' : '';
         ?>
         <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row bg-primary" style="display: none;"' : '' ?>>
             <!-- COLUMN: CHECKBOX -->
@@ -207,21 +198,24 @@ function renderContainerRow($nameHash, $return)
             <!-- COLUMN: ICON -->
             <td class="container-table-row bg-secondary"><?= $logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '' ?></td>
             <!-- COLUMN: STOP/START ICON, NAME, MENU, REPOSITORY -->
-            <td class="container-table-row bg-secondary hide-mobile">
+            <td class="container-table-row bg-secondary">
                 <div class="row m-0 p-0">
-                    <!-- STOP/START ICONS -->
-                    <div class="col-sm-12 col-lg-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
-                    <!-- NAME, REPOSITORY -->
-                    <div class="col-sm-12 col-lg-10">
-                        <span style="cursor:pointer;" onclick="containerInfo('<?= $nameHash ?>')"><?= $notificationIcon . $isCompose . $process['Names'] ?></span><?= $openLink ?>
-                        <br><span style="cursor:pointer;" onclick="containerInfo('<?= $nameHash ?>')" class="text-muted small-text" title="<?= $docker->isIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle($docker->isIO($process['inspect'][0]['Config']['Image']), 30) ?></span>
+                    <div class="dropdown">
+                        <span class="dropdown-toggle" id="containerMenu-<?= $nameHash ?>" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;"><?= $notificationIcon . '<span class="' . ($isRunning ? 'text-success' : 'text-danger') . '">⚈</span> ' . $process['Names'] ?></span>
+                        <ul class="dropdown-menu" aria-labelledby="containerMenu-<?= $nameHash ?>">
+                            <?= $control ?>
+                            <?= $gui ?>
+                            <li><a class="dropdown-item" href="javascript:void" onclick="containerInfo('<?= $nameHash ?>')" style="cursor:pointer;"><i class="text-primary fas fa-cogs fa-xs me-1"></i> Settings</a></li>
+                            <li><a class="dropdown-item" href="javascript:void" onclick="containerLogs('<?= $process['Names'] ?>')" style="cursor:pointer;"><i class="text-primary fas fa-file-alt fa-xs me-1"></i> Logs</a></li>
+                        </ul>
                     </div>
+                    <span class="text-muted small-text hide-mobile" title="<?= $docker->isIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle($docker->isIO($process['inspect'][0]['Config']['Image']), 40) ?></span>
                 </div>
             </td>
             <!-- COLUMN: UPDATES, HASH -->
             <td class="container-table-row bg-secondary hide-mobile" id="<?= $nameHash ?>-update" style="cursor: help;" title="Last pulled: <?= date('Y-m-d H:i:s', $pullData['checked']) ?>">
                 <?= $updateStatus ?><br>
-                <span class="text-muted small-text" title="<?= $pullData['imageDigest'] ?>"><?= truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 15) ?></span>
+                <span class="text-muted small-text" title="<?= $pullData['imageDigest'] ?>"><?= truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 20) ?></span>
             </td>
             <!-- COLUMN: STATE -->
             <td class="container-table-row bg-secondary hide-mobile">
@@ -239,18 +233,6 @@ function renderContainerRow($nameHash, $return)
             <!-- COLUMN: MEMORT/CPU USAGE -->
             <td class="container-table-row bg-secondary hide-mobile" id="<?= $nameHash ?>-usage"><?= $cpuUsage ?><br><?= $process['stats']['MemPerc'] ?></td>
 
-            <!-- COLUMN: STOP/START ICON, NAME (MOBILE) -->
-            <td class="container-table-row bg-secondary hide-desktop">
-                <div class="row m-0 p-0">
-                    <!-- STOP/START ICONS -->
-                    <div class="col-sm-12 col-lg-1" id="<?= $nameHash ?>-control"><?= $control ?></div>
-                    <!-- NAME, REPOSITORY -->
-                    <div class="col-sm-12 col-lg-10" style="cursor:pointer;" onclick="containerInfo('<?= $nameHash ?>')">
-                        <span><?= $notificationIcon . $isCompose . $process['Names'] ?></span>
-                        <br><span class="text-muted small-text" id="<?= $nameHash ?>-length"><?= $length ?></span>
-                    </div>
-                </div>
-            </td>
             <!-- COLUMN: STATUS (MOBILE) -->
             <td class="container-table-row bg-secondary hide-desktop" id="<?= $nameHash ?>-health"><?= $updateStatus ?><br><?= $health ?></td>
         </tr>
