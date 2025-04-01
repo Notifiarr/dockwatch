@@ -50,14 +50,14 @@ function renderContainerRow($nameHash, $return)
     }
 
     switch (true) {
-        case str_contains($process['Status'], 'healthy'):
-            $health = '<span class="badge bg-success">Healthy</span>';
+        case str_contains($process['Status'], 'health:'):
+            $health = '<span class="badge bg-gray">Waiting</span>';
             break;
         case str_contains($process['Status'], 'unhealthy'):
             $health = '<span class="badge bg-warning">Unhealthy</span>';
             break;
-        case str_contains($process['Status'], 'health:'):
-            $health = '<span class="badge bg-gray">Waiting</span>';
+        case str_contains($process['Status'], 'healthy'):
+            $health = '<span class="badge bg-success">Healthy</span>';
             break;
         default:
             $health = '';
