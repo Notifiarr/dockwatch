@@ -125,7 +125,27 @@ function applyContainerAction(hash, action)
 // ---------------------------------------------------------------------------------------------
 function updateContainerRowText(hash, data)
 {
-    $('#' + hash + '-control').html(data.control);
+    //-- MENU OPTIONS
+    $('[id^=' + hash + '-menu-]').hide();
+    $('#' + hash + '-menu-start').html(data.start);
+    $('#' + hash + '-menu-stop').html(data.stop);
+    $('#' + hash + '-menu-restart').html(data.restart);
+    $('#' + hash + '-menu-gui').html(data.gui);
+    if (data.start) {
+        $('#' + hash + '-menu-start').show();
+    }
+    if (data.stop) {
+        $('#' + hash + '-menu-stop').show();
+    }
+    if (data.restart) {
+        $('#' + hash + '-menu-restart').show();
+    }
+    if (data.gui) {
+        $('#' + hash + '-menu-gui').show();
+    }
+    $('#' + hash + '-onlineIcon').removeClass().addClass(data.onlineClass).show();
+
+    //-- ROW VALUES
     $('#' + hash + '-update').html(data.update);
     $('#' + hash + '-state').html(data.state);
     $('#' + hash + '-mounts').html(data.mounts);

@@ -26,12 +26,15 @@ function renderContainerRow($nameHash, $return)
     $logo               = getIcon($process['inspect']);
     $notificationIcon   = '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container" style="display: ' . ($containerSettings['disableNotifications'] ? 'inline-block' : 'none') . '"></i> ';
     $isRunning          = $process['State'] == 'running';
+    $start = $stop = $restart = '';
 
-    if ($isRunning) {
-        $control = '<li style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="restart-btn-' . $nameHash . '"><a class="dropdown-item" href="javascript:void;" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"><i class="fas fa-sync-alt fa-xs text-success container-restart-btn me-1"></i> Restart</a></li>';
-        $control .= '<li style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="stop-btn-' . $nameHash . '"><a class="dropdown-item" href="javascript:void;" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"><i class="fas fa-power-off fa-xs text-danger container-stop-btn me-1"></i> Stop</a></li>';
-    } else {
-        $control = '<li style="' . ($skipActions ? 'display: none;' : '') . ' cursor: pointer;" id="start-btn-' . $nameHash . '"><a class="dropdown-item" href="javascript:void;" title="Start" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"><i class="fas fa-play fa-xs text-success container-start-btn me-1"></i> Start</a></li>';
+    if (!$skipActions) {
+        if ($isRunning) {
+            $restart    = '<a class="dropdown-item" href="javascript:void;" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"><i class="fas fa-sync-alt fa-xs text-success container-restart-btn me-1"></i> Restart</a>';
+            $stop       = '<a class="dropdown-item" href="javascript:void;" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"><i class="fas fa-power-off fa-xs text-danger container-stop-btn me-1"></i> Stop</a>';
+        } else {
+            $start      = '<a class="dropdown-item" href="javascript:void;" title="Start" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"><i class="fas fa-play fa-xs text-success container-start-btn me-1"></i> Start</a>';
+        }
     }
 
     $cpuUsage = floatval(str_replace('%', '', $process['stats']['CPUPerc']));
@@ -168,19 +171,27 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
+    //-- TODO: This is likely not to work in every scenario (other networks, reverse proxies, etc)
+    $gui            = $isRunning && $tcpPort && !$isDockwatch ? '<a class="dropdown-item" href="javascript:void;" style="cursor:pointer;" title="Open container" onclick="window.open(\'' . $containerLink . '\')"><i class="text-primary fas fa-external-link-alt fa-xs me-1"></i> GUI</a>' : '';
+    $onlineClass    = $isRunning ? 'text-success' : 'text-danger';
+
     if ($return == 'json') {
         return [
-                'control'   => $control,
-                'update'    => $updateStatus . '<br><span class="text-muted small-text" title="' . $pullData['imageDigest'] .'">' . truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 20) . '</span>',
-                'state'     => $process['State'],
-                'mounts'    => $mountList,
-                'ports'     => $portList,
-                'env'       => $envList,
-                'length'    => $length,
-                'cpu'       => $cpuUsage,
-                'cpuTitle'  => $process['stats']['CPUPerc'],
-                'mem'       => $process['stats']['MemPerc'],
-                'health'    => $health
+                'update'        => $updateStatus . '<br><span class="text-muted small-text" title="' . $pullData['imageDigest'] .'">' . truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 20) . '</span>',
+                'state'         => $process['State'],
+                'mounts'        => $mountList,
+                'ports'         => $portList,
+                'env'           => $envList,
+                'length'        => $length,
+                'cpu'           => $cpuUsage,
+                'cpuTitle'      => $process['stats']['CPUPerc'],
+                'mem'           => $process['stats']['MemPerc'],
+                'health'        => $health,
+                'gui'           => $gui,
+                'onlineClass'   => $onlineClass,
+                'start'         => $start,
+                'stop'          => $stop,
+                'restart'       => $restart
             ];
     } else {
         $network = $process['inspect'][0]['HostConfig']['NetworkMode'];
@@ -189,8 +200,6 @@ function renderContainerRow($nameHash, $return)
             $network = 'container:' . $docker->findContainer(['id' => $containerId, 'data' => $processList]);
         }
 
-        //-- TODO: This is likely not to work in every scenario (other networks, reverse proxies, etc)
-        $gui = $isRunning && $tcpPort && !$isDockwatch ? '<li><a class="dropdown-item" href="javascript:void;" style="cursor:pointer;" title="Open container" onclick="window.open(\'' . $containerLink . '\')"><i class="text-primary fas fa-external-link-alt fa-xs me-1"></i> GUI</a></li>' : '';
         ?>
         <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row bg-primary" style="display: none;"' : '' ?>>
             <!-- COLUMN: CHECKBOX -->
@@ -201,10 +210,17 @@ function renderContainerRow($nameHash, $return)
             <td class="container-table-row bg-secondary">
                 <div class="row m-0 p-0">
                     <div class="dropdown">
-                        <span class="dropdown-toggle" id="containerMenu-<?= $nameHash ?>" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;"><?= $notificationIcon . '<span class="' . ($isRunning ? 'text-success' : 'text-danger') . '">⚈</span> ' . $process['Names'] ?></span>
+                        <span class="dropdown-toggle" id="containerMenu-<?= $nameHash ?>" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+                            <?= $notificationIcon . '<span id="' . $nameHash . '-onlineIcon" class="' . $onlineClass . '">⚈</span> ' . $process['Names'] ?>
+                        </span>
                         <ul class="dropdown-menu" aria-labelledby="containerMenu-<?= $nameHash ?>">
-                            <?= $control ?>
-                            <?= $gui ?>
+                            <?php if ($isRunning) { ?>
+                                <li><a class="dropdown-item" href="javascript:void" onclick="containerShell('<?= $process['Names'] ?>')" style="cursor:pointer;"><i class="text-primary fas fa-terminal fa-xs me-1"></i> Shell</a></li>
+                            <?php } ?>
+                            <li id="<?= $nameHash ?>-menu-start" style="display:<?= !$start ? 'none' : '' ?>;"><?= $start ?></li>
+                            <li id="<?= $nameHash ?>-menu-stop" style="display:<?= !$stop ? 'none' : '' ?>;"><?= $stop ?></li>
+                            <li id="<?= $nameHash ?>-menu-restart" style="display:<?= !$restart ? 'none' : '' ?>;"><?= $restart ?></li>
+                            <li id="<?= $nameHash ?>-menu-gui" style="display:<?= !$gui ? 'none' : '' ?>;"><?= $gui ?></li>
                             <li><a class="dropdown-item" href="javascript:void" onclick="containerInfo('<?= $nameHash ?>')" style="cursor:pointer;"><i class="text-primary fas fa-cogs fa-xs me-1"></i> Settings</a></li>
                             <li><a class="dropdown-item" href="javascript:void" onclick="containerLogs('<?= $process['Names'] ?>')" style="cursor:pointer;"><i class="text-primary fas fa-file-alt fa-xs me-1"></i> Logs</a></li>
                         </ul>
