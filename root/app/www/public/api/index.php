@@ -22,6 +22,8 @@ if ($apikey != $serversTable[APP_SERVER_ID]['apikey']) {
     apiResponse(401, ['error' => 'Invalid apikey']);
 }
 
+apiSetActiveServer(APP_SERVER_ID);
+
 //-- DO ANYTHING SPECIAL NEEDED BEFORE SENDING IT
 if ($_GET['endpoint']) {
     $_GET['request'] = $_GET['endpoint'];
