@@ -10,6 +10,9 @@
 // This will NOT report uninitialized variables
 error_reporting(E_ERROR | E_PARSE);
 
+//-- COMPOSER AUTOLOADER
+require __DIR__ . '/../vendor/autoload.php';
+
 if ($_SERVER['TZ']) {
     date_default_timezone_set($_SERVER['TZ']);
 }

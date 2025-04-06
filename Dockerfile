@@ -23,10 +23,24 @@ RUN \
 # install sockets
 RUN apk add --no-cache \
   php83-sockets
-  
+
 # install sqlite3
 RUN apk add --no-cache \
   php83-sqlite3
+
+# install composer and PHP dependencies
+RUN apk add --no-cache \
+  php83-phar \
+  php83-mbstring \
+  php83-openssl \
+  php83-json \
+  php83-tokenizer \
+  php83-dom \
+  php83-xml \
+  php83-xmlwriter \
+  php83-simplexml \
+  curl \
+  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # add regctl for container digest checks
 ARG TARGETARCH
@@ -46,6 +60,11 @@ HEALTHCHECK --interval=60s --timeout=30s --start-period=180s --start-interval=10
 
 # add local files
 COPY root/ /
+
+# Copy composer files and install dependencies
+COPY composer.json composer.lock* /app/www/
+WORKDIR /app/www
+RUN composer install --no-dev --optimize-autoloader
 
 ARG COMMIT=unknown
 ARG COMMITS=0

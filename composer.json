@@ -1,0 +1,8 @@
+{
+    "name": "notifiarr/dockwatch",
+    "type": "project",
+    "require": {
+        "cboden/ratchet": "^0.4.4"
+    },
+    "license": "MIT"
+}
