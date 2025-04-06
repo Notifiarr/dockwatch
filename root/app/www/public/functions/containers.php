@@ -214,6 +214,9 @@ function renderContainerRow($nameHash, $return)
                             <?= $notificationIcon . '<span id="' . $nameHash . '-onlineIcon" class="' . $onlineClass . '">⚈</span> ' . $process['Names'] ?>
                         </span>
                         <ul class="dropdown-menu" aria-labelledby="containerMenu-<?= $nameHash ?>">
+                            <?php if ($isRunning) { ?>
+                            <li><a class="dropdown-item" href="javascript:void" onclick="containerShell('<?= $process['Names'] ?>')" style="cursor:pointer;"><i class="text-primary fas fa-terminal fa-xs me-1"></i> Shell</a></li>
+                            <?php } ?>
                             <li id="<?= $nameHash ?>-menu-start" style="display:<?= !$start ? 'none' : '' ?>;"><?= $start ?></li>
                             <li id="<?= $nameHash ?>-menu-stop" style="display:<?= !$stop ? 'none' : '' ?>;"><?= $stop ?></li>
                             <li id="<?= $nameHash ?>-menu-restart" style="display:<?= !$restart ? 'none' : '' ?>;"><?= $restart ?></li>

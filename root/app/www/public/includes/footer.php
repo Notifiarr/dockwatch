@@ -138,6 +138,11 @@
             </div>
         </div>
 
+        <!-- xterm Shell -->
+        <div id="xtermShellDiv" style="display: none;">
+            <div id="terminalContainer" style="overflow: hidden; position: relative;"></div>
+        </div>
+
         <!-- Frequency helper information -->
         <div id="containerFrequencyHelpDiv" style="display: none;">
             There are 5 parts to a cron (6 with the optional year which is not used here). Below shows each section:<br>
@@ -208,6 +213,8 @@
         <script src="libraries/kpopup/kpopup.js"></script>
         <script src="libraries/chart/chart.umd.min.js"></script>
         <script src="libraries/chart/chartjs.plugin.datalabels.min.js"></script>
+        <script src="libraries/xterm/xterm.min.js"></script>
+        <script src="libraries/xterm/xterm-addon-fit.min.js"></script>
 
         <!-- Javascript -->
         <?= loadJS() ?>

@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+s6-setuidgid abc memcached -u abc -m 64 -l 127.0.0.1

@@ -15,7 +15,11 @@ echo 'require_once ' . ABSOLUTE_PATH . 'loader.php' . "\n";
 $skipMmigrations = true; //-- DO THIS WHEN THE UI IS LOADED, NOT THE INIT
 require_once ABSOLUTE_PATH . 'loader.php';
 
-//-- INITIALIZE THE NOTIFY CLASS
+//-- INITIALIZE MEMCACHE
+$memcache = $memcache ?? new Memcached();
+$memcache->addServer('127.0.0.1', 11211);
+
+//-- INITIALIZE THE DATABASE CLASS
 $database = $database ?? new Database();
 
 //-- INITIALIZE THE NOTIFY CLASS
@@ -44,6 +48,10 @@ if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'stateChan
 } else {
 	logger(STARTUP_LOG, 'Skipping ' . $name . ' started notification, no senders found with stateChange enabled');
 }
+
+//-- WEBSOCKET SERVER
+$cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'websocket.php > /dev/null 2>&1 &';
+exec($cmd);
 
 //-- MAINTENANCE CHECK
 $maintenance->startup();

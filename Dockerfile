@@ -39,7 +39,9 @@ RUN apk add --no-cache \
   php83-xml \
   php83-xmlwriter \
   php83-simplexml \
-  curl \
+  php83-pecl-memcached \
+  memcached \
+  expect \
   && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # add regctl for container digest checks

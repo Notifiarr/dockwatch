@@ -14,6 +14,7 @@ define('APP_SERVER_ID', 1);
 define('APP_SERVER_URL', 'http://localhost');
 define('APP_MAINTENANCE_IMAGE', 'ghcr.io/notifiarr/dockwatch:develop');
 define('APP_MAINTENANCE_PORT', 9998);
+define('APP_WEBSOCKET_PORT', 9910);
 define('APP_BACKUPS', 7); //-- DAYS
 define('APP_X', 0);
 define('APP_Y', 6);
@@ -75,6 +76,7 @@ define('API_LOG', LOGS_PATH . 'system/api.log');
 define('MAINTENANCE_LOG', LOGS_PATH . 'system/maintenance.log');
 define('STARTUP_LOG', LOGS_PATH . 'system/startup.log');
 define('MIGRATION_LOG', LOGS_PATH . 'system/migrations.log');
+define('WEBSOCKET_LOG', LOGS_PATH . 'system/websocket.log');
 define('CRON_HOUSEKEEPER_LOG', LOGS_PATH . 'crons/housekeeper.log');
 define('CRON_PRUNE_LOG', LOGS_PATH . 'crons/prune.log');
 define('CRON_PULLS_LOG', LOGS_PATH . 'crons/pulls.log');

@@ -287,11 +287,11 @@ if ($_POST['m'] == 'containerInfo') {
     }
     ?>
     <div class="text-center">
-        <span class="h3"><?= $process['Names'] ?></span>
+        <span class="h4"><?= $process['Names'] ?></span>
         <div style="float:right;"><i style="cursor:pointer;" class="far fa-window-close fa-lg text-danger popout-close"></i></div>
     </div>
     <hr>
-    <span class="h4 text-info">Actions</span><br>
+    <span class="h5 text-info">Actions</span><br>
     <div class="text-center mt-2 mb-3">
         <?php if ($isDockwatch) { ?>
             <button class="btn btn-info" onclick="dockwatchWarning()">Manage dockwatch</button>
@@ -322,7 +322,7 @@ if ($_POST['m'] == 'containerInfo') {
         <?php } ?>
     </div>
 
-    <span class="h4 text-info">Settings</span><br>
+    <span class="h5 text-info">Settings</span><br>
     <table class="table table-hover small-text">
         <tr>
             <td class="w-50">Internal compose</td>
@@ -409,7 +409,7 @@ if ($_POST['m'] == 'containerInfo') {
             </td>
         </tr>
     </table>
-    <span class="h4 text-info">Container</span><br>
+    <span class="h5 text-info">Container</span><br>
     <table class="table table-hover small-text">
         <tr>
             <td>Logs</td>
@@ -435,6 +435,33 @@ if ($_POST['m'] == 'containerInfo') {
         <?php } ?>
     </table>
     <?php
+}
+
+if ($_POST['m'] == 'containerShell') {
+    $container = $_POST['container'] ?: '';
+    $token = memcacheGet('ws-'.$container) ?: md5(bin2hex(random_bytes(16)));
+
+    if (!empty($container)) {
+        //-- STORE TOKEN TEMPORARILY
+        memcacheSet('ws-'.$container, $token, 300);
+
+        $ws_url = !empty($settingsTable['websocketUrl']) ?: '';
+        if (!$settingsTable['websocketUrl']) {
+            $protocol   = !empty($_SERVER['HTTPS']) ? 'wss:' : 'ws:';
+            $url        = $_SERVER['HTTP_HOST'];
+            $parsedUrl  = parse_url($url, PHP_URL_HOST);
+            $host       = $parsedUrl ?: $url;
+            $port       = $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT;
+
+            $ws_url = $protocol . '//' . $host . ':' . $port;
+        }
+
+        //-- APPEND PARAMETERS
+        $ws_url .= '/?token=' . $token . '&container=' . $container;
+
+        //-- RETURN WEBSOCKET CONNECT URL
+        echo json_encode([ 'url' => $ws_url ]);
+    }
 }
 
 if ($_POST['m'] == 'containerLogs') {

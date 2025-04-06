@@ -40,6 +40,9 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
         <!-- Datatable Stylesheet -->
         <link href="libraries/datatable/datatables.min.css" rel="stylesheet">
 
+        <!-- xterm Stylesheet -->
+        <link href="libraries/xterm/xterm.min.css" rel="stylesheet">
+
         <!-- Misc Stylesheet -->
         <link href="css/style.css?t=<?= filemtime('css/style.css') ?>" rel="stylesheet">
 

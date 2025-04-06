@@ -2,7 +2,8 @@
     "name": "notifiarr/dockwatch",
     "type": "project",
     "require": {
-        "cboden/ratchet": "^0.4.4"
+        "cboden/ratchet": "^0.4.4",
+        "symfony/process": "^7.2"
     },
     "license": "MIT"
 }

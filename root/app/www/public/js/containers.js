@@ -635,3 +635,180 @@ function containerInfo(hash)
     });
 }
 // -------------------------------------------------------------------------------------------
+function containerShell(container)
+{
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/containers.php',
+        data: '&m=containerShell&container=' + container,
+        success: function (resultData) {
+            dialogOpen({
+                id: 'xtermShell',
+                title: `Container Shell (${container})`,
+                size: 'xl',
+                body: $('#xtermShellDiv').html()
+            });
+
+            const terminal = new Terminal({
+                cursorBlink: true,
+                theme: {
+                    background: '#1e1e1e',
+                    foreground: '#fff'
+                },
+                fontSize: 14,
+                fontFamily: 'JetBrains Mono',
+                convertEol: true,
+                scrollback: 1000,
+                rendererType: 'canvas'
+            });
+
+            let fitAddon = null;
+            if (window.FitAddon) {
+                fitAddon = new window.FitAddon.FitAddon();
+                terminal.loadAddon(fitAddon);
+            }
+
+            const writeMotd = (terminal) => {
+                terminal.writeln(`\x1B[1;34mDockwatch Shell - Container: ${container}\x1B[0m\r\n`);
+            };
+
+            const terminalContainer = document.getElementById('terminalContainer');
+            terminal.open(terminalContainer);
+            writeMotd(terminal);
+
+            if (fitAddon) {
+                try {
+                    fitAddon.fit();
+                } catch (e) {
+                    // console.error("Error fitting terminal:", e);
+                }
+            }
+
+            terminal.element.style.padding = '12px';
+            terminal.writeln('Connecting to container shell... This can take a few moments!\r\n');
+
+            const socket = new WebSocket(`${JSON.parse(resultData)['url']}`);
+            let currentWorkingDir = '/';
+            let msgCount = 0;
+
+            socket.onopen = () => {
+                terminal.writeln('WebSocket connection established');
+                socket.send(JSON.stringify({
+                    action: 'resize',
+                    cols: terminal.cols,
+                    rows: terminal.rows
+                }));
+                setTimeout(() => {
+                    if (socket.readyState === WebSocket.OPEN) {
+                        terminal.focus();
+                    }
+                }, 500);
+            };
+
+            socket.onclose = () => {
+                terminal.writeln(`\r\nWebSocket connection closed.`);
+                if (msgCount === 0) {
+                    terminal.writeln(`Possible reasons:\n- WebSocket Port (default :9910) not published\n- Connect URL is incorrect\n- Socket token is invalid`);
+                }
+            };
+
+            socket.onmessage = (event) => {
+                msgCount++;
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.error) {
+                        terminal.writeln(`\r\nError: ${data.error}\r\n`);
+                        return;
+                    }
+                    if (data.success) {
+                        terminal.writeln(`${data.message}`);
+                        return;
+                    }
+                    if (data.type === 'pwd') {
+                        currentWorkingDir = data.path;
+                        return;
+                    }
+                    if (data.type === 'stdout' || data.type === 'stderr') {
+                        terminal.write(atob(data.data));
+                    }
+                    if (data.type === 'exit') {
+                        terminal.writeln(`\r\nContainer shell exited with code ${data.code}\r\n`);
+                        if (data.message) {
+                            terminal.writeln(data.message);
+                        }
+                        dialogClose('xtermShell');
+                    }
+                } catch (e) {
+                    // console.error("Error processing message:", e);
+                    terminal.writeln(`\r\nError processing server message: ${e.message}\r\n`);
+                }
+            };
+
+            const dataHandler = terminal.onData(data => {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        action: 'command',
+                        command: data
+                    }));
+                }
+            });
+
+            terminal.attachCustomKeyEventHandler((e) => {
+                if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                    const selection = terminal.getSelection();
+                    if (selection) {
+                        navigator.clipboard.writeText(selection);
+                    }
+                    return false;
+                }
+                if (e.ctrlKey && e.shiftKey && e.key === 'V') {
+                    navigator.clipboard.readText().then(text => {
+                        if (socket.readyState === WebSocket.OPEN) {
+                            socket.send(JSON.stringify({
+                                action: 'command',
+                                command: text
+                            }));
+                        }
+                    });
+                    return false;
+                }
+                return true;
+            });
+
+            const resizeHandler = terminal.onResize(size => {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        action: 'resize',
+                        cols: size.cols,
+                        rows: size.rows
+                    }));
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                if (fitAddon) {
+                    fitAddon.fit();
+                }
+            });
+
+            window.activeTerminalHandlers = {
+                dataHandler: dataHandler,
+                resizeHandler: resizeHandler
+            };
+
+            $('#xtermShell').on('hidden.bs.modal', function () {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.close();
+                }
+                if (window.activeTerminalHandlers.dataHandler) {
+                    window.activeTerminalHandlers.dataHandler.dispose();
+                }
+                if (window.activeTerminalHandlers.resizeHandler) {
+                    window.activeTerminalHandlers.resizeHandler.dispose();
+                }
+                window.activeTerminalHandlers = {};
+                terminal.dispose();
+            });
+        }
+    });
+}
