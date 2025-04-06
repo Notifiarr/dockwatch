@@ -24,7 +24,7 @@
                         <span class="text-muted">
                             Themes by
                             <a href="https://nzxl.space" target="_blank">
-                                <img class="nzxl_space_logo" src="https://nzxl.space/images/logo.svg" width="28" alt="nzxl.space logo" />
+                                <img class="nzxl_space_logo" src="/images/nzxl-logo.svg" width="28" alt="nzxl" />
                             </a>
                         </span>
                         <select class="form-select d-inline-block w-50" onchange="updateSetting('defaultTheme', $(this).val());">
