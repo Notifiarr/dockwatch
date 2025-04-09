@@ -445,7 +445,7 @@ if ($_POST['m'] == 'containerShell') {
         //-- STORE TOKEN TEMPORARILY
         memcacheSet('ws-'.$container, $token, 300);
 
-        $ws_url = !empty($settingsTable['websocketUrl']) ?: '';
+        $ws_url = $settingsTable['websocketUrl'] ?: '';
         if (!$settingsTable['websocketUrl']) {
             $protocol   = !empty($_SERVER['HTTPS']) ? 'wss:' : 'ws:';
             $url        = $_SERVER['HTTP_HOST'];
