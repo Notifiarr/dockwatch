@@ -18,39 +18,32 @@ if (!canCronRun('health', $settingsTable)) {
     exit();
 }
 
-$processList = getExpandedProcessList(true, true, true);
-$processList = $processList['processList'];
-
-$healthFile = getFile(APP_DATA_PATH . 'health.json');
-logger(CRON_HEALTH_LOG, '$healthFile=' . json_encode($healthFile, JSON_UNESCAPED_SLASHES));
-
-if ($healthFile['code'] != 200) {
-    $apiError = $healthFile['file'];
-}
-$healthFile = $healthFile['file'];
-
-if ($apiError) {
-    logger(CRON_HEALTH_LOG, 'Cron run stopped: error fetching health file (' . $apiError . ')');
-    echo date('c') . ' Cron run stopped: error fetching health file (' . $apiError . ')' . "\n";
+$containerList = apiRequest('stats/containers')['result']['result'];
+if (empty($containerList)) {
+    logger(CRON_HEALTH_LOG, 'Cron run stopped: error fetching container list');
+    echo date('c').'Cron run stopped: error fetching container list';
     exit();
 }
 
-$unhealthy = !empty($healthFile) ? $healthFile : [];
+$healthFile = getFile(HEALTH_FILE) ?: [];
+logger(CRON_HEALTH_LOG, '$healthFile=' . json_encode($healthFile, JSON_UNESCAPED_SLASHES));
+
+$unhealthy = $healthFile ?: [];
 logger(CRON_HEALTH_LOG, '$unhealthy=' . json_encode($unhealthy, JSON_UNESCAPED_SLASHES));
 
-foreach ($processList as $process) {
-    $nameHash = md5($process['Names']);
+foreach ($containerList as $container) {
+    $nameHash = md5($container['name']);
 
-    if (str_contains($process['Status'], 'unhealthy')) {
-        logger(CRON_HEALTH_LOG, 'container \'' . $process['Names'] . '\' (' . $nameHash . ') is unhealthy');
+    if ($container['health'] == 'unhealthy') {
+        logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' (' . $container['id'] . ') is unhealthy');
 
         if (!$unhealthy[$nameHash]) {
-            logger(CRON_HEALTH_LOG, 'container \'' . $process['inspect'][0]['Config']['Image'] . '\' has not been restarted or notified for yet');
-            $unhealthy[$nameHash] = ['name' => $process['Names'], 'image' => $process['inspect'][0]['Config']['Image'], 'id' => $process['ID']];
+            logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' has not been restarted or notified for yet');
+            $unhealthy[$nameHash] = ['name' => $container['name'], 'image' => $container['image'], 'id' => $container['id']];
         }
-    } else {
+    } else if ($container['health'] == 'healthy' && $unhealthy[$nameHash] || $container['health'] == null && $unhealthy[$nameHash]) {
         unset($unhealthy[$nameHash]);
-        logger(CRON_HEALTH_LOG, 'container \'' . $process['inspect'][0]['Config']['Image'] . '\' has not been removed from the unhealthy list');
+        logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' has not been removed from the unhealthy list');
     }
 }
 
@@ -73,11 +66,6 @@ if ($unhealthy) {
             continue;
         }
 
-        if (!$thisContainer['restartUnhealthy']) {
-            logger(CRON_HEALTH_LOG, 'skipping: ' . $container['name'] . ', restart unhealthy option not enabled');
-            continue;
-        }
-
         $unhealthy[$nameHash]['notify']     = 0;
         $unhealthy[$nameHash]['restart']    = 0;
 
@@ -88,27 +76,31 @@ if ($unhealthy) {
             logger(CRON_HEALTH_LOG, 'skipping notification for \'' . $container['name'] . '\', no notification senders with the health event enabled');
         }
 
-        $dependencies = $dependencyFile[$container['name']]['containers'];
-        $dependencies = is_array($dependencies) ? $dependencies : [];
-        logger(CRON_HEALTH_LOG, 'dependencies: ' . (count($dependencies) > 0 ? implode(', ', $dependencies) : 'none'));
+        if ($thisContainer['restartUnhealthy']) {
+            $dependencies = $dependencyFile[$container['name']]['containers'];
+            $dependencies = is_array($dependencies) ? $dependencies : [];
+            logger(CRON_HEALTH_LOG, 'dependencies: ' . (count($dependencies) > 0 ? implode(', ', $dependencies) : 'none'));
 
-        logger(CRON_HEALTH_LOG, 'restarting unhealthy \'' . $container['name'] . '\'');
-        $unhealthy[$nameHash]['restart'] = time();
+            logger(CRON_HEALTH_LOG, 'restarting unhealthy \'' . $container['name'] . '\'');
+            $unhealthy[$nameHash]['restart'] = time();
 
-        $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $container['name']]);
-        logger(CRON_HEALTH_LOG, 'docker-stopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-        $apiRequest = apiRequest('docker-startContainer', [], ['name' => $container['name']]);
-        logger(CRON_HEALTH_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $container['name']]);
+            logger(CRON_HEALTH_LOG, 'docker-stopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            $apiRequest = apiRequest('docker-startContainer', [], ['name' => $container['name']]);
+            logger(CRON_HEALTH_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
-        if ($dependencies) {
-            logger(CRON_HEALTH_LOG, 'restarting dependenices...');
+            if ($dependencies) {
+                logger(CRON_HEALTH_LOG, 'restarting dependencies...');
 
-            foreach ($dependencies as $dependency) {
-                $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $dependency]);
-                logger(CRON_HEALTH_LOG, 'docker-stopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-                $apiRequest = apiRequest('docker-startContainer', [], ['name' => $dependency]);
-                logger(CRON_HEALTH_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                foreach ($dependencies as $dependency) {
+                    $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $dependency]);
+                    logger(CRON_HEALTH_LOG, 'docker-stopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                    $apiRequest = apiRequest('docker-startContainer', [], ['name' => $dependency]);
+                    logger(CRON_HEALTH_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                }
             }
+        } else {
+            logger(CRON_HEALTH_LOG, 'skipping: ' . $container['name'] . ', restart unhealthy option not enabled');
         }
 
         if ($notify && $thisContainer['disableNotifications']) {
@@ -127,10 +119,10 @@ if ($unhealthy) {
     }
 
     logger(CRON_HEALTH_LOG, 'updating health file with unhealthy containers');
-    setFile(APP_DATA_PATH . 'health.json', $unhealthy);
+    setFile(HEALTH_FILE, $unhealthy);
 } else {
-    logger(CRON_HEALTH_LOG, 'no unhealthly containers, empty the file');
-    setFile(APP_DATA_PATH . 'health.json', []);
+    logger(CRON_HEALTH_LOG, 'no unhealthy containers, empty the file');
+    setFile(HEALTH_FILE, []);
 }
 
 echo date('c') . ' Cron: health <-' . "\n";

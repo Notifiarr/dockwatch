@@ -45,7 +45,7 @@ function canCronRun($cron, $settingsTable)
     if (IS_MIGRATION_RUNNING) {
         $highestMigration = $database->getNewestMigration();
         $currentMigration = $settingsTable['migration'];
-    
+
         if ($highestMigration == $currentMigration) {
             deleteFile(MIGRATION_FILE);
         } else {
@@ -75,6 +75,7 @@ function canCronRun($cron, $settingsTable)
                 echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
                 return false;
             }
+            break;
         case 'prune':
             $frequencyHour = $settingsTable['autoPruneHour'] ? $settingsTable['autoPruneHour'] : '12';
 
@@ -85,6 +86,7 @@ function canCronRun($cron, $settingsTable)
                 echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
                 return false;
             }
+            break;
         case 'state':
             if (!array_key_exists('stateCronTime', $settingsTable)) {
                 logger($log, 'Cron cancelled: migration 003 has not been applied');
@@ -101,6 +103,7 @@ function canCronRun($cron, $settingsTable)
                 echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
                 return false;
             }
+            break;
     }
 
     return true;
