@@ -32,11 +32,11 @@ class WebSocket implements MessageComponentInterface
 
     public function __construct()
     {
+        logger(WEBSOCKET_LOG, 'websocket ->');
         $this->clients = new \SplObjectStorage;
         $this->container_sessions = [];
         $this->memcached = new Memcached();
-        $this->memcached->addServer('127.0.0.1', 11211);
-        logger(WEBSOCKET_LOG, 'websocket ->');
+        $this->memcached->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
     }
 
     public function startup($port = 9910)
@@ -65,8 +65,9 @@ class WebSocket implements MessageComponentInterface
             return;
         }
 
-        $container = $queryParams['container'];
-        $token = $this->memcached->get('ws-'.$container) ?: '';
+        $container  = $queryParams['container'];
+        $key        = sprintf(MEMCACHE_SHELL_TOKEN_KEY, $container);
+        $token      = $this->memcached->get($key);
 
         if ($queryParams['token'] !== $token) {
             logger(WEBSOCKET_LOG, 'Unauthorized connection attempt (' . $conn->resourceId . ')');

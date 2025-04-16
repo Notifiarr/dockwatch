@@ -635,8 +635,13 @@ function containerInfo(hash)
     });
 }
 // -------------------------------------------------------------------------------------------
-function containerShell(container)
+function containerShell(container, wsAvailable)
 {
+    if (!wsAvailable) {
+        toast('Container shell', 'Unavailable because the WebSocket port can\'t be reached.', 'error');
+        return;
+    }
+
     $.ajax({
         type: 'POST',
         url: '../ajax/containers.php',

@@ -79,7 +79,7 @@ if (!IS_SSE) {
     //-- INITIALIZE MEMCACHE
     logger(SYSTEM_LOG, 'Init class: Memcache()');
     $memcache = new Memcached();
-    $memcache->addServer('127.0.0.1', 11211);
+    $memcache->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
 
     //-- INITIALIZE THE DATABASE CLASS
     logger(SYSTEM_LOG, 'Init class: Database()');

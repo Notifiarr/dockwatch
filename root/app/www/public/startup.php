@@ -17,7 +17,7 @@ require_once ABSOLUTE_PATH . 'loader.php';
 
 //-- INITIALIZE MEMCACHE
 $memcache = $memcache ?? new Memcached();
-$memcache->addServer('127.0.0.1', 11211);
+$memcache->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
 
 //-- INITIALIZE THE DATABASE CLASS
 $database = $database ?? new Database();

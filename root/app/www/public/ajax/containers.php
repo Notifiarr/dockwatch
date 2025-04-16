@@ -69,7 +69,7 @@ if ($_POST['m'] == 'init') {
         <div class="row">
             <?php if ($pullsNotice) { ?>
             <div class="col-sm-12">
-                <div class="rounded m-2 p-2" style="background-color: var(--primary);">
+                <div class="rounded m-2 p-2" style="background-color: red;">
                     There is currently no pull data available to show the Updates state. If the Updates column is set to Ignore then no checks will be made for that container. If you want current data, please set all the Update Options to Check for updates or Auto update and click save at the bottom. Once that is done you can click the check all and select Update: Check or Pull from the list. This will take a minute or two as it has to check every image.
                 </div>
             </div>
@@ -438,29 +438,33 @@ if ($_POST['m'] == 'containerInfo') {
 }
 
 if ($_POST['m'] == 'containerShell') {
-    $container = $_POST['container'] ?: '';
-    $token = memcacheGet('ws-'.$container) ?: md5(bin2hex(random_bytes(16)));
+    $container      = $_POST['container'] ?: '';
+    $key            = sprintf(MEMCACHE_SHELL_TOKEN_KEY, $container);
+    $token          = memcacheGet($key) ?: md5(bin2hex(random_bytes(16)));
+    $activeServer   = apiGetActiveServer();
 
     if (!empty($container)) {
         //-- STORE TOKEN TEMPORARILY
-        memcacheSet('ws-'.$container, $token, 300);
+        if (!memcacheGet($key)) {
+            memcacheSet($key, $token, MEMCACHE_SHELL_TOKEN_TIME);
+        }
 
-        $ws_url = $settingsTable['websocketUrl'] ?: '';
+        $wsUrl = $settingsTable['websocketUrl'] ?: '';
         if (!$settingsTable['websocketUrl']) {
-            $protocol   = !empty($_SERVER['HTTPS']) ? 'wss:' : 'ws:';
-            $url        = $_SERVER['HTTP_HOST'];
-            $parsedUrl  = parse_url($url, PHP_URL_HOST);
-            $host       = $parsedUrl ?: $url;
-            $port       = $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT;
-
-            $ws_url = $protocol . '//' . $host . ':' . $port;
+            if ($activeServer['id'] === APP_SERVER_ID) {
+                $host = parse_url($_SERVER['HTTP_HOST'], PHP_URL_HOST) ?: $_SERVER['HTTP_HOST'];
+            } else {
+                $host = parse_url($activeServer['url'], PHP_URL_HOST) ?: $activeServer['url'];
+            }
+            $port  = $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT;
+            $wsUrl = (!empty($_SERVER['HTTPS']) ? 'wss:' : 'ws:') . '//' . $host . ':' . $port;
         }
 
         //-- APPEND PARAMETERS
-        $ws_url .= '/?token=' . $token . '&container=' . $container;
+        $wsUrl .= '/?token=' . $token . '&container=' . $container;
 
         //-- RETURN WEBSOCKET CONNECT URL
-        echo json_encode([ 'url' => $ws_url ]);
+        echo json_encode([ 'url' => $wsUrl ]);
     }
 }
 
@@ -649,7 +653,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, 'skipping ' . $container['Names'].' remove request');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
-                $apiRequest = apiRequest('docke-stopContainer', [], ['name' => $container['Names']]);
+                $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 $apiRequest = apiRequest('docker-removeContainer', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'docker-removeContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));

@@ -87,10 +87,11 @@ define('CRON_SSE_LOG', LOGS_PATH . 'crons/sse.log');
 define('LOG_ROTATE_SIZE', 2); //-- MB UNTIL ROTATE
 
 //-- MEMCACHE
-define('MEMCACHE_PREFIX', 'dockwatch-' . substr(md5($_SERVER['SERVER_NAME']), 0, 10) . '-');
-define('MEMCACHE_DOCKER_STATS', 10);
-define('MEMCACHE_DOCKER_PROCESS', 10);
-define('MEMCACHE_DOCKER_INSPECT', 10);
+define('MEMCACHE_HOST', '127.0.0.1');
+define('MEMCACHE_PORT', 11211);
+define('MEMCACHE_PREFIX', 'dockwatch-');
+define('MEMCACHE_SHELL_TOKEN_KEY', (MEMCACHE_PREFIX . 'shell-%s'));
+define('MEMCACHE_SHELL_TOKEN_TIME', 300);
 
 //-- REGCTL
 define('REGCTL_PATH', '/usr/local/bin/');
