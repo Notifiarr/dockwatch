@@ -15,7 +15,7 @@ trait Maint
 
         $startContainer = $this->docker->startContainer($this->maintenanceContainerName);
         logger(MAINTENANCE_LOG, '$docker->startContainer() ' . trim($startContainer));
-    
+
         logger(MAINTENANCE_LOG, '$maintenance->startMaintenance() <-');
     }
 
@@ -25,7 +25,7 @@ trait Maint
 
         $stopContainer = $this->docker->stopContainer($this->maintenanceContainerName);
         logger(MAINTENANCE_LOG, '$docker->stopContainer() ' . trim($stopContainer));
-    
+
         logger(MAINTENANCE_LOG, '$maintenance->stopMaintenance() <-');
     }
 
@@ -35,7 +35,7 @@ trait Maint
 
         $removeContainer = $this->docker->removeContainer($this->maintenanceContainerName);
         logger(MAINTENANCE_LOG, '$docker->removeContainer() ' . trim($removeContainer));
-    
+
         logger(MAINTENANCE_LOG, '$maintenance->removeMaintenance() <-');
     }
 
@@ -45,7 +45,7 @@ trait Maint
 
         $pullImage = $this->docker->pullImage(APP_MAINTENANCE_IMAGE);
         logger(MAINTENANCE_LOG, '$docker->pullImage() ' . trim($pullImage));
-    
+
         logger(MAINTENANCE_LOG, '$maintenance->pullMaintenance() <-');
     }
 
@@ -67,6 +67,12 @@ trait Maint
 
         $inspectImage[0]['Name']                                                = '/' . $this->maintenanceContainerName;
         $inspectImage[0]['Config']['Image']                                     = APP_MAINTENANCE_IMAGE;
+
+        //-- CLEAR ALL PORTS
+        $inspectImage[0]['HostConfig']['PortBindings']  = [];
+        $inspectImage[0]['NetworkSettings']['Ports']    = [];
+
+        //-- SET MAINTENANCE PORT
         $inspectImage[0]['HostConfig']['PortBindings']['80/tcp'][0]['HostPort'] = strval($port);
         $inspectImage[0]['NetworkSettings']['Ports']['80/tcp'][0]['HostPort']   = strval($port);
 
@@ -74,7 +80,7 @@ trait Maint
         if ($ip) {
             if ($inspectImage[0]['NetworkSettings']['Networks']) {
                 $network = array_keys($inspectImage[0]['NetworkSettings']['Networks'])[0];
-    
+
                 if ($inspectImage[0]['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv4Address']) {
                     $inspectImage[0]['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv4Address'] = $ip;
                 }
