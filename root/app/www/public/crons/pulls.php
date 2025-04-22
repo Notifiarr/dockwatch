@@ -78,7 +78,7 @@ if ($containersTable) {
 
             if ($cron->isDue($startStamp)) {
                 $image          = $docker->isIO($containerState['inspect'][0]['Config']['Image']);
-                $currentImageID = $containerState['ID'];
+                $currentImageID = $containerState['inspect'][0]['Image'];
 
                 if (!$image) {
                     $msg = 'Skipping local (has no Config.Image): ' . $containerState['Names'];
