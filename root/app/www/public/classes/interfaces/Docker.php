@@ -27,6 +27,7 @@ interface DockerSock
     public const INSPECT_FORMAT = '/usr/bin/docker inspect %s --format="{{json . }}" | jq -s --tab .';
     public const INSPECT_CUSTOM = '/usr/bin/docker inspect %s %s';
     public const IMAGE_SIZES = '/usr/bin/docker images --format=\'{"ID":"{{ .ID }}", "Size": "{{ .Size }}"}\' | jq -s --tab .';
+    public const LOGIN = 'echo %s | /usr/bin/docker login %s -u %s --password-stdin';
     //-- CONTAINER SPECIFIC
     public const KILL_CONTAINER = '/usr/bin/docker container kill %s';
     public const REMOVE_CONTAINER = '/usr/bin/docker container rm -f %s';

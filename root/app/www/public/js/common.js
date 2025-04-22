@@ -37,6 +37,11 @@ $(document).ready(function () {
             login();
         }
     }
+    if ($('#registryUsername').length) {
+        if (e.keyCode === 13) {
+            registryLogin();
+        }
+    }
 });
 // -------------------------------------------------------------------------------------------
 $(window).resize(function() {

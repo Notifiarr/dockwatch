@@ -817,3 +817,70 @@ function containerShell(container, wsAvailable)
         }
     });
 }
+// -------------------------------------------------------------------------------------------
+function registryLogin(registry)
+{
+    const resetFields = () => {
+        $('#registryUsername').val('');
+        $('#registryPassword').val('');
+    };
+
+    const getFieldValues = () => {
+        return {
+            url: $('#registryUrl').val(),
+            username: $('#registryUsername').val(),
+            password: $('#registryPassword').val()
+        };
+    };
+
+    if (registry) {
+        dialogOpen({
+            id: 'registryLogin',
+            title: 'Registry Login (' + registry + ')',
+            size: 'md',
+            body: $('#registryLoginDiv').html(),
+            onOpen: function () {
+                $('#registryUrl').val(registry);
+                resetFields();
+            }
+        });
+        return;
+    }
+
+    let fields = getFieldValues();
+    if (!fields['username']) {
+        toast('Registry Login', 'Username is required','error');
+        return;
+    }
+    if (!fields['password']) {
+        toast('Registry Login', 'Password is required','error');
+        return;
+    }
+
+    dialogClose('registryLogin');
+
+    pageLoadingStart();
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/containers.php',
+        data: '&m=registryLogin&registry=' + fields['url'] + '&username=' + fields['username'] + '&password=' + fields['password'],
+        success: function (resultData) {
+            pageLoadingStop();
+            resetFields();
+
+            if (resultData.match(/unauthorized/)) {
+                toast('Registry Login', 'Unauthorized login, wrong username or password', 'error');
+                return;
+            }
+
+            if (resultData.match(/Login Succeeded/)) {
+                toast('Registry Login', 'Saved login credentials for registry '+fields['url'], 'success');
+                return;
+            }
+
+            console.log(`Failed to login to docker registry: ${resultData}`);
+            toast('Registry Login', 'Unknown error check F12 console for more info', 'error');
+        }
+    });
+}
+

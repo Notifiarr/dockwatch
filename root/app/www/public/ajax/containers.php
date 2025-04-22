@@ -424,6 +424,13 @@ if ($_POST['m'] == 'containerInfo') {
             <td><?= $process['Image'] ?></td>
         </tr>
         <tr>
+            <?php $registry = extractRegistryName($process['Image']) ?: ''; ?>
+            <td>Registry <?= !empty($registry) ? '('.$registry.')' : '' ?></td>
+            <td>
+                <button class="btn btn-info btn-xs" onclick="registryLogin('<?= $registry ?>')">Login</button>
+            </td>
+        </tr>
+        <tr>
             <td>Network</td>
             <td><?= empty($process['Networks']) ? 'container:' . explode(':', $process['inspect'][0]['Config']['Labels']['com.docker.compose.depends_on'])[0] : $process['Networks'] ?></td>
         </tr>
@@ -467,6 +474,17 @@ if ($_POST['m'] == 'containerShell') {
         echo json_encode([ 'url' => $wsUrl ]);
     }
 }
+
+if ($_POST['m'] == 'registryLogin') {
+    $registryUrl = $_POST['registry'];
+    $registryUsername = $_POST['username'];
+    $registryPassword = $_POST['password'];
+
+    $apiResult = apiRequest('docker-login', ['registry' => $registryUrl, 'username' => $registryUsername, 'password' => $registryPassword]);
+    logger(UI_LOG, 'dockerLogin:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+    echo $apiResult['result'];
+}
+
 
 if ($_POST['m'] == 'containerLogs') {
     $apiResult = apiRequest('docker-logs', ['name' => $_POST['container']]);

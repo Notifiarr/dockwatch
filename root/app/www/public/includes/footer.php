@@ -143,6 +143,27 @@
             <div id="terminalContainer" style="overflow: hidden; position: relative;"></div>
         </div>
 
+        <!-- Registry login -->
+        <div id="registryLoginDiv" style="display: none;">
+            <div class="col-lg-12">
+                <div class="row">
+                    <div class="col-sm-12 col-lg-4">Registry</div>
+                    <div class="col-sm-12 col-lg-8"><input id="registryUrl" type="text" class="form-control" disabled></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-12 col-lg-4">Username</div>
+                    <div class="col-sm-12 col-lg-8"><input id="registryUsername" type="text" class="form-control"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-12 col-lg-4">Password</div>
+                    <div class="col-sm-12 col-lg-8"><input id="registryPassword" type="password" class="form-control"></div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-sm-12"><button class="btn btn-outline-success" onclick="registryLogin()">Login</button></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Frequency helper information -->
         <div id="containerFrequencyHelpDiv" style="display: none;">
             There are 5 parts to a cron (6 with the optional year which is not used here). Below shows each section:<br>

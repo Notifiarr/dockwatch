@@ -269,6 +269,19 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
             case 'docker/stats':
             case 'docker-stats':
                 return $docker->stats($parameters['useCache']);
+            case 'docker/login':
+            case 'docker-login':
+                if (!$parameters['registry']) {
+                    apiResponse(400, ['error' => 'Missing registry parameter']);
+                }
+                if (!$parameters['username']) {
+                    apiResponse(400, ['error' => 'Missing username parameter']);
+                }
+                if (!$parameters['password']) {
+                    apiResponse(400, ['error' => 'Missing password parameter']);
+                }
+
+                return $docker->login($parameters['registry'], $parameters['username'], $parameters['password']);
             case 'dockerAPI/container/create':
             case 'dockerAPI-createContainer':
                 if (!$parameters['name']) {

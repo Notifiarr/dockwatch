@@ -73,6 +73,14 @@ class Docker
         return str_replace($in, $out, $shell);
     }
 
+    public function login($registry, $username, $password)
+    {
+        $cmd    = sprintf(DockerSock::LOGIN, $this->shell->prepare($password), $this->shell->prepare($registry), $this->shell->prepare($username));
+        $shell  = $this->shell->exec($cmd . ' 2>&1');
+
+        return $shell;
+    }
+
     public function getDockerLogs($container, $log)
     {
         if ($log != 'docker' && file_exists('/appdata/' . $container . '/logs/' . $log . '.log')) {
@@ -86,7 +94,7 @@ class Docker
 
             return $return;
         }
-    
+
         if ($log == 'docker') {
             return $this->logs($container);
         }
@@ -97,7 +105,7 @@ class Docker
         if (!$name) {
             return;
         }
-    
+
         return str_contains($name, '/') ? $name : 'library/' . $name;
     }
 }

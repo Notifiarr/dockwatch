@@ -405,3 +405,10 @@ pre {
 .dw-tooltip-icon:hover + .dw-tooltip {
     display: block;
 }
+
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    border-radius: 0.2rem;
+}
