@@ -240,5 +240,8 @@ function extractRegistryName($image)
     if (preg_match('/^([a-zA-Z0-9][a-zA-Z0-9-._]*(?:\.[a-zA-Z0-9][a-zA-Z0-9-._]*)+)\//', $image, $imageRegistry)) {
         $imageRegistry = $imageRegistry[1];
     }
+    if (empty($imageRegistry)) {
+        $imageRegistry = 'docker.io';
+    }
     return $imageRegistry;
 }
