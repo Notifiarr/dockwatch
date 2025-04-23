@@ -245,3 +245,18 @@ function extractRegistryName($image)
     }
     return $imageRegistry;
 }
+
+function isWebSocketAvailable($processList = [])
+{
+    global $settingsTable;
+
+    foreach ($processList as $process) {
+        $isDockwatch = isDockwatchContainer($process) ? true : false;
+        if ($isDockwatch) {
+            $websocketPort = str_contains($process['Ports'], $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT);
+            return $websocketPort;
+        }
+    }
+
+    return false;
+}
