@@ -849,11 +849,12 @@ function registryLogin(registry)
 
     let fields = getFieldValues();
     if (!fields['username']) {
-        toast('Registry Login', 'Username is required','error');
+        toast('Registry Login', 'Username is required', 'error');
         return;
     }
+
     if (!fields['password']) {
-        toast('Registry Login', 'Password is required','error');
+        toast('Registry Login', 'Password is required', 'error');
         return;
     }
 
@@ -874,7 +875,7 @@ function registryLogin(registry)
             }
 
             if (resultData.match(/Login Succeeded/)) {
-                toast('Registry Login', 'Saved login credentials for registry '+fields['url'], 'success');
+                toast('Registry Login', 'Saved login credentials for registry ' + fields['url'], 'success');
                 return;
             }
 
@@ -883,4 +884,16 @@ function registryLogin(registry)
         }
     });
 }
-
+// -------------------------------------------------------------------------------------------
+function saveContainerGuiLink(hash)
+{
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/containers.php',
+        data: '&m=saveContainerGuiLink&hash=' + hash + '&link=' + $('#containerGuiLink').val(),
+        success: function (resultData) {
+            toast('Container GUI', 'Custom GUI link saved', 'info');
+        }
+    });
+}
+// -------------------------------------------------------------------------------------------

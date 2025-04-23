@@ -118,11 +118,6 @@ function renderContainerRow($nameHash, $return)
             foreach ($portBinds as $portBind) {
                 if ($portBind['HostPort']) {
                     $ports[] = $internalBind . ' &rarr; ' . $portBind['HostPort'];
-
-                    //-- TODO: This is likely not the best way to find the right port when multiple ports are used
-                    if (str_contains($internalBind, 'tcp')) {
-                        $tcpPort = $portBind['HostPort'];
-                    }
                 }
             }
         }
@@ -145,9 +140,7 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
-    if ($tcpPort) {
-        $containerLink = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] . ':' . $tcpPort;
-    }
+    $containerLink = buildContainerGuiLink($process['inspect'][0], $containerSettings);
 
     $envList = $previewEnv = '';
     if ($process['inspect'][0]['Config']['Env']) {
@@ -172,7 +165,7 @@ function renderContainerRow($nameHash, $return)
     }
 
     //-- TODO: This is likely not to work in every scenario (other networks, reverse proxies, etc)
-    $gui            = $isRunning && $tcpPort && !$isDockwatch ? '<a class="dropdown-item" href="javascript:void;" style="cursor:pointer;" title="Open container" onclick="window.open(\'' . $containerLink . '\')"><i class="text-primary fas fa-external-link-alt fa-xs me-1"></i> GUI</a>' : '';
+    $gui            = $isRunning && $containerLink && !$isDockwatch ? '<a class="dropdown-item" href="javascript:void;" style="cursor:pointer;" title="Open container" onclick="window.open(\'' . $containerLink . '\')"><i class="text-primary fas fa-external-link-alt fa-xs me-1"></i> GUI</a>' : '';
     $onlineClass    = $isRunning ? 'text-success' : 'text-danger';
 
     if ($return == 'json') {
@@ -286,4 +279,51 @@ function skipContainerActions($container, $containers)
     }
 
     return SKIP_OFF;
+}
+
+function buildContainerGuiLink($containerInspect, $containerDb, $templateOnly = false)
+{
+    global $settingsTable;
+
+    if (!$settingsTable || !$containerInspect || !$containerDb || !$_SERVER) {
+        return;
+    }
+
+    $containerGuiLink = $port = '';
+
+    //-- NO CUSTOM SETTING, USE DEFAULTS
+    if (!$guiSetting = $containerDb['containerGui']) {
+        switch ($settingsTable['containerGui']) {
+            case 2:
+                $guiSetting = RP_SUB_GUI;
+                break;
+            case 3:
+                $guiSetting = RP_DIR_GUI;
+                break;
+            default:
+                $guiSetting = LOCAL_GUI;
+                break;
+        }
+    }
+
+    if ($templateOnly) {
+        return $guiSetting;
+    }
+
+    foreach ($containerInspect['HostConfig']['PortBindings'] as $internalBind => $portBinds) {
+        foreach ($portBinds as $portBind) {
+            if ($portBind['HostPort'] && !$port) {
+                //-- TODO: This is likely not the best way to find the right port when multiple ports are used
+                if (str_contains($internalBind, 'tcp')) {
+                    $port = $portBind['HostPort'];
+                }
+            }
+        }
+    }
+
+    $find               = ['{protocol}', '{url}', '{port}', '{container}'];
+    $replace            = [$_SERVER['REQUEST_SCHEME'], $_SERVER['SERVER_NAME'], $port, $containerInspect['Config']['Hostname']];
+    $containerGuiLink   = str_replace($find, $replace, $guiSetting);
+
+    return $containerGuiLink;
 }

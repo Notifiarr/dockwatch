@@ -325,7 +325,18 @@ if ($_POST['m'] == 'containerInfo') {
     <span class="h5 text-info">Settings</span><br>
     <table class="table table-hover small-text">
         <tr>
-            <td class="w-50">Internal compose</td>
+            <td style="width:30%;">GUI</td>
+            <td>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="containerGuiLink" value="<?= buildContainerGuiLink($process['inspect'][0], $containerSettings, ($containerSettings['containerGui'] ? false : true)) ?>">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success" type="button" onclick="saveContainerGuiLink('<?= $_POST['hash'] ?>')">Save</button>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>Internal compose</td>
             <td style="cursor:pointer;" onclick="initPage('compose')" class="popout-close"><i class="fab fa-octopus-deploy me-2 text-muted"></i> <?= isComposeContainer($process['Names']) ? 'Yes' : 'No' ?></td>
         </tr>
         <tr>
@@ -425,7 +436,7 @@ if ($_POST['m'] == 'containerInfo') {
         </tr>
         <tr>
             <?php $registry = extractRegistryName($process['Image']) ?: ''; ?>
-            <td>Registry <?= !empty($registry) ? '('.$registry.')' : '' ?></td>
+            <td>Registry <?= !empty($registry) ? '(' . $registry . ')' : '' ?></td>
             <td>
                 <button class="btn btn-info btn-xs" onclick="registryLogin('<?= $registry ?>')">Login</button>
             </td>
@@ -1288,4 +1299,11 @@ if ($_POST['m'] == 'updateContainerOption') {
     $container          = apiRequest('database-getContainerGroupFromHash', ['hash' => $_POST['hash']])['result'];
 
     apiRequest('database-updateContainer', [], ['hash' => $_POST['hash'], $_POST['option'] => $database->prepare($_POST['setting'])]);
+}
+
+if ($_POST['m'] == 'saveContainerGuiLink') {
+    $containersTable    = apiRequest('database-getContainers')['result'];
+    $container          = apiRequest('database-getContainerGroupFromHash', ['hash' => $_POST['hash']])['result'];
+
+    apiRequest('database-updateContainer', [], ['hash' => $_POST['hash'], 'containerGui' => $database->prepare($_POST['link'])]);
 }

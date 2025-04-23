@@ -218,7 +218,7 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="text-info">New containers</h4>
+        <h4 class="text-info">Containers</h4>
         <div class="table-responsive">
             <table class="table table-sm">
                 <thead>
@@ -240,6 +240,17 @@ if ($_POST['m'] == 'init') {
                             <input type="text" class="form-control d-inline-block w-25" id="globalSetting-updatesFrequency" onclick="frequencyCronEditor(this.value, 'global', 'global')" value="<?= $settingsTable['updatesFrequency'] ?>"> <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
                         </td>
                         <td class="bg-secondary">What settings to use for new containers that are added</td>
+                    </tr>
+                    <tr>
+                        <td class="bg-secondary" scope="row">Default GUI</td>
+                        <td class="bg-secondary">
+                            <select class="form-select d-inline-block" id="globalSetting-containerGui">
+                                <option <?= $settingsTable['containerGui'] == 1 ? 'selected' : '' ?> value="1"><?= LOCAL_GUI ?> (Ex: http://10.1.0.1:9999)</option>
+                                <option <?= $settingsTable['containerGui'] == 2 ? 'selected' : '' ?> value="2"><?= RP_SUB_GUI ?> (Ex: https://dockwatch.your-domain.com)</option>
+                                <option <?= $settingsTable['containerGui'] == 3 ? 'selected' : '' ?> value="3"><?= RP_DIR_GUI ?> (Ex: https://your-domain.com/dockwatch)</option>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">How to build the GUI link for containers. By default it will use the current URL and add the tcp port to the end <?= LOCAL_GUI ?>, example: <code><?= $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] ?>:9999</code>. An alternative would be <?= RP_DIR_GUI ?> or <?= RP_SUB_GUI ?> ({container} is the containers hostname), example: <code>https://dockwatch.mysite.com</code>. If you need to adjust a specific container you can do so in its settings.</td>
                     </tr>
                 </tbody>
             </table>

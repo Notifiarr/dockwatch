@@ -115,3 +115,8 @@ $skipContainerActions   = [
                             'cloudflared',  //-- IF THIS GOES DOWN, IT WILL KILL THE NETWORK TRAFFIC TO DOCKWATCH
                             'swag'          //-- IF THIS GOES DOWN, IT WILL KILL THE WEB SERVICE TO DOCKWATCH
                         ];
+
+//-- CONTAINER GUI
+define('LOCAL_GUI', '{protocol}://{url}:{port}');
+define('RP_SUB_GUI', '{protocol}://{container}.{url}');
+define('RP_DIR_GUI', '{protocol}://{url}/{container}');
