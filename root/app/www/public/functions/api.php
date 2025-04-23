@@ -133,6 +133,13 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
 
     if (!$payload) { //-- GET
         switch ($endpoint) {
+            case 'system/memcache/get':
+            case 'system-memcache-get':
+                if (!$parameters['key']) {
+                    apiResponse(400, ['error' => 'Missing key parameter']);
+                }
+
+                return memcacheGet($parameters['key']);
             case 'database/container/hash':
             case 'database-getContainerFromHash':
                 if (!$parameters['hash']) {
@@ -269,19 +276,6 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
             case 'docker/stats':
             case 'docker-stats':
                 return $docker->stats($parameters['useCache']);
-            case 'docker/login':
-            case 'docker-login':
-                if (!$parameters['registry']) {
-                    apiResponse(400, ['error' => 'Missing registry parameter']);
-                }
-                if (!$parameters['username']) {
-                    apiResponse(400, ['error' => 'Missing username parameter']);
-                }
-                if (!$parameters['password']) {
-                    apiResponse(400, ['error' => 'Missing password parameter']);
-                }
-
-                return $docker->login($parameters['registry'], $parameters['username'], $parameters['password']);
             case 'dockerAPI/container/create':
             case 'dockerAPI-createContainer':
                 if (!$parameters['name']) {
@@ -345,6 +339,19 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
         unset($payload['request']);
 
         switch ($endpoint) {
+            case 'system/memcache/set':
+            case 'system-memcache-set':
+                if (!$payload['key']) {
+                    apiResponse(400, ['error' => 'Missing key parameter']);
+                }
+                if (!$payload['value']) {
+                    apiResponse(400, ['error' => 'Missing value parameter']);
+                }
+                if (!$payload['seconds']) {
+                    apiResponse(400, ['error' => 'Missing seconds parameter']);
+                }
+
+                return memcacheSet($payload['key'], $payload['value'], $payload['seconds']);
             case 'database/container/add':
             case 'database-addContainer':
                 if (!$payload['hash']) {
@@ -449,6 +456,19 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $database->updateNotificationLink($payload['linkId'], $payload['triggerIds'], $payload['platformParameters'], $payload['senderName']);
+            case 'docker/login':
+            case 'docker-login':
+                if (!$payload['registry']) {
+                    apiResponse(400, ['error' => 'Missing registry parameter']);
+                }
+                if (!$payload['username']) {
+                    apiResponse(400, ['error' => 'Missing username parameter']);
+                }
+                if (!$payload['password']) {
+                    apiResponse(400, ['error' => 'Missing password parameter']);
+                }
+
+                return $docker->login($payload['registry'], $payload['username'], $payload['password']);
             case 'docker/container/create':
             case 'docker-createContainer':
                 if (!$payload['inspect']) {

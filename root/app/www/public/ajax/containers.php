@@ -447,13 +447,15 @@ if ($_POST['m'] == 'containerInfo') {
 if ($_POST['m'] == 'containerShell') {
     $container      = $_POST['container'] ?: '';
     $key            = sprintf(MEMCACHE_SHELL_TOKEN_KEY, $container);
-    $token          = memcacheGet($key) ?: md5(bin2hex(random_bytes(16)));
+    $apiResult      = apiRequest('system-memcache-get', [ 'key' => $key ])['result'];
     $activeServer   = apiGetActiveServer();
+    $token          = $apiResult ?: md5(bin2hex(random_bytes(16)));
 
     if (!empty($container)) {
         //-- STORE TOKEN TEMPORARILY
-        if (!memcacheGet($key)) {
-            memcacheSet($key, $token, MEMCACHE_SHELL_TOKEN_TIME);
+        $apiResult = apiRequest('system-memcache-get', [ 'key' => $key ])['result'];
+        if (!$apiResult) {
+            apiRequest('system-memcache-set', [], [ 'key' => $key, 'value' => $token, 'seconds' => MEMCACHE_SHELL_TOKEN_TIME ]);
         }
 
         $wsUrl = $settingsTable['websocketUrl'] ?: '';
@@ -480,7 +482,7 @@ if ($_POST['m'] == 'registryLogin') {
     $registryUsername = $_POST['username'];
     $registryPassword = $_POST['password'];
 
-    $apiResult = apiRequest('docker-login', ['registry' => $registryUrl, 'username' => $registryUsername, 'password' => $registryPassword]);
+    $apiResult = apiRequest('docker-login', [], ['registry' => $registryUrl, 'username' => $registryUsername, 'password' => $registryPassword]);
     logger(UI_LOG, 'dockerLogin:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
     echo $apiResult['result'];
 }
