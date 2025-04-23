@@ -37,7 +37,7 @@ $(document).ready(function () {
             login();
         }
     }
-    if ($('#registryUsername').length) {
+    if ($('#registryUsername').length && $('#registryLogin:visible').length) {
         if (e.keyCode === 13) {
             registryLogin();
         }
