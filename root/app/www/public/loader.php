@@ -192,7 +192,4 @@ if (!IS_SSE) {
 
     //-- STATE
     $stateFile = $processList;
-
-    //-- CHECK IF WEBSOCKET IS AVAILABLE
-    $websocketAvailable = isWebSocketAvailable($processList) ? true : false;
 }

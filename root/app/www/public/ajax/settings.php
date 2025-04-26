@@ -73,7 +73,7 @@ if ($_POST['m'] == 'init') {
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">WebSocket URL</td>
                         <td class="bg-secondary">
-                            <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketUrl'] ?: "" ?>" placeholder="<?= 'ws://127.0.0.1:' . ($settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT)  ?>">
+                            <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketUrl'] ?: "" ?>" placeholder="<?= 'ws://'.$_SERVER['HTTP_HOST'].'/ws'  ?>">
                         </td>
                         <td class="bg-secondary">Best to leave empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Example (https): <code class="mx-1">wss://my.cool.domain/ws</code></td>
                     </tr>
@@ -82,7 +82,7 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary">
                             <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT ?>">
                         </td>
-                        <td class="bg-secondary">This port is used for the WebSocket server. It is needed for the shell to communicate with the container. After changing port you will need to restart the Dockwatch container for it to apply.</td>
+                        <td class="bg-secondary">Best to leave default at <code>9910</code>. You only need to change this if you wish to route this through a different RP. <br>By changing the port, the internal RP will be disabled.</td>
                     </tr>
                 </tbody>
             </table>

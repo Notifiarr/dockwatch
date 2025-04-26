@@ -469,19 +469,21 @@ if ($_POST['m'] == 'containerShell') {
             apiRequest('system-memcache-set', [], [ 'key' => $key, 'value' => $token, 'seconds' => MEMCACHE_SHELL_TOKEN_TIME ]);
         }
 
+        //-- BUILD WEBSOCKET CONNECT URL
         $wsUrl = $settingsTable['websocketUrl'] ?: '';
-        if (!$settingsTable['websocketUrl']) {
-            if ($activeServer['id'] === APP_SERVER_ID) {
-                $host = parse_url($_SERVER['HTTP_HOST'], PHP_URL_HOST) ?: $_SERVER['HTTP_HOST'];
-            } else {
+        $wsPort = $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT;
+        $basePath = '/ws';
+        $parameters = '?token=' . $token . '&container=' . $container;
+
+        if (empty($wsUrl)) {
+            if ($activeServer['id'] !== APP_SERVER_ID) {
                 $host = parse_url($activeServer['url'], PHP_URL_HOST) ?: $activeServer['url'];
             }
-            $port  = $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT;
-            $wsUrl = (!empty($_SERVER['HTTPS']) ? 'wss:' : 'ws:') . '//' . $host . ':' . $port;
-        }
+            $port = $wsPort !== APP_WEBSOCKET_PORT ? ':' . $wsPort : '';
+            $baseUrl = (!empty($_SERVER['HTTPS']) ? 'wss:' : 'ws:') . '//' . $host . $port;
 
-        //-- APPEND PARAMETERS
-        $wsUrl .= '/?token=' . $token . '&container=' . $container;
+            $wsUrl = (!empty($host) ? $baseUrl : '') . $basePath . $parameters;
+        }
 
         //-- RETURN WEBSOCKET CONNECT URL
         echo json_encode([ 'url' => $wsUrl ]);

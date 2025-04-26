@@ -637,11 +637,6 @@ function containerInfo(hash)
 // -------------------------------------------------------------------------------------------
 function containerShell(container, wsAvailable)
 {
-    if (!wsAvailable) {
-        toast('Container shell', 'Unavailable because the WebSocket port can\'t be reached.', 'error');
-        return;
-    }
-
     $.ajax({
         type: 'POST',
         url: '../ajax/containers.php',
@@ -713,7 +708,7 @@ function containerShell(container, wsAvailable)
             socket.onclose = () => {
                 terminal.writeln(`\r\nWebSocket connection closed.`);
                 if (msgCount === 0) {
-                    terminal.writeln(`Possible reasons:\n- WebSocket Port (default :9910) not published\n- Connect URL is incorrect\n- Socket token is invalid`);
+                    terminal.writeln(`Possible reasons:\n- WebSocket Port (default :9910) not reachable\n- Connect URL is incorrect\n- Socket token is invalid`);
                 }
             };
 

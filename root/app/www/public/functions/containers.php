@@ -9,7 +9,7 @@
 
 function renderContainerRow($nameHash, $return)
 {
-    global $docker, $pullsFile, $settingsTable, $processList, $skipContainerActions, $groupHash, $websocketAvailable;
+    global $docker, $pullsFile, $settingsTable, $processList, $skipContainerActions, $groupHash;
 
     $pullsFile = $pullsFile ?: apiRequest('file-pull')['result'];
 
@@ -208,7 +208,7 @@ function renderContainerRow($nameHash, $return)
                         </span>
                         <ul class="dropdown-menu" aria-labelledby="containerMenu-<?= $nameHash ?>">
                             <?php if ($isRunning) { ?>
-                            <li><a class="dropdown-item" href="javascript:void" onclick="containerShell('<?= $process['Names'] ?>', <?= $websocketAvailable ?>)" style="cursor:pointer;"><i class="text-primary fas fa-terminal fa-xs me-1"></i> Shell</a></li>
+                            <li><a class="dropdown-item" href="javascript:void" onclick="containerShell('<?= $process['Names'] ?>')" style="cursor:pointer;"><i class="text-primary fas fa-terminal fa-xs me-1"></i> Shell</a></li>
                             <?php } ?>
                             <li id="<?= $nameHash ?>-menu-start" style="display:<?= !$start ? 'none' : '' ?>;"><?= $start ?></li>
                             <li id="<?= $nameHash ?>-menu-stop" style="display:<?= !$stop ? 'none' : '' ?>;"><?= $stop ?></li>
