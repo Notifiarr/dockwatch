@@ -476,10 +476,11 @@ if ($_POST['m'] == 'containerShell') {
         $parameters = '?token=' . $token . '&container=' . $container;
 
         if (empty($wsUrl)) {
+            $port = $wsPort !== APP_WEBSOCKET_PORT ? ':' . $wsPort : '';
             if ($activeServer['id'] !== APP_SERVER_ID) {
                 $host = parse_url($activeServer['url'], PHP_URL_HOST) ?: $activeServer['url'];
+                $port = ':' . parse_url($activeServer['url'])['port'] ?: '';
             }
-            $port = $wsPort !== APP_WEBSOCKET_PORT ? ':' . $wsPort : '';
             $baseUrl = (!empty($_SERVER['HTTPS']) ? 'wss:' : 'ws:') . '//' . $host . $port;
 
             $wsUrl = (!empty($host) ? $baseUrl : '') . $basePath . $parameters;
