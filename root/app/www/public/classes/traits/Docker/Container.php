@@ -171,7 +171,7 @@ trait Container
         }
 
         //-- DETECT AVAILABLE SHELL
-        $shellCheckCmd = sprintf(DockerSock::EXEC, escapeshellarg($container), "sh -c 'command -v sh || command -v bash || command -v ash || echo no_shell'");        ;
+        $shellCheckCmd = sprintf(DockerSock::EXEC, escapeshellarg($container), "sh -c 'command -v sh || command -v bash || command -v ash || echo no_shell'");
         $shellCheck = trim(shell_exec($shellCheckCmd));
         $shell = '/bin/sh';
         if ($shellCheck === 'no_shell') {
