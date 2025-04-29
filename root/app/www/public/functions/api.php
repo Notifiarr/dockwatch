@@ -270,6 +270,19 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
                 }
 
                 return $docker->getContainerPort($parameters['name'], $parameters['params']);
+            case 'docker/container/shell':
+            case 'docker-exec':
+                if (!$parameters['name']) {
+                    apiResponse(400, ['error' => 'Missing name parameter']);
+                }
+                if (!$parameters['params']) {
+                    apiResponse(400, ['error' => 'Missing parameters']);
+                }
+
+                $container      = $parameters['name'];
+                $command        = $parameters['params'];
+
+                return json_encode($docker->exec($container, $command));
             case 'docker/processList':
             case 'docker-processList':
                 return $docker->processList($parameters['useCache'], $parameters['format'], $parameters['params']);

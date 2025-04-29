@@ -28,6 +28,7 @@ interface DockerSock
     public const INSPECT_CUSTOM = '/usr/bin/docker inspect %s %s';
     public const IMAGE_SIZES = '/usr/bin/docker images --format=\'{"ID":"{{ .ID }}", "Size": "{{ .Size }}"}\' | jq -s --tab .';
     public const LOGIN = 'echo %s | /usr/bin/docker login %s -u %s --password-stdin';
+    public const EXEC = '/usr/bin/docker exec %s %s';
     //-- CONTAINER SPECIFIC
     public const KILL_CONTAINER = '/usr/bin/docker container kill %s';
     public const REMOVE_CONTAINER = '/usr/bin/docker container rm -f %s';
@@ -36,6 +37,7 @@ interface DockerSock
     public const ORPHAN_CONTAINERS = '/usr/bin/docker images -f dangling=true --format="{{json . }}" | jq -s --tab .';
     public const UNUSED_CONTAINERS = '/usr/bin/docker images --format \'{{.ID}}:{{.Repository}}:{{.Tag}}\' | grep -v "$(docker ps -a --format {{.Image}})"';
     public const CONTAINER_PORT = '/usr/bin/docker port %s %s';
+    public const CONTAINER_PROCESS = '/usr/bin/docker ps --filter name=\'%s\' --format \'{{.Names}}\' 2>&1';
     //-- IMAGE SPECIFIC
     public const REMOVE_IMAGE = '/usr/bin/docker image rm %s';
     public const PULL_IMAGE = '/usr/bin/docker image pull %s';

@@ -30,6 +30,12 @@ if ($_POST['m'] == 'init') {
                         </thead>
                         <tbody>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                                <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskCommandsDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskCommandsDisabled'] ? 'checked' : '' ?>></td>
+                                <td class="bg-secondary">Commands</td>
+                                <td class="bg-secondary">1m</td>
+                                <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('commands')"></i></td>
+                            </tr>
+                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskStatsDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskStatsDisabled'] ? 'checked' : '' ?>></td>
                                 <td class="bg-secondary">Stats changes</td>
                                 <td class="bg-secondary">1m</td>

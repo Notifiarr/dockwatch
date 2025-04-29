@@ -9,6 +9,10 @@
 
 trait Container
 {
+    private $output;
+    private $process;
+    private $pipes;
+
     public function getContainerPort($containerName, $params = '')
     {
         $cmd = sprintf(DockerSock::CONTAINER_PORT, $this->shell->prepare($containerName), $this->shell->prepare($params));
@@ -23,13 +27,13 @@ trait Container
 
     public function startContainer($containerName)
     {
-        $cmd = sprintf(DockerSock::START_CONTAINER, $this->shell->prepare($containerName));    
+        $cmd = sprintf(DockerSock::START_CONTAINER, $this->shell->prepare($containerName));
         return $this->shell->exec($cmd . ' 2>&1');
     }
 
     public function killContainer($containerName)
     {
-        $cmd = sprintf(DockerSock::KILL_CONTAINER, $this->shell->prepare($containerName));    
+        $cmd = sprintf(DockerSock::KILL_CONTAINER, $this->shell->prepare($containerName));
         return $this->shell->exec($cmd . ' 2>&1');
     }
 
@@ -72,7 +76,7 @@ trait Container
 
     public function getOrphanContainers()
     {
-        $cmd = DockerSock::ORPHAN_CONTAINERS;    
+        $cmd = DockerSock::ORPHAN_CONTAINERS;
         return $this->shell->exec($cmd . ' 2>&1');
     }
 
@@ -90,7 +94,7 @@ trait Container
             if (!$query['data']) {
                 $query['data'] = apiRequest('file-state')['result'];
             }
-        
+
             foreach ($query['data'] as $container) {
                 if (md5($container['Names']) == $query['hash']) {
                     return $container;
@@ -105,16 +109,16 @@ trait Container
 
         foreach ($processList as $process) {
             $networkMode = $process['inspect'][0]['HostConfig']['NetworkMode'];
-    
+
             if (str_contains($networkMode, ':')) {
                 list($null, $networkContainer) = explode(':', $networkMode);
-    
+
                 if ($networkContainer == $parentId) {
                     $dependencies[] = $process['Names'];
                 }
             }
         }
-    
+
         return $dependencies;
     }
 
@@ -124,18 +128,18 @@ trait Container
 
         foreach ($processList as $process) {
             $labels = $process['inspect'][0]['Config']['Labels'] ? $process['inspect'][0]['Config']['Labels'] : [];
-    
+
             foreach ($labels as $name => $key) {
                 if (str_contains($name, 'depends_on')) {
                     list($container, $condition) = explode(':', $key);
-    
+
                     if ($container == $containerName) {
                         $dependencies[] = $process['Names'];
                     }
                 }
             }
         }
-    
+
         return $dependencies;
     }
 
@@ -144,15 +148,47 @@ trait Container
         $dependencyList = [];
         foreach ($processList as $process) {
             $dependencies = $this->getContainerNetworkDependencies($process['ID'], $processList);
-    
+
             if ($dependencies) {
                 $dependencyList[$process['Names']] = ['id' => $process['ID'], 'containers' => $dependencies];
             }
         }
-    
+
         apiRequest('file-dependency', [], ['contents' => $dependencyList]);
-    
+
         return $dependencyList;
     }
 
+    public function exec($container, $command)
+    {
+        $this->output = '';
+
+        //-- CHECK IF CONTAINER IS RUNNING
+        $checkCmd = sprintf(DockerSock::CONTAINER_PROCESS, escapeshellarg($container));
+        $containerCheck = trim(shell_exec($checkCmd));
+        if (empty($containerCheck)) {
+            return "Container " . $container . " is not running or does not exist";
+        }
+
+        //-- DETECT AVAILABLE SHELL
+        $shellCheckCmd = sprintf(DockerSock::EXEC, escapeshellarg($container), "sh -c 'command -v sh || command -v bash || command -v ash || echo no_shell'");        ;
+        $shellCheck = trim(shell_exec($shellCheckCmd));
+        $shell = '/bin/sh';
+        if ($shellCheck === 'no_shell') {
+            return "No shell found in container " . $container . " (tried sh, bash, ash)";
+        } else if (!empty($shellCheck)) {
+            $shell = $shellCheck;
+        }
+
+        //-- EXECUTE COMMAND
+        $execCmd = sprintf(DockerSock::EXEC, escapeshellarg($container), escapeshellarg($shell) . " -c " . escapeshellarg($command) . " 2>&1");
+        $output = shell_exec($execCmd);
+
+        //-- CLEAN OUTPUT
+        $output = preg_replace('/\x1B\[[0-9;]*[a-zA-Z]/', '', $output); //-- REMOVE ANSI CODES
+        $output = trim($output);
+        $this->output = $output;
+
+        return $this->output;
+    }
 }

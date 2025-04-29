@@ -260,3 +260,34 @@ function isWebSocketAvailable($processList = [])
 
     return false;
 }
+
+function cleanTTYOutput($input)
+{
+    $input = preg_replace(
+        [
+            '/^"(.*)"$/s',             //-- REMOVE WRAPPING DOUBLE QUOTES
+            '/^.*?@.*?#\s/',           //-- INITIAL PROMPT
+            '/\r?\n.*?@.*?#\s*$/',     //-- FINAL PROMPT
+            '/\r?\n(\d+)\r?\n$/',      //-- EXIT CODE
+            '/\x1B\[[0-9;]*[a-zA-Z]/', //-- ANSI CODES
+            '/\\\\r\\\\n/',            //-- LINE BREAK
+            '/\\\\n/',                 //-- LINE BREAK
+            '/\\\\r/',                 //-- LINE BREAK
+            '/\\\\\\//',               //-- BACKSLASHES
+        ],
+        [
+            '\1',
+            '',
+            '',
+            '',
+            '',
+            "\n",
+            "\n",
+            "\n",
+            '\\'
+        ],
+        $input
+    );
+
+    return $input;
+}

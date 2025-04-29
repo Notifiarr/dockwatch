@@ -18,15 +18,15 @@ function canCronRun($cron, $settingsTable)
             break;
         case 'housekeeper':
             $log    = CRON_HOUSEKEEPER_LOG;
-            $field  = 'tasksHousekeepingDisabled';
+            $field  = 'taskHousekeepingDisabled';
             break;
         case 'prune':
             $log    = CRON_PRUNE_LOG;
-            $field  = 'tasksPruneDisabled';
+            $field  = 'taskPruneDisabled';
             break;
         case 'pulls':
             $log    = CRON_PULLS_LOG;
-            $field  = 'tasksPullsDisabled';
+            $field  = 'taskPullsDisabled';
             break;
         case 'sse':
             $log    = CRON_SSE_LOG;
@@ -38,7 +38,11 @@ function canCronRun($cron, $settingsTable)
             break;
         case 'stats':
             $log    = CRON_STATS_LOG;
-            $field  = 'tasksStatsDisabled';
+            $field  = 'taskStatsDisabled';
+            break;
+        case 'commands':
+            $log    = CRON_COMMANDS_LOG;
+            $field  = 'taskCommandsDisabled';
             break;
     }
 

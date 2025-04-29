@@ -1,6 +1,7 @@
 # min                                hour    day     month   weekday command
 *                                     *       *       *       *       /usr/bin/php /app/www/public/crons/sse.php
 *                                     *       *       *       *       /usr/bin/php /app/www/public/crons/stats.php
+*                                     *       *       *       *       /usr/bin/php /app/www/public/crons/commands.php
 *                                     *       *       *       *       /usr/bin/php /app/www/public/crons/state.php
 0,5,10,15,20,25,30,35,40,45,50,55     *       *       *       *       /usr/bin/php /app/www/public/crons/pulls.php
 0,10,20,30,40,50                      *       *       *       *       /usr/bin/php /app/www/public/crons/housekeeper.php

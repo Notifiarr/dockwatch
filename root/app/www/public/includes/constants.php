@@ -66,6 +66,7 @@ define('STATS_FILE', APP_DATA_PATH . 'stats.json');
 define('DEPENDENCY_FILE', APP_DATA_PATH . 'dependencies.json');
 define('SSE_FILE', APP_DATA_PATH . 'sse.json');
 define('METRICS_FILE', APP_DATA_PATH . 'metrics.json');
+define('COMMANDS_FILE', APP_DATA_PATH . 'commands.json');
 define('MIGRATION_FILE', APP_DATA_PATH . 'migration-in-progress.txt');
 define('IS_MIGRATION_RUNNING', (file_exists(MIGRATION_FILE) ? true : false));
 
@@ -82,6 +83,7 @@ define('CRON_PRUNE_LOG', LOGS_PATH . 'crons/prune.log');
 define('CRON_PULLS_LOG', LOGS_PATH . 'crons/pulls.log');
 define('CRON_STATE_LOG', LOGS_PATH . 'crons/state.log');
 define('CRON_STATS_LOG', LOGS_PATH . 'crons/stats.log');
+define('CRON_COMMANDS_LOG', LOGS_PATH . 'crons/commands.log');
 define('CRON_HEALTH_LOG', LOGS_PATH . 'crons/health.log');
 define('CRON_SSE_LOG', LOGS_PATH . 'crons/sse.log');
 define('LOG_ROTATE_SIZE', 2); //-- MB UNTIL ROTATE

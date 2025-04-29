@@ -94,6 +94,12 @@ function frequencyCronEditor(frequency, hash, name)
                 return;
             }
 
+            if (hash.startsWith("list-command")) {
+                $(`#${hash}`).val(expression);
+                $(`#${hash}`).change();
+                return;
+            }
+
             $(`#container-frequency-${hash}`).val(expression);
         },
     });

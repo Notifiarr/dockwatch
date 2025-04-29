@@ -145,7 +145,7 @@ class WebSocket implements MessageComponentInterface
             $client->send(json_encode(['error' => "No shell found in container '$containerId' (tried sh, bash, ash)"]));
             $client->close();
             return;
-        } elseif ($shellCheck !== '' && $shellCheck !== '/bin/sh') {
+        } else if ($shellCheck !== '' && $shellCheck !== '/bin/sh') {
             $shell = $shellCheck;
         }
 

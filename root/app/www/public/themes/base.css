@@ -308,11 +308,28 @@ button.dropdown-item:hover {
     color: var(--primary-500) !important;
 }
 
+.form-check-input:focus {
+    border-color: var(--primary-200);
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(55, 90, 127, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--background-100);
+    border-color: var(--primary-600);
+}
+
 /* Buttons */
 .btn-check:checked + .btn {
     color: var(--text-950) !important;
     background-color: var(--primary-500) !important;
     border-color: var(--background-200) !important;
+}
+
+.btn-outline-primary {
+    color: var(--text-950) !important;
+    /* background-color: var(--background-100) !important; */
+    border-color: var(--background-400) !important;
 }
 
 .btn-outline-light {

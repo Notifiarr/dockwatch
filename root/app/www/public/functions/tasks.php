@@ -32,6 +32,7 @@ function executeTask($task)
         case 'pulls':
         case 'prune':
         case 'stats':
+        case 'commands':
             $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'crons/' . $task . '.php';
 
             return $shell->exec($cmd . ' 2>&1');
