@@ -514,7 +514,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     $dependencyFile = apiRequest('file-dependency')['result'];
     $container      = $docker->findContainer(['hash' => $_POST['hash'], 'data' => $stateFile]);
     $image          = $docker->isIO($container['inspect'][0]['Config']['Image']);
-    $currentImageID = explode('|', $docker->getImageByDigest($containerState['inspect'][0]['Image']))[0];
+    $currentImageID = $container['inspect'][0]['Image'];
 
     logger(UI_LOG, 'trigger:' . $_POST['trigger']);
     logger(UI_LOG, 'findContainerFromHash:' . json_encode($container, JSON_UNESCAPED_SLASHES));

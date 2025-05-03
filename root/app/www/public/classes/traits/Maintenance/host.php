@@ -57,9 +57,7 @@ trait Host
         logger(MAINTENANCE_LOG, 'dockerCreateContainer() ' . json_encode($docker, JSON_UNESCAPED_SLASHES));
 
         if (strlen($docker['Id']) == 64) {
-            $currentImageID = explode('|', $this->docker->getImageByDigest($this->hostContainer['inspect'][0]['Image']))[0];
-            $this->docker->removeImage($currentImageID);
-
+            $this->docker->removeImage($this->hostContainer['inspect'][0]['Image']);
             $this->startHost();
         }
 
