@@ -56,34 +56,6 @@ if ($_POST['m'] == 'init') {
                         </td>
                         <td class="bg-secondary">The name of this server, also passed in the notification payload</td>
                     </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Maintenance IP</td>
-                        <td class="bg-secondary">
-                            <input class="form-control" type="text" id="globalSetting-maintenanceIP" value="<?= $settingsTable['maintenanceIP'] ?>">
-                        </td>
-                        <td class="bg-secondary">This IP is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this IP and after it has updated/restarted Dockwatch it will be removed. This is only required if you do static IP assignment for your containers.</td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Maintenance port</td>
-                        <td class="bg-secondary">
-                            <input class="form-control" type="text" id="globalSetting-maintenancePort" value="<?= $settingsTable['maintenancePort'] ?: APP_MAINTENANCE_PORT ?>">
-                        </td>
-                        <td class="bg-secondary">This port is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this port and after it has updated/restarted Dockwatch it will be removed.</td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">WebSocket URL</td>
-                        <td class="bg-secondary">
-                            <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketUrl'] ?: "" ?>" placeholder="<?= 'ws://'.$_SERVER['HTTP_HOST'].'/ws'  ?>">
-                        </td>
-                        <td class="bg-secondary">Best to leave empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Example (https): <code class="mx-1">wss://my.cool.domain/ws</code></td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">WebSocket port</td>
-                        <td class="bg-secondary">
-                            <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT ?>">
-                        </td>
-                        <td class="bg-secondary">Best to leave default at <code>9910</code>. You only need to change this if you wish to route this through a different RP. <br>By changing the port, the internal RP will be disabled.</td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -465,6 +437,34 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary" scope="row">Database</td>
                         <td class="bg-secondary"><button class="btn btn-sm btn-info" onclick="initPage('database')">Browse</button></td>
                         <td class="bg-secondary">Browse the <?= APP_NAME ?> database</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Maintenance IP</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-maintenanceIP" value="<?= $settingsTable['maintenanceIP'] ?>">
+                        </td>
+                        <td class="bg-secondary">This IP is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this IP and after it has updated/restarted Dockwatch it will be removed. This is only required if you do static IP assignment for your containers.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Maintenance port</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-maintenancePort" value="<?= $settingsTable['maintenancePort'] ?: APP_MAINTENANCE_PORT ?>">
+                        </td>
+                        <td class="bg-secondary">This port is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this port and after it has updated/restarted Dockwatch it will be removed.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">WebSocket URL</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketUrl'] ?: "" ?>" placeholder="<?= 'ws://'.$_SERVER['HTTP_HOST'].'/ws'  ?>">
+                        </td>
+                        <td class="bg-secondary">Best to leave empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Example (https): <code class="mx-1">wss://my.cool.domain/ws</code></td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">WebSocket port</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT ?>">
+                        </td>
+                        <td class="bg-secondary">Best to leave default at <code>9910</code>. You only need to change this if you wish to route this through a different RP. <br>By changing the port, the internal RP will be disabled.</td>
                     </tr>
                 </tbody>
             </table>

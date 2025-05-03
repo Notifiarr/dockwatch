@@ -51,8 +51,13 @@ trait Maint
 
     public function createMaintenance()
     {
-        $port   = intval($this->maintenancePort) > 0 ? intval($this->maintenancePort) : 9998;
-        $ip     = $this->maintenanceIP;
+        //-- CHECK FOR VALID PORT
+        if (intval($this->maintenancePort) < 1 || intval($this->maintenancePort) == 80 || intval($this->maintenancePort) == 443) {
+            $port = APP_MAINTENANCE_PORT ?: 9998;
+        } else {
+            $port = intval($this->maintenancePort);
+        }
+        $ip = $this->maintenanceIP;
 
         logger(MAINTENANCE_LOG, '$maintenance->createMaintenance() ->');
         logger(MAINTENANCE_LOG, 'using ip ' . $ip);
