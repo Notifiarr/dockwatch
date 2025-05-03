@@ -103,7 +103,7 @@ trait Maint
         logger(MAINTENANCE_LOG, 'dockerCreateContainer() <-');
 
         if (strlen($docker['Id']) == 64) {
-            $currentImageID = explode('|', $docker->getImageByDigest($inspectImage['inspect'][0]['Image']))[0];
+            $currentImageID = explode('|', $this->docker->getImageByDigest($inspectImage['inspect'][0]['Image']))[0];
             $this->docker->removeImage($currentImageID);
 
             $this->startMaintenance();
