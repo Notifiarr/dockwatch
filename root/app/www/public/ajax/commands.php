@@ -84,7 +84,13 @@ if ($_POST['m'] == 'runCommand') {
         if (in_array($serverId, $servers)) {
             apiSetActiveServer($serverData['id'], $serversTable);
 
-            $apiResponse = apiRequest($_POST['command'], ['name' => $_POST['container'], 'params' => $_POST['parameters']], ['name' => $_POST['container'], 'params' => $_POST['parameters']]);
+            $command = $_POST['command'];
+            if ($command == 'docker-startContainer' || $command == 'docker-stopContainer' || $command == 'docker-restartContainer') {
+                $apiResponse = apiRequest($_POST['command'], [], ['name' => $_POST['container'], 'params' => $_POST['parameters']]);
+            } else {
+                $apiResponse = apiRequest($_POST['command'], ['name' => $_POST['container'], 'params' => $_POST['parameters']]);
+            }
+
             $apiResponse = $apiResponse['code'] == 200 ? $apiResponse['result'] : $apiResponse['code'] . ': ' . $apiResponse['error'];
 
             ?>
