@@ -10,9 +10,9 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $notificationPlatformTable  = apiRequest('database-getNotificationPlatforms')['result'];
-    $notificationTriggersTable  = apiRequest('database-getNotificationTriggers')['result'];
-    $notificationLinkTable      = apiRequest('database-getNotificationLinks')['result'];
+    $notificationPlatformTable  = apiRequest('database/notification/platforms')['result'];
+    $notificationTriggersTable  = apiRequest('database/notification/triggers')['result'];
+    $notificationLinkTable      = apiRequest('database/notification/links')['result'];
 
     ?>
     <ol class="breadcrumb rounded p-1 ps-2">
@@ -90,9 +90,9 @@ if ($_POST['m'] == 'init') {
 
 if ($_POST['m'] == 'openNotificationTriggers') {
     $_POST['linkId']            = $_POST['linkId'] ?: 0;
-    $notificationPlatformTable  = apiRequest('database-getNotificationPlatforms')['result'];
-    $notificationTriggersTable  = apiRequest('database-getNotificationTriggers')['result'];
-    $notificationLinkTable      = apiRequest('database-getNotificationLinks')['result'];
+    $notificationPlatformTable  = apiRequest('database/notification/platforms')['result'];
+    $notificationTriggersTable  = apiRequest('database/notification/triggers')['result'];
+    $notificationLinkTable      = apiRequest('database/notification/links')['result'];
     $platformParameters         = json_decode($notificationPlatformTable[$_POST['platformId']]['parameters'], true);
     $platformName               = $notifications->getNotificationPlatformNameFromId($_POST['platformId'], $notificationPlatformTable);
     $linkRow                    = $notificationLinkTable[$_POST['linkId']];
@@ -188,9 +188,9 @@ if ($_POST['m'] == 'addNotification') {
     }
 
     if (!$error) {
-        $notificationPlatformTable  = apiRequest('database-getNotificationPlatforms')['result'];
-        $notificationTriggersTable  = apiRequest('database-getNotificationTriggers')['result'];
-        $notificationLinkTable      = apiRequest('database-getNotificationLinks')['result'];
+        $notificationPlatformTable  = apiRequest('database/notification/platforms')['result'];
+        $notificationTriggersTable  = apiRequest('database/notification/triggers')['result'];
+        $notificationLinkTable      = apiRequest('database/notification/links')['result'];
         $platformParameters         = json_decode($notificationPlatformTable[$_POST['platformId']]['parameters'], true);
         $platformName               = $notifications->getNotificationPlatformNameFromId($_POST['platformId'], $notificationPlatformTable);
 
@@ -222,7 +222,7 @@ if ($_POST['m'] == 'addNotification') {
                 }
             }
 
-            apiRequest('database-addNotificationLink', ['platformId' => $_POST['platformId']], ['triggerIds' => $triggerIds, 'platformParameters' => $platformParameters, 'senderName' => $senderName]);
+            apiRequest('database/notification/link/add', ['platformId' => $_POST['platformId']], ['triggerIds' => $triggerIds, 'platformParameters' => $platformParameters, 'senderName' => $senderName]);
         }
     }
 
@@ -238,9 +238,9 @@ if ($_POST['m'] == 'saveNotification') {
     }
 
     if (!$error) {
-        $notificationPlatformTable  = apiRequest('database-getNotificationPlatforms')['result'];
-        $notificationTriggersTable  = apiRequest('database-getNotificationTriggers')['result'];
-        $notificationLinkTable      = apiRequest('database-getNotificationLinks')['result'];
+        $notificationPlatformTable  = apiRequest('database/notification/platforms')['result'];
+        $notificationTriggersTable  = apiRequest('database/notification/triggers')['result'];
+        $notificationLinkTable      = apiRequest('database/notification/links')['result'];
         $platformParameters         = json_decode($notificationPlatformTable[$_POST['platformId']]['parameters'], true);
         $platformName               = $notifications->getNotificationPlatformNameFromId($_POST['platformId'], $notificationPlatformTable);
 
@@ -272,7 +272,7 @@ if ($_POST['m'] == 'saveNotification') {
                 }
             }
 
-            apiRequest('database-updateNotificationLink', [], ['linkId' => $_POST['linkId'], 'triggerIds' => $triggerIds, 'platformParameters' => $platformParameters, 'senderName' => $senderName]);
+            apiRequest('database/notification/link/update', [], ['linkId' => $_POST['linkId'], 'triggerIds' => $triggerIds, 'platformParameters' => $platformParameters, 'senderName' => $senderName]);
         }
     }
 
@@ -280,11 +280,11 @@ if ($_POST['m'] == 'saveNotification') {
 }
 
 if ($_POST['m'] == 'deleteNotification') {
-    apiRequest('database-deleteNotificationLink', [], ['linkId' => $_POST['linkId']]);
+    apiRequest('database/notification/link/delete', [], ['linkId' => $_POST['linkId']]);
 }
 
 if ($_POST['m'] == 'testNotify') {
-    $apiResponse = apiRequest('notify-test', [], ['linkId' => $_POST['linkId'], 'name' => $_POST['name']]);
+    $apiResponse = apiRequest('notification/test', [], ['linkId' => $_POST['linkId'], 'name' => $_POST['name']]);
 
     if (($apiResponse['result']['code'] && $apiResponse['result']['code'] == 200) || (!$apiResponse['result']['code'] && $apiResponse['code'] == 200)) {
         $result = 'Test notification sent on server ' . ACTIVE_SERVER_NAME;

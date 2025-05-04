@@ -13,7 +13,7 @@ header('Cache-Control: no-cache');
 require 'loader.php';
 
 $database       = new Database();
-$settingsTable  = apiRequestLocal('database-getSettings');
+$settingsTable  = apiRequestLocal('database/settings');
 $sseFile        = getFile(SSE_FILE);
 
 if ($settingsTable['sseEnabled']) {

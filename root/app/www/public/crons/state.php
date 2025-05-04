@@ -20,12 +20,12 @@ if (!canCronRun('state', $settingsTable)) {
 
 $notify = $added = $removed = $previousStates = $currentStates = $previousContainers = $currentContainers = [];
 
-$stateFile      = apiRequest('file-state')['result'];
+$stateFile      = apiRequest('file/state')['result'];
 $previousStates = $stateFile;
 $currentStates  = dockerState();
 
 if ($currentStates) {
-    apiRequest('file-state', [], ['contents' => $currentStates]);
+    apiRequest('file/state', [], ['contents' => $currentStates]);
 } else {
     logger(CRON_STATE_LOG, 'STATE_FILE update skipped, $currentStates empty');
 }
@@ -45,24 +45,24 @@ logger(CRON_STATE_LOG, 'previousContainers: ' . json_encode($previousContainers,
 logger(CRON_STATE_LOG, 'currentContainers: ' . json_encode($currentContainers, JSON_UNESCAPED_SLASHES));
 
 //-- CHECK FOR ADDED CONTAINERS
-$containersTable = apiRequest('database-getContainers')['result'];
+$containersTable = apiRequest('database/containers')['result'];
 foreach ($currentContainers as $currentContainer) {
     if (!in_array($currentContainer, $previousContainers)) {
         $containerHash  = md5($currentContainer);
-        $exists         = apiRequest('database-getContainerFromHash', ['hash' => $containerHash]);
+        $exists         = apiRequest('database/container/hash', ['hash' => $containerHash]);
 
         if (!$exists) {
             $updates    = $settingsTable['updates'] ?: 3; //-- CHECK ONLY FALLBACK
             $frequency  = $settingsTable['updatesFrequency'] ?: DEFAULT_CRON; //-- DAILY FALLBACK
 
-            apiRequest('database-addContainer', [], ['hash' => $containerHash, 'updates' => $updates, 'frequency' => $frequency]);
+            apiRequest('database/container/add', [], ['hash' => $containerHash, 'updates' => $updates, 'frequency' => $frequency]);
         }
 
         $added[] = ['container' => $currentContainer];
     }
 }
 
-if ($added && apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'added'])['result']) {
+if ($added && apiRequest('database/notification/trigger/enabled', ['trigger' => 'added'])['result']) {
     $notify['state']['added'] = $added;
     logger(CRON_STATE_LOG, 'Added containers: ' . json_encode($added, JSON_UNESCAPED_SLASHES));
 }
@@ -73,7 +73,7 @@ logger(CRON_STATE_LOG, 'Added containers: ' . json_encode($added, JSON_UNESCAPED
 foreach ($previousContainers as $previousContainer) {
     if (!in_array($previousContainer, $currentContainers)) {
         $containerHash  = md5($previousContainer);
-        $container      = apiRequest('database-getContainerFromHash', ['hash' => $containerHash])['result'];
+        $container      = apiRequest('database/container/hash', ['hash' => $containerHash])['result'];
 
         if (!$container['disableNotifications']) {
             $removed[] = ['container' => $previousContainer];
@@ -81,7 +81,7 @@ foreach ($previousContainers as $previousContainer) {
     }
 }
 
-if ($removed && apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'removed'])['result']) {
+if ($removed && apiRequest('database/notification/trigger/enabled', ['trigger' => 'removed'])['result']) {
     $notify['state']['removed'] = $removed;
     logger(CRON_STATE_LOG, 'Removed containers: ' . json_encode($removed, JSON_UNESCAPED_SLASHES));
 }
@@ -90,9 +90,9 @@ if ($removed && apiRequest('database-isNotificationTriggerEnabled', ['trigger' =
 foreach ($currentStates as $currentState) {
     foreach ($previousStates as $previousState) {
         $containerHash  = md5($currentState['Names']);
-        $container      = apiRequest('database-getContainerFromHash', ['hash' => $containerHash])['result'];
+        $container      = apiRequest('database/container/hash', ['hash' => $containerHash])['result'];
 
-        if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'stateChange'])['result'] && !$container['disableNotifications'] && $currentState['Names'] == $previousState['Names']) {
+        if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'stateChange'])['result'] && !$container['disableNotifications'] && $currentState['Names'] == $previousState['Names']) {
             if ($previousState['State'] != $currentState['State']) {
                 $notify['state']['changed'][] = ['container' => $currentState['Names'], 'previous' => $previousState['State'], 'current' => $currentState['State']];
             }
@@ -103,10 +103,10 @@ logger(CRON_STATE_LOG, 'State changed containers: ' . json_encode($notify['state
 
 foreach ($currentStates as $currentState) {
     $containerHash  = md5($currentState['Names']);
-    $container      = apiRequest('database-getContainerFromHash', ['hash' => $containerHash])['result'];
+    $container      = apiRequest('database/container/hash', ['hash' => $containerHash])['result'];
 
     //-- CHECK FOR HIGH CPU USAGE CONTAINERS
-    if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'cpuHigh'])['result'] && !$container['disableNotifications'] && floatval($settingsTable['cpuThreshold']) > 0) {
+    if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'cpuHigh'])['result'] && !$container['disableNotifications'] && floatval($settingsTable['cpuThreshold']) > 0) {
         if ($currentState['stats']['CPUPerc']) {
             $cpu        = floatval(str_replace('%', '', $currentState['stats']['CPUPerc']));
             $cpuAmount  = intval($settingsTable['cpuAmount']);
@@ -122,7 +122,7 @@ foreach ($currentStates as $currentState) {
     }
 
     //-- CHECK FOR HIGH MEMORY USAGE CONTAINERS
-    if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'memHigh'])['result'] && !$container['disableNotifications'] && floatval($settingsTable['memThreshold']) > 0) {
+    if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'memHigh'])['result'] && !$container['disableNotifications'] && floatval($settingsTable['memThreshold']) > 0) {
         if ($currentState['stats']['MemPerc']) {
             $mem = floatval(str_replace('%', '', $currentState['stats']['MemPerc']));
 
@@ -148,8 +148,8 @@ if (!$currentStates) {
 if ($notify['state']) {
     //-- IF THEY USE THE SAME PLATFORM, COMBINE THEM
     if (
-        apiRequest('database-getNotificationLinkPlatformFromName', ['name' => 'stateChange'])['result'] == apiRequest('database-getNotificationLinkPlatformFromName', ['name' => 'added'])['result'] && 
-        apiRequest('database-getNotificationLinkPlatformFromName', ['name' => 'stateChange'])['result'] == apiRequest('database-getNotificationLinkPlatformFromName', ['name' => 'removed'])['result']
+        apiRequest('database/notification/link/platform/name', ['name' => 'stateChange'])['result'] == apiRequest('database/notification/link/platform/name', ['name' => 'added'])['result'] && 
+        apiRequest('database/notification/link/platform/name', ['name' => 'stateChange'])['result'] == apiRequest('database/notification/link/platform/name', ['name' => 'removed'])['result']
         ) {
         $payload = ['event' => 'state', 'changes' => $notify['state']['changed'], 'added' => $notify['state']['added'], 'removed' => $notify['state']['removed']];
         $notifications->notify(0, 'stateChange', $payload);

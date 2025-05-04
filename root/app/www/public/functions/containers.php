@@ -11,7 +11,7 @@ function renderContainerRow($nameHash, $return)
 {
     global $docker, $pullsFile, $settingsTable, $processList, $skipContainerActions, $groupHash;
 
-    $pullsFile = $pullsFile ?: apiRequest('file-pull')['result'];
+    $pullsFile = $pullsFile ?: apiRequest('file/pull')['result'];
 
     foreach ($processList as $thisProcess) {
         if (md5($thisProcess['Names']) == $nameHash) {
@@ -22,7 +22,7 @@ function renderContainerRow($nameHash, $return)
 
     $isDockwatch        = isDockwatchContainer($process) ? true : false;
     $skipActions        = skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions);
-    $containerSettings  = apiRequest('database-getContainerFromHash', ['hash' => $nameHash])['result'];
+    $containerSettings  = apiRequest('database/container/hash', ['hash' => $nameHash])['result'];
     $logo               = getIcon($process['inspect']);
     $notificationIcon   = '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container" style="display: ' . ($containerSettings['disableNotifications'] ? 'inline-block' : 'none') . '"></i> ';
     $isRunning          = $process['State'] == 'running';
@@ -253,8 +253,8 @@ function skipContainerActions($container, $containers)
 {
     global $docker, $settingsTable, $stateFile;
 
-    $stateFile          = $stateFile ?: apiRequest('file-state')['result'];
-    $containersTable    = apiRequest('database-getContainers')['result'];
+    $stateFile          = $stateFile ?: apiRequest('file/state')['result'];
+    $containersTable    = apiRequest('database/containers')['result'];
 
     if ($containersTable) {
         foreach ($containersTable as $containerSettings) {

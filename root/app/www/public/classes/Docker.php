@@ -44,7 +44,7 @@ class Docker
         $shell  = $this->shell->exec($cmd . ' 2>&1');
 
         if ($shell) {
-            apiRequest('file-stats', [], ['contents' => $shell]);
+            apiRequest('file/stats', [], ['contents' => $shell]);
         }
 
         return $shell;

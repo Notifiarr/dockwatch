@@ -92,7 +92,7 @@ trait Container
 
         if ($query['hash']) {
             if (!$query['data']) {
-                $query['data'] = apiRequest('file-state')['result'];
+                $query['data'] = apiRequest('file/state')['result'];
             }
 
             foreach ($query['data'] as $container) {
@@ -154,7 +154,7 @@ trait Container
             }
         }
 
-        apiRequest('file-dependency', [], ['contents' => $dependencyList]);
+        apiRequest('file/dependency', [], ['contents' => $dependencyList]);
 
         return $dependencyList;
     }

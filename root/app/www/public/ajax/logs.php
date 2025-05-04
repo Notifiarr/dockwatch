@@ -80,7 +80,7 @@ if ($_POST['m'] == 'init') {
                                 $logHash = md5($log['name']);
                                 $group = str_contains_any($group, ['login failures']) ? '' : $group . '/';
                                 ?>
-                                <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group . $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group . $log['name'] ?>')"></i></li>
+                                <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group . $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group . $log['name'] ?>')"></i></li>
                                 <?php
                             }
 
@@ -89,7 +89,7 @@ if ($_POST['m'] == 'init') {
                                 foreach ($rotated as $log) {
                                     $logHash = md5($log['name']);
                                     ?>
-                                    <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-info"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i></li>
+                                    <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i></li>
                                     <?php
                                 }
                             }
@@ -113,7 +113,7 @@ if ($_POST['m'] == 'init') {
 if ($_POST['m'] == 'viewLog') {
     logger(SYSTEM_LOG, 'View log: ' . $_POST['name']);
 
-    $apiRequest = apiRequest('server-log', ['name' => $_POST['name']]);
+    $apiRequest = apiRequest('server/log', ['name' => $_POST['name']]);
 
     if ($apiRequest['code'] == 200) {
         $result = json_decode($apiRequest['result'], true);
@@ -128,13 +128,13 @@ if ($_POST['m'] == 'viewLog') {
 if ($_POST['m'] == 'purgeLogs') {
     logger(SYSTEM_LOG, 'Purge logs: ' . $_POST['group']);
 
-    $apiRequest = apiRequest('server-purgeLogs', [], ['group' => $_POST['group']]);
+    $apiRequest = apiRequest('server/log/purge', [], ['group' => $_POST['group']]);
     logger(UI_LOG, 'purgeLogs:' . json_encode($apiRequest));
 }
 
 if ($_POST['m'] == 'deleteLog') {
     logger(SYSTEM_LOG, 'Delete log: ' . $_POST['log']);
 
-    $apiRequest = apiRequest('server-deleteLog', [], ['log' => $_POST['log']]);
+    $apiRequest = apiRequest('server/log/delete', [], ['log' => $_POST['log']]);
     logger(UI_LOG, 'deleteLog:' . json_encode($apiRequest));
 }

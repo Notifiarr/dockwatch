@@ -10,7 +10,7 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $apiResult  = apiRequest('docker-networks', ['params' => 'ls'])['result'];
+    $apiResult  = apiRequest('docker/networks', ['params' => 'ls'])['result'];
     $neworks    = explode("\n", $apiResult);
 
     ?>
@@ -39,7 +39,7 @@ if ($_POST['m'] == 'init') {
                 list($network, $id, $name, $driver, $scope) = explode(' ', $network);
 
                 if ($network) {
-                    $apiResult      = apiRequest('docker-networks', ['params' => 'inspect ' . $network])['result'];
+                    $apiResult      = apiRequest('docker/networks', ['params' => 'inspect ' . $network])['result'];
                     $networkData    = json_decode($apiResult, true);
 
                     ?><tbody><?php

@@ -50,7 +50,7 @@ foreach ($containerList as $container) {
 logger(CRON_HEALTH_LOG, '$unhealthy=' . json_encode($unhealthy, JSON_UNESCAPED_SLASHES));
 
 if ($unhealthy) {
-    $containersTable = apiRequest('database-getContainers')['result'];
+    $containersTable = apiRequest('database/containers')['result'];
 
     foreach ($unhealthy as $nameHash => $container) {
         $notify = false;
@@ -58,7 +58,7 @@ if ($unhealthy) {
         if ($container['restart'] || $container['notify']) {
             continue;
         }
-        $thisContainer  = apiRequest('database-getContainerFromHash', ['hash' => $nameHash])['result'];
+        $thisContainer  = apiRequest('database/container/hash', ['hash' => $nameHash])['result'];
         $skipActions    = skipContainerActions($container['name'], $skipContainerActions);
 
         if ($skipActions) {
@@ -69,7 +69,7 @@ if ($unhealthy) {
         $unhealthy[$nameHash]['notify']     = 0;
         $unhealthy[$nameHash]['restart']    = 0;
 
-        if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'health'])['result']) {
+        if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'health'])['result']) {
             $unhealthy[$nameHash]['notify'] = time();
             $notify = true;
         } else {
@@ -84,19 +84,19 @@ if ($unhealthy) {
             logger(CRON_HEALTH_LOG, 'restarting unhealthy \'' . $container['name'] . '\'');
             $unhealthy[$nameHash]['restart'] = time();
 
-            $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $container['name']]);
-            logger(CRON_HEALTH_LOG, 'docker-stopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-            $apiRequest = apiRequest('docker-startContainer', [], ['name' => $container['name']]);
-            logger(CRON_HEALTH_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['name']]);
+            logger(CRON_HEALTH_LOG, 'docker/container/stop:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['name']]);
+            logger(CRON_HEALTH_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
             if ($dependencies) {
                 logger(CRON_HEALTH_LOG, 'restarting dependencies...');
 
                 foreach ($dependencies as $dependency) {
-                    $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $dependency]);
-                    logger(CRON_HEALTH_LOG, 'docker-stopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-                    $apiRequest = apiRequest('docker-startContainer', [], ['name' => $dependency]);
-                    logger(CRON_HEALTH_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                    $apiRequest = apiRequest('docker/container/stop', [], ['name' => $dependency]);
+                    logger(CRON_HEALTH_LOG, 'docker/container/stop:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                    $apiRequest = apiRequest('docker/container/start', [], ['name' => $dependency]);
+                    logger(CRON_HEALTH_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 }
             }
         } else {

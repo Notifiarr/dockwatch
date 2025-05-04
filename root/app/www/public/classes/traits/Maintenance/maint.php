@@ -51,7 +51,7 @@ trait Maint
 
     public function createMaintenance()
     {
-        $port   = intval($this->maintenancePort) > 0 ? intval($this->maintenancePort) : 9998;
+        $port   = intval($this->maintenancePort) > 0 ? intval($this->maintenancePort) : APP_MAINTENANCE_PORT;
         $ip     = $this->maintenanceIP;
 
         logger(MAINTENANCE_LOG, '$maintenance->createMaintenance() ->');
@@ -60,13 +60,13 @@ trait Maint
 
         $this->pullMaintenance();
 
-        $apiRequest = apiRequest('docker-inspect', ['name' => $this->hostContainer['Names'], 'useCache' => false, 'format' => true]);
-        logger(MAINTENANCE_LOG, 'docker-inspect:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+        $apiRequest = apiRequest('docker/container/inspect', ['name' => $this->hostContainer['Names'], 'useCache' => false, 'format' => true]);
+        logger(MAINTENANCE_LOG, 'docker/container/inspect: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
         $inspectImage = $apiRequest['result'];
         $inspectImage = json_decode($inspectImage, true);
 
-        $inspectImage[0]['Name']                                                = '/' . $this->maintenanceContainerName;
-        $inspectImage[0]['Config']['Image']                                     = APP_MAINTENANCE_IMAGE;
+        $inspectImage[0]['Name']            = '/' . $this->maintenanceContainerName;
+        $inspectImage[0]['Config']['Image'] = APP_MAINTENANCE_IMAGE;
 
         //-- CLEAR ALL PORTS
         $inspectImage[0]['HostConfig']['PortBindings']  = [];

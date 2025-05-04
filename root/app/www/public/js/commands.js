@@ -1,5 +1,5 @@
 function loadCommand(command, container, parameters, servers, unload = false) {
-    $('#command').val(!unload ? command : 'docker-inspect');
+    $('#command').val(!unload ? command : 'docker/container/inspect');
     $('#command-container').val(!unload ? container : '');
     $('#command-parameters').val(!unload ? parameters : '');
     $.each($('[id^=command-]'), function() {

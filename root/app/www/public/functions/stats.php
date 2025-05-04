@@ -19,8 +19,8 @@ function getContainerStats($servers = [])
                 continue;
             }
 
-            $processListRemote  = apiRequestRemote('file-state', [], [], $server)['result'] ?: [];
-            $pullsFileRemote    = apiRequestRemote('file-pull', [], [], $server)['result'] ?: [];
+            $processListRemote  = apiRequestRemote('file/state', [], [], $server)['result'] ?: [];
+            $pullsFileRemote    = apiRequestRemote('file/pull', [], [], $server)['result'] ?: [];
 
             //-- ADD SERVER IDENTIFIER TO CONTAINERS
             foreach ($processListRemote as &$container) {
@@ -283,7 +283,7 @@ function getUsageMetrics($servers = [])
     $metricsFile = getFile(METRICS_FILE);
     $metrics = $metricsFile ?: ['history' => ['disk' => [], 'netIO' => []]];
     $allMetrics = ['local' => $metrics];
-    $retentions = ['local' => apiRequestLocal('database-getSettings')['usageMetricsRetention']];
+    $retentions = ['local' => apiRequestLocal('database/settings')['usageMetricsRetention']];
 
     if (!empty($servers)) {
         foreach ($servers as $server) {
@@ -291,8 +291,8 @@ function getUsageMetrics($servers = [])
                 continue;
             }
 
-            $remoteMetrics = apiRequestRemote('file-metrics', [], [], $server)['result'] ?: ['history' => ['disk' => [], 'netIO' => []]];
-            $remoteSettings = apiRequestRemote('database-getSettings', [], [], $server)['result'] ?: ['usageMetricsRetention' => 0];
+            $remoteMetrics = apiRequestRemote('file/metrics', [], [], $server)['result'] ?: ['history' => ['disk' => [], 'netIO' => []]];
+            $remoteSettings = apiRequestRemote('database/settings', [], [], $server)['result'] ?: ['usageMetricsRetention' => 0];
 
             $allMetrics[$server['name']] = $remoteMetrics;
             $retentions[$server['name']] = $remoteSettings['usageMetricsRetention'];

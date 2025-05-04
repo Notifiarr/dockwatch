@@ -17,7 +17,7 @@ if ($_POST['m'] == 'init') {
     </ol>
     <div class="bg-secondary rounded p-4">
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <div class="table-responsive">
                     <table class="table table-sm">
                         <thead>
@@ -144,7 +144,7 @@ if ($_POST['m'] == 'init') {
                     </table>
                 </div>
             </div>
-            <div class="col-sm-6"><pre id="taskViewer" style="max-height: 500px; overflow: auto;">Select a task</pre></div>
+            <div class="col-sm-8"><pre id="taskViewer" style="max-height: 500px; overflow: auto;">Select a task</pre></div>
         </div>
     </div>
     <?php
@@ -153,7 +153,7 @@ if ($_POST['m'] == 'init') {
 if ($_POST['m'] == 'runTask') {
     logger(SYSTEM_LOG, 'Run task: ' . $_POST['task']);
 
-    $apiRequest = apiRequest('server-runTask', [], ['task' => $_POST['task']]);
+    $apiRequest = apiRequest('server/task/run', [], ['task' => $_POST['task']]);
 
     $result = $error = '';
     if ($apiRequest['code'] == 200) {
@@ -167,9 +167,9 @@ if ($_POST['m'] == 'runTask') {
 
 if ($_POST['m'] == 'updateTaskDisabled') {
     if ($_POST['task'] == 'sseEnabled') {
-        apiRequest('database-setSetting', [], ['setting' => 'sseEnabled', 'value' => !intval($_POST['disabled'])]);
+        apiRequest('database/setting', [], ['setting' => 'sseEnabled', 'value' => !intval($_POST['disabled'])]);
     } else {
-        apiRequest('database-setSetting', [], ['setting' => $_POST['task'], 'value' => intval($_POST['disabled'])]);
+        apiRequest('database/setting', [], ['setting' => $_POST['task'], 'value' => intval($_POST['disabled'])]);
     }
 
     echo json_encode(['error' => $error, 'server' => ACTIVE_SERVER_NAME]);

@@ -40,7 +40,7 @@ if ($name == 'dockwatch') {
 //-- STARTUP NOTIFICATION
 $notify['state']['changed'][] = ['container' => $name, 'previous' => '.....', 'current' => 'Started/Restarted'];
 
-if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'stateChange'])['result']) {
+if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'stateChange'])['result']) {
 	$payload = ['event' => 'state', 'changes' => $notify['state']['changed']];
 	$notifications->notify(0, 'stateChange', $payload);
 

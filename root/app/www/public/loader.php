@@ -86,11 +86,11 @@ if (!IS_SSE) {
     $database = new Database();
 
     if (!$skipMmigrations) {
-        apiRequestLocal('database-migrations');
+        apiRequestLocal('database/migrations');
     }
 
-    $settingsTable  = apiRequestLocal('database-getSettings');
-    $serversTable   = apiRequestLocal('database-getServers');
+    $settingsTable  = apiRequestLocal('database/settings');
+    $serversTable   = apiRequestLocal('database/servers');
 
     define('USER_THEME', $settingsTable['defaultTheme'] && file_exists('themes/' . $settingsTable['defaultTheme'] . '.min.css') ? $settingsTable['defaultTheme'] : 'nzblack');
     define('USER_THEME_MODE', $settingsTable['defaultThemeMode'] ?: 'dark');
@@ -121,8 +121,8 @@ if (!IS_SSE) {
     logger(SYSTEM_LOG, 'Init class: Notifications()');
 
     if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
-        $stateFile  = apiRequestLocal('file-state');
-        $pullsFile  = apiRequestLocal('file-pull');
+        $stateFile  = apiRequestLocal('file/state');
+        $pullsFile  = apiRequestLocal('file/pull');
     }
 }
 
@@ -161,10 +161,10 @@ if (!IS_SSE) {
     $activeServer = $activeServer ?: apiGetActiveServer();
 
     if ($activeServer['id'] != APP_SERVER_ID) {
-        $settingsTable  = apiRequest('database-getSettings')['result'];
-        $serversTable   = apiRequest('database-getServers')['result'];
-        $stateFile      = apiRequest('file-state')['result'];
-        $pullsFile      = apiRequest('file-pull')['result'];
+        $settingsTable  = apiRequest('database/settings')['result'];
+        $serversTable   = apiRequest('database/servers')['result'];
+        $stateFile      = apiRequest('file/state')['result'];
+        $pullsFile      = apiRequest('file/pull')['result'];
     }
 
     //-- SPECIFIC PATHS THAT NEED TO HAVE AN UPDATED PROCESS LIST
@@ -178,6 +178,7 @@ if (!IS_SSE) {
     $loadTimes[] = trackTime('getExpandedProcessList ->');
     $getExpandedProcessList = getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect);
     $processList            = $getExpandedProcessList['processList'];
+
     foreach ($getExpandedProcessList['loadTimes'] as $loadTime) {
         $loadTimes[] = $loadTime;
     }
@@ -186,7 +187,7 @@ if (!IS_SSE) {
     //-- UPDATE THE STATE FILE WHEN EVERYTHING IS FETCHED
     if (str_equals_any($_POST['page'], ['overview', 'containers']) || in_array($_GET['endpoint'], $apiPaths) || in_array($baseFile, $internalPaths)) {
         if ($processList) {
-            apiRequest('file-state', [], ['contents' => $processList]);
+            apiRequest('file/state', [], ['contents' => $processList]);
         }
     }
 

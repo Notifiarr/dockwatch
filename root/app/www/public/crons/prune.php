@@ -85,7 +85,7 @@ if ($networkPrune) {
     logger(CRON_PRUNE_LOG, 'result: ' . $prune);
 }
 
-if (apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'prune'])['result'] && (count($volumePrune) > 0 || count($imagePrune) > 0 || count($networkPrune) > 0)) {
+if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'prune'])['result'] && (count($volumePrune) > 0 || count($imagePrune) > 0 || count($networkPrune) > 0)) {
     $payload = ['event' => 'prune', 'network' => count($networkPrune), 'volume' => count($volumePrune), 'image' => count($imagePrune), 'imageList' => $imageList];
 	$notifications->notify(0, 'prune', $payload);
 

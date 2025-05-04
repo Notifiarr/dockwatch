@@ -22,14 +22,14 @@ if ($_POST['m'] == 'init') {
                     <div class="col-sm-12 mb-2">
                         <select class="form-select" id="command">
                             <optgroup label="docker">
-                                <option value="docker-inspect">inspect {container}</option>
-                                <option value="docker-networks">network {params}</option>
-                                <option value="docker-port">port {container}</option>
-                                <option value="docker-startContainer">start {container}</option>
-                                <option value="docker-stopContainer">stop {container}</option>
-                                <option value="docker-restartContainer">restart {container}</option>
-                                <option value="docker-exec">exec {container} {command}</option>
-                                <option value="docker-processList">ps</option>
+                                <option value="docker/container/inspect">inspect {container}</option>
+                                <option value="docker/networks">network {params}</option>
+                                <option value="docker/container/ports">port {container}</option>
+                                <option value="docker/container/start">start {container}</option>
+                                <option value="docker/container/stop">stop {container}</option>
+                                <option value="docker/container/restart">restart {container}</option>
+                                <option value="docker/container/shell">exec {container} {command}</option>
+                                <option value="docker/processList">ps</option>
                             </optgroup>
                         </select>
                     </div>
@@ -44,8 +44,8 @@ if ($_POST['m'] == 'init') {
                     <table class="table table-sm">
                         <thead>
                             <tr>
-                                <th class="w-50 rounded-top-left-1 bg-primary ps-3">Run</th>
-                                <th class="w-50 rounded-top-right-1 bg-primary ps-3">Server</th>
+                                <th class="w-25 rounded-top-left-1 bg-primary ps-3">Run</th>
+                                <th class="rounded-top-right-1 bg-primary ps-3">Server</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -53,7 +53,7 @@ if ($_POST['m'] == 'init') {
                             foreach ($serversTable as $serverId => $serverData) {
                                 ?>
                                 <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                    <td class="bg-secondary"><input type="checkbox" class="form-check-input" id="command-<?= $serverId ?>"></td>
+                                    <td class="bg-secondary text-center"><input type="checkbox" class="form-check-input" id="command-<?= $serverId ?>"></td>
                                     <td class="bg-secondary"><?= $serverData['name'] ?></td>
                                 </tr>
                                 <?php

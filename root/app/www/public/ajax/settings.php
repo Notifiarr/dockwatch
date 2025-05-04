@@ -507,7 +507,7 @@ if ($_POST['m'] == 'saveGlobalSettings') {
         }
     }
 
-    $settingsTable = apiRequest('database-setSettings', [], ['newSettings' => $newSettings])['result'];
+    $settingsTable = apiRequest('database/settings', [], ['newSettings' => $newSettings])['result'];
 
     //-- ONLY MAKE SERVER CHANGES ON LOCAL
     if ($activeServer['id'] == APP_SERVER_ID) {
@@ -535,7 +535,7 @@ if ($_POST['m'] == 'saveGlobalSettings') {
             }
         }
 
-        $serversTable = apiRequest('database-setServers', [], ['serverList' => $serverList])['result'];
+        $serversTable = apiRequest('database/servers', [], ['serverList' => $serverList])['result'];
     }
 
     if ($_POST['debugZipDatabase'] || $_POST['debugZipLogs'] || $_POST['debugZipJson']) {
@@ -605,7 +605,7 @@ if ($_POST['m'] == 'updateActiveServer') {
 
 if ($_POST['m'] == 'unlinkRemoteServer') {
     $serversTable[intval($_POST['id'])]['remove'] = true;
-    apiRequest('database-setServers', [], ['serverList' => $serversTable]);
+    apiRequest('database/servers', [], ['serverList' => $serversTable]);
 }
 
 if ($_POST['m'] == 'updateSetting') {

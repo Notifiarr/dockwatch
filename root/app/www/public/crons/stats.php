@@ -19,7 +19,7 @@ if (!canCronRun('stats', $settingsTable)) {
 }
 
 $dockerStats = $docker->stats(false);
-apiRequest('file-stats', [], ['contents' => $dockerStats]);
+apiRequest('file/stats', [], ['contents' => $dockerStats]);
 
 echo date('c') . ' Cron: stats <-' . "\n";
 logger(CRON_STATS_LOG, 'run <-');

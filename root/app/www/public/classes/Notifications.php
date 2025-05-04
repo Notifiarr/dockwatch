@@ -31,7 +31,7 @@ class Notifications
         $this->database     = $database ?? new Database();
         $this->logpath      = LOGS_PATH . 'notifications/';
 
-        $settingsTable      = $settingsTable ?? apiRequest('database-getSettings');
+        $settingsTable      = $settingsTable ?? apiRequest('database/settings');
         $this->serverName   = is_array($settingsTable) ? $settingsTable['serverName'] : '';
     }
 

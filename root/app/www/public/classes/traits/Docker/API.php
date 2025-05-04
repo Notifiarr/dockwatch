@@ -200,7 +200,7 @@ trait DockersApi
             $payload['ExposedPorts']    = null;
 
             //-- MAKE SURE THE ID IS UPDATED
-            $dependencyFile = makeArray(apiRequest('file-dependency')['result']);
+            $dependencyFile = makeArray(apiRequest('file/dependency')['result']);
 
             foreach ($dependencyFile as $parent => $parentSettings) {
                 if (in_array($containerName, $parentSettings['containers'])) {

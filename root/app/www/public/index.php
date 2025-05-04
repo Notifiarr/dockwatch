@@ -13,7 +13,7 @@ require 'includes/header.php';
 if ($_SESSION['dockerPerms']) {
     $dockerPerms = $_SESSION['dockerPerms'];
 } else {
-    $dockerPerms = apiRequest('docker-permissionCheck')['result'];
+    $dockerPerms = apiRequest('docker/permissions')['result'];
     $dockerPerms = json_decode($dockerPerms, true);
     $_SESSION['dockerPerms'] = $dockerPerms;
 }

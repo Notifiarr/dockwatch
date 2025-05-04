@@ -72,7 +72,7 @@ function canCronRun($cron, $settingsTable)
     //-- EXTRA CHECKS
     switch ($cron) {
         case 'health':
-            if (!$settingsTable['restartUnhealthy'] && !apiRequest('database-isNotificationTriggerEnabled', ['trigger' => 'health'])['result']) {
+            if (!$settingsTable['restartUnhealthy'] && !apiRequest('database/notification/trigger/enabled', ['trigger' => 'health'])['result']) {
                 logger($log, 'Cron cancelled: restart and notify disabled');
                 logger($log, 'run <-');
                 echo date('c') . ' Cron ' . $cron . ' cancelled: restart unhealthy and notify disabled' . "\n";

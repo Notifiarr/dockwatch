@@ -10,9 +10,9 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $containersTable        = apiRequest('database-getContainers')['result'];
-    $containerGroupsTable   = apiRequest('database-getContainerGroups')['result'];
-    $containerLinksTable    = apiRequest('database-getContainerGroupLinks')['result'];
+    $containersTable        = apiRequest('database/containers')['result'];
+    $containerGroupsTable   = apiRequest('database/groups')['result'];
+    $containerLinksTable    = apiRequest('database/group/links')['result'];
     $dependencyFile         = $docker->setContainerDependencies($processList);
     $pulls                  = is_array($pullsFile) ? $pullsFile : json_decode($pullsFile, true);
     $pullsNotice            = empty($pullsFile) ? true : false;
@@ -107,7 +107,7 @@ if ($_POST['m'] == 'init') {
                             if ($containerLinksTable) {
                                 foreach ($containerGroupsTable as $containerGroup) {
                                     $groupHash          = $containerGroup['hash'];
-                                    $groupContainers    = apiRequest('database-getGroupLinkContainersFromGroupId', ['group' => $containerGroup['id']])['result'];
+                                    $groupContainers    = apiRequest('database/group/container/links', ['group' => $containerGroup['id']])['result'];
                                     $groupCPU           = $groupMemory = $groupContainerCount = 0;
 
                                     foreach ($processList as $process) {
@@ -215,7 +215,7 @@ if ($_POST['m'] == 'init') {
 }
 
 if ($_POST['m'] == 'containerInfo') {
-    $containerSettings = apiRequest('database-getContainerFromHash', ['hash' => $_POST['hash']])['result'];
+    $containerSettings = apiRequest('database/container/hash', ['hash' => $_POST['hash']])['result'];
     foreach ($processList as $thisProcess) {
         if (md5($thisProcess['Names']) == $_POST['hash']) {
             $process = $thisProcess;
@@ -458,15 +458,15 @@ if ($_POST['m'] == 'containerInfo') {
 if ($_POST['m'] == 'containerShell') {
     $container      = $_POST['container'] ?: '';
     $key            = sprintf(MEMCACHE_SHELL_TOKEN_KEY, $container);
-    $apiResult      = apiRequest('system-memcache-get', [ 'key' => $key ])['result'];
+    $apiResult      = apiRequest('system/memcache/get', [ 'key' => $key ])['result'];
     $activeServer   = apiGetActiveServer();
     $token          = $apiResult ?: md5(bin2hex(random_bytes(16)));
 
     if (!empty($container)) {
         //-- STORE TOKEN TEMPORARILY
-        $apiResult = apiRequest('system-memcache-get', [ 'key' => $key ])['result'];
+        $apiResult = apiRequest('system/memcache/get', [ 'key' => $key ])['result'];
         if (!$apiResult) {
-            apiRequest('system-memcache-set', [], [ 'key' => $key, 'value' => $token, 'seconds' => MEMCACHE_SHELL_TOKEN_TIME ]);
+            apiRequest('system/memcache/set', [], [ 'key' => $key, 'value' => $token, 'seconds' => MEMCACHE_SHELL_TOKEN_TIME ]);
         }
 
         //-- BUILD WEBSOCKET CONNECT URL
@@ -496,14 +496,14 @@ if ($_POST['m'] == 'registryLogin') {
     $registryUsername = $_POST['username'];
     $registryPassword = $_POST['password'];
 
-    $apiResult = apiRequest('docker-login', [], ['registry' => $registryUrl, 'username' => $registryUsername, 'password' => $registryPassword]);
+    $apiResult = apiRequest('docker/login', [], ['registry' => $registryUrl, 'username' => $registryUsername, 'password' => $registryPassword]);
     logger(UI_LOG, 'dockerLogin:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
     echo $apiResult['result'];
 }
 
 
 if ($_POST['m'] == 'containerLogs') {
-    $apiResult = apiRequest('docker-logs', ['name' => $_POST['container']]);
+    $apiResult = apiRequest('docker/container/logs', ['name' => $_POST['container']]);
     logger(UI_LOG, 'dockerLogs:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
     echo $apiResult['result'];
 }
@@ -511,7 +511,7 @@ if ($_POST['m'] == 'containerLogs') {
 if ($_POST['m'] == 'massApplyContainerTrigger') {
     logger(UI_LOG, 'massApplyContainerTrigger ->');
 
-    $dependencyFile = apiRequest('file-dependency')['result'];
+    $dependencyFile = apiRequest('file/dependency')['result'];
     $container      = $docker->findContainer(['hash' => $_POST['hash'], 'data' => $stateFile]);
     $image          = $docker->isIO($container['inspect'][0]['Config']['Image']);
     $currentImageID = $containerState['inspect'][0]['Image'];
@@ -527,8 +527,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, 'skipping ' . $container['Names'] . ' start request');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
-                $apiRequest = apiRequest('docker-startContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'docker/container/start: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 $result = 'Started ' . $container['Names'] . '<br>';
             }
             break;
@@ -537,10 +537,10 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, 'skipping ' . $container['Names'] . ' restart request');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
-                $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker-stopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-                $apiRequest = apiRequest('docker-startContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'docker/container/stop: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'docker/container/start: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 $result = 'Restarted ' . $container['Names'] . '<br>';
                 $dependencies = $dependencyFile[$container['Names']]['containers'];
             }
@@ -550,8 +550,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, 'skipping ' . $container['Names'] . ' stop request');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
-                $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker-stopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'docker/container/stop: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 $result = 'Stopped ' . $container['Names'] . '<br>';
                 $dependencies = $dependencyFile[$container['Names']]['containers'];
             }
@@ -559,10 +559,10 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
         case '4': //-- PULL
             $regctlDigest = trim(regctlCheck($image));
 
-            $apiRequest = apiRequest('docker-pullContainer', [], ['name' => $image]);
-            logger(UI_LOG, 'docker-pullContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            $apiRequest = apiRequest('docker/container/pull', [], ['name' => $image]);
+            logger(UI_LOG, 'docker/container/pull:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
-            $apiRequest   = apiRequest('docker-inspect', ['name' => $image, 'useCache' => false, 'format' => true]);
+            $apiRequest   = apiRequest('docker/container/inspect', ['name' => $image, 'useCache' => false, 'format' => true]);
             $apiRequest   = json_decode($apiRequest['result'], true);
             list($cr, $imageDigest) = explode('@', $apiRequest[0]['RepoDigests'][0]);
             logger(UI_LOG, 'dockerInspect:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
@@ -574,28 +574,29 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                                                         'imageDigest'   => $imageDigest
                                                     ];
 
-            apiRequest('file-pull', [], ['contents' => $pullsFile]);
+            apiRequest('file/pull', [], ['contents' => $pullsFile]);
             $result = 'Pulled ' . $container['Names'] . '<br>';
             break;
         case '5': //-- GERNERATE RUN
-            $apiRequest = apiRequest('docker-autoRun', ['name' => $container['Names']]);
-            logger(UI_LOG, 'docker-autoRun:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-            $autoRun    = $apiRequest['result'];
-            $result     = '<pre>' . $apiRequest . '</pre>';
+            $apiRequest = apiRequest('docker/create/run', ['name' => $container['Names']]);
+            logger(UI_LOG, 'docker/create/run: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            $result = '<pre>' . $apiRequest['result'] . '</pre>';
             break;
         case '6': //-- GENERATE COMPOSE
             $containerList  = '';
             $containers     = explode(',', $_POST['hash']);
 
             foreach ($containers as $selectedContainer) {
-                $thisContainer  = $docker->findContainer(['hash' => $selectedContainer, 'data' => $stateFile]);
-                $containerList .= $thisContainer['Names'] . ' ';
+                $thisContainer = $docker->findContainer(['hash' => $selectedContainer, 'data' => $stateFile]);
+
+                if ($thisContainer['Names']) {
+                    $containerList .= $thisContainer['Names'] . ' ';
+                }
             }
 
-            $apiRequest = apiRequest('docker-autoCompose', ['name' => trim($containerList)]);
-            logger(UI_LOG, 'docker-autoCompose:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-            $apiRequest = $apiRequest['result'];
-            $result     = '<pre>' . $apiRequest . '</pre>';
+            $apiRequest = apiRequest('docker/create/compose', ['name' => trim($containerList)]);
+            logger(UI_LOG, 'docker/create/compose: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            $result = '<pre>' . $apiRequest['result'] . '</pre>';
             break;
         case '7': //-- CHECK FOR UPDATES AND APPLY THEM
             if (skipContainerActions($image, $skipContainerActions)) {
@@ -605,8 +606,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $image = $container['inspect'][0]['Config']['Image'];
                 logger(UI_LOG, 'image:' . $image);
 
-                $apiResponse = apiRequest('docker-inspect', ['name' => $container['Names'], 'useCache' => false, 'format' => true]);
-                logger(UI_LOG, 'docker-inspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                $apiResponse = apiRequest('docker/container/inspect', ['name' => $container['Names'], 'useCache' => false, 'format' => true]);
+                logger(UI_LOG, 'docker/container/inspect: ' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
                 $inspectImage = $apiResponse['result'];
 
                 if ($inspectImage) {
@@ -620,26 +621,26 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     }
                 }
 
-                $apiRequest = apiRequest('docker-pullContainer', [], ['name' => $image]);
-                logger(UI_LOG, 'docker-pullContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/pull', [], ['name' => $image]);
+                logger(UI_LOG, 'docker/container/pull:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
-                $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker-stopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'docker/container/stop:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
-                $apiRequest = apiRequest('docker-removeContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker-removeContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/remove', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'docker/container/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
-                $apiRequest = apiRequest('docker-createContainer', [], ['inspect' => $inspectImage]);
-                logger(UI_LOG, 'docker-createContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/create', [], ['inspect' => $inspectImage]);
+                logger(UI_LOG, 'docker/container/create:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 $update         = $apiRequest['result'];
                 $updateResult   = 'failed';
 
                 if (strlen($update['Id']) == 64) {
                     // REMOVE THE IMAGE AFTER UPDATE
-                    $apiRequest = apiRequest('docker-removeImage', [], ['image' => $currentImageID]);
-                    logger(UI_LOG, 'docker-removeImage:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                    $apiRequest = apiRequest('docker/image/remove', [], ['image' => $currentImageID]);
+                    logger(UI_LOG, 'docker/image/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
-                    $inspectImage           = apiRequest('docker-inspect', ['name' => $image, 'useCache' => false, 'format' => true]);
+                    $inspectImage           = apiRequest('docker/container/inspect', ['name' => $image, 'useCache' => false, 'format' => true]);
                     $inspectImage           = json_decode($inspectImage['result'], true);
                     list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
 
@@ -660,11 +661,11 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                                                     'imageDigest'   => $imageDigest
                                                 ];
 
-                    apiRequest('file-pull', [], ['contents' => $pullsFile]);
+                    apiRequest('file/pull', [], ['contents' => $pullsFile]);
 
                     if (str_contains($container['State'], 'running')) {
-                        $apiRequest = apiRequest('docker-startContainer', [], ['name' => $container['Names']]);
-                        logger(UI_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                        $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
+                        logger(UI_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                     } else {
                         logger(UI_LOG, 'container was not running, not starting it');
                     }
@@ -687,16 +688,16 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, 'skipping ' . $container['Names'].' remove request');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
-                $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $container['Names']]);
+                $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-                $apiRequest = apiRequest('docker-removeContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker-removeContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/remove', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'docker/container/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 $result = 'Removed ' . $container['Names'] . '<br>';
             }
             break;
         case '10': //-- GENERATE API CREATE
-            $apiRequest = apiRequest('dockerAPI-createContainer', ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerAPI-createContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            $apiRequest = apiRequest('dockerAPI/container/create', ['name' => $container['Names']]);
+            logger(UI_LOG, 'dockerAPI/container/create:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
             $apiRequest = json_decode($apiRequest['result'], true);
 
             $result = $container['Names'] . '<br>';
@@ -704,8 +705,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $result .= '<pre>' . json_encode($apiRequest['payload'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</pre>';
             break;
         case '11': //-- CHECK FOR UPDATES
-            $apiResponse = apiRequest('docker-inspect', ['name' => $image, 'useCache' => false]);
-            logger(UI_LOG, 'docker-inspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+            $apiResponse = apiRequest('docker/container/inspect', ['name' => $image, 'useCache' => false]);
+            logger(UI_LOG, 'docker/container/inspect: ' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
             $inspectImage = json_decode($apiResponse['result'], true);
 
             foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
@@ -746,7 +747,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                                                             'imageDigest'   => $imageDigest
                                                         ];
 
-                apiRequest('file-pull', [], ['contents' => $pullsFile]);
+                apiRequest('file/pull', [], ['contents' => $pullsFile]);
             }
             break;
         case '12': //-- RE-CREATE
@@ -757,26 +758,26 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $image = $container['inspect'][0]['Config']['Image'];
                 logger(UI_LOG, 'image:' . $image);
 
-                $apiRequest = apiRequest('docker-inspect', ['name' => $container['Names'], 'useCache' => false, 'format' => true]);
-                logger(UI_LOG, 'docker-inspect:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/inspect', ['name' => $container['Names'], 'useCache' => false, 'format' => true]);
+                logger(UI_LOG, 'docker/container/inspect: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 $inspectImage = $apiRequest['result'];
 
-                $apiRequest = apiRequest('docker-stopContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker-stopContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'docker/container/stop: ' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
 
-                $apiResult = apiRequest('docker-removeContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker-removeContainer:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                $apiResult = apiRequest('docker/container/remove', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'docker/container/remove: ' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
 
-                $apiRequest = apiRequest('docker-createContainer', [], ['inspect' => $inspectImage]);
-                logger(UI_LOG, 'docker-createContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/create', [], ['inspect' => $inspectImage]);
+                logger(UI_LOG, 'docker/container/create: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 $update         = $apiRequest['result'];
                 $createResult   = 'failed';
 
                 if (strlen($update['Id']) == 64) {
                     $createResult = 'complete';
 
-                    $apiRequest = apiRequest('docker-startContainer', [], ['name' => $container['Names']]);
-                    logger(UI_LOG, 'docker-startContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                    $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
+                    logger(UI_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                     $dependencies = $dependencyFile[$container['Names']]['containers'];
 
                     if ($dependencies) {
@@ -792,8 +793,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, 'skipping ' . $container['Names'] . ' kill request');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
-                $apiRequest = apiRequest('docker-killContainer', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker-killContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                $apiRequest = apiRequest('docker/container/kill', [], ['name' => $container['Names']]);
+                logger(UI_LOG, 'docker/container/kill:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 $result = 'Killed ' . $container['Names'] . '<br>';
                 $dependencies = $dependencyFile[$container['Names']]['containers'];
             }
@@ -814,10 +815,10 @@ if ($_POST['m'] == 'controlContainer') {
     $container = $docker->findContainer(['hash' => $_POST['hash'], 'data' => $stateFile]);
 
     if (str_equals_any($_POST['action'], ['stop', 'restart'])) {
-        apiRequest('docker-stopContainer', [], ['name' => $container['Names']]);
+        apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
     }
     if (str_equals_any($_POST['action'], ['start', 'restart'])) {
-        apiRequest('docker-startContainer', [], ['name' => $container['Names']]);
+        apiRequest('docker/container/start', [], ['name' => $container['Names']]);
     }
 
     $return = renderContainerRow($_POST['hash'], 'json');
@@ -830,7 +831,7 @@ if ($_POST['m'] == 'controlContainer') {
 }
 
 if ($_POST['m'] == 'updateContainerRows') {
-    $processList = apiRequest('docker-processList', ['format' => true]);
+    $processList = apiRequest('docker/processList', ['format' => true]);
     $processList = json_decode($processList['result'], true);
 
     $update = [];
@@ -843,13 +844,13 @@ if ($_POST['m'] == 'updateContainerRows') {
 }
 
 if ($_POST['m'] == 'openContainerGroups') {
-    $processList = apiRequest('docker-processList', ['format' => true]);
+    $processList = apiRequest('docker/processList', ['format' => true]);
     $processList = json_decode($processList['result'], true);
     array_sort_by_key($processList, 'Names');
 
-    $containersTable            = apiRequest('database-getContainers')['result'];
-    $containerGroupTable        = apiRequest('database-getContainerGroups')['result'];
-    $containerGroupLinksTable   = apiRequest('database-getContainerGroupLinks')['result'];
+    $containersTable            = apiRequest('database/containers')['result'];
+    $containerGroupTable        = apiRequest('database/groups')['result'];
+    $containerGroupLinksTable   = apiRequest('database/group/links')['result'];
 
     ?>
     <div class="bg-secondary rounded h-100 p-4">
@@ -894,12 +895,12 @@ if ($_POST['m'] == 'openContainerGroups') {
                 <?php
                 foreach ($processList as $process) {
                     $nameHash       = md5($process['Names']);
-                    $container      = apiRequest('database-getContainerFromHash', ['hash' => $nameHash])['result'];
+                    $container      = apiRequest('database/container/hash', ['hash' => $nameHash])['result'];
                     $inGroup        = '';
 
                     if ($containerGroupTable) {
                         foreach ($containerGroupTable as $containerGroup) {
-                            $containersInGroup = apiRequest('database-getGroupLinkContainersFromGroupId', ['group' => $containerGroup['id']])['result'];
+                            $containersInGroup = apiRequest('database/group/container/links', ['group' => $containerGroup['id']])['result'];
 
                             foreach ($containersInGroup as $containerInGroup) {
                                 if ($containerInGroup['hash'] == $nameHash) {
@@ -926,23 +927,23 @@ if ($_POST['m'] == 'openContainerGroups') {
 }
 
 if ($_POST['m'] == 'loadContainerGroup') {
-    $processList = apiRequest('docker-processList', ['format' => true]);
+    $processList = apiRequest('docker/processList', ['format' => true]);
     $processList = json_decode($processList['result'], true);
     array_sort_by_key($processList, 'Names');
 
-    $containersTable            = apiRequest('database-getContainers')['result'];
-    $containerGroupTable        = apiRequest('database-getContainerGroups')['result'];
-    $containerGroupLinksTable   = apiRequest('database-getContainerGroupLinks')['result'];
+    $containersTable            = apiRequest('database/containers')['result'];
+    $containerGroupTable        = apiRequest('database/groups')['result'];
+    $containerGroupLinksTable   = apiRequest('database/group/links')['result'];
 
     foreach ($processList as $process) {
         $nameHash       = md5($process['Names']);
-        $container      = apiRequest('database-getContainerFromHash', ['hash' => $nameHash])['result'];
+        $container      = apiRequest('database/container/hash', ['hash' => $nameHash])['result'];
         $inGroup        = '';
         $inThisGroup    = false;
 
         if ($containerGroupTable) {
             foreach ($containerGroupTable as $containerGroup) {
-                $containersInGroup = apiRequest('database-getGroupLinkContainersFromGroupId', ['group' => $containerGroup['id']])['result'];
+                $containersInGroup = apiRequest('database/group/container/links', ['group' => $containerGroup['id']])['result'];
 
                 foreach ($containersInGroup as $containerInGroup) {
                     if ($containerInGroup['hash'] == $nameHash) {
@@ -974,12 +975,12 @@ if ($_POST['m'] == 'saveContainerGroup') {
     $groupId    = intval($_POST['groupId']);
     $error      = '';
 
-    $containersTable            = apiRequest('database-getContainers')['result'];
-    $containerGroupTable        = apiRequest('database-getContainerGroups')['result'];
-    $containerGroupLinksTable   = apiRequest('database-getContainerGroupLinks')['result'];
+    $containersTable            = apiRequest('database/containers')['result'];
+    $containerGroupTable        = apiRequest('database/groups')['result'];
+    $containerGroupLinksTable   = apiRequest('database/group/links')['result'];
 
     if ($_POST['delete']) {
-        apiRequest('database-deleteContainerGroup', [], ['id' => $groupId]);
+        apiRequest('database/container/group/delete', [], ['id' => $groupId]);
     } else {
         if (!$groupId) {
             foreach ($containerGroupTable as $containerGroup) {
@@ -990,7 +991,7 @@ if ($_POST['m'] == 'saveContainerGroup') {
             }
 
             if (!$error) {
-                $groupId = apiRequest('database-addContainerGroup', [], ['name' => $groupName])['result'];
+                $groupId = apiRequest('database/container/group/add', [], ['name' => $groupName])['result'];
 
                 if (!$groupId) {
                     $error = 'Error creating the new \'' . $groupName . '\' group: ' . $database->error();
@@ -1000,7 +1001,7 @@ if ($_POST['m'] == 'saveContainerGroup') {
             foreach ($containerGroupTable as $containerGroup) {
                 if ($containerGroup['id'] == $groupId) {
                     if ($containerGroup['name'] != $groupName) {
-                        apiRequest('database-updateContainerGroup', [], ['id' => $groupId, 'name' => $groupName]);
+                        apiRequest('database/group/container/update', [], ['id' => $groupId, 'name' => $groupName]);
                     }
                     break;
                 }
@@ -1029,11 +1030,11 @@ if ($_POST['m'] == 'saveContainerGroup') {
 
                 if ($linkExists) {
                     if (!$val) {
-                        apiRequest('database-removeContainerGroupLink', [], ['groupId' => $groupId, 'containerId' => $containerId]);
+                        apiRequest('database/group/container/link/remove', [], ['groupId' => $groupId, 'containerId' => $containerId]);
                     }
                 } else {
                     if ($val) {
-                        apiRequest('database-addContainerGroupLink', [], ['groupId' => $groupId, 'containerId' => $containerId]);
+                        apiRequest('database/group/container/link/add', [], ['groupId' => $groupId, 'containerId' => $containerId]);
                     }
                 }
             }
@@ -1044,8 +1045,8 @@ if ($_POST['m'] == 'saveContainerGroup') {
 }
 
 if ($_POST['m'] == 'openUpdateOptions') {
-    $containersTable    = apiRequest('database-getContainers')['result'];
-    $processList        = apiRequest('docker-processList', ['format' => true]);
+    $containersTable    = apiRequest('database/containers')['result'];
+    $processList        = apiRequest('docker/processList', ['format' => true]);
     $processList        = json_decode($processList['result'], true);
     array_sort_by_key($processList, 'Names');
 
@@ -1066,7 +1067,7 @@ if ($_POST['m'] == 'openUpdateOptions') {
                 <?php
                 foreach ($processList as $process) {
                     $nameHash = md5($process['Names']);
-                    $container = apiRequest('database-getContainerFromHash', ['hash' => $nameHash])['result'];
+                    $container = apiRequest('database/container/hash', ['hash' => $nameHash])['result'];
                     ?>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">
@@ -1121,7 +1122,7 @@ if ($_POST['m'] == 'openUpdateOptions') {
 }
 
 if ($_POST['m'] == 'saveUpdateOptions') {
-    $containersTable = apiRequest('database-getContainers')['result'];
+    $containersTable = apiRequest('database/containers')['result'];
 
     foreach ($_POST as $key => $val) {
         if (!str_contains($key, 'container-frequency-')) {
@@ -1147,16 +1148,16 @@ if ($_POST['m'] == 'saveUpdateOptions') {
         }
 
         //-- ONLY UPDATE WHAT HAS CHANGED
-        $container = apiRequest('database-getContainerFromHash', ['hash' => $hash])['result'];
+        $container = apiRequest('database/container/hash', ['hash' => $hash])['result'];
         if ($container['updates'] != $updates || $container['frequency'] != $frequency || $container['minage'] != $minage) {
-            apiRequest('database-updateContainer', [], ['hash' => $hash, 'updates' => $updates, 'frequency' => $database->prepare($frequency), 'minage' => $database->prepare($minage)]);
+            apiRequest('database/container/update', [], ['hash' => $hash, 'updates' => $updates, 'frequency' => $database->prepare($frequency), 'minage' => $database->prepare($minage)]);
         }
     }
 }
 
 if ($_POST['m'] == 'openEditContainer') {
     $container      = $docker->findContainer(['hash' => $_POST['hash'], 'data' => $stateFile]);
-    $inspectImage   = apiRequest('docker-inspect', ['name' => $container['Image'], 'useCache' => false, 'format' => true]);
+    $inspectImage   = apiRequest('docker/container/inspect', ['name' => $container['Image'], 'useCache' => false, 'format' => true]);
     $inspectImage   = json_decode($inspectImag['result'], true);
     $inspectImage   = $inspectImage[0];
 
@@ -1298,15 +1299,15 @@ if ($_POST['m'] == 'openEditContainer') {
 }
 
 if ($_POST['m'] == 'updateContainerOption') {
-    $containersTable    = apiRequest('database-getContainers')['result'];
-    $container          = apiRequest('database-getContainerGroupFromHash', ['hash' => $_POST['hash']])['result'];
+    $containersTable    = apiRequest('database/containers')['result'];
+    $container          = apiRequest('database/group/hash', ['hash' => $_POST['hash']])['result'];
 
-    apiRequest('database-updateContainer', [], ['hash' => $_POST['hash'], $_POST['option'] => $database->prepare($_POST['setting'])]);
+    apiRequest('database/container/update', [], ['hash' => $_POST['hash'], $_POST['option'] => $database->prepare($_POST['setting'])]);
 }
 
 if ($_POST['m'] == 'saveContainerGuiLink') {
-    $containersTable    = apiRequest('database-getContainers')['result'];
-    $container          = apiRequest('database-getContainerGroupFromHash', ['hash' => $_POST['hash']])['result'];
+    $containersTable    = apiRequest('database/containers')['result'];
+    $container          = apiRequest('database/group/hash', ['hash' => $_POST['hash']])['result'];
 
-    apiRequest('database-updateContainer', [], ['hash' => $_POST['hash'], 'containerGui' => $database->prepare($_POST['link'])]);
+    apiRequest('database/container/update', [], ['hash' => $_POST['hash'], 'containerGui' => $database->prepare($_POST['link'])]);
 }

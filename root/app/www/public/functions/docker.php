@@ -28,7 +28,7 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
             $processList = json_decode($processList, true);
             logger(MAINTENANCE_LOG, 'dockerProcessList <-');
         } else {
-            $processList = apiRequest('docker-processList', ['format' => true])['result'];
+            $processList = apiRequest('docker/processList', ['format' => true])['result'];
             $processList = json_decode($processList, true);
         }
         $loadTimes[] = trackTime('dockerProcessList <-');
@@ -41,7 +41,7 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
             $imageSizes = json_decode($imageSizes, true);
             logger(MAINTENANCE_LOG, 'dockerImageSizes <-');
         } else {
-            $imageSizes = apiRequest('docker-imageSizes')['result'];
+            $imageSizes = apiRequest('docker/images/sizes')['result'];
             $imageSizes = json_decode($imageSizes, true);
         }
         $loadTimes[] = trackTime('dockerImageSizes <-');
@@ -56,7 +56,7 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
             logger(MAINTENANCE_LOG, json_encode($dockerStats, JSON_UNESCAPED_SLASHES));
             logger(MAINTENANCE_LOG, 'dockerStats <-');
         } else {
-            $dockerStats = apiRequest('file-stats')['result'];
+            $dockerStats = apiRequest('file/stats')['result'];
         }
 
         if (!$dockerStats) { //-- NOT WRITTEN YET
@@ -65,7 +65,7 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
                 logger(MAINTENANCE_LOG, $dockerStats);
                 $dockerStats = json_decode($dockerStats, true);
             } else {
-                $dockerStats = apiRequest('docker-stats', $_GET)['result'];
+                $dockerStats = apiRequest('docker/stats', $_GET)['result'];
                 $dockerStats = json_decode($dockerStats, true);
             }
         }
@@ -90,7 +90,7 @@ function getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect, $mainten
                 logger(MAINTENANCE_LOG, '$docker->inspect ' . json_encode(json_decode($inspect)));
                 logger(MAINTENANCE_LOG, 'dockerInspect <-');
             } else {
-                $inspect        = apiRequest('docker-inspect', ['name' => implode(' ', $inspectContainers), 'format' => true])['result'];
+                $inspect        = apiRequest('docker/container/inspect', ['name' => implode(' ', $inspectContainers), 'format' => true])['result'];
                 $inspectResults = json_decode($inspect, true);
             }
         }
@@ -131,20 +131,20 @@ function updateDependencyParentId($container, $id)
     global $dependencyFile;
 
     $dependencyFile[$container]['id'] = $id;
-    apiRequest('file-dependency', [], ['contents' => $dependencyFile]);
+    apiRequest('file/dependency', [], ['contents' => $dependencyFile]);
 }
 
 function dockerState()
 {
-    $processList = apiRequest('docker-processList', ['format' => true, 'useCache' => false])['result'];
+    $processList = apiRequest('docker/processList', ['format' => true, 'useCache' => false])['result'];
     $processList = json_decode($processList, true);
 
-    $dockerStats = apiRequest('docker-stats', ['useCache' => false])['result'];
+    $dockerStats = apiRequest('docker/stats', ['useCache' => false])['result'];
     $dockerStats = json_decode($dockerStats, true);
 
     if (!empty($processList)) {
         foreach ($processList as $index => $process) {
-            $inspect = apiRequest('docker-inspect', ['name' => $process['Names'], 'useCache' => false])['result'];
+            $inspect = apiRequest('docker/container/inspect', ['name' => $process['Names'], 'useCache' => false])['result'];
             $processList[$index]['inspect'] = json_decode($inspect, true);
 
             foreach ($dockerStats as $dockerStat) {
@@ -162,7 +162,7 @@ function dockerState()
 function dockerPermissionCheck()
 {
     logger(UI_LOG, 'dockerPermissionCheck ->');
-    $apiRequest = apiRequest('docker-processList', ['format' => true]);
+    $apiRequest = apiRequest('docker/processList', ['format' => true]);
     logger(UI_LOG, '$apiRequest: ' . json_encode($apiRequest));
     logger(UI_LOG, 'dockerPermissionCheck <-');
 
@@ -186,8 +186,8 @@ function dockerAutoCompose($containerName)
     $cmd        = sprintf(DockerSock::RUN, '--rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $shell->prepare($containerName));
     $compose    = $shell->exec($cmd . ' 2>&1');
     $lines      = explode("\n", $compose);
-    $skip       = true;
-    $command    = [];
+    $compose    = [];
+    $skip       = true; //-- IGNORE ALL THE IMAGE PULL NOISE
 
     //-- LOOP THIS SO IT REMOVES ALL THE ADD CONTAINER OVERHEAD
     foreach ($lines as $line) {
@@ -195,16 +195,12 @@ function dockerAutoCompose($containerName)
             $skip = false;
         }
 
-        if ($skip) {
-            continue;
-        }
-
-        if (trim($line)) {
-            $command[] = $line;
+        if (!$skip && trim($line)) {
+            $compose[] = $line;
         }
     }
 
-    return implode("\n", $command);
+    return $cmd . '<hr>' . implode("\n", $compose);
 }
 
 function dockerAutoRun($container)
