@@ -85,7 +85,7 @@ if ($_POST['m'] == 'runCommand') {
             apiSetActiveServer($serverData['id'], $serversTable);
 
             $command = $_POST['command'];
-            if ($command == 'docker-startContainer' || $command == 'docker-stopContainer' || $command == 'docker-restartContainer') {
+            if (in_array($command, ["docker/container/start", "docker/container/stop", "docker/container/restart"])) {
                 $apiResponse = apiRequest($_POST['command'], [], ['name' => $_POST['container'], 'params' => $_POST['parameters']]);
             } else {
                 $apiResponse = apiRequest($_POST['command'], ['name' => $_POST['container'], 'params' => $_POST['parameters']]);
@@ -107,7 +107,7 @@ if ($_POST['m'] == 'saveCommand') {
     logger(SYSTEM_LOG, 'Save command: ' . $_POST['command']);
     $servers = explode(',', $_POST['servers']);
     $id = $_POST['id'] ?: md5(bin2hex(random_bytes(16)));
-    $commandsFile = getFile(COMMANDS_FILE) ?: [];
+    $commandsFile = apiRequest('file/commands')['result'] ?: [];
 
     foreach ($serversTable as $serverId => $serverData) {
         if (in_array($serverId, $servers)) {
@@ -124,7 +124,7 @@ if ($_POST['m'] == 'saveCommand') {
                 'cron'       => $_POST['cron'] ?: []
             ];
 
-            setFile(COMMANDS_FILE, json_encode($commandsFile, JSON_PRETTY_PRINT));
+            apiRequest('file/commands', [], ['contents' => json_encode($commandsFile, JSON_PRETTY_PRINT)]);
             echo true;
         }
     }
@@ -135,11 +135,11 @@ if ($_POST['m'] == 'saveCommand') {
 if ($_POST['m'] == 'deleteCommand') {
     logger(SYSTEM_LOG, 'Delete command: ' . $_POST['command']);
     $id = $_POST['id'];
-    $commandsFile = getFile(COMMANDS_FILE) ?: [];
+    $commandsFile = apiRequest('file/commands')['result'] ?: [];
 
     if (!empty($id)) {
         unset($commandsFile[$id]);
-        setFile(COMMANDS_FILE, json_encode($commandsFile, JSON_PRETTY_PRINT));
+        apiRequest('file/commands', [], ['contents' => json_encode($commandsFile, JSON_PRETTY_PRINT)]);
         echo true;
     }
 
@@ -147,7 +147,7 @@ if ($_POST['m'] == 'deleteCommand') {
 }
 
 if ($_POST['m'] == 'listCommand') {
-    $commandsFile = getFile(COMMANDS_FILE) ?: [];
+    $commandsFile = apiRequest('file/commands')['result'] ?: [];
     logger(SYSTEM_LOG, 'List commands: ' . count($commandsFile));
 
     ?>

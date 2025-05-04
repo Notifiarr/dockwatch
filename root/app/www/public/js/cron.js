@@ -56,8 +56,12 @@
         }
 
         const minute = parseInt(expression.match(/^[0-9]+(?=\s)/));
-        if (minute % 5 !== 0 || minute < 0 || minute > 55) {
-            toast("Frequency Cron Editor", "Minute has to be >= 0, <= 55 & divisble by 5", "error");
+        // if (minute % 5 !== 0 || minute < 0 || minute > 55) {
+        //     toast("Frequency Cron Editor", "Minute has to be >= 0, <= 55 & divisble by 5", "error");
+        //     return;
+        // }
+        if (minute < 0 || minute > 59) {
+            toast("Frequency Cron Editor", "Minute has to be >= 0 and <= 59", "error");
             return;
         }
 

@@ -20,8 +20,25 @@ if (!canCronRun('commands', $settingsTable)) {
 
 //-- RUN COMMANDS
 $startStamp     = new DateTime();
-$commandsFile   = getFile(COMMANDS_FILE) ?: [];
-foreach ($commandsFile as $command) {
+$commandsFile   = apiRequest('file/commands')['result'] ?: [];
+$migrate        = [
+    "docker-inspect"            => "docker/container/inspect",
+    "docker-networks"           => "docker/networks",
+    "docker-port"               => "docker/container/ports",
+    "docker-startContainer"     => "docker/container/start",
+    "docker-stopContainer"      => "docker/container/stop",
+    "docker-restartContainer"   => "docker/container/restart",
+    "docker-exec"               => "docker/container/shell",
+    "docker-processList"        => "docker/processList"
+];
+foreach ($commandsFile as $id => $command) {
+    if ($migrate[$command['command']]) { //-- MIGRATE
+        $newCommand = $migrate[$command['command']];
+
+        $commandsFile[$id]['command'] = $newCommand; //-- UPDATE FILE
+        $command['command'] = $newCommand; //-- CURRENT CRON RUN
+    }
+
     $cron = !empty($command['cron']) ? Cron\CronExpression::factory($command['cron']) : [];
     if (!empty($cron) && $cron->isDue($startStamp)) {
         //-- SKIP REMOTE INSTANCE
@@ -39,6 +56,7 @@ foreach ($commandsFile as $command) {
         logger(CRON_COMMANDS_LOG, '|__ Response: ' . json_encode($apiResponse));
     }
 }
+apiRequest('file/commands', [], ['contents' => json_encode($commandsFile, JSON_PRETTY_PRINT)]);
 
 echo date('c') . ' Cron: commands <-' . "\n";
 logger(CRON_COMMANDS_LOG, 'run <-');

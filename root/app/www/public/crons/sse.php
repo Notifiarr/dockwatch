@@ -29,7 +29,7 @@ foreach ($processList as $process) {
 
 $updatedProcessList['updated'] = time();
 
-setFile(SSE_FILE, $updatedProcessList);
+apiRequest('file/sse', [], ['contents' => $updatedProcessList]);
 
 echo date('c') . ' Cron: sse <-' . "\n";
 logger(CRON_SSE_LOG, 'run <-');

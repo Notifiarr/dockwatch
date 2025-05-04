@@ -25,7 +25,7 @@ if (empty($containerList)) {
     exit();
 }
 
-$healthFile = getFile(HEALTH_FILE) ?: [];
+$healthFile = apiRequest('file/health')['result'] ?: [];
 logger(CRON_HEALTH_LOG, '$healthFile=' . json_encode($healthFile, JSON_UNESCAPED_SLASHES));
 
 $unhealthy = $healthFile ?: [];
@@ -119,10 +119,10 @@ if ($unhealthy) {
     }
 
     logger(CRON_HEALTH_LOG, 'updating health file with unhealthy containers');
-    setFile(HEALTH_FILE, $unhealthy);
+    apiRequest('file/health', [], ['contents' => $unhealthy]);
 } else {
     logger(CRON_HEALTH_LOG, 'no unhealthy containers, empty the file');
-    setFile(HEALTH_FILE, []);
+    apiRequest('file/health', [], ['contents' => []]);
 }
 
 echo date('c') . ' Cron: health <-' . "\n";

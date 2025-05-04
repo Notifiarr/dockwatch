@@ -8,6 +8,8 @@
 */
 
 switch ($path) {
+    case 'health': //-- .../api/file/health
+    case 'commands': //-- .../api/file/commands
     case 'dependency': //-- .../api/file/dependency
     case 'metrics': //-- .../api/file/metrics
     case 'pull': //-- .../api/file/pull
