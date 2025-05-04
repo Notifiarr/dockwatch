@@ -42,6 +42,7 @@ interface DockerSock
     public const REMOVE_IMAGE = '/usr/bin/docker image rm %s';
     public const PULL_IMAGE = '/usr/bin/docker image pull %s';
     public const PRUNE_IMAGE = '/usr/bin/docker image prune -af';
+    public const DIGEST_IMAGE_ID = '/usr/bin/docker image ls --digests --format \'{{.ID}}|{{.Digest}}\' | grep %s';
     //-- VOLUME SPECIFIC
     public const ORPHAN_VOLUMES = '/usr/bin/docker volume ls -qf dangling=true --format="{{json . }}" | jq -s --tab .';
     public const PRUNE_VOLUME = '/usr/bin/docker volume prune -af';
@@ -49,7 +50,7 @@ interface DockerSock
     //-- NETWORK SPECIFIC
     public const ORPHAN_NETWORKS = '/usr/bin/docker network ls -q --format="{{json . }}" | jq -s --tab .';
     public const INSPECT_NETWORK = '/usr/bin/docker network inspect %s --format="{{json . }}" | jq -s --tab .';
-    public const PRUNE_NETWORK = '/usr/bin/docker network prune -af';
+    public const PRUNE_NETWORK = '/usr/bin/docker network prune -f';
     public const REMOVE_NETWORK = '/usr/bin/docker network rm %s';
     public const GET_NETWORKS = '/usr/bin/docker network %s';
 }

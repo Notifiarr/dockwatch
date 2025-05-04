@@ -79,7 +79,10 @@ RUN echo -e "\n//-- DOCKERFILE DEFINES"                        >> /app/www/publi
     && echo "define('DOCKWATCH_BRANCH', '${BRANCH}');"         >> /app/www/public/includes/constants.php \
     && echo "//-- END DOCKERFILE DEFINES"                      >> /app/www/public/includes/constants.php
 
+# set docker config
+ENV DOCKER_CONFIG=/config/.docker
+
 # ports and volumes
-EXPOSE 80 443
+EXPOSE 80
 
 VOLUME /config

@@ -41,6 +41,11 @@ class WebSocket implements MessageComponentInterface
 
     public function startup($port = 9910)
     {
+        //-- DON'T ALLOW TO BIND ON THOSE PORTS
+        if ($port == 80 || $port == 443) {
+            $port = 9910;
+        }
+
         $server = IoServer::factory(
             new HttpServer(
                 new WsServer(

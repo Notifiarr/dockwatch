@@ -15,7 +15,7 @@ trait Host
 
         $stopContainer = $this->docker->stopContainer($this->hostContainer['Names']);
         logger(MAINTENANCE_LOG, '$docker->stopContainer() ' . trim($stopContainer));
-    
+
         logger(MAINTENANCE_LOG, '$maintenance->stopHost() <-');
     }
 
@@ -25,7 +25,7 @@ trait Host
 
         $startContainer = $this->docker->startContainer($this->hostContainer['Names']);
         logger(MAINTENANCE_LOG, '$docker->startContainer() ' . trim($startContainer));
-    
+
         logger(MAINTENANCE_LOG, '$maintenance->startHost() <-');
     }
 
@@ -45,19 +45,19 @@ trait Host
 
         $pullImage = $this->docker->pullImage($this->hostContainer['inspect'][0]['Config']['Image']);
         logger(MAINTENANCE_LOG, '$docker->pullImage() ' . trim($pullImage));
-    
+
         logger(MAINTENANCE_LOG, '$maintenance->pullHost() <-');
     }
 
     public function createHost()
     {
         logger(MAINTENANCE_LOG, '$maintenance->createHost() ->');
-    
+
         $docker = dockerCreateContainer($this->hostContainer['inspect'][0]);
         logger(MAINTENANCE_LOG, 'dockerCreateContainer() ' . json_encode($docker, JSON_UNESCAPED_SLASHES));
 
         if (strlen($docker['Id']) == 64) {
-            $this->docker->removeImage($this->hostContainer['ID']);
+            $this->docker->removeImage($this->hostContainer['inspect'][0]['Image']);
             $this->startHost();
         }
 

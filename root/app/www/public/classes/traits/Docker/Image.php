@@ -32,4 +32,10 @@ trait Image
         $cmd = DockerSock::IMAGE_SIZES;
         return $this->shell->exec($cmd . ' 2>&1');
     }
+
+    public function getImageByDigest($image)
+    {
+        $cmd = sprintf(DockerSock::DIGEST_IMAGE_ID, $this->shell->prepare($image));
+        return $this->shell->exec($cmd . ' 2>&1');
+    }
 }
