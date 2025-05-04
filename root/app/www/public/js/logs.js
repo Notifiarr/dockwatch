@@ -2,8 +2,8 @@ function viewLog(name, hash)
 {
     pageLoadingStart();
 
-    $('[id^=logList-]').removeClass('*').addClass('text-info');
-    $('#logList-' + hash).removeClass('text-info').addClass('text-success');
+    $('[id^=logList-]').removeClass('*').addClass('text-secondary');
+    $('#logList-' + hash).removeClass('text-secondary').addClass('text-warning');
     $('#logViewer').html('Fetching log...');
 
     $.ajax({
