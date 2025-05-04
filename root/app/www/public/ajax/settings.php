@@ -56,6 +56,20 @@ if ($_POST['m'] == 'init') {
                         </td>
                         <td class="bg-secondary">The name of this server, also passed in the notification payload</td>
                     </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Maintenance IP</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-maintenanceIP" value="<?= $settingsTable['maintenanceIP'] ?>">
+                        </td>
+                        <td class="bg-secondary">This IP is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this IP and after it has updated/restarted Dockwatch it will be removed. This is only required if you do static IP assignment for your containers.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">WebSocket URL<sup>5</sup></td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketUrl'] ?: '' ?>" placeholder="<?= 'ws://'.$_SERVER['HTTP_HOST'].'/ws'  ?>">
+                        </td>
+                        <td class="bg-secondary">Best to leave empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Example (https): <code class="mx-1">wss://my.cool.domain/ws</code></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -392,6 +406,11 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary">The database migration this server is on, changing this will re-apply all subsequent migrations and reset any settings they alter.</td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Database</td>
+                        <td class="bg-secondary"><button class="btn btn-sm btn-info" onclick="initPage('database')">Browse</button></td>
+                        <td class="bg-secondary">Browse the <?= APP_NAME ?> database</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">State cron time</td>
                         <td class="bg-secondary">
                             <select class="form-select" id="globalSetting-stateCronTime">
@@ -410,21 +429,21 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary">Generally not recommended, it's at your own risk.</td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Environment</td>
+                        <td class="bg-secondary" scope="row">Environment<sup>5</sup></td>
                         <td class="bg-secondary">
                             <select class="form-select" id="globalSetting-environment">
                                 <option <?= $settingsTable['environment'] == 0 ? 'selected' : '' ?> value="0">Internal</option>
                                 <option <?= $settingsTable['environment'] == 1 ? 'selected' : '' ?> value="1">External</option>
                             </select>
                         </td>
-                        <td class="bg-secondary">Location of webroot, requires a container restart after changing. Do not change this without working files externally!</td>
+                        <td class="bg-secondary">Location of webroot, do not change this without working files externally!</td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Debug zip</td>
                         <td class="bg-secondary">
-                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipDatabase"> Database<br>
-                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipLogs"> Logs<br>
-                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipJson"> json
+                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipDatabase"> <label for="globalSetting-debugZipDatabase">Database</label> 
+                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipLogs"> <label for="globalSetting-debugZipLogs">Logs</label> 
+                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipJson"> <label for="globalSetting-debugZipJson">json</label>
                         </td>
                         <td class="bg-secondary">This does not save but triggers a zip file to be created (<code><?= APP_DATA_PATH . 'dockwatch.zip' ?></code>) when clicking save. Should only be needed when asked for by developers and includes (based on selection) database/*, logs/crons/*, logs/api/*, logs/system/*, settings, state, pull, health, stats & dependency json files</td>
                     </tr>
@@ -434,18 +453,6 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary">Allow telemetry information to be collected. There is nothing personal or identifiable and what is sent can be seen in the Tasks menu or <a href="https://github.com/Notifiarr/dockwatch/blob/develop/root/app/www/public/functions/telemetry.php" target="_blank">here on github</a></td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Database</td>
-                        <td class="bg-secondary"><button class="btn btn-sm btn-info" onclick="initPage('database')">Browse</button></td>
-                        <td class="bg-secondary">Browse the <?= APP_NAME ?> database</td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Maintenance IP</td>
-                        <td class="bg-secondary">
-                            <input class="form-control" type="text" id="globalSetting-maintenanceIP" value="<?= $settingsTable['maintenanceIP'] ?>">
-                        </td>
-                        <td class="bg-secondary">This IP is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this IP and after it has updated/restarted Dockwatch it will be removed. This is only required if you do static IP assignment for your containers.</td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Maintenance port</td>
                         <td class="bg-secondary">
                             <input class="form-control" type="text" id="globalSetting-maintenancePort" value="<?= $settingsTable['maintenancePort'] ?: APP_MAINTENANCE_PORT ?>">
@@ -453,14 +460,7 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary">This port is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this port and after it has updated/restarted Dockwatch it will be removed.</td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">WebSocket URL</td>
-                        <td class="bg-secondary">
-                            <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketUrl'] ?: "" ?>" placeholder="<?= 'ws://'.$_SERVER['HTTP_HOST'].'/ws'  ?>">
-                        </td>
-                        <td class="bg-secondary">Best to leave empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Example (https): <code class="mx-1">wss://my.cool.domain/ws</code></td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">WebSocket port</td>
+                        <td class="bg-secondary" scope="row">WebSocket port<sup>5</sup></td>
                         <td class="bg-secondary">
                             <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT ?>">
                         </td>
@@ -472,8 +472,9 @@ if ($_POST['m'] == 'init') {
         <div align="center"><button type="button" class="btn btn-success m-2" onclick="saveGlobalSettings()">Save Changes</button></div>
         <sup>1</sup> Checked every 5 minutes<br>
         <sup>2</sup> Updates every minute<br>
-        <sup>3</sup> Requires a page reload (F5) to take effect<br>
+        <sup>3</sup> Requires a page reload<br>
         <sup>4</sup> Only for Network IO and Disk Usage<br>
+        <sup>5</sup> Requires a container restart
     </div>
     <?php
 }

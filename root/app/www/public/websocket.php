@@ -39,11 +39,11 @@ class WebSocket implements MessageComponentInterface
         $this->memcached->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
     }
 
-    public function startup($port = 9910)
+    public function startup($port = APP_WEBSOCKET_PORT)
     {
         //-- DON'T ALLOW TO BIND ON THOSE PORTS
-        if ($port == 80 || $port == 443) {
-            $port = 9910;
+        if (str_equals_any($port, [80, 443])) {
+            $port = APP_WEBSOCKET_PORT;
         }
 
         $server = IoServer::factory(

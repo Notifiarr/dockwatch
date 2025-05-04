@@ -52,10 +52,9 @@ trait Maint
     public function createMaintenance()
     {
         //-- CHECK FOR VALID PORT
-        if (intval($this->maintenancePort) < 1 || intval($this->maintenancePort) == 80 || intval($this->maintenancePort) == 443) {
-            $port = APP_MAINTENANCE_PORT ?: 9998;
-        } else {
-            $port = intval($this->maintenancePort);
+        $port = intval($this->maintenancePort);
+        if ($port < 1 || str_equals_any($port, [80, 443])) {
+            $port = APP_MAINTENANCE_PORT ?: APP_MAINTENANCE_PORT;
         }
         $ip = $this->maintenanceIP;
 
