@@ -61,9 +61,6 @@ switch ($path) {
 
                 $apiRequestResponse = $database->updateContainer($payload['hash'], $payload);
                 break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
-                break;
         }
         break;
     case 'containers': //-- .../api/database/containers
@@ -113,9 +110,6 @@ switch ($path) {
 
                 $database->removeContainerGroupLink($payload['groupId'], $payload['containerId']);
                 break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
-                break;
         }
         break;
     case 'groups': //-- .../api/database/groups
@@ -123,7 +117,6 @@ switch ($path) {
         break;
     case 'migrations': //-- .../api/database/migrations
         $database->migrations();
-        $apiRequestResponse = 'migrations applied';
         break;
     case 'notification': //-- .../api/database/notification/$action/$method/$field
         switch (true) {
@@ -171,9 +164,6 @@ switch ($path) {
 
                 $apiRequestResponse = $database->updateNotificationLink($payload['linkId'], $payload['triggerIds'], $payload['platformParameters'], $payload['senderName']);
                 break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
-                break;
         }
         break;
     case 'servers': //-- .../api/database/servers
@@ -188,9 +178,6 @@ switch ($path) {
 
                 $apiRequestResponse = $database->setServers($payload['serverList']);
                 break;
-            default:
-                apiResponse(405, ['error' => 'Invalid method for requested path']);
-                break;
         }
     case 'setting': //-- .../api/database/setting
         switch (true) {
@@ -203,9 +190,6 @@ switch ($path) {
                 }
 
                 $apiRequestResponse = $database->setSetting($payload['setting'], $payload['value']);
-                break;
-            default:
-                apiResponse(405, ['error' => 'Invalid method for requested path']);
                 break;
         }
         break;
@@ -221,11 +205,5 @@ switch ($path) {
 
                 $apiRequestResponse = $database->setSettings($payload['newSettings'], $database->getSettings());
                 break;
-            default:
-                apiResponse(405, ['error' => 'Invalid method for requested path']);
-                break;
         }
-    default:
-        apiResponse(400, ['error' => 'Invalid path for requested route']);
-        break;
 }

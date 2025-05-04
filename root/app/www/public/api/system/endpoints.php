@@ -30,11 +30,5 @@ switch ($path) {
 
                 memcacheSet($payload['key'], $payload['value'], $payload['seconds']);
                 break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
-                break;
         }
-    default:
-        apiResponse(400, ['error' => 'Invalid path for requested route']);
-        break;
 }

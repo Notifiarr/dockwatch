@@ -28,12 +28,6 @@ switch ($path) {
                 setFile($fileConstant, $payload['contents']);
                 $apiRequestResponse = $fileConstant . ' contents updated';
                 break;
-            default:
-                apiResponse(405, ['error' => 'Invalid method for requested path']);
-                break;
         }
-        break;
-    default:
-        apiResponse(400, ['error' => 'Invalid path for requested route']);
         break;
 }

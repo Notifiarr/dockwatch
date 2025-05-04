@@ -154,9 +154,6 @@ switch ($path) {
 
                 $apiRequestResponse = $payload['dependencies'] ? $return : $stopContainer;
                 break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
-                break;
         }
         break;
     case 'create': //-- .../api/docker/create/$action
@@ -174,9 +171,6 @@ switch ($path) {
                 }
 
                 $apiRequestResponse = dockerAutoRun($parameters['name']);
-                break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
                 break;
         }
         break;
@@ -212,9 +206,6 @@ switch ($path) {
                 }
         
                 $apiRequestResponse = $docker->login($payload['registry'], $payload['username'], $payload['password']);
-                break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
                 break;
         }
         break;
@@ -268,8 +259,5 @@ switch ($path) {
                 $apiRequestResponse = $docker->removeVolume($payload['name']);
                 break;
         }
-        break;
-    default:
-        apiResponse(400, ['error' => 'Invalid path for requested route']);
         break;
 }

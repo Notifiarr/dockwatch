@@ -22,12 +22,6 @@ switch ($path) {
 
                 $apiRequestResponse = json_encode($docker->apiCreateContainer($inspect));
                 break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
-                break;
         }
-        break;
-    default:
-        apiResponse(400, ['error' => 'Invalid path for requested route']);
         break;
 }

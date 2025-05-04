@@ -31,9 +31,6 @@ switch ($path) {
 
                 $apiRequestResponse = purgeLogs($payload['group']);
                 break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
-                break;
         }
         break;
     case 'ping': //-- .../api/server/ping
@@ -44,9 +41,6 @@ switch ($path) {
                 }
 
                 $apiRequestResponse = gitVersion(true);
-                break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
                 break;
         }
         break;
@@ -59,9 +53,6 @@ switch ($path) {
 
                 $apiRequestResponse = executeTask($payload['task']);
                 break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
-                break;
         }
         break;
     case 'time': //-- .../api/server/time
@@ -69,12 +60,6 @@ switch ($path) {
             case $IS_GET:
                 $apiRequestResponse = apiResponse(200, ['timezone' => date_default_timezone_get(), 'time' => date('c')]);
                 break;
-            default:
-                apiResponse(400, ['error' => 'Invalid action for requested path']);
-                break;
         }
-        break;
-    default:
-        apiResponse(400, ['error' => 'Invalid path for requested route']);
         break;
 }
