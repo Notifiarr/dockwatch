@@ -26,6 +26,46 @@ function viewLog(name, hash)
 
 }
 // ---------------------------------------------------------------------------------------------
+function downloadLog(name, hash)
+{
+    pageLoadingStart();
+
+    $('[id^=logList-]').removeClass('*').addClass('text-secondary');
+    $('#logList-' + hash).removeClass('text-secondary').addClass('text-warning');
+
+    $.ajax({
+        type: 'POST',
+        url: '../ajax/logs.php',
+        data: '&m=viewLog&name=' + name,
+        dataType: 'json',
+        success: function (resultData) {
+            pageLoadingStop();
+            if (!resultData.error) {
+                //-- CLEAN UP LOG
+                let content = resultData.log;
+                content = content.replace(/<[^>]*>/g, '');
+                content = content.replace(/(&quot;|&lt;-|->|<-|&gt;|&#039;)/g, '');
+
+                //-- CREATE BLOB
+                const blob = new Blob([content], { type: 'text/plain' });
+
+                //-- DOWNLOAD LINK
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(blob);
+                downloadLink.download = name.replace(/\//g, '_');
+
+                //-- APPEND DL DIV AND REMOVE IT AFTERWARDS
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+
+                //-- CLEAN UP
+                URL.revokeObjectURL(downloadLink.href);
+            }
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
 function purgeLogs(group)
 {
     pageLoadingStart();

@@ -18,6 +18,7 @@
 
   --background-50: #f1f2f4;
   --background-100: #e3e5e8;
+  --background-150: #e3e5e8;
   --background-200: #c7cbd1;
   --background-300: #abb2ba;
   --background-400: #8f98a3;
@@ -80,6 +81,7 @@
 
   --background-50: #0b0d0e;
   --background-100: #17191c;
+  --background-150: #1d1e22;
   --background-200: #2e3238;
   --background-300: #454c54;
   --background-400: #5c6570;
@@ -129,7 +131,7 @@
 }
 
 .bg-secondary {
-  background-color: var(--background-300) !important;
+  background-color: var(--background-150) !important;
 }
 
 .breadcrumb {
@@ -143,6 +145,7 @@ span.h5 {
 
 .text-info, h4, .h4 {
   color: var(--accent-700) !important;
+  font-weight: 100 !important;
 }
 
 .fas {
@@ -169,4 +172,8 @@ thead > tr > th {
   color: var(--text-950) !important;
   background-color: var(--background-300) !important;
   border-color: var(--background-400) !important;
+}
+
+.badge {
+  font-weight: 100 !important;
 }

@@ -54,8 +54,8 @@ if ($_POST['m'] == 'init') {
             <div class="row">
                 <div class="col-sm-3">
                     <ul>
-                        <?php 
-                        foreach ($logFiles as $group => $groupLogs) { 
+                        <?php
+                        foreach ($logFiles as $group => $groupLogs) {
                             ?>
                             <h4 style="display: inline;" class="mt-3 mb-0"><?= $group ?></h4> <i class="far fa-trash-alt" style="display: inline; color: red; cursor: pointer;" title="Delete all <?= $group ?> log files" onclick="purgeLogs('<?= $group ?>')"></i><br>
                             <?php if ($group == 'login failures') { ?>
@@ -80,7 +80,11 @@ if ($_POST['m'] == 'init') {
                                 $logHash = md5($log['name']);
                                 $group = str_contains_any($group, ['login failures']) ? '' : $group . '/';
                                 ?>
-                                <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group . $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group . $log['name'] ?>')"></i></li>
+                                <li>
+                                    <span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group . $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>)
+                                    <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group . $log['name'] ?>')"></i>
+                                    <i class="fas fa-file-download text-primary" style="display: inline; cursor: pointer;" title="Download <?= $log['name'] ?>" onclick="downloadLog('<?= $group . $log['name'] ?>')"></i>
+                                </li>
                                 <?php
                             }
 
@@ -89,7 +93,11 @@ if ($_POST['m'] == 'init') {
                                 foreach ($rotated as $log) {
                                     $logHash = md5($log['name']);
                                     ?>
-                                    <li><span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>) <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i></li>
+                                    <li>
+                                        <span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>)
+                                        <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i>
+                                        <i class="fas fa-file-download text-primary" style="display: inline; cursor: pointer;" title="Download <?= $log['name'] ?>" onclick="downloadLog('<?= $group . $log['name'] ?>')"></i>
+                                    </li>
                                     <?php
                                 }
                             }
@@ -102,7 +110,7 @@ if ($_POST['m'] == 'init') {
                 </div>
                 <div class="col-sm-9">
                     <span id="logHeader"></span>
-                    <pre id="logViewer" style="max-height: 600px; overflow: auto;">Select a log from the left to view</pre>
+                    <pre class="bg-dark primary p-3 rounded" id="logViewer" style="color: white; max-height: 600px; overflow: auto; white-space: no-wrap;">Select a log from the left to view</pre>
                 </div>
             </div>
         </div>

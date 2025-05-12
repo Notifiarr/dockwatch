@@ -144,7 +144,9 @@ if ($_POST['m'] == 'init') {
                     </table>
                 </div>
             </div>
-            <div class="col-sm-8"><pre id="taskViewer" style="max-height: 500px; overflow: auto;">Select a task</pre></div>
+            <div class="col-sm-8">
+                <pre class="bg-dark primary p-3 rounded" id="taskViewer" style="color: white; max-height: 500px; overflow: auto; white-space: no-wrap;">Select a task</pre>
+            </div>
         </div>
     </div>
     <?php
