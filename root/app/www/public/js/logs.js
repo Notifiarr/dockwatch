@@ -32,6 +32,7 @@ function downloadLog(name, hash)
 
     $('[id^=logList-]').removeClass('*').addClass('text-secondary');
     $('#logList-' + hash).removeClass('text-secondary').addClass('text-warning');
+    $('#logViewer').html('Fetching log...');
 
     $.ajax({
         type: 'POST',
@@ -44,7 +45,10 @@ function downloadLog(name, hash)
                 //-- CLEAN UP LOG
                 let content = resultData.log;
                 content = content.replace(/<[^>]*>/g, '');
-                content = content.replace(/(&quot;|&lt;-|->|<-|&gt;|&#039;)/g, '');
+                content = content.replace(/&quot;/g, '\"');
+                content = content.replace(/&#039;/g, '\'');
+                content = content.replace(/&lt;/g, '<');
+                content = content.replace(/&gt;/g, '>');
 
                 //-- CREATE BLOB
                 const blob = new Blob([content], { type: 'text/plain' });
@@ -52,12 +56,14 @@ function downloadLog(name, hash)
                 //-- DOWNLOAD LINK
                 const downloadLink = document.createElement('a');
                 downloadLink.href = URL.createObjectURL(blob);
-                downloadLink.download = name.replace(/\//g, '_');
+                downloadLink.download = name.replace(/\/+/g, '_');
 
                 //-- APPEND DL DIV AND REMOVE IT AFTERWARDS
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 document.body.removeChild(downloadLink);
+
+                $('#logViewer').html('Log download started');
 
                 //-- CLEAN UP
                 URL.revokeObjectURL(downloadLink.href);
