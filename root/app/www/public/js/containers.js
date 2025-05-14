@@ -551,7 +551,7 @@ function containerLogs(container)
                 id: 'containerLogs',
                 title: 'Container Logs',
                 size: 'xl',
-                body: resultData,
+                body: `<pre class="bg-dark primary p-3 rounded" style="color: white; max-height: 500px; overflow: auto; white-space: pre-wrap;">${resultData}</pre>`,
                 onOpen: function () {
                     pageLoadingStop();
                 }
@@ -658,7 +658,7 @@ function containerShell(container, wsAvailable)
             const terminal = new Terminal({
                 cursorBlink: true,
                 theme: {
-                    background: '#1e1e1e',
+                    background: '#212529',
                     foreground: '#fff'
                 },
                 fontSize: 14,

@@ -140,7 +140,7 @@
 
         <!-- xterm Shell -->
         <div id="xtermShellDiv" style="display: none;">
-            <div id="terminalContainer" style="overflow: hidden; position: relative;"></div>
+            <div id="terminalContainer" class="bg-dark primary rounded" style="overflow: hidden; position: relative;"></div>
         </div>
 
         <!-- Registry login -->

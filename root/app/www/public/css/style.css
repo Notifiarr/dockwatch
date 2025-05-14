@@ -351,19 +351,19 @@ pre {
 ::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3) !important;
     background-color: var(--bs-body-color) !important;
-    width: 4px !important;
+    width: 8px !important;
     height: 4px !important;
 }
 
 ::-webkit-scrollbar {
-    width: 4px !important;
+    width: 8px !important;
     height: 4px !important;
     background-color: var(--bs-body-color) !important;
 }
 
 ::-webkit-scrollbar-thumb {
     background-color: var(--bs-primary) !important;
-    border-radius: 12px !important;
+    border-radius: 2px !important;
 }
 
 .rounded-top-left-1 {
@@ -411,4 +411,8 @@ pre {
     font-size: 0.75rem;
     line-height: 1.5;
     border-radius: 0.2rem;
+}
+
+.modal.fade .modal-dialog {
+    transition: transform .2s ease-out !important;
 }

@@ -475,10 +475,16 @@ function pageLoadingStart()
 // -------------------------------------------------------------------------------------------
 function pageLoadingStop()
 {
-    setTimeout(function () {
-        $('#loading-modal').modal('hide');
-    }, 1000);
+    setTimeout(async function () {
+        while (true) {
+            $('#loading-modal').modal('hide');
+            if ($('#loading-modal:visible').length == 0) {
+                break;
+            }
 
+            await new Promise(r => setTimeout(r, 25));
+        }
+    }, 300);
 }
 // -------------------------------------------------------------------------------------------
 function resetSession()
