@@ -43,17 +43,23 @@ foreach ($commandsFile as $id => $command) {
     if (!empty($cron) && $cron->isDue($startStamp)) {
         //-- SKIP REMOTE INSTANCE
         if ($command['servers'] !== APP_SERVER_ID) {
-            logger(CRON_COMMANDS_LOG, '[SKIP] Skipping command (remote instance): ' . json_encode($command));
+            logger(CRON_COMMANDS_LOG, 'Skipping command (remote instance): ' . json_encode($command));
             continue;
         }
 
-        logger(CRON_COMMANDS_LOG, 'Payload: ' . json_encode($command));
+        logger(CRON_COMMANDS_LOG, 'Running command: ' . json_encode($command));
 
         //-- RUN COMMAND
-        $apiResponse = apiRequest($command['command'], ['name' => $command['container'], 'params' => $command['parameters']]);
+        if (in_array($command['command'], ["docker/container/start", "docker/container/stop", "docker/container/restart"])) {
+            $apiResponse = apiRequest($command['command'], [], ['name' => $command['container'], 'params' => $command['parameters']]);
+        } else {
+            $apiResponse = apiRequest($command['command'], ['name' => $command['container'], 'params' => $command['parameters']]);
+        }
         $apiResponse = $apiResponse['code'] == 200 ? $apiResponse['result'] : $apiResponse['code'] . ': ' . $apiResponse['error'];
 
         logger(CRON_COMMANDS_LOG, '|__ Response: ' . json_encode($apiResponse));
+    } else if (!empty($cron)) {
+        logger(CRON_COMMANDS_LOG, 'Skipping command ' . $command['command'] . ', frequency setting will run: ' . $cron->getNextRunDate()->format('Y-m-d H:i:s'));
     }
 }
 apiRequest('file/commands', [], ['contents' => json_encode($commandsFile, JSON_PRETTY_PRINT)]);
