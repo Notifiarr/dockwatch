@@ -46,7 +46,7 @@ if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'stateChan
 
 	logger(STARTUP_LOG, 'Sending ' . $name . ' started notification');
 } else {
-	logger(STARTUP_LOG, 'Skipping ' . $name . ' started notification, no senders found with stateChange enabled');
+	logger(STARTUP_LOG, 'Skipping ' . $name . ' started notification, no senders found with stateChange enabled', 'warn');
 }
 
 //-- WEBSOCKET SERVER

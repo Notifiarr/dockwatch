@@ -38,7 +38,7 @@ if ($settingsTable['autoPruneImages']) {
         }
     }
 } else {
-    logger(CRON_PRUNE_LOG, 'Auto prune images disabled');
+    logger(CRON_PRUNE_LOG, 'Auto prune images disabled', 'warn');
 }
 
 if ($settingsTable['autoPruneVolumes']) {
@@ -48,7 +48,7 @@ if ($settingsTable['autoPruneVolumes']) {
         }
     }
 } else {
-    logger(CRON_PRUNE_LOG, 'Auto prune volumes disabled');
+    logger(CRON_PRUNE_LOG, 'Auto prune volumes disabled', 'warn');
 }
 
 if ($settingsTable['autoPruneNetworks']) {
@@ -58,7 +58,7 @@ if ($settingsTable['autoPruneNetworks']) {
         }
     }
 } else {
-    logger(CRON_PRUNE_LOG, 'Auto prune networks disabled');
+    logger(CRON_PRUNE_LOG, 'Auto prune networks disabled', 'warn');
 }
 
 if ($imagePrune) {

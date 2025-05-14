@@ -27,7 +27,7 @@ $currentStates  = dockerState();
 if ($currentStates) {
     apiRequest('file/state', [], ['contents' => $currentStates]);
 } else {
-    logger(CRON_STATE_LOG, 'STATE_FILE update skipped, $currentStates empty');
+    logger(CRON_STATE_LOG, 'STATE_FILE update skipped, $currentStates empty', 'warn');
 }
 
 logger(CRON_STATE_LOG, 'previousStates: ' . json_encode($previousStates, JSON_UNESCAPED_SLASHES));
@@ -137,18 +137,18 @@ logger(CRON_STATE_LOG, 'Mem issue containers: ' . json_encode($notify['usage']['
 
 if (!$previousStates) {
     $notify = [];
-    logger(CRON_STATE_LOG, 'Notification skipped, $previousStates empty');
+    logger(CRON_STATE_LOG, 'Notification skipped, $previousStates empty', 'warn');
 }
 
 if (!$currentStates) {
     $notify = [];
-    logger(CRON_STATE_LOG, 'Notification skipped, $currentStates empty');
+    logger(CRON_STATE_LOG, 'Notification skipped, $currentStates empty', 'warn');
 }
 
 if ($notify['state']) {
     //-- IF THEY USE THE SAME PLATFORM, COMBINE THEM
     if (
-        apiRequest('database/notification/link/platform/name', ['name' => 'stateChange'])['result'] == apiRequest('database/notification/link/platform/name', ['name' => 'added'])['result'] && 
+        apiRequest('database/notification/link/platform/name', ['name' => 'stateChange'])['result'] == apiRequest('database/notification/link/platform/name', ['name' => 'added'])['result'] &&
         apiRequest('database/notification/link/platform/name', ['name' => 'stateChange'])['result'] == apiRequest('database/notification/link/platform/name', ['name' => 'removed'])['result']
         ) {
         $payload = ['event' => 'state', 'changes' => $notify['state']['changed'], 'added' => $notify['state']['added'], 'removed' => $notify['state']['removed']];

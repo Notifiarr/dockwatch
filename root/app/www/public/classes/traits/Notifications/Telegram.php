@@ -28,7 +28,7 @@ trait Telegram
 
         $return = ['code' => 200];
         if (!str_equals_any($curl['code'], [200, 201, 400, 401])) {
-            logger($logfile, 'sending a retry in 5s...');
+            logger($logfile, 'sending a retry in 5s...', 'warn');
             sleep(5);
 
             $curl = curl($url, [], 'POST', json_encode($payload));

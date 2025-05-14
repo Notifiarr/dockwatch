@@ -524,7 +524,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     switch ($_POST['trigger']) {
         case '1': //-- START
             if (skipContainerActions($image, $skipContainerActions)) {
-                logger(UI_LOG, 'skipping ' . $container['Names'] . ' start request');
+                logger(UI_LOG, 'skipping ' . $container['Names'] . ' start request', 'warn');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
@@ -534,7 +534,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '2': //-- RESTART
             if (skipContainerActions($image, $skipContainerActions)) {
-                logger(UI_LOG, 'skipping ' . $container['Names'] . ' restart request');
+                logger(UI_LOG, 'skipping ' . $container['Names'] . ' restart request', 'warn');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
@@ -547,7 +547,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '3': //-- STOP
             if (skipContainerActions($image, $skipContainerActions)) {
-                logger(UI_LOG, 'skipping ' . $container['Names'] . ' stop request');
+                logger(UI_LOG, 'skipping ' . $container['Names'] . ' stop request', 'warn');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
@@ -600,7 +600,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '7': //-- CHECK FOR UPDATES AND APPLY THEM
             if (skipContainerActions($image, $skipContainerActions)) {
-                logger(UI_LOG, 'skipping ' . $container['Names'].' update');
+                logger(UI_LOG, 'skipping ' . $container['Names'].' update', 'warn');
                 $updateResult = 'skipped';
             } else {
                 $image = $container['inspect'][0]['Config']['Image'];
@@ -667,7 +667,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                         $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
                         logger(UI_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                     } else {
-                        logger(UI_LOG, 'container was not running, not starting it');
+                        logger(UI_LOG, 'container was not running, not starting it', 'warn');
                     }
 
                     $dependencies = $dependencyFile[$container['Names']]['containers'];
@@ -685,7 +685,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '9': //-- REMOVE
             if (skipContainerActions($image, $skipContainerActions)) {
-                logger(UI_LOG, 'skipping ' . $container['Names'].' remove request');
+                logger(UI_LOG, 'skipping ' . $container['Names'].' remove request', 'warn');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
@@ -752,7 +752,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '12': //-- RE-CREATE
             if (skipContainerActions($image, $skipContainerActions)) {
-                logger(UI_LOG, 'skipping ' . $container['Names'].' re-create request');
+                logger(UI_LOG, 'skipping ' . $container['Names'].' re-create request', 'warn');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $image = $container['inspect'][0]['Config']['Image'];
@@ -790,7 +790,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '13': //-- KILL
             if (skipContainerActions($image, $skipContainerActions)) {
-                logger(UI_LOG, 'skipping ' . $container['Names'] . ' kill request');
+                logger(UI_LOG, 'skipping ' . $container['Names'] . ' kill request', 'warn');
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $apiRequest = apiRequest('docker/container/kill', [], ['name' => $container['Names']]);

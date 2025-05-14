@@ -20,7 +20,7 @@ if (!canCronRun('health', $settingsTable)) {
 
 $containerList = apiRequest('stats/containers')['result']['result'];
 if (empty($containerList)) {
-    logger(CRON_HEALTH_LOG, 'Cron run stopped: error fetching container list');
+    logger(CRON_HEALTH_LOG, 'Cron run stopped: error fetching container list', 'error');
     echo date('c').'Cron run stopped: error fetching container list';
     exit();
 }
@@ -62,7 +62,7 @@ if ($unhealthy) {
         $skipActions    = skipContainerActions($container['name'], $skipContainerActions);
 
         if ($skipActions) {
-            logger(CRON_HEALTH_LOG, 'skipping: ' . $container['name'] . ', blacklisted (no state changes) container');
+            logger(CRON_HEALTH_LOG, 'skipping: ' . $container['name'] . ', blacklisted (no state changes) container', 'warn');
             continue;
         }
 
@@ -73,7 +73,7 @@ if ($unhealthy) {
             $unhealthy[$nameHash]['notify'] = time();
             $notify = true;
         } else {
-            logger(CRON_HEALTH_LOG, 'skipping notification for \'' . $container['name'] . '\', no notification senders with the health event enabled');
+            logger(CRON_HEALTH_LOG, 'skipping notification for \'' . $container['name'] . '\', no notification senders with the health event enabled', 'warn');
         }
 
         if ($thisContainer['restartUnhealthy']) {
@@ -100,11 +100,11 @@ if ($unhealthy) {
                 }
             }
         } else {
-            logger(CRON_HEALTH_LOG, 'skipping: ' . $container['name'] . ', restart unhealthy option not enabled');
+            logger(CRON_HEALTH_LOG, 'skipping: ' . $container['name'] . ', restart unhealthy option not enabled', 'warn');
         }
 
         if ($notify && $thisContainer['disableNotifications']) {
-            logger(CRON_HEALTH_LOG, 'skipping notification for \'' . $container['name'] . '\', container set to not notify');
+            logger(CRON_HEALTH_LOG, 'skipping notification for \'' . $container['name'] . '\', container set to not notify', 'warn');
             $notify = false;
         }
 

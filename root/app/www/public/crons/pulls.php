@@ -52,7 +52,7 @@ if ($containersTable) {
                 }
             } catch (Exception $e) {
                 $msg = 'Skipping Auto Restart: ' . $containerState['Names'] . ' frequency setting is not a valid cron syntax \'' . $containerSettings['autoRestartFrequency'] . '\'';
-                logger(CRON_PULLS_LOG, $msg);
+                logger(CRON_PULLS_LOG, $msg, 'error');
                 echo date('c') . ' ' . $msg . "\n";
             }
         }
@@ -71,7 +71,7 @@ if ($containersTable) {
                 $cron = Cron\CronExpression::factory($containerSettings['frequency']);
             } catch (Exception $e) {
                 $msg = 'Skipping: ' . $containerState['Names'] . ' frequency setting is not a valid cron syntax \'' . $containerSettings['frequency'] . '\'';
-                logger(CRON_PULLS_LOG, $msg);
+                logger(CRON_PULLS_LOG, $msg, 'error');
                 echo date('c') . ' ' . $msg . "\n";
                 continue;
             }
@@ -145,7 +145,7 @@ if ($containersTable) {
                 $checkImageAge = regctlGetCreatedDate($digestTag);
                 if ($checkImageAge < $containerSettings['minage']) {
                     $msg = 'Skipping container update: ' . $containerState['Names'] . ' (does not meet the minimum age requirement of '.$containerSettings['minage'].' days, got '.$checkImageAge.' days)';
-                    logger(CRON_PULLS_LOG, $msg);
+                    logger(CRON_PULLS_LOG, $msg, 'warn');
                     echo date('c') . ' ' . $msg . "\n";
 
                     if ($containerSettings['updates'] == 1) {
@@ -165,13 +165,13 @@ if ($containersTable) {
                         }
                     }
 
-                    logger(CRON_PULLS_LOG, $msg);
+                    logger(CRON_PULLS_LOG, $msg, 'warn');
                     echo date('c') . ' ' . $msg . "\n";
                 }
 
                 if (!$isDockerApiAvailable) {
                     $msg = 'Skipping container update: ' . $containerState['Names'] . ' (docker engine api access is not available)';
-                    logger(CRON_PULLS_LOG, $msg);
+                    logger(CRON_PULLS_LOG, $msg, 'warn');
                     echo date('c') . ' ' . $msg . "\n";
 
                     if ($containerSettings['updates'] == 1) {
@@ -326,7 +326,7 @@ if ($containersTable) {
                                                     $apiRequest = apiRequest('docker/container/start', [], ['name' => $dependencyContainer]);
                                                     logger(CRON_PULLS_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                                                 } else {
-                                                    logger(CRON_PULLS_LOG, 'container was not running, not starting it');
+                                                    logger(CRON_PULLS_LOG, 'container was not running, not starting it', 'warn');
                                                 }
                                             }
                                         }
@@ -342,7 +342,7 @@ if ($containersTable) {
                                     }
                                 } else {
                                     $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update['Id']);
-                                    logger(CRON_PULLS_LOG, $msg);
+                                    logger(CRON_PULLS_LOG, $msg, 'error');
                                     echo date('c') . ' ' . $msg . "\n";
 
                                     if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'updated'])['result'] && !$containerSettings['disableNotifications']) {
@@ -364,7 +364,7 @@ if ($containersTable) {
                 }
             } else {
                 $msg = 'Skipping: ' . $containerState['Names'] . ', frequency setting will run: ' . $cron->getNextRunDate()->format('Y-m-d H:i:s');
-                logger(CRON_PULLS_LOG, $msg);
+                logger(CRON_PULLS_LOG, $msg, 'warn');
                 echo date('c') . ' ' . $msg . "\n";
             }
         }

@@ -65,7 +65,7 @@ class WebSocket implements MessageComponentInterface
         parse_str($queryString, $queryParams);
 
         if (!isset($queryParams['token']) || !isset($queryParams['container'])) {
-            logger(WEBSOCKET_LOG, 'Connection attempt missing params (' . $conn->resourceId . ')');
+            logger(WEBSOCKET_LOG, 'Connection attempt missing params (' . $conn->resourceId . ')', 'warn');
             $conn->close();
             return;
         }
@@ -75,7 +75,7 @@ class WebSocket implements MessageComponentInterface
         $token      = $this->memcached->get($key);
 
         if ($queryParams['token'] !== $token) {
-            logger(WEBSOCKET_LOG, 'Unauthorized connection attempt (' . $conn->resourceId . ')');
+            logger(WEBSOCKET_LOG, 'Unauthorized connection attempt (' . $conn->resourceId . ')', 'error');
             $conn->close();
             return;
         }
@@ -125,7 +125,7 @@ class WebSocket implements MessageComponentInterface
 
     public function onError(ConnectionInterface $conn, \Exception $e)
     {
-        logger(WEBSOCKET_LOG, 'Connection error occurred ' . $e->getMessage());
+        logger(WEBSOCKET_LOG, 'Connection error occurred ' . $e->getMessage(), 'error');
         $this->closeContainerSession($conn);
         $conn->close();
     }

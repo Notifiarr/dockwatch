@@ -44,7 +44,7 @@ trait Container
         $delay      = intval($container['shutdownDelaySeconds']) >= 5 ? ' -t ' . $container['shutdownDelaySeconds'] : ' -t 120';
 
         if ($container['shutdownDelay']) {
-            logger(SYSTEM_LOG, 'stopContainer() delaying stop command for container ' . $containerName . ' with ' . $delay);
+            logger(SYSTEM_LOG, 'stopContainer() delaying stop command for container ' . $containerName . ' with ' . $delay, 'warn');
         }
 
         $cmd = sprintf(DockerSock::STOP_CONTAINER, $this->shell->prepare($containerName), ($container['shutdownDelay'] ? $this->shell->prepare($delay) : ''));

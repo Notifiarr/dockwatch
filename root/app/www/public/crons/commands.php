@@ -43,7 +43,7 @@ foreach ($commandsFile as $id => $command) {
     if (!empty($cron) && $cron->isDue($startStamp)) {
         //-- SKIP REMOTE INSTANCE
         if ($command['servers'] !== APP_SERVER_ID) {
-            logger(CRON_COMMANDS_LOG, 'Skipping command (remote instance): ' . json_encode($command));
+            logger(CRON_COMMANDS_LOG, 'Skipping command (remote instance): ' . json_encode($command), 'warn');
             continue;
         }
 
@@ -59,7 +59,7 @@ foreach ($commandsFile as $id => $command) {
 
         logger(CRON_COMMANDS_LOG, '|__ Response: ' . json_encode($apiResponse));
     } else if (!empty($cron)) {
-        logger(CRON_COMMANDS_LOG, 'Skipping command ' . $command['command'] . ', frequency setting will run: ' . $cron->getNextRunDate()->format('Y-m-d H:i:s'));
+        logger(CRON_COMMANDS_LOG, 'Skipping command ' . $command['command'] . ', frequency setting will run: ' . $cron->getNextRunDate()->format('Y-m-d H:i:s'), 'warn');
     }
 }
 apiRequest('file/commands', [], ['contents' => json_encode($commandsFile, JSON_PRETTY_PRINT)]);

@@ -53,7 +53,7 @@ function canCronRun($cron, $settingsTable)
         if ($highestMigration == $currentMigration) {
             deleteFile(MIGRATION_FILE);
         } else {
-            logger($log, 'Cron cancelled: migrations are running');
+            logger($log, 'Cron cancelled: migrations are running', 'warn');
             logger($log, 'run <-');
             echo date('c') . ' Cron: ' . $cron . ' cancelled, migrations are running' . "\n";
             echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
@@ -62,7 +62,7 @@ function canCronRun($cron, $settingsTable)
     }
 
     if (($cron == 'sse' && !$settingsTable[$field]) || ($cron != 'sse' && $settingsTable[$field])) {
-        logger($log, 'Cron cancelled: disabled in tasks menu');
+        logger($log, 'Cron cancelled: disabled in tasks menu', 'warn');
         logger($log, 'run <-');
         echo date('c') . ' Cron: ' . $cron . ' cancelled, disabled in tasks menu' . "\n";
         echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
@@ -73,7 +73,7 @@ function canCronRun($cron, $settingsTable)
     switch ($cron) {
         case 'health':
             if (!$settingsTable['restartUnhealthy'] && !apiRequest('database/notification/trigger/enabled', ['trigger' => 'health'])['result']) {
-                logger($log, 'Cron cancelled: restart and notify disabled');
+                logger($log, 'Cron cancelled: restart and notify disabled', 'warn');
                 logger($log, 'run <-');
                 echo date('c') . ' Cron ' . $cron . ' cancelled: restart unhealthy and notify disabled' . "\n";
                 echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
@@ -84,7 +84,7 @@ function canCronRun($cron, $settingsTable)
             $frequencyHour = $settingsTable['autoPruneHour'] ? $settingsTable['autoPruneHour'] : '12';
 
             if ($frequencyHour !== date('G')) {
-                logger($log, 'Cron: skipped, frequency setting will run at hour ' . $frequencyHour);
+                logger($log, 'Cron: skipped, frequency setting will run at hour ' . $frequencyHour, 'warn');
                 logger($log, 'run <-');
                 echo date('c') . ' Cron: skipped, frequency setting will run at hour ' . $frequencyHour . "\n";
                 echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
@@ -93,7 +93,7 @@ function canCronRun($cron, $settingsTable)
             break;
         case 'state':
             if (!array_key_exists('stateCronTime', $settingsTable)) {
-                logger($log, 'Cron cancelled: migration 003 has not been applied');
+                logger($log, 'Cron cancelled: migration 003 has not been applied', 'warn');
                 logger($log, 'run <-');
                 echo date('c') . ' Cron: ' . $cron . ' cancelled, migration 003 has not been applied' . "\n";
                 echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
@@ -101,7 +101,7 @@ function canCronRun($cron, $settingsTable)
             }
 
             if (date('i') % $settingsTable['stateCronTime'] !== 0) {
-                logger($log, 'Cron cancelled: not a match to minute interval');
+                logger($log, 'Cron cancelled: not a match to minute interval', 'warn');
                 logger($log, 'run <-');
                 echo date('c') . ' Cron: ' . $cron . ' cancelled, not a match to minute interval' . "\n";
                 echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";

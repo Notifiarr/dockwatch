@@ -23,7 +23,7 @@ if ($_POST['m'] == 'login') {
 
     if (!file_exists(LOGIN_FILE)) {
         $error = 'Could not find login file \'' . LOGIN_FILE . '\'';
-        logger(SYSTEM_LOG, $error);
+        logger(SYSTEM_LOG, $error, 'error');
     } else {
         $loginsFile = file(LOGIN_FILE);
 
@@ -31,7 +31,7 @@ if ($_POST['m'] == 'login') {
 
         if (empty($loginsFile)) {
             $error = 'Could not read login file data or it is empty';
-            logger(SYSTEM_LOG, $error);
+            logger(SYSTEM_LOG, $error, 'error');
         }
 
         if (!$error) {
@@ -46,17 +46,17 @@ if ($_POST['m'] == 'login') {
                 foreach ($loginsFile as $login) {
                     logger(SYSTEM_LOG, 'credentials check');
                     list($user, $pass) = explode(':', $login);
-    
+
                     //-- STRIP OUT THE SPACES AND LINE BREAKS USERS ACCIDENTALLY PROVIDE
                     $user = trim($user);
                     $pass = trim($pass);
                     $_POST['user'] = trim($_POST['user']);
                     $_POST['pass'] = trim($_POST['pass']);
-    
+
                     if (str_compare($user, $_POST['user']) && str_compare($pass, $_POST['pass'], true)) {
                         if ($_POST['user'] == 'admin' && ($_POST['pass'] == 'pass' || $_POST['pass'] == 'password')) {
                             $error = 'Please use something other than admin:pass and admin:password';
-                            logger(SYSTEM_LOG, $error);
+                            logger(SYSTEM_LOG, $error, 'error');
                         } else {
                             logger(SYSTEM_LOG, 'match found, updating session key');
                             $_SESSION['authenticated'] = true;
@@ -71,7 +71,7 @@ if ($_POST['m'] == 'login') {
 
                 if (!$error && !$_SESSION['authenticated']) {
                     $error = 'Did not find a matching user:pass in the login file with what was provided, login failure recorded.';
-                    logger(SYSTEM_LOG, $error);
+                    logger(SYSTEM_LOG, $error, 'error');
 
                     $loginFailures['lastFailure'] = time();
                     $loginFailures['failures'][] = ['time' => date('c'), 'user' => $_POST['user'], 'pass' => $_POST['pass']];
