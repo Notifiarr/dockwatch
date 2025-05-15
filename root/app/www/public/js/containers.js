@@ -699,11 +699,6 @@ function containerShell(container, wsAvailable)
 
             socket.onopen = () => {
                 terminal.writeln('WebSocket connection established');
-                socket.send(JSON.stringify({
-                    action: 'resize',
-                    cols: terminal.cols,
-                    rows: terminal.rows
-                }));
                 setTimeout(() => {
                     if (socket.readyState === WebSocket.OPEN) {
                         terminal.focus();
@@ -728,6 +723,16 @@ function containerShell(container, wsAvailable)
                     }
                     if (data.success) {
                         terminal.writeln(`${data.message}`);
+                        if (data.message.toString().startsWith("Connected to container")) {
+                            fitAddon.fit();
+                            setTimeout(() => {
+                                socket.send(JSON.stringify({
+                                    action: 'resize',
+                                    cols: terminal.cols,
+                                    rows: terminal.rows
+                                }));
+                            }, 1e3);
+                        }
                         return;
                     }
                     if (data.type === 'pwd') {
@@ -735,7 +740,9 @@ function containerShell(container, wsAvailable)
                         return;
                     }
                     if (data.type === 'stdout' || data.type === 'stderr') {
-                        terminal.write(atob(data.data));
+                        if (!atob(data.data).toString().includes("stty")) {
+                            terminal.write(atob(data.data));
+                        }
                     }
                     if (data.type === 'exit') {
                         terminal.writeln(`\r\nContainer shell exited with code ${data.code}\r\n`);
