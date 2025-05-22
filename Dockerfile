@@ -7,6 +7,9 @@ ARG BUILD_DATE
 ARG VERSION
 ARG NGINX_VERSION
 
+# fix docker.sock permissions
+ENV ATTACHED_DEVICES_PERMS="/var/run/docker.sock"
+
 # install packages
 RUN \
   if [ -z ${NGINX_VERSION+x} ]; then \
