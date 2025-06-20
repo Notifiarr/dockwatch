@@ -158,10 +158,13 @@ a {
     }
     #container-button-row {
         z-index: 998;
-        width: 88% !important;
+        width: 94% !important;
         position: fixed;
-        top: 145px;
+        /* top: 145px; */
     }
+    /* .table-responsive {
+        margin-top: 3em !important;
+    } */
 }
 @media screen and (max-width: 768px) {
     #footer-content {
@@ -170,9 +173,12 @@ a {
     }
     #container-button-row {
         z-index: 998;
-        width: 72% !important;
+        width: 90% !important;
         position: fixed;
-        top: 130px;
+        /* top: 130px; */
+    }
+    #container-table_filter {
+        margin-top: 3em !important;
     }
 }
 td, span, div {
@@ -427,8 +433,8 @@ pre {
 
 .container-control-buttons-bg {
     position: absolute;
-    left: 25%;
-    right: 25%;
+    left: 0%;
+    right: 0%;
     top: 70%;
     transform: translateY(-62.5%);
     height: 150%;

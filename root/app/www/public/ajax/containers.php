@@ -36,48 +36,48 @@ if ($_POST['m'] == 'init') {
         <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
         <li class="breadcrumb-item active" aria-current="page">Containers</li>
     </ol>
-    <div class="bg-secondary rounded p-4 mb-2" style="height:65px;">
-        <div class="row" id="container-button-row">
-            <div class="col-sm-12">
-                <div id="container-control-buttons" class="text-center">
-                    <div class="container-control-buttons-bg">
-                        <div class="bg-secondary w-100" style="height: 100%; backdrop-filter: blur(6px); opacity: 0.8; border-radius: 0.25rem; display: flex; align-items: center; justify-content: center;"></div>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Pull</span></button>
-                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 2)"><i class="fas fa-sync-alt fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Restart</span></button>
-                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 1)"><i class="fas fa-play fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Start</span></button>
-                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 3)"><i class="fas fa-power-off fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Stop</span></button>
-                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 13)"><i class="fas fa-skull-crossbones fa-xs me-1"></i><span class="container-control-button-label text-warning hide-mobile"> Kill</span></button>
-                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i><span class="container-control-button-label text-danger hide-mobile"> Remove</span></button>
-                    </div>
-                    <div class="btn-group hide-mobile" role="group">
-                        <button class="btn btn-outline-light bg-secondary dropdown-toggle btn-sm" type="button" id="dropBtnUpdates" data-bs-toggle="dropdown" aria-expanded="false" style="border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important;">Updates</button>
-                        <ul class="dropdown-menu" aria-labelledby="dropBtnUpdates">
-                            <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 11)">Check</a></li>
-                            <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 7)">Apply</a></li>
-                        </ul>
+    <!-- <div class="bg-secondary rounded p-4 mb-2" style="height:65px;">
+    </div> -->
+    <div class="bg-secondary rounded p-4">
+        <div class="row">
+            <div class="row" id="container-button-row">
+                <div class="col-sm-12">
+                    <div id="container-control-buttons" class="text-center">
+                        <div class="container-control-buttons-bg">
+                            <div class="bg-secondary w-100" style="height: 100%; backdrop-filter: blur(6px); opacity: 0.8; border-radius: 8px; display: flex; align-items: center; justify-content: center;"></div>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Pull</span></button>
+                            <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 2)"><i class="fas fa-sync-alt fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Restart</span></button>
+                            <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 1)"><i class="fas fa-play fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Start</span></button>
+                            <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 3)"><i class="fas fa-power-off fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Stop</span></button>
+                            <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 13)"><i class="fas fa-skull-crossbones fa-xs me-1"></i><span class="container-control-button-label text-warning hide-mobile"> Kill</span></button>
+                            <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i><span class="container-control-button-label text-danger hide-mobile"> Remove</span></button>
+                        </div>
+                        <div class="btn-group hide-mobile" role="group">
+                            <button class="btn btn-outline-light bg-secondary dropdown-toggle btn-sm" type="button" id="dropBtnUpdates" data-bs-toggle="dropdown" aria-expanded="false" style="border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important;">Updates</button>
+                            <ul class="dropdown-menu" aria-labelledby="dropBtnUpdates">
+                                <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 11)">Check</a></li>
+                                <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 7)">Apply</a></li>
+                            </ul>
 
-                        <button class="btn btn-outline-light bg-secondary dropdown-toggle btn-sm" type="button" id="dropBtnGenerate" data-bs-toggle="dropdown" aria-expanded="false">Generate</button>
-                        <ul class="dropdown-menu" aria-labelledby="dropBtnGenerate">
-                            <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 6)">Compose</a></li>
-                            <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 5)">Run</a></li>
-                        </ul>
+                            <button class="btn btn-outline-light bg-secondary dropdown-toggle btn-sm" type="button" id="dropBtnGenerate" data-bs-toggle="dropdown" aria-expanded="false">Generate</button>
+                            <ul class="dropdown-menu" aria-labelledby="dropBtnGenerate">
+                                <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 6)">Compose</a></li>
+                                <li><a class="dropdown-item" href="javascript:void()" onclick="massApplyContainerTrigger(false, 5)">Run</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="bg-secondary rounded p-4">
-        <div class="row">
             <?php if ($pullsNotice) { ?>
-            <div class="col-sm-12">
+            <div class="col-sm-12" style="margin-top: 3em !important;">
                 <div class="rounded m-2 p-2" style="background-color: red;">
                     There is currently no pull data available to show the Updates state. If the Updates column is set to Ignore then no checks will be made for that container. If you want current data, please set all the Update Options to Check for updates or Auto update and click save at the bottom. Once that is done you can click the check all and select Update: Check or Pull from the list. This will take a minute or two as it has to check every image.
                 </div>
             </div>
             <?php } ?>
-            <div class="col-sm-12 hide-mobile">
+            <div class="col-sm-12 hide-mobile" style="margin-top: 3em !important;">
                 <div class="text-end mb-2">
                     <span class="small-text text-muted">
                         Real time updates: <span class="small-text text-muted" title="<?= $sseTitle ?>"><?= $sseLabel ?></span>
