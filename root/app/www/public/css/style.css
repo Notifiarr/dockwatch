@@ -1,6 +1,6 @@
 :root {
     --header-height: 4rem;
-    --nav-width: 65px;
+    --nav-width: 60px;
     --normal-font-size: 1rem;
     --z-fixed: 100
 }
@@ -415,4 +415,26 @@ pre {
 
 .modal.fade .modal-dialog {
     transition: transform .2s ease-out !important;
+}
+
+.l-navbar .show-text {
+    display: none;
+}
+
+.l-navbar.show-navbar .show-text {
+    display: inline !important;
+}
+
+.container-control-buttons-bg {
+    position: absolute;
+    left: 25%;
+    right: 25%;
+    top: 70%;
+    transform: translateY(-62.5%);
+    height: 150%;
+    z-index: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

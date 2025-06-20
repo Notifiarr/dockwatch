@@ -1,0 +1,15 @@
+services:
+  dockwatch:
+    container_name: dockwatch-dev
+    image: ghcr.io/notifiarr/dockwatch:develop
+    restart: unless-stopped
+    ports:
+      - 10000:80/tcp
+    environment:
+      - PUID=1000
+      - PGID=990
+      - TZ=America/New_York
+    volumes:
+      - ./data:/config
+      - ./root/app/www/public:/app/www/public
+      - /var/run/docker.sock:/var/run/docker.sock

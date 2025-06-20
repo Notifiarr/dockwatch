@@ -116,30 +116,68 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
                 </ul>
             </div>
         </header>
-        <div class="l-navbar" id="nav-bar">
-            <nav class="nav">
-                <div>
-                    <a href="#" class="nav_logo"><img src="images/logo.png" height="45"><span class="nav_logo-name">Dockwatch</span></a>
-                    <div class="nav_list">
-                        <a href="#" onclick="serverListToggle()" class="nav_servers_link"><i class="fas fa-server fa-fw nav_icon"></i><span class="nav_name">Servers</span></a>
-                        <a href="#" onclick="initPage('overview')" class="nav_link"><i class="fas fa-heartbeat fa-fw nav_icon"></i><span class="nav_name">Overview</span></a>
-                        <a href="#" onclick="initPage('containers')" class="nav_link"><i class="fas fa-th fa-fw nav_icon"></i><span class="nav_name">Containers</span></a>
-                        <a href="#" onclick="initPage('networks')" class="nav_link"><i class="fas fa-network-wired fa-fw nav_icon"></i><span class="nav_name">Networks</span></a>
-                        <a href="#" onclick="initPage('compose')" class="nav_link"><i class="fab fa-octopus-deploy fa-fw nav_icon"></i><span class="nav_name">Compose</span></a>
-                        <a href="#" onclick="initPage('orphans')" class="nav_link"><i class="fab fa-dropbox fa-fw nav_icon"></i><span class="nav_name">Orphans</span></a>
-                        <a href="#" onclick="initPage('notification')" class="nav_link"><i class="fas fa-comment-dots fa-fw nav_icon"></i><span class="nav_name">Notifications</span></a>
-                        <a href="#" onclick="initPage('settings')" class="nav_link"><i class="fas fa-tools fa-fw nav_icon"></i><span class="nav_name">Settings</span></a>
-                        <a href="#" onclick="initPage('tasks')" class="nav_link"><i class="fas fa-tasks fa-fw nav_icon"></i><span class="nav_name">Tasks</span></a>
-                        <a href="#" onclick="initPage('commands')" class="nav_link"><i class="fab fa-docker fa-fw nav_icon"></i><span class="nav_name">Commands</span></a>
-                        <a href="#" onclick="initPage('logs')" class="nav_link"><i class="fas fa-file-code fa-fw nav_icon"></i><span class="nav_name">Logs</span></a>
-
-                        <?php if (USE_AUTH) { ?>
-                            <div class="ms-1" style="bottom:0; position:absolute;">
-                                <a href="#" onclick="logout()" class="nav_link"><i class="fas fa-sign-out-alt fa-fw nav_icon"></i><span class="nav_name">Logout</span></a>
-                            </div>
-                        <?php } ?>
+        <div class="l-navbar d-flex flex-column justify-content-between p-0 pt-2" id="nav-bar">
+            <nav class="nav h-100 d-flex flex-column gap-1">
+                <div class="d-flex flex-column align-items-start flex-grow-1">
+                    <a href="#" class="nav_logo mx-auto">
+                        <img src="images/logo.png" height="48">
+                        <span class="nav_logo-name d-none d-xl-inline show-text">Dockwatch</span>
+                    </a>
+                    <div class="nav_list d-flex flex-column gap-1 align-items-start flex-grow-1">
+                        <a href="#" onclick="serverListToggle()" class="nav_servers_link">
+                            <i class="fas fa-server fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Servers</span>
+                        </a>
+                        <a href="#" onclick="initPage('overview')" class="nav_link">
+                            <i class="fas fa-heartbeat fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Overview</span>
+                        </a>
+                        <a href="#" onclick="initPage('containers')" class="nav_link">
+                            <i class="fas fa-th fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Containers</span>
+                        </a>
+                        <a href="#" onclick="initPage('networks')" class="nav_link">
+                            <i class="fas fa-network-wired fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Networks</span>
+                        </a>
+                        <a href="#" onclick="initPage('compose')" class="nav_link">
+                            <i class="fab fa-octopus-deploy fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Compose</span>
+                        </a>
+                        <a href="#" onclick="initPage('orphans')" class="nav_link">
+                            <i class="fab fa-dropbox fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Orphans</span>
+                        </a>
+                        <a href="#" onclick="initPage('notification')" class="nav_link">
+                            <i class="fas fa-comment-dots fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Notifications</span>
+                        </a>
+                        <a href="#" onclick="initPage('settings')" class="nav_link">
+                            <i class="fas fa-tools fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Settings</span>
+                        </a>
+                        <a href="#" onclick="initPage('tasks')" class="nav_link">
+                            <i class="fas fa-tasks fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Tasks</span>
+                        </a>
+                        <a href="#" onclick="initPage('commands')" class="nav_link">
+                            <i class="fab fa-docker fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Commands</span>
+                        </a>
+                        <a href="#" onclick="initPage('logs')" class="nav_link">
+                            <i class="fas fa-file-code fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Logs</span>
+                        </a>
                     </div>
                 </div>
+                <?php if (USE_AUTH) { ?>
+                <div class="d-flex flex-column align-items-start">
+                    <a href="#" onclick="logout()" class="nav_link">
+                        <i class="fas fa-sign-out-alt fa-fw nav_icon"></i>
+                        <span class="nav_name d-none d-xl-inline show-text">Logout</span>
+                    </a>
+                </div>
+                <?php } ?>
             </nav>
         </div>
         <div id="page-panel" style="margin-bottom:75px;">

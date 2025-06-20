@@ -43,12 +43,13 @@ function renderContainerRow($nameHash, $return)
     }
 
     $pullData = $pullsFile[$nameHash];
-    $updateStatus = '<span class="badge bg-gray w-75">Unchecked</span>';
+    // Set default update status with dynamic background and prevent text overflow
+    $updateStatus = '<span class="badge bg-gray">Unchecked</span>';
     if ($pullData) {
-        $updateStatus = $pullData['regctlDigest'] == $pullData['imageDigest'] ? '<span class="badge bg-success w-75">Updated</span>' : '<span class="badge bg-warning w-75">Outdated</span>';
+        $updateStatus = $pullData['regctlDigest'] == $pullData['imageDigest'] ? '<span class="badge bg-success">Updated</span>' : '<span class="badge bg-warning">Outdated</span>';
 
         if (!$containerSettings['updates']) {
-            $updateStatus = '<span class="badge bg-gray w-75">Ignored</span>';
+            $updateStatus = '<span class="badge bg-gray">Ignored</span>';
         }
     }
 
