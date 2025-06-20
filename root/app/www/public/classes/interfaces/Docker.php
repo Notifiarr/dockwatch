@@ -53,4 +53,6 @@ interface DockerSock
     public const PRUNE_NETWORK = '/usr/bin/docker network prune -f';
     public const REMOVE_NETWORK = '/usr/bin/docker network rm %s';
     public const GET_NETWORKS = '/usr/bin/docker network %s';
+    //-- DOCKER COMPOSE
+    public const COMPOSE = '/usr/bin/docker compose %s %s';
 }

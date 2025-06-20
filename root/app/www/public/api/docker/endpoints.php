@@ -8,6 +8,20 @@
 */
 
 switch ($path) {
+    case 'compose': //-- ../api/docker/compose/$action
+        switch (true) {
+            case $IS_GET && $action == 'command':
+                if (!$parameters['name']) {
+                    apiResponse(400, ['error' => 'Missing name parameter']);
+                }
+                if (!$parameters['params']) {
+                    apiResponse(400, ['error' => 'Missing parameters']);
+                }
+
+                $apiRequestResponse = $docker->runComposeCommand($parameters['params'], $parameters['name']);
+                break;
+        }
+        break;
     case 'container': //-- .../api/docker/container/$action
         switch (true) {
             case $IS_GET && $action == 'inspect':
@@ -15,7 +29,7 @@ switch ($path) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $apiRequestResponse = $docker->inspect($parameters['name'], $parameters['useCache'], $parameters['format'], $parameters['params']);                
+                $apiRequestResponse = $docker->inspect($parameters['name'], $parameters['useCache'], $parameters['format'], $parameters['params']);
                 break;
             case $IS_GET && $action == 'logs':
                 if (!$parameters['name']) {
@@ -204,7 +218,7 @@ switch ($path) {
                 if (!$payload['password']) {
                     apiResponse(400, ['error' => 'Missing password parameter']);
                 }
-        
+
                 $apiRequestResponse = $docker->login($payload['registry'], $payload['username'], $payload['password']);
                 break;
         }

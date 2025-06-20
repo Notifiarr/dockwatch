@@ -17,10 +17,22 @@ if ($_POST['m'] == 'init') {
     </ol>
     <div class="bg-secondary rounded p-4">
         <div class="row">
+            <div class="col-sm-12" id="dockerComposeCommandsInfo" style="display: none;">
+                <div class="rounded p-2 mb-2 bg-dark">
+                    <span style="color: red;">Docker Compose commands are very experimental</span><br>
+                    <code>{params}</code> should only be used for docker compose options<br>
+                    <code>{container}</code> needs to include the command (<code>up</code>, <code>down</code>, <code>logs</code>, etc.) followed by container name and extra options (<code>-d</code>, <code>--force-recreate</code>, etc.)<br>
+
+                    <pre class="bg-dark primary p-3 rounded" style="color: white; max-height: 500px; overflow: auto; white-space: nowrap;">
+                        --profile profile_name up container_name -d --force-recreate<br>
+                        |______{params}______||_____________{container}_____________|<br>
+                    </pre>
+                </div>
+            </div>
             <div class="col-sm-3">
                 <div class="row">
                     <div class="col-sm-12 mb-2">
-                        <select class="form-select" id="command">
+                        <select class="form-select" id="command" onchange="hideComposeInfo(this.value)">
                             <optgroup label="docker">
                                 <option value="docker/container/inspect">inspect {container}</option>
                                 <option value="docker/networks">network {params}</option>
@@ -30,6 +42,9 @@ if ($_POST['m'] == 'init') {
                                 <option value="docker/container/restart">restart {container}</option>
                                 <option value="docker/container/shell">exec {container} {command}</option>
                                 <option value="docker/processList">ps</option>
+                            </optgroup>
+                            <optgroup label="docker compose">
+                                <option value="docker/compose/command">{params} {container}</option>
                             </optgroup>
                         </select>
                     </div>

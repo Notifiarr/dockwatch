@@ -166,3 +166,13 @@ function deleteCommand(id)
         }
     });
 }
+// ---------------------------------------------------------------------------------------------
+function hideComposeInfo(value)
+{
+    if (value === 'docker/compose/command') {
+        $('#dockerComposeCommandsInfo').show();
+        return;
+    }
+
+    $('#dockerComposeCommandsInfo').hide();
+}

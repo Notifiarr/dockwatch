@@ -18,6 +18,7 @@ class Docker
     use Network;
     use Process;
     use Volume;
+    use Compose;
 
     protected $shell;
     protected $database;
