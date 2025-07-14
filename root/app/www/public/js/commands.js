@@ -171,8 +171,14 @@ function hideComposeInfo(value)
 {
     if (value === 'docker/compose/command') {
         $('#dockerComposeCommandsInfo').show();
+        $('#command-parameters').hide();
+        $('#command-container').prop('placeholder', 'command');
+        $('#command-container-div').addClass('col-md-12');
         return;
     }
 
     $('#dockerComposeCommandsInfo').hide();
+    $('#command-parameters').show();
+    $('#command-container').prop('placeholder', 'container');
+    $('#command-container-div').removeClass('col-md-12');
 }

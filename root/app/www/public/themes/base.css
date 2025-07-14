@@ -237,6 +237,7 @@ p {
     font-size: var(--font-h5) !important;
 }
 
+.nav_link.active > .fab,
 .nav_link.active > .fas,
 .nav_link.active > .nav_name {
     color: var(--primary-800) !important;
@@ -592,4 +593,11 @@ div > li > span.text-success {
 
 .nzxl_space_logo {
     filter: invert(50%);
+}
+
+.dropdown-item {
+    color: var(--text-950) !important;
+}
+.dropdown-item:focus {
+    background-color: var(--primary-500) !important;
 }

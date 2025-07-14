@@ -184,7 +184,7 @@ span.h5 {
 
 .btn-outline-light,
 .btn.btn-outline-light.bg-secondary > span {
-  color: var(--text-500) !important;
+  color: var(--text-800) !important;
 }
 
 .card, .card-header {
@@ -219,4 +219,8 @@ td.bg-secondary {
   color: var(--text-950) !important;
   background-color: var(--background-400) !important;
   border-color: var(--background-500) !important;
+}
+
+.text-light {
+    color: var(--secondary-50) !important;
 }

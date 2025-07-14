@@ -117,7 +117,7 @@ function initPage(page)
     currentPage = page;
     init = true;
     $('[id^=content-]').hide();
-    $('#content-' + page).html('<div class="text-center">Loading ' + page + ' page...</div>').show();
+    $('#content-' + page).html('<div class="text-center"></div>').hide();
     $('[id^=menu-]').removeClass('active');
     $('#menu-' + page).addClass('active');
 
@@ -127,7 +127,7 @@ function initPage(page)
         data: '&m=init&page=' + page,
         success: function (resultData) {
             init = false;
-            $('#content-' + page).html(resultData);
+            $('#content-' + page).html(resultData).fadeIn(100);
 
             if (page == 'overview') {
                 drawOverview();

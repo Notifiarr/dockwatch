@@ -20,13 +20,7 @@ if ($_POST['m'] == 'init') {
             <div class="col-sm-12" id="dockerComposeCommandsInfo" style="display: none;">
                 <div class="rounded p-2 mb-2 bg-dark">
                     <span style="color: red;">Docker Compose commands are very experimental</span><br>
-                    <code>{params}</code> should only be used for docker compose options<br>
-                    <code>{container}</code> needs to include the command (<code>up</code>, <code>down</code>, <code>logs</code>, etc.) followed by container name and extra options (<code>-d</code>, <code>--force-recreate</code>, etc.)<br>
-
-                    <pre class="bg-dark primary p-3 rounded" style="color: white; max-height: 500px; overflow: auto; white-space: nowrap;">
-                        --profile profile_name up container_name -d --force-recreate<br>
-                        |______{params}______||_____________{container}_____________|<br>
-                    </pre>
+                    <span style="color: red;">You will need to mount your <code>docker-compose.yaml</code> file and specify the path to it with <code>-f path</code></span>
                 </div>
             </div>
             <div class="col-sm-3">
@@ -44,11 +38,11 @@ if ($_POST['m'] == 'init') {
                                 <option value="docker/processList">ps</option>
                             </optgroup>
                             <optgroup label="docker compose">
-                                <option value="docker/compose/command">{params} {container}</option>
+                                <option value="docker/compose/command">{command}</option>
                             </optgroup>
                         </select>
                     </div>
-                    <div class="col-sm-12 col-md-6">
+                    <div class="col-sm-12 col-md-6" id="command-container-div">
                         <input id="command-container" type="text" placeholder="container" class="form-control">
                     </div>
                     <div class="col-sm-12 col-md-6">
