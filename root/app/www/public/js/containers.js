@@ -641,7 +641,7 @@ function containerInfo(hash)
     });
 }
 // -------------------------------------------------------------------------------------------
-function containerShell(container, wsAvailable)
+function containerShell(container)
 {
     $.ajax({
         type: 'POST',
@@ -682,19 +682,23 @@ function containerShell(container, wsAvailable)
             terminal.open(terminalContainer);
             writeMotd(terminal);
 
-            if (fitAddon) {
-                try {
-                    fitAddon.fit();
-                } catch (e) {
-                    // console.error("Error fitting terminal:", e);
-                }
-            }
-
             terminal.element.style.padding = '12px';
             terminal.writeln('Connecting to container shell... This can take a few moments!\r\n');
 
+            //-- FIT TERMINAL FUNC (THIS TIME IT SHOULD WORK)
+            const fitTerminal = () => {
+                if (fitAddon) {
+                    //-- SPAM IT
+                    for (let i = 0; i < 3; i++) {
+                        fitAddon.fit();
+                    }
+                    //-- TRIGGER AGAIN AFTER A MOMENT
+                    setTimeout(() => fitAddon.fit(), 100);
+                    setTimeout(() => fitAddon.fit(), 300);
+                }
+            }
+
             const socket = new WebSocket(`${JSON.parse(resultData)['url']}`);
-            let currentWorkingDir = '/';
             let msgCount = 0;
 
             socket.onopen = () => {
@@ -702,6 +706,7 @@ function containerShell(container, wsAvailable)
                 setTimeout(() => {
                     if (socket.readyState === WebSocket.OPEN) {
                         terminal.focus();
+                        fitTerminal();
                     }
                 }, 500);
             };
@@ -724,14 +729,17 @@ function containerShell(container, wsAvailable)
                     if (data.success) {
                         terminal.writeln(`${data.message}`);
                         if (data.message.toString().startsWith("Connected to container")) {
-                            fitAddon.fit();
+                            fitTerminal();
+
                             setTimeout(() => {
                                 socket.send(JSON.stringify({
                                     action: 'resize',
                                     cols: terminal.cols,
                                     rows: terminal.rows
                                 }));
-                            }, 1e3);
+
+                                fitTerminal();
+                            }, 1000);
                         }
                         return;
                     }
@@ -752,7 +760,6 @@ function containerShell(container, wsAvailable)
                         dialogClose('xtermShell');
                     }
                 } catch (e) {
-                    // console.error("Error processing message:", e);
                     terminal.writeln(`\r\nError processing server message: ${e.message}\r\n`);
                 }
             };
@@ -796,12 +803,16 @@ function containerShell(container, wsAvailable)
                         rows: size.rows
                     }));
                 }
+                fitTerminal();
             });
 
             window.addEventListener('resize', () => {
-                if (fitAddon) {
-                    fitAddon.fit();
-                }
+                fitTerminal();
+            });
+
+            //-- TRY TO FIT WHEN MODAL IS SHOWN
+            $('#xtermShell').on('shown.bs.modal', function () {
+                fitTerminal();
             });
 
             window.activeTerminalHandlers = {
