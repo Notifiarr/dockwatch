@@ -9,6 +9,12 @@
 
 require 'shared.php';
 
+use Phiki\Phiki;
+use Phiki\Grammar\Grammar;
+use Phiki\Theme\Theme;
+
+$phiki = new Phiki();
+
 $composeExample = 'services:
   dockwatch:
     image: "ghcr.io/notifiarr/dockwatch:main"
@@ -99,7 +105,7 @@ if ($_POST['m'] == 'init') {
                             ?>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary"><?= $existingComposeFolder ?></td>
-                                <?php 
+                                <?php
                                 if ($composeExists) {
                                     ?>
                                     <td class="bg-secondary">
@@ -138,10 +144,13 @@ if ($_POST['m'] == 'composeSave') {
 if ($_POST['m'] == 'composeModify') {
     $path       = $_POST['composePath'] . '/docker-compose.yml';
     $compose    = file_get_contents($path);
+    $syntaxHighlighted = $phiki->codeToHtml($compose, Grammar::Yaml, Theme::GithubDark);
 
     ?>
     <code><?= $_POST['composePath'] ?>/docker-compose.yml</code><br>
-    <textarea id="compose-data" class="form-control" rows="15"><?= $compose ?></textarea><br>
+    <div id="compose-data" contenteditable="true">
+        <?= $syntaxHighlighted ?>
+    </div>
     <center><input type="button" class="btn btn-outline-success" value="Save changes" onclick="composeSave('<?= $_POST['composePath'] ?>')"></center>
     <?php
 }

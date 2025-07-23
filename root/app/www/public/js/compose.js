@@ -17,7 +17,7 @@ function composeAdd()
 // ---------------------------------------------------------------------------------------------
 function composeSave(composePath)
 {
-    if (!$('#compose-data').val()) {
+    if (!$('#compose-data').text().trim()) {
         toast('Compose', 'The compose data is required to save.', 'error');
         return;
     }
@@ -25,7 +25,7 @@ function composeSave(composePath)
     $.ajax({
         type: 'POST',
         url: 'ajax/compose.php',
-        data: '&m=composeSave&composePath=' + composePath + '&compose=' + fixedEncodeURIComponent($('#compose-data').val()),
+        data: '&m=composeSave&composePath=' + composePath + '&compose=' + fixedEncodeURIComponent($('#compose-data').text().trim()),
         success: function (resultData) {
             toast('Compose', 'Compose changes saved, you can close the popup if you are done editing', 'success');
         }
@@ -91,7 +91,7 @@ function composeModify(composePath)
                 size: 'lg',
                 body: resultData,
                 onOpen: function () {
-        
+
                 }
             });
         }
