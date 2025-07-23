@@ -3,7 +3,7 @@
     "type": "project",
     "require": {
         "cboden/ratchet": "^0.4.4",
-        "symfony/process": "^7.2"
+        "phiki/phiki": "^1.1"
     },
     "license": "MIT"
 }

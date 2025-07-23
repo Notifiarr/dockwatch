@@ -53,6 +53,12 @@ ARG REGCTL_VERSION=v0.5.6
 RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclient/releases/download/${REGCTL_VERSION}/regctl-linux-${TARGETARCH}" \
   && chmod +x /usr/local/bin/regctl
 
+# add yq for YAML processing
+ARG TARGETARCH
+ARG YQ_VERSION=v4.46.1
+RUN curl -sSf -L -o /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETARCH}" \
+  && chmod +x /usr/local/bin/yq
+
 # permissions & docker packages
 ARG INSTALL_PACKAGES="docker docker-cli-compose"
 RUN apk add --update ${INSTALL_PACKAGES} && \
