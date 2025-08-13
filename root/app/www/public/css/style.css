@@ -468,3 +468,29 @@ pre code > span::before {
     font-size: 0.95em;
     user-select: none;
 }
+
+.container-group-row>.container-table-row {
+    padding-left: 2em;
+}
+
+.container-group-row.even>.bg-secondary {
+    background: var(--text-50) !important;
+}
+.container-group-row.odd>.bg-secondary {
+    background: var(--text-100) !important;
+}
+
+#container-table_filter>label {
+    font-size: 0;
+}
+#container-table_filter>label * {
+    font-size: initial;
+}
+#container-table_filter>label>input {
+    min-width: 20vh;
+}
+#container-table_filter>label>input:focus {
+    box-shadow: none !important;
+    outline: none !important;
+    border-color: var(--bs-primary);
+}

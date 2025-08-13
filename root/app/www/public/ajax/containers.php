@@ -960,10 +960,11 @@ if ($_POST['m'] == 'loadContainerGroup') {
         }
 
         ?>
-        <tr>
-            <th scope="row"><?= $inGroup ? ($inThisGroup ? '<input id="groupContainer-' . $container['id'] . '" type="checkbox" checked class="form-check-input group-check">' : '') : '<input id="groupContainer-' . $container['id'] . '" type="checkbox" class="form-check-input group-check">' ?></th>
-            <td><?= $process['Names'] ?></td>
-            <td><?= $inGroup ?: '<span class="text-warning">Not assigned</span>' ?></td>
+
+        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+            <td class="bg-secondary" scope="row"><?= $inGroup ? ($inThisGroup ? '<input id="groupContainer-' . $container['id'] . '" type="checkbox" checked class="form-check-input group-check">' : '') : '<input id="groupContainer-' . $container['id'] . '" type="checkbox" class="form-check-input group-check">' ?></td>
+            <td class="bg-secondary"><?= $process['Names'] ?></td>
+            <td class="bg-secondary"><?= $inGroup ?: '<span class="text-warning">Not assigned</span>' ?></td>
         </tr>
         <?php
     }
