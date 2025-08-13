@@ -439,3 +439,32 @@ pre {
     align-items: center;
     justify-content: center;
 }
+
+pre {
+    counter-reset: line;
+    padding-left: 3em;
+    position: relative;
+}
+
+pre code {
+    display: block;
+}
+
+pre code > span {
+    display: block;
+    position: relative;
+    padding-left: 0.5em;
+}
+
+pre code > span::before {
+    counter-increment: line;
+    content: counter(line);
+    position: absolute;
+    left: -2.5em;
+    width: 2em;
+    text-align: right;
+    color: #888;
+    background: transparent;
+    font-size: 0.95em;
+    user-select: none;
+}

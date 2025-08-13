@@ -137,7 +137,28 @@ if ($_POST['m'] == 'init') {
 if ($_POST['m'] == 'composeSave') {
     //-- MAKE SURE THE PATH IS IN THE COMPOSE LOCATION PATH
     if (substr($_POST['composePath'], 0, strlen(COMPOSE_PATH)) == COMPOSE_PATH) {
-        file_put_contents($_POST['composePath'] . '/docker-compose.yml', rawurldecode($_POST['compose']));
+        $path = $_POST['composePath'] . '/docker-compose.yml';
+
+        //-- SAVE TO FILE
+        file_put_contents($path, rawurldecode($_POST['compose']));
+
+        //-- VALIDATE YAML
+        $yqOutput = $shell->exec('yq eval "." ' . escapeshellarg($path) . ' 2>&1');
+        $yqResult = str_contains($yqOutput, 'Error') ? $yqOutput : '0';
+
+        //-- CHECK IF IT IS A VALID DOCKER COMPOSE FILE
+        $dockerOutput = $shell->exec('docker compose -f ' . escapeshellarg($path) . ' config 2>&1');
+        $dockerResult = !str_contains($dockerOutput, 'name') ? $dockerOutput : '0';
+
+        //-- RETURN RESULTS
+        if ($yqResult === '0' && $dockerResult === '0') {
+            $compose            = file_get_contents($path);
+            $syntaxHighlighted  = $phiki->codeToHtml($compose, Grammar::Yaml, Theme::GithubDark);
+
+            echo $syntaxHighlighted;
+        } else {
+            echo 'Failed to save file.<br>Error: ' . htmlspecialchars($yqResult !== '0' ? preg_replace('/^Error:\s*/', '', $yqResult) : $dockerResult);
+        }
     }
 }
 
@@ -148,10 +169,9 @@ if ($_POST['m'] == 'composeModify') {
 
     ?>
     <code><?= $_POST['composePath'] ?>/docker-compose.yml</code><br>
-    <div id="compose-data" contenteditable="true">
-        <?= $syntaxHighlighted ?>
-    </div>
-    <center><input type="button" class="btn btn-outline-success" value="Save changes" onclick="composeSave('<?= $_POST['composePath'] ?>')"></center>
+    <div id="compose-data-preview" onclick="$('#compose-data').show(); $(this).hide();"><?= $syntaxHighlighted ?></div>
+    <textarea id="compose-data" class="form-control" rows="15" style='display: none;'><?= $compose ?></textarea><br>
+    <center><input type="button" class="btn btn-outline-success" value="Save file" onclick="composeSave('<?= $_POST['composePath'] ?>', $('#compose-data').val())"></center>
     <?php
 }
 
