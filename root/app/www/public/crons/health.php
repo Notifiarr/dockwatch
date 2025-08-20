@@ -41,9 +41,9 @@ foreach ($containerList as $container) {
             logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' has not been restarted or notified for yet');
             $unhealthy[$nameHash] = ['name' => $container['name'], 'image' => $container['image'], 'id' => $container['id']];
         }
-    } else if ($container['health'] == 'healthy' && $unhealthy[$nameHash] || $container['health'] == null && $unhealthy[$nameHash]) {
+    } elseif ($container['health'] == 'healthy' && $unhealthy[$nameHash] || $container['health'] == null && $unhealthy[$nameHash]) {
         unset($unhealthy[$nameHash]);
-        logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' has not been removed from the unhealthy list');
+        logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' has been removed from the unhealthy list');
     }
 }
 
@@ -53,11 +53,7 @@ if ($unhealthy) {
     $containersTable = apiRequest('database/containers')['result'];
 
     foreach ($unhealthy as $nameHash => $container) {
-        $notify = false;
-
-        if ($container['restart'] || $container['notify']) {
-            continue;
-        }
+        $notify         = false;
         $thisContainer  = apiRequest('database/container/hash', ['hash' => $nameHash])['result'];
         $skipActions    = skipContainerActions($container['name'], $skipContainerActions);
 
