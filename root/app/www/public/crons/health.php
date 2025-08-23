@@ -34,16 +34,29 @@ logger(CRON_HEALTH_LOG, '$unhealthy=' . json_encode($unhealthy, JSON_UNESCAPED_S
 foreach ($containerList as $container) {
     $nameHash = md5($container['name']);
 
-    if ($container['health'] == 'unhealthy') {
-        logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' (' . $container['id'] . ') is unhealthy');
-
-        if (!$unhealthy[$nameHash]) {
-            logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' has not been restarted or notified for yet');
-            $unhealthy[$nameHash] = ['name' => $container['name'], 'image' => $container['image'], 'id' => $container['id']];
-        }
-    } elseif ($container['health'] == 'healthy' && $unhealthy[$nameHash] || $container['health'] == null && $unhealthy[$nameHash]) {
+    if (!str_contains($container['State'], 'running')) {
         unset($unhealthy[$nameHash]);
-        logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' has been removed from the unhealthy list');
+        logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' is not running and wont be checked');
+        continue;
+    }
+
+    switch ($container['health']) {
+        case 'unhealthy':
+            logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' (' . $container['id'] . ') is unhealthy');
+
+            if (!$unhealthy[$nameHash]) {
+                logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' has not been restarted or notified for yet');
+                $unhealthy[$nameHash] = ['name' => $container['name'], 'image' => $container['image'], 'id' => $container['id']];
+            }
+            break;
+        case 'healthy':
+            unset($unhealthy[$nameHash]);
+            logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' is healthy');
+            break;
+        default:
+            unset($unhealthy[$nameHash]);
+            logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' does not support health checks');
+            break;
     }
 }
 
