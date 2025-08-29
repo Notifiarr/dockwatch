@@ -4,7 +4,7 @@ function runTask(task)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/tasks.php',
+        url: 'ajax/tasks.php',
         data: '&m=runTask&task=' + task,
         dataType: 'json',
         success: function (resultData) {
@@ -26,7 +26,7 @@ function updateTaskDisabled(task, state)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/tasks.php',
+        url: 'ajax/tasks.php',
         data: '&m=updateTaskDisabled&task=' + task + '&disabled=' + state,
         dataType: 'json',
         success: function (resultData) {

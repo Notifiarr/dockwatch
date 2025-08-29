@@ -471,7 +471,7 @@ if ($_POST['m'] == 'containerShell') {
         //-- BUILD WEBSOCKET CONNECT URL
         $wsUrl = $settingsTable['websocketUrl'] ?: '';
         $wsPort = $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT;
-        $basePath = '/ws';
+        $basePath = $_SERVER['BASE_URL'] . '/ws';
         $parameters = '?token=' . $token . '&container=' . $container;
 
         if (empty($wsUrl)) {

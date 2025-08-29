@@ -38,7 +38,7 @@ function runCommand(payload)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/commands.php',
+        url: 'ajax/commands.php',
         data: '&m=runCommand&command=' + $('#command').val() + '&container=' + $('#command-container').val() + '&parameters=' + $('#command-parameters').val() + '&servers=' + servers,
         success: function (resultData) {
             $('#commandResults').html(resultData);
@@ -52,7 +52,7 @@ function saveCommand(id)
     if (id) {
         $.ajax({
             type: 'POST',
-            url: '../ajax/commands.php',
+            url: 'ajax/commands.php',
             data: '&m=saveCommand&id=' + id + '&parameters=' + $(`#list-command-${id}-parameters`).val() + '&servers=' + $(`#list-command-${id}-servers`).val() + '&cron=' + $(`#list-command-${id}-cron`).val(),
             success: function (resultData) {
                 if (JSON.parse(resultData)) {
@@ -81,7 +81,7 @@ function saveCommand(id)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/commands.php',
+        url: 'ajax/commands.php',
         data: '&m=saveCommand&command=' + $('#command').val() + '&container=' + $('#command-container').val() + '&parameters=' + $('#command-parameters').val() + '&servers=' + servers,
         success: function (resultData) {
             pageLoadingStop();
@@ -100,7 +100,7 @@ function listCommand()
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/commands.php',
+        url: 'ajax/commands.php',
         data: '&m=listCommand',
         success: function (resultData) {
             pageLoadingStop();
@@ -155,7 +155,7 @@ function deleteCommand(id)
 {
     $.ajax({
         type: 'POST',
-        url: '../ajax/commands.php',
+        url: 'ajax/commands.php',
         data: '&m=deleteCommand&id=' + id,
         success: function (resultData) {
             if (JSON.parse(resultData)) {

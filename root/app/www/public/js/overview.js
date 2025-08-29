@@ -184,7 +184,7 @@ function toggleOverviewView()
 {
     $.ajax({
         type: 'POST',
-        url: '../ajax/overview.php',
+        url: 'ajax/overview.php',
         data: '&m=toggleOverviewView&enabled=' + ($('#overviewDetailed').prop('checked') ? 1 : 0),
         success: function (resultData) {
             initPage('overview');

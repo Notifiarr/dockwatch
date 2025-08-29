@@ -1,7 +1,7 @@
 services:
   dockwatch:
     container_name: dockwatch-dev
-    image: ghcr.io/notifiarr/dockwatch:develop
+    image: ghcr.io/notifiarr/dockwatch:nightly
     restart: unless-stopped
     ports:
       - 10000:80/tcp
@@ -9,6 +9,7 @@ services:
       - PUID=1000
       - PGID=990
       - TZ=America/New_York
+      - BASE_URL=/dockwatch
     volumes:
       - ./data:/config
       - ./root/app/www/public:/app/www/public

@@ -16,7 +16,7 @@ function saveGlobalSettings()
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/settings.php',
+        url: 'ajax/settings.php',
         data: '&m=saveGlobalSettings' + params,
         dataType: 'json',
         success: function (resultData) {
@@ -38,7 +38,7 @@ function unlinkRemoteServer(serverId)
     if (confirm('Are you sure you want to remove this remote server?')) {
         $.ajax({
             type: 'POST',
-            url: '../ajax/settings.php',
+            url: 'ajax/settings.php',
             data: '&m=unlinkRemoteServer&id=' + serverId,
             success: function (resultData) {
                 $('#remoteServer-' + serverId).remove();
@@ -52,7 +52,7 @@ function updateSetting(setting, value)
 {
     $.ajax({
         type: 'POST',
-        url: '../ajax/settings.php',
+        url: 'ajax/settings.php',
         data: '&m=updateSetting&setting=' + setting + '&value=' + value,
         success: function (resultData) {
             if (setting == 'defaultTheme') {

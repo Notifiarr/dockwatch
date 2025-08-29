@@ -1,6 +1,12 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
 
+# patch nginx conf with base_url env
+BASE_URL="${BASE_URL:-/}"
+sed -i -e "s|\${BASE_URL}|${BASE_URL}|g" \
+       -e "/location.*\/\// s|//|/|g" /etc/nginx/nginx.conf
+echo "s6-overlay init Patched nginx.conf with BASE_URL=${BASE_URL}"
+
 echo 's6-overlay init require(/app/www/public/startup.php) ->';
 s6-setuidgid abc php -r "require '/app/www/public/startup.php';"
 echo 's6-overlay init require(/app/www/public/startup.php) <-';
