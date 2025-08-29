@@ -134,7 +134,7 @@ if ($_POST['m'] == 'init') {
                                     ?>
                                     <tr id="<?= $groupHash ?>" class="container-group">
                                         <td class="container-table-row bg-secondary"><input type="checkbox" class="form-check-input containers-check" onchange="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></td>
-                                        <td class="container-table-row bg-secondary"><img src="<?= ABSOLUTE_PATH ?>images/container-group.png" height="32" width="32"></td>
+                                        <td class="container-table-row bg-secondary"><img src="images/container-group.png" height="32" width="32"></td>
                                         <td class="container-table-row bg-secondary">
                                             <span class="text-info container-group-label" style="cursor: pointer;" onclick="$('.<?= $groupHash ?>').toggle()"><?= $containerGroup['name'] ?></span><br>
                                             <span class="text-muted small-text">Containers: <?= $groupContainerCount ?></span>
@@ -481,7 +481,7 @@ if ($_POST['m'] == 'containerShell') {
         //-- BUILD WEBSOCKET CONNECT URL
         $wsUrl = $settingsTable['websocketUrl'] ?: '';
         $wsPort = $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT;
-        $basePath = '/ws';
+        $basePath = $_SERVER['BASE_URL'] . '/ws';
         $parameters = '?token=' . $token . '&container=' . $container;
 
         if (empty($wsUrl)) {

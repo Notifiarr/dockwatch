@@ -8,7 +8,7 @@ function viewLog(name, hash)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/logs.php',
+        url: 'ajax/logs.php',
         data: '&m=viewLog&name=' + name,
         dataType: 'json',
         success: function (resultData) {
@@ -36,7 +36,7 @@ function downloadLog(name, hash)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/logs.php',
+        url: 'ajax/logs.php',
         data: '&m=viewLog&name=' + name,
         dataType: 'json',
         success: function (resultData) {
@@ -78,7 +78,7 @@ function purgeLogs(group)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/logs.php',
+        url: 'ajax/logs.php',
         data: '&m=purgeLogs&group=' + group,
         success: function (resultData) {
             initPage('logs');
@@ -94,7 +94,7 @@ function deleteLog(log)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/logs.php',
+        url: 'ajax/logs.php',
         data: '&m=deleteLog&log=' + log,
         success: function (resultData) {
             initPage('logs');

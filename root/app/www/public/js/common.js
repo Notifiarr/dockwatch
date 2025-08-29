@@ -123,7 +123,7 @@ function initPage(page)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/' + page + '.php',
+        url: 'ajax/' + page + '.php',
         data: '&m=init&page=' + page,
         success: function (resultData) {
             init = false;
@@ -219,7 +219,7 @@ function login()
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/login.php',
+        url: 'ajax/login.php',
         data: '&m=login&user=' + $('#username').val() + '&pass=' + $('#password').val(),
         dataType: 'json',
         success: function (resultData) {
@@ -244,7 +244,7 @@ function logout()
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/login.php',
+        url: 'ajax/login.php',
         data: '&m=logout',
         success: function (resultData) {
             reload();
@@ -254,7 +254,7 @@ function logout()
 // ---------------------------------------------------------------------------------------------
 function reload()
 {
-    window.location.href='/';
+    window.location.href = './';
 }
 // ---------------------------------------------------------------------------------------------
 function toast(title, message, type)
@@ -303,7 +303,7 @@ function updateActiveServer(serverId)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/settings.php',
+        url: 'ajax/settings.php',
         data: '&m=updateActiveServer&id=' + serverId,
         success: function (resultData) {
             initPage(currentPage);
@@ -445,7 +445,7 @@ function dockwatchMaintenance(action)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/maintenance.php',
+        url: 'ajax/maintenance.php',
         data: '&m=dockwatchMaintenance&action=' + action
     });
 }
@@ -491,7 +491,7 @@ function resetSession()
 {
     $.ajax({
         type: 'POST',
-        url: '../ajax/login.php',
+        url: 'ajax/login.php',
         data: '&m=resetSession',
         success: function (resultData) {
             reload();

@@ -37,7 +37,7 @@ function saveNotification(platformId, linkId)
     pageLoadingStart();
     $.ajax({
         type: 'POST',
-        url: '../ajax/notification.php',
+        url: 'ajax/notification.php',
         data: '&m=saveNotification&platformId=' + platformId + '&linkId=' + linkId + params,
         dataType: 'json',
         success: function (resultData) {
@@ -94,7 +94,7 @@ function addNotification(platformId)
     pageLoadingStart();
     $.ajax({
         type: 'POST',
-        url: '../ajax/notification.php',
+        url: 'ajax/notification.php',
         data: '&m=addNotification&platformId=' + platformId + params,
         dataType: 'json',
         success: function (resultData) {
@@ -118,7 +118,7 @@ function deleteNotification(linkId)
         pageLoadingStart();
         $.ajax({
             type: 'POST',
-            url: '../ajax/notification.php',
+            url: 'ajax/notification.php',
             data: '&m=deleteNotification&linkId=' + linkId,
             success: function (resultData) {
                 pageLoadingStop();
@@ -135,7 +135,7 @@ function openNotificationTriggers(platformId, linkId = 0)
 {
     $.ajax({
         type: 'POST',
-        url: '../ajax/notification.php',
+        url: 'ajax/notification.php',
         data: '&m=openNotificationTriggers&platformId=' + platformId + '&linkId=' + linkId,
         success: function (resultData) {
             dialogOpen({
@@ -143,7 +143,7 @@ function openNotificationTriggers(platformId, linkId = 0)
                 title: 'Notification triggers - ' + (linkId ? 'Edit' : 'Add'),
                 size: 'lg',
                 body: resultData
-            });           
+            });
         }
     });
 }
@@ -154,7 +154,7 @@ function testNotify(linkId, name)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/notification.php',
+        url: 'ajax/notification.php',
         data: '&m=testNotify&linkId=' + linkId + '&name=' + name,
         dataType: 'json',
         success: function (resultData) {

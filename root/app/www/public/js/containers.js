@@ -172,7 +172,7 @@ function controlContainer(containerHash, action)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/containers.php',
+        url: 'ajax/containers.php',
         data: '&m=controlContainer&hash=' + containerHash + '&action=' + action,
         dataType: 'json',
         success: function (resultData) {
@@ -237,7 +237,7 @@ function massApplyContainerTrigger(dependencyTrigger = false, action = 0, contai
 
         $.ajax({
             type: 'POST',
-            url: '../ajax/containers.php',
+            url: 'ajax/containers.php',
             data: '&m=massApplyContainerTrigger&trigger=' + $('#massContainerTrigger').val() + '&hash=' + hashes,
             dataType: 'json',
             async: 'global',
@@ -304,7 +304,7 @@ function massApplyContainerTrigger(dependencyTrigger = false, action = 0, contai
 
             $.ajax({
                 type: 'POST',
-                url: '../ajax/containers.php',
+                url: 'ajax/containers.php',
                 data: '&m=massApplyContainerTrigger&trigger=' + $('#massContainerTrigger').val() + '&hash=' + containerHash,
                 dataType: 'json',
                 timeout: 600000,
@@ -362,7 +362,7 @@ function openContainerGroups()
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/containers.php',
+        url: 'ajax/containers.php',
         data: '&m=openContainerGroups',
         success: function (resultData) {
             $('#containerGroup-containers').html(resultData);
@@ -382,7 +382,7 @@ function loadContainerGroup()
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/containers.php',
+        url: 'ajax/containers.php',
         data: '&m=loadContainerGroup&groupId=' + $('#groupSelection').val(),
         success: function (resultData) {
             $('#containerGroupRows').html(resultData);
@@ -416,7 +416,7 @@ function saveContainerGroup()
     pageLoadingStart();
     $.ajax({
         type: 'POST',
-        url: '../ajax/containers.php',
+        url: 'ajax/containers.php',
         data: '&m=saveContainerGroup&groupId=' + $('#groupSelection').val() + '&name=' + $('#groupName').val() + '&delete=' + ($('#groupDelete').prop('checked') ? 1 : 0) + params,
         success: function (resultData) {
             pageLoadingStop();
@@ -449,7 +449,7 @@ function openUpdateOptions()
     pageLoadingStart();
     $.ajax({
         type: 'POST',
-        url: '../ajax/containers.php',
+        url: 'ajax/containers.php',
         data: '&m=openUpdateOptions',
         success: function (resultData) {
             $('#updateOptions-containers').html(resultData);
@@ -476,7 +476,7 @@ function saveUpdateOptions()
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/containers.php',
+        url: 'ajax/containers.php',
         data: '&m=saveUpdateOptions' + params,
         success: function (resultData) {
             pageLoadingStop();
@@ -544,7 +544,7 @@ function containerLogs(container)
     pageLoadingStart();
     $.ajax({
         type: 'POST',
-        url: '../ajax/containers.php',
+        url: 'ajax/containers.php',
         data: '&m=containerLogs&container=' + container,
         success: function (resultData) {
             dialogOpen({
@@ -627,7 +627,7 @@ function containerInfo(hash)
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/containers.php',
+        url: 'ajax/containers.php',
         data: '&m=containerInfo&hash=' + hash,
         success: function (resultData) {
             new popup('#left-slider', {
@@ -645,7 +645,7 @@ function containerShell(container)
 {
     $.ajax({
         type: 'POST',
-        url: '../ajax/containers.php',
+        url: 'ajax/containers.php',
         data: '&m=containerShell&container=' + container,
         success: function (resultData) {
             dialogOpen({
@@ -882,7 +882,7 @@ function registryLogin(registry)
     pageLoadingStart();
     $.ajax({
         type: 'POST',
-        url: '../ajax/containers.php',
+        url: 'ajax/containers.php',
         data: '&m=registryLogin&registry=' + fields['url'] + '&username=' + fields['username'] + '&password=' + fields['password'],
         success: function (resultData) {
             pageLoadingStop();
@@ -908,7 +908,7 @@ function saveContainerGuiLink(hash)
 {
     $.ajax({
         type: 'POST',
-        url: '../ajax/containers.php',
+        url: 'ajax/containers.php',
         data: '&m=saveContainerGuiLink&hash=' + hash + '&link=' + $('#containerGuiLink').val(),
         success: function (resultData) {
             toast('Container GUI', 'Custom GUI link saved', 'info');

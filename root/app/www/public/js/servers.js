@@ -4,7 +4,7 @@ function serverListToggle()
 
     $.ajax({
         type: 'POST',
-        url: '../ajax/servers.php',
+        url: 'ajax/servers.php',
         data: '&m=serverListToggle',
         success: function (resultData) {
             new popup('#left-slider', {

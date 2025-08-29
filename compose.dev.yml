@@ -1,5 +1,6 @@
 services:
   dockwatch:
+    network_mode: bridge
     container_name: dockwatch-dev
     image: ghcr.io/notifiarr/dockwatch:develop
     restart: unless-stopped
@@ -13,3 +14,20 @@ services:
       - ./data:/config
       - ./root/app/www/public:/app/www/public
       - /var/run/docker.sock:/var/run/docker.sock
+  nginx:
+    image: lscr.io/linuxserver/nginx:latest
+    network_mode: bridge
+    container_name: nginx-dev
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - NGINX_AUTORELOAD= #optional
+      - NGINX_AUTORELOAD_WATCHLIST= #optional
+    volumes:
+      - ./data/nginx-dev:/config
+    ports:
+      - 12345:80
+      - 12346:443
+    restart: unless-stopped
+

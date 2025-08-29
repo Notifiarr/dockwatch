@@ -66,6 +66,14 @@ foreach ($autoloadFiles as $autoloadFile) {
     require $autoloadFile;
 }
 
+//-- SET URL BASE FROM FILE IF IT EXISTS AND IS NOT EMPTY
+if (file_exists(BASE_URL_FILE)) {
+    $baseUrl = trim(file_get_contents(BASE_URL_FILE));
+    if (!empty($baseUrl)) {
+        $_SERVER['BASE_URL'] = $baseUrl;
+    }
+}
+
 switch (ACCESS_MODE) {
     case AccessMode::R:
         $accessModeClass = 'text-danger';

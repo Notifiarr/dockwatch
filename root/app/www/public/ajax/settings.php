@@ -70,6 +70,13 @@ if ($_POST['m'] == 'init') {
                         </td>
                         <td class="bg-secondary">Best to leave empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Example (https): <code class="mx-1">wss://my.cool.domain/ws</code></td>
                     </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Base URL<sup>5</sup></td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-baseUrl" value="<?= $_SERVER['BASE_URL'] ?: '' ?>" placeholder="<?= $_SERVER['BASE_URL'] ?: '/' ?>">
+                        </td>
+                        <td class="bg-secondary">Default is empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Must start with a <code>/</code>. Nested paths are not allowed.</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -441,8 +448,8 @@ if ($_POST['m'] == 'init') {
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Debug zip</td>
                         <td class="bg-secondary">
-                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipDatabase"> <label for="globalSetting-debugZipDatabase">Database</label> 
-                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipLogs"> <label for="globalSetting-debugZipLogs">Logs</label> 
+                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipDatabase"> <label for="globalSetting-debugZipDatabase">Database</label>
+                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipLogs"> <label for="globalSetting-debugZipLogs">Logs</label>
                             <input class="form-check-input" type="checkbox" id="globalSetting-debugZipJson"> <label for="globalSetting-debugZipJson">json</label>
                         </td>
                         <td class="bg-secondary">This does not save but triggers a zip file to be created (<code><?= APP_DATA_PATH . 'dockwatch.zip' ?></code>) when clicking save. Should only be needed when asked for by developers and includes (based on selection) database/*, logs/crons/*, logs/api/*, logs/system/*, settings, state, pull, health, stats & dependency json files</td>
@@ -505,6 +512,16 @@ if ($_POST['m'] == 'saveGlobalSettings') {
             linkWebroot('internal');
         } else { //-- USE EXTERNAL
             linkWebroot('external');
+        }
+    }
+
+    //-- BASE URL VALIDATION
+    $baseUrl = rtrim($_POST['baseUrl']);
+    if (file_exists(BASE_URL_FILE) && empty($baseUrl)) {
+        unlink(BASE_URL_FILE);
+    } else {
+        if (preg_match('#^/[\w-]*$#', $baseUrl) && $baseUrl !== '/') {
+            file_put_contents(BASE_URL_FILE, $baseUrl);
         }
     }
 

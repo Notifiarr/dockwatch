@@ -67,6 +67,7 @@ define('DEPENDENCY_FILE', APP_DATA_PATH . 'dependencies.json');
 define('SSE_FILE', APP_DATA_PATH . 'sse.json');
 define('METRICS_FILE', APP_DATA_PATH . 'metrics.json');
 define('COMMANDS_FILE', APP_DATA_PATH . 'commands.json');
+define('BASE_URL_FILE', APP_DATA_PATH . 'base-url.txt');
 define('MIGRATION_FILE', APP_DATA_PATH . 'migration-in-progress.txt');
 define('IS_MIGRATION_RUNNING', (file_exists(MIGRATION_FILE) ? true : false));
 

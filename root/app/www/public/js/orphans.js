@@ -51,7 +51,7 @@ function removeOrphans()
 
         $.ajax({
             type: 'POST',
-            url: '../ajax/orphans.php',
+            url: 'ajax/orphans.php',
             data: '&m=removeOrphans&orphan=' + orphan + '&action=' + action + '&type=' + type,
             timeout: 600000,
             success: function (resultData) {

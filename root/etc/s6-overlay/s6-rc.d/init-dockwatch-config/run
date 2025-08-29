@@ -1,6 +1,18 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
 
+# copy template
+cp /etc/nginx/nginx.conf.template /etc/nginx/nginx.conf
+
+# read base_url from file if it exists else fallback to /
+BASE_URL=$( [ -f /config/base-url.txt ] && cat /config/base-url.txt || echo / )
+[ "$BASE_URL" = "/" ] && BASE_URL=""
+
+# patch nginx.conf for base url
+sed -i -e "s|\${BASE_URL}|${BASE_URL}|g" /etc/nginx/nginx.conf
+echo "s6-overlay init Patched nginx.conf with BASE_URL=${BASE_URL:-/}"
+
+# run startup script
 echo 's6-overlay init require(/app/www/public/startup.php) ->';
 s6-setuidgid abc php -r "require '/app/www/public/startup.php';"
 echo 's6-overlay init require(/app/www/public/startup.php) <-';

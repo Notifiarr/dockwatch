@@ -90,6 +90,9 @@ http {
     include /etc/nginx/http.d/*.conf;
     # include /config/nginx/site-confs/*.conf;
 
+    # Preserve port in redirects
+    port_in_redirect on;
+
     server {
         listen 80 default_server;
         listen [::]:80 default_server;
@@ -100,26 +103,42 @@ http {
         if (!-d /app/www/public) {
             set $root /config/www;
         }
-        root $root;
-        index index.html index.htm index.php;
 
-        location / {
-            try_files $uri $uri/ /index.html /index.php$is_args$args;
+        index index.php;
+
+        # This is needed to avoid a redirect loop when using a base URL
+        location = ${BASE_URL} {
+            return 301 $scheme://$http_host${BASE_URL}/;
         }
 
-        location ~ ^(.+\.php)(.*)$ {
-            try_files $fastcgi_script_name =404;
-            fastcgi_split_path_info ^(.+\.php)(.*)$;
+        # Alias is set to public root
+        location ${BASE_URL}/ {
+            alias $root/;
+            index index.php;
+            try_files $uri $uri/ /index.php$is_args$args;
+        }
+
+        location ~ ^${BASE_URL}/(.+\.php)$ {
+            alias $root/;
+            fastcgi_split_path_info ^${BASE_URL}/(.+\.php)(.*)$;
             fastcgi_pass 127.0.0.1:9000;
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $root/$1; # <- This is all it takes to make it work under an alias
             fastcgi_index index.php;
-            include /etc/nginx/fastcgi_params;
         }
 
-        location ~ ^/api/(.*)$ {
-            try_files $uri /api/index.php?endpoint=$1&$args;
+        # API routing
+        location ~ ^${BASE_URL}/api/(.*)$ {
+            alias $root/;
+            fastcgi_pass 127.0.0.1:9000;
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $root/api/index.php; # <- Same as above but execute api index.php here
+            fastcgi_param QUERY_STRING endpoint=$1&$args;
+            fastcgi_index index.php;
         }
 
-        location /ws {
+        # WebSocket
+        location ${BASE_URL}/ws {
             proxy_pass http://127.0.0.1:9910;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
@@ -127,7 +146,13 @@ http {
             proxy_read_timeout 86400;
         }
 
-        # deny access to .htaccess/.htpasswd files
+        # Health check
+        location /health {
+            return 200 'healthy';
+            add_header Content-Type text/plain;
+        }
+
+        # Deny .ht*
         location ~ /\.ht {
             deny all;
         }
