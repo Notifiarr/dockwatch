@@ -10,6 +10,8 @@
 // This will NOT report uninitialized variables
 error_reporting(E_ERROR | E_PARSE);
 
+define('ACCESS_MODE', 0);
+
 //-- COMPOSER AUTOLOADER
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -43,7 +45,7 @@ $start      = microtime(true);
 
 //-- DIRECTORIES TO LOAD FILES FROM, ORDER IS IMPORTANT
 $autoloadDirs       = ['includes', 'functions', 'functions/helpers', 'classes'];
-$autoloadFiles      = ['classes/interfaces/UI.php'];
+$autoloadFiles      = ['classes/interfaces/Core.php', 'classes/interfaces/UI.php'];
 $ignoreAutoloads    = ['header.php', 'footer.php'];
 
 foreach ($autoloadDirs as $autoloadDir) {
@@ -62,6 +64,21 @@ foreach ($autoloadDirs as $autoloadDir) {
 
 foreach ($autoloadFiles as $autoloadFile) {
     require $autoloadFile;
+}
+
+switch (ACCESS_MODE) {
+    case AccessMode::R:
+        $accessModeClass = 'text-danger';
+        $accessModeHover = 'Read only';
+        break;
+    case AccessMode::RW:
+        $accessModeClass = 'text-warning';
+        $accessModeHover = 'Limited access';
+        break;
+    case AccessMode::RWX:
+        $accessModeClass = 'text-success';
+        $accessModeHover = 'Full access';
+        break;
 }
 
 $loadTimes[] = trackTime('page ->', $start);

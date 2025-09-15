@@ -121,13 +121,18 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
                 <div class="d-flex flex-column align-items-start flex-grow-1">
                     <a href="#" class="nav_logo mx-auto">
                         <img src="images/logo.png" height="48">
-                        <span class="nav_logo-name d-none d-xl-inline show-text">Dockwatch</span>
+                        <span class="nav_logo-name d-none d-xl-inline show-text">
+                            Dockwatch
+                            <sup><i class="fas fa-circle fa-xs <?= $accessModeClass ?>" title="<?= $accessModeHover ?>"></i></sup>
+                        </span>
                     </a>
                     <div class="nav_list d-flex flex-column gap-1 align-items-start flex-grow-1">
+                        <?php if (ACCESS_MODE == AccessMode::RWX) { ?>
                         <a href="#" onclick="serverListToggle()" class="nav_servers_link">
                             <i class="fas fa-server fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Servers</span>
                         </a>
+                        <?php } ?>
                         <a href="#" onclick="initPage('overview')" class="nav_link">
                             <i class="fas fa-heartbeat fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Overview</span>
@@ -140,10 +145,12 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
                             <i class="fas fa-network-wired fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Networks</span>
                         </a>
+                        <?php if (ACCESS_MODE == AccessMode::RWX) { ?>
                         <a href="#" onclick="initPage('compose')" class="nav_link">
                             <i class="fab fa-octopus-deploy fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Compose</span>
                         </a>
+                        <?php } ?>
                         <a href="#" onclick="initPage('orphans')" class="nav_link">
                             <i class="fab fa-dropbox fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Orphans</span>
