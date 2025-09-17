@@ -209,6 +209,7 @@ if ($_POST['m'] == 'init') {
                         <tbody>
                             <?php
                             if ($ports) {
+                                $portArray = [];
                                 foreach ($ports as $container => $containerPorts) {
                                     foreach ($containerPorts as $containerPort) {
                                         $portArray[$containerPort] = $container;
