@@ -198,9 +198,7 @@ function renderContainerRow($nameHash, $return)
         <tr id="<?= $nameHash ?>" <?= $groupHash ? 'class="' . $groupHash . ' container-group-row bg-primary" style="display: none;"' : '' ?>>
             <!-- COLUMN: CHECKBOX -->
             <td class="container-table-row bg-secondary">
-                <?php if (ACCESS_MODE != AccessMode::R) { ?>
-                <input <?= $isDockwatch ? 'attr-dockwatch="true"' : '' ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" data-id="<?= $containerSettings['id'] ?>" type="checkbox" class="form-check-input containers-check <?= $groupHash ? 'group-' . $groupHash . '-check' : '' ?>">
-                <?php } ?>
+                <input <?= $isDockwatch ? 'attr-dockwatch="true"' : '' ?> id="massTrigger-<?= $nameHash ?>" data-name="<?= $process['Names'] ?>" data-id="<?= $containerSettings['id'] ?>" type="checkbox" class="form-check-input containers-check access-rw <?= $groupHash ? 'group-' . $groupHash . '-check' : '' ?>">
             </td>
             <!-- COLUMN: ICON -->
             <td class="container-table-row bg-secondary"><?= $logo ? '<img src="' . $logo . '" height="32" width="32" style="object-fit: contain; margin-top: 5px;">' : '' ?></td>
@@ -208,8 +206,7 @@ function renderContainerRow($nameHash, $return)
             <td class="container-table-row bg-secondary">
                 <div class="row m-0 p-0">
                     <div class="dropdown">
-                        <?php if (ACCESS_MODE != AccessMode::R) { ?>
-                        <span class="dropdown-toggle" id="containerMenu-<?= $nameHash ?>" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
+                        <span class="dropdown-toggle access-rw" id="containerMenu-<?= $nameHash ?>" data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer;">
                             <?= $notificationIcon . '<span id="' . $nameHash . '-onlineIcon" class="' . $onlineClass . '">⚈</span> ' . $process['Names'] ?>
                         </span>
                         <ul class="dropdown-menu" aria-labelledby="containerMenu-<?= $nameHash ?>">
@@ -223,9 +220,7 @@ function renderContainerRow($nameHash, $return)
                             <li><a class="dropdown-item" href="javascript:void" onclick="containerInfo('<?= $nameHash ?>')" style="cursor:pointer;"><i class="text-primary fas fa-cogs fa-xs me-1"></i> Settings</a></li>
                             <li><a class="dropdown-item" href="javascript:void" onclick="containerLogs('<?= $process['Names'] ?>')" style="cursor:pointer;"><i class="text-primary fas fa-file-alt fa-xs me-1"></i> Logs</a></li>
                         </ul>
-                        <?php } else { ?>
-                        <?= $notificationIcon . '<span id="' . $nameHash . '-onlineIcon" class="' . $onlineClass . '">⚈</span> ' . $process['Names'] ?>
-                        <?php } ?>
+                        <span class="access-ro"><?= $notificationIcon . '<span id="' . $nameHash . '-onlineIcon" class="' . $onlineClass . '">⚈</span> ' . $process['Names'] ?></span>
                     </div>
                     <span class="text-muted small-text hide-mobile" title="<?= $docker->isIO($process['inspect'][0]['Config']['Image']) ?>"><?= truncateMiddle($docker->isIO($process['inspect'][0]['Config']['Image']), 40) ?></span>
                 </div>

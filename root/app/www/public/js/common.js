@@ -31,6 +31,8 @@ $(document).ready(function () {
             drawOverview();
         }, 1000);
     }
+
+    applyAccessLevel();
 }).keyup(function (e) {
     if ($('#username').length) {
         if (e.keyCode === 13) {
@@ -48,7 +50,28 @@ $(window).resize(function() {
     setScreenSizeVars();
 });
 // -------------------------------------------------------------------------------------------
-function swapLightDark(swap) {
+$(document).ajaxComplete(function(event, jqXHR, ajaxOptions) {
+    applyAccessLevel();
+});
+// -------------------------------------------------------------------------------------------
+function applyAccessLevel()
+{
+    //-- ONLY SHOW ELEMENTS WHEN ACCESS_MODE IS SET TO 0
+    $('.access-ro').hide();
+
+    //-- RW
+    if (ACCESS_MODE == 1) {
+        $('.access-rwx').remove();
+    }
+    //-- R
+    if (ACCESS_MODE == 2) {
+        $('.access-rw .access-rwx').remove();
+        $('.access-ro').show();
+    }
+}
+// -------------------------------------------------------------------------------------------
+function swapLightDark(swap) 
+{
     $.each($('[data-bs-theme]'), function() {
         $(this).attr('data-bs-theme', swap);
     });

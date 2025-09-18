@@ -494,3 +494,7 @@ pre code > span::before {
     outline: none !important;
     border-color: var(--bs-primary);
 }
+
+.access-ro {
+    display: none;
+}

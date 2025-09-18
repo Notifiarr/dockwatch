@@ -38,8 +38,7 @@ if ($_POST['m'] == 'init') {
     </ol>
     <div class="bg-secondary rounded p-4">
         <div class="row">
-            <?php if (ACCESS_MODE != AccessMode::R) { ?>
-            <div class="col-sm-12" id="container-button-row">
+            <div class="col-sm-12 access-rw" id="container-button-row">
                 <div id="container-control-buttons" class="text-center">
                     <div class="container-control-buttons-bg">
                         <div class="bg-primary w-100" style="height: 100%; backdrop-filter: blur(6px); opacity: 0.6; border-radius: 8px; display: flex; align-items: center; justify-content: center;"></div>
@@ -50,9 +49,7 @@ if ($_POST['m'] == 'init') {
                         <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 1)"><i class="fas fa-play fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Start</span></button>
                         <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 3)"><i class="fas fa-power-off fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Stop</span></button>
                         <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 13)"><i class="fas fa-skull-crossbones fa-xs me-1"></i><span class="container-control-button-label text-warning hide-mobile"> Kill</span></button>
-                        <?php if (ACCESS_MODE == AccessMode::RWX) { ?>
-                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i><span class="container-control-button-label text-danger hide-mobile"> Remove</span></button>
-                        <?php } ?>
+                        <button type="button" class="btn btn-outline-light bg-secondary btn-sm access-rww" onclick="massApplyContainerTrigger(false, 9)"><i class="far fa-trash-alt fa-xs me-1"></i><span class="container-control-button-label text-danger hide-mobile"> Remove</span></button>
                     </div>
                     <div class="btn-group hide-mobile" role="group">
                         <button class="btn btn-outline-light bg-secondary dropdown-toggle btn-sm" type="button" id="dropBtnUpdates" data-bs-toggle="dropdown" aria-expanded="false" style="border-top-right-radius: 0 !important; border-bottom-right-radius: 0 !important;">Updates</button>
@@ -69,7 +66,6 @@ if ($_POST['m'] == 'init') {
                     </div>
                 </div>
             </div>
-            <?php } ?>
             <?php if ($pullsNotice) { ?>
             <div class="col-sm-12" style="margin-top: 3em !important;">
                 <div class="rounded m-2 p-2" style="background-color: red;">
@@ -184,14 +180,10 @@ if ($_POST['m'] == 'init') {
                             <tr>
                                 <td class="rounded-bottom-right-1 rounded-bottom-left-1 bg-primary ps-3" colspan="11">
                                     <div style="float:right;">
-                                        <?php if (ACCESS_MODE != AccessMode::R) { ?>
-                                        <button id="check-all-btn" class="dt-button mt-2 buttons-collection" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
-                                        <?php } ?>
+                                        <button id="check-all-btn" class="dt-button mt-2 buttons-collection access-rw" tabindex="0" aria-controls="container-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllContainers()" id="containers-toggle-all"></button>
                                         <button id="group-restore-btn" style="display:none;" class="dt-button buttons-collection" tabindex="0" aria-controls="container-table" type="button" onclick="restoreContainerGroups()">Restore groups</button>
                                         <button id="container-groups-btn" class="dt-button mt-2 buttons-collection" tabindex="0" aria-controls="container-table" type="button" onclick="openContainerGroups()">Groups</button>
-                                        <?php if (ACCESS_MODE != AccessMode::R) { ?>
-                                        <button id="container-updates-btn" class="dt-button mt-2 buttons-collection" tabindex="0" aria-controls="container-table" type="button" onclick="openUpdateOptions()">Updates</button>
-                                        <?php } ?>
+                                        <button id="container-updates-btn" class="dt-button mt-2 buttons-collection access-rw" tabindex="0" aria-controls="container-table" type="button" onclick="openUpdateOptions()">Updates</button>
                                     </div>
                                 </td>
                             </tr>
@@ -202,8 +194,7 @@ if ($_POST['m'] == 'init') {
         </div>
     </div>
     <!-- Check all BC -->
-    <?php if (ACCESS_MODE != AccessMode::R) { ?>
-    <select id="massContainerTrigger" class="d-none">
+    <select id="massContainerTrigger" class="d-none access-rw">
         <option value="0">-- Select option --</option>
         <option value="4">Pull</option>
         <option value="1">Start</option>
@@ -219,7 +210,6 @@ if ($_POST['m'] == 'init') {
         <option value="6">Generate docker-compose</option>
         <option value="5">Generate docker run</option>
     </select>
-    <?php } ?>
     <?php
 }
 

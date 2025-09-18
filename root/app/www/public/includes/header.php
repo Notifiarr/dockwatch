@@ -52,6 +52,7 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
             let USE_SSE = <?= $settingsTable['sseEnabled'] ? 'true' : 'false' ?>;
             const SSE_SETTING = <?= intval($settingsTable['sseEnabled']) ?>;
             const APP_SERVER_ID = <?= APP_SERVER_ID ?>;
+            const ACCESS_MODE = '<?= ACCESS_MODE ?>';
 
             document.addEventListener('DOMContentLoaded', function(event) {
                 const showNavbar = (toggleId, navId, bodyId, headerId) => {
@@ -127,12 +128,10 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
                         </span>
                     </a>
                     <div class="nav_list d-flex flex-column gap-1 align-items-start flex-grow-1">
-                        <?php if (ACCESS_MODE == AccessMode::RWX) { ?>
-                        <a href="#" onclick="serverListToggle()" class="nav_servers_link">
+                        <a href="#" onclick="serverListToggle()" class="nav_servers_link access-rwx">
                             <i class="fas fa-server fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Servers</span>
                         </a>
-                        <?php } ?>
                         <a href="#" onclick="initPage('overview')" class="nav_link">
                             <i class="fas fa-heartbeat fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Overview</span>
@@ -145,12 +144,10 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
                             <i class="fas fa-network-wired fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Networks</span>
                         </a>
-                        <?php if (ACCESS_MODE == AccessMode::RWX) { ?>
-                        <a href="#" onclick="initPage('compose')" class="nav_link">
+                        <a href="#" onclick="initPage('compose')" class="nav_link access-rwx">
                             <i class="fab fa-octopus-deploy fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Compose</span>
                         </a>
-                        <?php } ?>
                         <a href="#" onclick="initPage('orphans')" class="nav_link">
                             <i class="fab fa-dropbox fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Orphans</span>

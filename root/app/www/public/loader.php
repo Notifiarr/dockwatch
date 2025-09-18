@@ -10,6 +10,12 @@
 // This will NOT report uninitialized variables
 error_reporting(E_ERROR | E_PARSE);
 
+/*
+    To adjust the UI based on ACCESS_MODE:
+        class=access-rw     : removed when ACCESS_MODE is set to 2
+        class=access-rwx    : removed when ACCESS_MODE is set to 1 or 2
+        class=access-ro     : only shows element when ACCESS_MODE is set to 2
+*/
 define('ACCESS_MODE', 0);
 
 //-- COMPOSER AUTOLOADER
