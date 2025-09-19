@@ -2,7 +2,7 @@ services:
   dockwatch:
     network_mode: bridge
     container_name: dockwatch-dev
-    image: ghcr.io/notifiarr/dockwatch:develop
+    image: dockwatch:dev
     restart: unless-stopped
     ports:
       - 10000:80/tcp

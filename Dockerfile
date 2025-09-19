@@ -33,7 +33,7 @@ RUN curl -sSf -L -o /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/
   && chmod +x /usr/local/bin/yq
 
 # permissions & packages
-ARG INSTALL_PACKAGES="docker docker-cli-compose memcached expect php84-sockets php84-sqlite3 php84-pecl-memcached php84-pecl-mcrypt php84-tokenizer php84-dom"
+ARG INSTALL_PACKAGES="docker docker-cli-compose memcached expect php84-sockets php84-sqlite3 php84-pecl-memcached php84-pecl-mcrypt php84-tokenizer php84-dom php84-mbstring"
 RUN apk add --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing --no-cache --update ${INSTALL_PACKAGES} && \
   addgroup -g 281 unraiddocker && \
   usermod -aG unraiddocker abc
