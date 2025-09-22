@@ -471,7 +471,7 @@ if ($_POST['m'] == 'containerShell') {
         //-- BUILD WEBSOCKET CONNECT URL
         $wsUrl = $settingsTable['websocketUrl'] ?: '';
         $wsPort = $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT;
-        $basePath = $_SERVER['BASE_URL'] . '/ws';
+        $basePath = '/ws';
         $parameters = '?token=' . $token . '&container=' . $container;
 
         if (empty($wsUrl)) {
@@ -482,8 +482,10 @@ if ($_POST['m'] == 'containerShell') {
             }
             $baseUrl = (!empty($_SERVER['HTTPS']) ? 'wss:' : 'ws:') . '//' . $host . $port;
 
-            $wsUrl = (!empty($host) ? $baseUrl : '') . $basePath . $parameters;
+            $wsUrl = (!empty($host) ? $baseUrl : '') . $basePath;
         }
+
+        $wsUrl .= $parameters;
 
         //-- RETURN WEBSOCKET CONNECT URL
         echo json_encode([ 'url' => $wsUrl ]);
