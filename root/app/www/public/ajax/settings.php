@@ -66,7 +66,7 @@ if ($_POST['m'] == 'init') {
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">WebSocket URL<sup>5</sup></td>
                         <td class="bg-secondary">
-                            <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketUrl'] ?: '' ?>" placeholder="<?= 'ws://'.$_SERVER['HTTP_HOST'].'/ws'  ?>">
+                            <input class="form-control" type="text" id="globalSetting-websocketUrl" value="<?= $settingsTable['websocketUrl'] ?: '' ?>" placeholder="<?= 'ws://'.$_SERVER['HTTP_HOST'].'/ws'  ?>">
                         </td>
                         <td class="bg-secondary">Best to leave empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Example (https): <code class="mx-1">wss://my.cool.domain/ws</code></td>
                     </tr>

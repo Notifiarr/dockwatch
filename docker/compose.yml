@@ -1,0 +1,49 @@
+# Deploy a development environment for Dockwatch
+# --
+services:
+  dockwatch:
+    container_name: dw_develop
+    networks:
+      isolated_nw:
+        ipv4_address: 172.28.0.5
+    environment:
+      - PUID=1000
+      - PGID=990
+      - TZ=Etc/UTC
+    ports:
+      - 10000:80/tcp
+    volumes:
+      - ./.data/dockwatch/config:/config
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../root/app/www/public:/app/www/public  # -> Link local files for development
+    restart: unless-stopped
+    image: ghcr.io/notifiarr/dockwatch:local # -> Run `sh docker/build.sh` in root directory first
+
+  # -- Outer proxy to test reverse proxy setups (optional)
+  nginx:
+    container_name: dw_outer_proxy
+    networks:
+      isolated_nw:
+        ipv4_address: 172.28.0.10
+    depends_on:
+      - dockwatch
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+    ports:
+      - 10001:80/tcp
+    volumes:
+      - ./nginx.conf:/config/nginx/site-confs/default.conf:ro
+    restart: unless-stopped
+    image: lscr.io/linuxserver/nginx:1.28.0
+
+networks:
+  isolated_nw:
+    name: dw_isolated_nw
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
+

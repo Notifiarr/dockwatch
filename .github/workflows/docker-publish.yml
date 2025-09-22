@@ -1,6 +1,6 @@
 name: Docker
 
-# This all came from github. I wrote none of it, but I did remove some bits that didn't work.
+# Based on a template from GitHub
 
 on:
   push:
@@ -73,6 +73,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: docker/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
