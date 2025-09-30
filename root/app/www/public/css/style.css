@@ -469,14 +469,15 @@ pre code > span::before {
     user-select: none;
 }
 
-.container-group-row>.container-table-row {
-    padding-left: 2em;
+tr.container-group-row td {
+    font-weight: bold;
+    border-top: 1px solid var(--bs-primary) !important;
+    border-bottom: 1px solid var(--bs-primary) !important;
 }
-
-.container-group-row.even>.bg-secondary {
+tr.container-group-row.even td {
     background: var(--text-50) !important;
 }
-.container-group-row.odd>.bg-secondary {
+tr.container-group-row.odd td {
     background: var(--text-100) !important;
 }
 

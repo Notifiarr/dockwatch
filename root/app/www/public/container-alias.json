@@ -4,5 +4,10 @@
     "grafana": ["grafana-image-renderer"],
     "portainer": ["portainer-ce", "portainer-be", "portainer_agent", "portainer-ee"],
     "prometheus": ["node-exporter"],
-    "https://www.pgadmin.org/static/COMPILED/assets/img/postgres-alt.svg": ["pgadmin4"]
+    "https://www.pgadmin.org/static/COMPILED/assets/img/postgres-alt.svg": ["pgadmin4"],
+    "files": ["samba"],
+    "qbitmanage": ["qbit_manage"],
+    "https://pelican.dev/img/logo.png": ["ghcr.io/pelican-dev/panel", "ghcr.io/parkervcp/yolks", "ghcr.io/parkervcp/steamcmd"],
+    "gitea": ["gitea/act_runner"],
+    "docker-moby": ["moby/buildkit"]
 }
