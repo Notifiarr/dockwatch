@@ -1088,7 +1088,7 @@ if ($_POST['m'] == 'openUpdateOptions') {
                             <input id="container-frequency-<?= $nameHash ?>" type="text" class="form-control container-frequency" onclick="frequencyCronEditor(this.value, '<?= $nameHash ?>', '<?= $process['Names'] ?>')" value="<?= $container['frequency'] ?>" readonly>
                         </td>
                         <td class="bg-secondary">
-                            <input id="container-update-minage-<?= $nameHash ?>" type="number" class="form-control container-update-minage" value="<?= $container['minage'] ?? 0 ?>">
+                            <input id="container-update-minage-<?= $nameHash ?>" type="number" class="form-control container-update-minage" value="<?= $container['minAge'] ?? 0 ?>">
                         </td>
                     </tr>
                     <?php
@@ -1141,7 +1141,7 @@ if ($_POST['m'] == 'saveUpdateOptions') {
 
         $updates    = intval($_POST['container-update-' . $hash]);
 
-        $minage     = intval($_POST['container-update-minage-' . $hash]);
+        $minAge     = intval($_POST['container-update-minage-' . $hash]);
 
         try {
             $cron = Cron\CronExpression::factory($frequency);
@@ -1151,8 +1151,8 @@ if ($_POST['m'] == 'saveUpdateOptions') {
 
         //-- ONLY UPDATE WHAT HAS CHANGED
         $container = apiRequest('database/container/hash', ['hash' => $hash])['result'];
-        if ($container['updates'] != $updates || $container['frequency'] != $frequency || $container['minage'] != $minage) {
-            apiRequest('database/container/update', [], ['hash' => $hash, 'updates' => $updates, 'frequency' => $database->prepare($frequency), 'minage' => $database->prepare($minage)]);
+        if ($container['updates'] != $updates || $container['frequency'] != $frequency || $container['minAge'] != $minAge) {
+            apiRequest('database/container/update', [], ['hash' => $hash, 'updates' => $updates, 'frequency' => $database->prepare($frequency), 'minAge' => $database->prepare($minAge)]);
         }
     }
 }

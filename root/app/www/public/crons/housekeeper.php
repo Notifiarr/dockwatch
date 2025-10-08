@@ -14,6 +14,34 @@ logger(SYSTEM_LOG, 'Cron: running housekeeper');
 logger(CRON_HOUSEKEEPER_LOG, 'run ->');
 echo date('c') . ' Cron: housekeeper ->' . "\n";
 
+if (!canCronRun('housekeeper', $settingsTable)) {
+    exit();
+}
+
+//-- CONTAINER TABLE CLEANUP (DAILY @ MIDNIGHT)
+if (date('H') == 0 && date('i') <= 5) {
+    logger(CRON_HOUSEKEEPER_LOG, 'Container Table Cleanup (daily @ midnight) ->');
+    $containersTable = apiRequest('database/containers')['result'];
+    $containerGroupsTable = apiRequest('database/group/links')['result'];
+    foreach ($containersTable as $container) {
+        $containerState = $docker->findContainer(['hash' => $container['hash'], 'data' => $stateFile]);
+        if (!$containerState && $container['lastUpdateCronTime'] > 0 && (time() - $container['lastUpdateCronTime']) > CONTAINER_CLEANUP_TIME*86400) {
+            logger(CRON_HOUSEKEEPER_LOG, 'removing container from settings: ' . $container['hash']);
+            apiRequest('database/container/delete', [], ['hash' => $container['hash']]); //-- DELETE FROM SETTINGS TABLE
+
+            //-- REMOVE FROM GROUP
+            foreach ($containerGroupsTable as $containerGroup) {
+                if ($containerGroup['container_id'] == $container['id']) {
+                    logger(CRON_HOUSEKEEPER_LOG, 'removing container ' . $container['hash'] . ' from group: ' . $containerGroup['group_id']);
+                    apiRequest('database/group/container/link/remove', [], ['groupId' => $containerGroup['group_id'], 'containerId' => $container['id']]); //-- DELETE FROM LINKS TABLE
+                }
+            }
+
+        }
+    }
+    logger(CRON_HOUSEKEEPER_LOG, 'Container Table Cleanup (daily @ midnight) <-');
+}
+
 //-- USAGE METRICS DISK/IO (RUN EVERY HOUR)
 if (date('i') <= 5) {
     logger(CRON_HOUSEKEEPER_LOG, 'Usage Metrics (run every hour)');
@@ -27,10 +55,6 @@ if (date('H') == 0 && date('i') <= 5) {
     logger(CRON_HOUSEKEEPER_LOG, 'Telemetry (daily @ midnight)');
     $telemetry = telemetry(true);
     logger(CRON_HOUSEKEEPER_LOG, '$telemetry=' . json_encode($telemetry));
-}
-
-if (!canCronRun('housekeeper', $settingsTable)) {
-    exit();
 }
 
 //-- UPDATE FILES CLEANUP (DAILY @ MIDNIGHT)

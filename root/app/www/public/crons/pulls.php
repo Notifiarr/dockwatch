@@ -23,6 +23,7 @@ if (!canCronRun('pulls', $settingsTable)) {
 $containersTable    = apiRequest('database/containers')['result'];
 $notify             = [];
 $startStamp         = new DateTime();
+$lastUpdatedHashes  = [];
 
 if ($containersTable) {
     $imagesUpdated = [];
@@ -30,6 +31,11 @@ if ($containersTable) {
     foreach ($containersTable as $containerSettings) {
         $containerHash = $containerSettings['hash'];
         $containerState = $docker->findContainer(['hash' => $containerHash, 'data' => $stateFile]);
+
+        //-- UPDATE CONTAINERS LAST UPDATE CRON TIME
+        if ($containerState) {
+            $lastUpdatedHashes[] = $containerHash;
+        }
 
         //-- AUTO RESTART IF ENABLED
         if ($containerSettings['autoRestart'] && $containerState) {
@@ -143,8 +149,8 @@ if ($containersTable) {
                 //-- SKIP IF AGE < MINAGE
                 $digestTag = explode(':', $image)[0] . '@' . $regctlDigest;
                 $checkImageAge = regctlGetCreatedDate($digestTag);
-                if ($checkImageAge < $containerSettings['minage']) {
-                    $msg = 'Skipping container update: ' . $containerState['Names'] . ' (does not meet the minimum age requirement of '.$containerSettings['minage'].' days, got '.$checkImageAge.' days)';
+                if ($checkImageAge < $containerSettings['minAge']) {
+                    $msg = 'Skipping container update: ' . $containerState['Names'] . ' (does not meet the minimum age requirement of '.$containerSettings['minAge'].' days, got '.$checkImageAge.' days)';
                     logger(CRON_PULLS_LOG, $msg, 'warn');
                     echo date('c') . ' ' . $msg . "\n";
 
@@ -355,8 +361,8 @@ if ($containersTable) {
                             if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'updates'])['result'] && !$containerSettings['disableNotifications'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
                                 $notify['available'][] = [
                                     'container' => $containerState['Names'],
-                                    'minage' => $containerSettings['minage'] ?? 0,
-                                    'currentage' => $checkImageAge ?? 0
+                                    'minAge' => $containerSettings['minAge'] ?? 0,
+                                    'age' => $checkImageAge ?? 0
                                 ];
                             }
                             break;
@@ -368,6 +374,12 @@ if ($containersTable) {
                 echo date('c') . ' ' . $msg . "\n";
             }
         }
+    }
+
+    //-- UPDATE CONTAINERS LAST UPDATE CRON TIME
+    $currentTime = time();
+    foreach ($lastUpdatedHashes as $hash) {
+        apiRequest('database/container/update', [], ['hash' => $hash, 'lastUpdateCronTime' => $currentTime]);
     }
 
     apiRequest('file/pull', [], ['contents' => $pullsFile]);

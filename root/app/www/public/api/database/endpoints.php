@@ -40,6 +40,13 @@ switch ($path) {
 
                 $database->addContainer($payload);
                 break;
+            case $IS_POST && $action == 'delete':
+                if (!$payload['hash']) {
+                    apiResponse(400, ['error' => 'Missing hash parameter']);
+                }
+
+                $database->deleteContainer($payload['hash']);
+                break;
             case $IS_POST && $action == 'group' && $method == 'add':
                 if (!$payload['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);

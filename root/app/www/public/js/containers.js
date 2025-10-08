@@ -604,19 +604,19 @@ function massChangeFrequency(option)
 // ---------------------------------------------------------------------------------------------
 function massChangeMinAge(option)
 {
-    const minage = $('#container-update-minage-all').val();
+    const minAge = $('#container-update-minage-all').val();
 
     switch (option) {
         case 1: //-- SELECTED
             $.each($('.container-update-checkbox'), function () {
                 if ($(this).prop('checked')) {
                     const hash = $(this).attr('id').match(/container-update-(.+)-checkbox/);
-                    $('#container-update-minage-' + hash[1]).val(minage);
+                    $('#container-update-minage-' + hash[1]).val(minAge);
                 }
             });
             break;
         case 2: //-- ALL
-            $('.container-update-minage').val(minage)
+            $('.container-update-minage').val(minAge);
             break;
     }
 }

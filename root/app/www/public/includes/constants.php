@@ -37,6 +37,7 @@ define('CONTAINER_GROUPS_LINK_TABLE', 'container_group_link');
 define('NOTIFICATION_PLATFORM_TABLE', 'notification_platform');
 define('NOTIFICATION_TRIGGER_TABLE', 'notification_trigger');
 define('NOTIFICATION_LINK_TABLE', 'notification_link');
+define('CONTAINER_CLEANUP_TIME', 14); //-- DAYS
 
 //-- CRON
 define('DEFAULT_CRON', '0 0 * * *');

@@ -86,9 +86,20 @@ trait ContainerSettings
         }
 
         $q = "INSERT INTO " . CONTAINER_SETTINGS_TABLE . "
-              (". implode(', ', $fieldList) .") 
-              VALUES 
+              (". implode(', ', $fieldList) .")
+              VALUES
               (". implode(', ', $valList) .")";
+        $this->query($q);
+
+        $this->containersTable = '';
+    }
+
+    public function deleteContainer($hash)
+    {
+        $settingsTable = $this->getSettings();
+
+        $q = "DELETE FROM " . CONTAINER_SETTINGS_TABLE . "
+              WHERE hash = '" . $hash . "'";
         $this->query($q);
 
         $this->containersTable = '';
