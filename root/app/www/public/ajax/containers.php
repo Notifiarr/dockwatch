@@ -1059,7 +1059,7 @@ if ($_POST['m'] == 'openUpdateOptions') {
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input" onclick="$('.container-update-checkbox').prop('checked', $(this).prop('checked'));"></th>
-                        <th class="bg-primary ps-3" scope="col">Name</th>
+                        <th class="bg-primary ps-3" scope="col" style="width: 10% !important;">Name</th>
                         <th class="bg-primary ps-3" scope="col">Update</th>
                         <th class="bg-primary ps-3" scope="col">Frequency</th>
                         <th class="rounded-top-right-1 bg-primary ps-3" scope="col">Minimum Age (Days)</th>
@@ -1072,11 +1072,11 @@ if ($_POST['m'] == 'openUpdateOptions') {
                     $container = apiRequest('database/container/hash', ['hash' => $nameHash])['result'];
                     ?>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">
+                        <td class="bg-secondary ps-3" scope="row">
                             <input id="container-update-<?= $nameHash ?>-checkbox" type="checkbox" class="form-check-input container-update-checkbox">
                         </td>
-                        <td class="bg-secondary"><?= $process['Names'] ?></td>
-                        <td class="bg-secondary">
+                        <td class="bg-secondary ps-3"><?= $process['Names'] ?></td>
+                        <td class="bg-secondary ps-3">
                             <select id="container-update-<?= $nameHash ?>" class="form-select container-update">
                                 <option <?= $container['updates'] == '-1' ? 'selected' : '' ?> value="-1">-- Select Option --</option>
                                 <option <?= $container['updates'] == '0'  ? 'selected' : '' ?> value="0">Ignore</option>
@@ -1084,7 +1084,7 @@ if ($_POST['m'] == 'openUpdateOptions') {
                                 <option <?= $container['updates'] == '2'  ? 'selected' : '' ?> value="2">Check for updates</option>
                             </select>
                         </td>
-                        <td class="bg-secondary">
+                        <td class="bg-secondary ps-3">
                             <input id="container-frequency-<?= $nameHash ?>" type="text" class="form-control container-frequency" onclick="frequencyCronEditor(this.value, '<?= $nameHash ?>', '<?= $process['Names'] ?>')" value="<?= $container['frequency'] ?>" readonly>
                         </td>
                         <td class="bg-secondary">
@@ -1094,30 +1094,32 @@ if ($_POST['m'] == 'openUpdateOptions') {
                     <?php
                 }
                 ?>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary ps-3" scope="row"></td>
+                        <td class="bg-secondary ps-3"></td>
+                        <td class="bg-secondary ps-3">
+                            <select id="container-update-all" class="form-select d-inline-block w-75">
+                                <option value="-1">-- Select Option --</option>
+                                <option value="0">Ignore</option>
+                                <option value="1">Auto update</option>
+                                <option value="2">Check for updates</option>
+                            </select>
+                            <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeContainerUpdates(1)" title="Apply to selected containers"></i>
+                            <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeContainerUpdates(2)" title="Apply to all containers"></i>
+                        </td>
+                        <td class="bg-secondary ps-3">
+                            <input id="container-frequency-all" type="text"  class="form-control d-inline-block w-75" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
+                            <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeFrequency(1)" title="Apply to selected containers"></i>
+                            <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeFrequency(2)" title="Apply to all containers"></i>
+                        </td>
+                        <td class="bg-secondary">
+                            <input id="container-update-minage-all" type="number"  class="form-control d-inline-block w-75" value="0">
+                            <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeMinAge(1)" title="Apply to selected containers"></i>
+                            <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeMinAge(2)" title="Apply to all containers"></i>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
-        </div>
-        <div class="row">
-            <div class="col-sm-12 col-lg-4 text-end mb-2 mt-2">
-                <select id="container-update-all" class="form-select d-inline-block w-75">
-                    <option value="-1">-- Select Option --</option>
-                    <option value="0">Ignore</option>
-                    <option value="1">Auto update</option>
-                    <option value="2">Check for updates</option>
-                </select>
-                <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeContainerUpdates(1)" title="Apply to selected containers"></i>
-                <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeContainerUpdates(2)" title="Apply to all containers"></i>
-            </div>
-            <div class="col-sm-12 col-lg-4 text-end mb-2 mt-2">
-                <input id="container-frequency-all" type="text"  class="form-control d-inline-block w-75" onclick="frequencyCronEditor(this.value, 'all', 'all')" value="<?= DEFAULT_CRON ?>" readonly>
-                <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeFrequency(1)" title="Apply to selected containers"></i>
-                <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeFrequency(2)" title="Apply to all containers"></i>
-            </div>
-            <div class="col-sm-12 col-lg-4 text-end mb-2 mt-2">
-                <input id="container-update-minage-all" type="number"  class="form-control d-inline-block w-75" value="0">
-                <i class="fas fa-angle-up ms-1 me-1" style="cursor: pointer;" onclick="massChangeMinAge(1)" title="Apply to selected containers"></i>
-                <i class="fas fa-angle-double-up" style="cursor: pointer;" onclick="massChangeMinAge(2)" title="Apply to all containers"></i>
-            </div>
         </div>
     </div>
     <?php
