@@ -584,7 +584,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
         case '5': //-- GERNERATE RUN
             $apiRequest = apiRequest('docker/create/run', ['name' => $container['Names']]);
             logger(UI_LOG, 'docker/create/run: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-            $result = '<pre>' . $apiRequest['result'] . '</pre>';
+            $result = '<pre class="bg-dark primary p-3 rounded" style="color: white; max-height: 500px; overflow: auto;">' . $apiRequest['result'] . '</pre>';
             break;
         case '6': //-- GENERATE COMPOSE
             $containerList  = '';
@@ -600,7 +600,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
             $apiRequest = apiRequest('docker/create/compose', ['name' => trim($containerList)]);
             logger(UI_LOG, 'docker/create/compose: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-            $result = '<pre>' . $apiRequest['result'] . '</pre>';
+            $result = '<pre class="bg-dark primary p-3 rounded" style="color: white; max-height: 500px; overflow: auto;">' . $apiRequest['result'] . '</pre>';
             break;
         case '7': //-- CHECK FOR UPDATES AND APPLY THEM
             if (skipContainerActions($image, $skipContainerActions)) {

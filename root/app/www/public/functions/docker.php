@@ -181,7 +181,7 @@ function dockerCreateContainer($inspect)
 
 function dockerAutoCompose($containerName)
 {
-    global $shell;
+    global $shell, $phiki;
 
     $cmd        = sprintf(DockerSock::RUN, '--rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $shell->prepare($containerName));
     $compose    = $shell->exec($cmd . ' 2>&1');
@@ -191,6 +191,12 @@ function dockerAutoCompose($containerName)
 
     //-- LOOP THIS SO IT REMOVES ALL THE ADD CONTAINER OVERHEAD
     foreach ($lines as $line) {
+
+        //-- OBSOLETE VERSIONING LINE
+        if (str_contains($line, 'version:')) {
+            continue;
+        }
+
         if (str_contains($line, 'networks:') || str_contains($line, 'services:')) {
             $skip = false;
         }
@@ -200,7 +206,7 @@ function dockerAutoCompose($containerName)
         }
     }
 
-    return $cmd . '<hr>' . implode("\n", $compose);
+    return $cmd . '<hr>' . $phiki->codeToHtml(implode("\n", $compose), Phiki\Grammar\Grammar::Yaml, Phiki\Theme\Theme::GithubDark);
 }
 
 function dockerAutoRun($container)

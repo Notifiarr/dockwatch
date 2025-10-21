@@ -21,6 +21,9 @@ define('ACCESS_MODE', 0);
 //-- COMPOSER AUTOLOADER
 require __DIR__ . '/../vendor/autoload.php';
 
+//-- COMPOSER DEPENDENCIES
+use Phiki\Phiki;
+
 if ($_SERVER['TZ']) {
     date_default_timezone_set($_SERVER['TZ']);
 }
@@ -150,6 +153,10 @@ if (!IS_SSE) {
     //-- INITIALIZE THE NOTIFY CLASS
     $notifications = new Notifications();
     logger(SYSTEM_LOG, 'Init class: Notifications()');
+
+    //-- INITIALIZE PHIKI
+    $phiki = new Phiki();
+    logger(SYSTEM_LOG, 'Init class: Phiki()');
 
     if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
         $stateFile  = apiRequestLocal('file/state');

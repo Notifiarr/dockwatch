@@ -9,12 +9,6 @@
 
 require 'shared.php';
 
-use Phiki\Phiki;
-use Phiki\Grammar\Grammar;
-use Phiki\Theme\Theme;
-
-$phiki = new Phiki();
-
 $composeExample = 'services:
   dockwatch:
     image: "ghcr.io/notifiarr/dockwatch:main"
@@ -153,7 +147,7 @@ if ($_POST['m'] == 'composeSave') {
         //-- RETURN RESULTS
         if ($yqResult === '0' && $dockerResult === '0') {
             $compose            = file_get_contents($path);
-            $syntaxHighlighted  = $phiki->codeToHtml($compose, Grammar::Yaml, Theme::GithubDark);
+            $syntaxHighlighted  = $phiki->codeToHtml($compose, Phiki\Grammar\Grammar::Yaml, Phiki\Theme\Theme::GithubDark);
 
             echo $syntaxHighlighted;
         } else {
@@ -165,7 +159,7 @@ if ($_POST['m'] == 'composeSave') {
 if ($_POST['m'] == 'composeModify') {
     $path       = $_POST['composePath'] . '/docker-compose.yml';
     $compose    = file_get_contents($path);
-    $syntaxHighlighted = $phiki->codeToHtml($compose, Grammar::Yaml, Theme::GithubDark);
+    $syntaxHighlighted = $phiki->codeToHtml($compose, Phiki\Grammar\Grammar::Yaml, Phiki\Theme\Theme::GithubDark);
 
     ?>
     <code><?= $_POST['composePath'] ?>/docker-compose.yml</code><br>
