@@ -68,8 +68,11 @@ if ($_POST['m'] == 'init') {
             </div>
             <?php if ($pullsNotice) { ?>
             <div class="col-sm-12" style="margin-top: 3em !important;">
-                <div class="rounded m-2 p-2" style="background-color: red;">
-                    There is currently no pull data available to show the Updates state. If the Updates column is set to Ignore then no checks will be made for that container. If you want current data, please set all the Update Options to Check for updates or Auto update and click save at the bottom. Once that is done you can click the check all and select Update: Check or Pull from the list. This will take a minute or two as it has to check every image.
+                <div class="rounded m-2 p-2 bg-gray">
+                    There is no pull data available yet to determine update status.<br>
+                    To pull data, set Update Options to "Check for updates" or "Auto update" per Container and click Save.
+                    Then use the check-all box and choose "Updates: Check or Apply".<br>
+                    This may take a minute or two while images are checked.
                 </div>
             </div>
             <?php } ?>
@@ -861,7 +864,7 @@ if ($_POST['m'] == 'openContainerGroups') {
                     <div class="col-sm-6 col-lg-2">Group</div>
                     <div class="col-sm-6 col-lg-10">
                         <select class="form-select" id="groupSelection" onchange="loadContainerGroup()">
-                            <option value="0">New Group</option>
+                            <option value="0">-- Create new group --</option>
                             <?php
                             if ($containerGroupTable) {
                                 foreach ($containerGroupTable as $groupDetails) {
@@ -913,9 +916,9 @@ if ($_POST['m'] == 'openContainerGroups') {
                     }
                     ?>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row"><?= $inGroup ? '' : '<input id="groupContainer-' . $container['id'] . '" type="checkbox" class="form-check-input group-check">' ?></td>
-                        <td class="bg-secondary"><?= $process['Names'] ?></td>
-                        <td class="bg-secondary"><?= $inGroup ?: '<span class="text-warning">Not assigned</span>' ?></td>
+                        <td class="bg-secondary ps-3" scope="row"><?= $inGroup ? '' : '<input id="groupContainer-' . $container['id'] . '" type="checkbox" class="form-check-input group-check">' ?></td>
+                        <td class="bg-secondary ps-3"><?= $process['Names'] ?></td>
+                        <td class="bg-secondary ps-3"><?= $inGroup ?: '<span class="text-warning">Not assigned</span>' ?></td>
                     </tr>
                     <?php
                 }
@@ -964,9 +967,9 @@ if ($_POST['m'] == 'loadContainerGroup') {
         ?>
 
         <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-            <td class="bg-secondary" scope="row"><?= $inGroup ? ($inThisGroup ? '<input id="groupContainer-' . $container['id'] . '" type="checkbox" checked class="form-check-input group-check">' : '') : '<input id="groupContainer-' . $container['id'] . '" type="checkbox" class="form-check-input group-check">' ?></td>
-            <td class="bg-secondary"><?= $process['Names'] ?></td>
-            <td class="bg-secondary"><?= $inGroup ?: '<span class="text-warning">Not assigned</span>' ?></td>
+            <td class="bg-secondary ps-3" scope="row"><?= $inGroup ? ($inThisGroup ? '<input id="groupContainer-' . $container['id'] . '" type="checkbox" checked class="form-check-input group-check">' : '') : '<input id="groupContainer-' . $container['id'] . '" type="checkbox" class="form-check-input group-check">' ?></td>
+            <td class="bg-secondary ps-3"><?= $process['Names'] ?></td>
+            <td class="bg-secondary ps-3"><?= $inGroup ?: '<span class="text-warning">Not assigned</span>' ?></td>
         </tr>
         <?php
     }
