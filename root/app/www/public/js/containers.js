@@ -641,7 +641,7 @@ function containerInfo(hash)
     });
 }
 // -------------------------------------------------------------------------------------------
-function containerShell(container)
+function containerShell(container, close = true, sendCommand = '')
 {
     $.ajax({
         type: 'POST',
@@ -652,7 +652,8 @@ function containerShell(container)
                 id: 'xtermShell',
                 title: `Container Shell (${container})`,
                 size: 'xl',
-                body: $('#xtermShellDiv').html()
+                body: $('#xtermShellDiv').html(),
+                close
             });
 
             const terminal = new Terminal({
@@ -727,30 +728,31 @@ function containerShell(container)
                         return;
                     }
                     if (data.success) {
-                        terminal.writeln(`${data.message}`);
-                        if (data.message.toString().startsWith("Connected to container")) {
-                            fitTerminal();
-
-                            setTimeout(() => {
-                                socket.send(JSON.stringify({
-                                    action: 'resize',
-                                    cols: terminal.cols,
-                                    rows: terminal.rows
-                                }));
-
-                                fitTerminal();
-                            }, 1000);
-                        }
+                        terminal.writeln(`${data.message}, waiting for shell resize command..`);
                         return;
+                    }
+                    if (data.type === 'ready') {
+                        fitTerminal();
+
+                        socket.send(JSON.stringify({
+                            action: 'resize',
+                            cols: terminal.cols,
+                            rows: terminal.rows
+                        }));
+
+                        if (sendCommand && sendCommand.length > 0) {
+                            socket.send(JSON.stringify({
+                                action: 'command',
+                                command: sendCommand + '\n'
+                            }));
+                        }
                     }
                     if (data.type === 'pwd') {
                         currentWorkingDir = data.path;
                         return;
                     }
                     if (data.type === 'stdout' || data.type === 'stderr') {
-                        if (!atob(data.data).toString().includes("stty")) {
-                            terminal.write(atob(data.data));
-                        }
+                        terminal.write(atob(data.data));
                     }
                     if (data.type === 'exit') {
                         terminal.writeln(`\r\nContainer shell exited with code ${data.code}\r\n`);
@@ -770,6 +772,9 @@ function containerShell(container)
                         action: 'command',
                         command: data
                     }));
+                }
+                if (data === '0') {
+                    terminal.write('0');
                 }
             });
 

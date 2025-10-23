@@ -70,7 +70,7 @@ function applyAccessLevel()
     }
 }
 // -------------------------------------------------------------------------------------------
-function swapLightDark(swap) 
+function swapLightDark(swap)
 {
     $.each($('[data-bs-theme]'), function() {
         $(this).attr('data-bs-theme', swap);

@@ -129,7 +129,8 @@
                     <div class="modal-content bg-dark" style="border: grey solid 1px;">
                         <div class="modal-header" style="border: grey solid 1px;">
                             <h5 class="modal-title"></h5>
-                            <i class="far fa-window-close fa-2x ms-auto" data-bs-dismiss="modal" style="cursor: pointer;"></i>
+                            <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+                            <!-- <i class="far fa-window-close fa-2x ms-auto" data-bs-dismiss="modal" style="cursor: pointer;"></i> -->
                         </div>
                         <div class="modal-body" data-scrollbar=”true” data-wheel-propagation=”true”></div>
                         <div class="modal-footer"></div>

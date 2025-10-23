@@ -202,11 +202,14 @@ class WebSocket implements MessageComponentInterface
 
         //-- DELAY TO ENSURE SHELL IS READY
         $loop = Loop::get();
-        $loop->addTimer(1.0, function () use ($client, $containerId) {
+        $loop->addTimer(0.5, function () use ($client, $containerId) {
             if (isset($this->container_sessions[$client->resourceId])) {
                 $this->container_sessions[$client->resourceId]['ready'] = true;
+
                 fwrite($this->container_sessions[$client->resourceId]['pipes'][0], "\n");
                 fflush($this->container_sessions[$client->resourceId]['pipes'][0]);
+
+                $client->send(json_encode(['type' => 'ready', 'data' => 'READY!']));
             }
         });
 
@@ -303,7 +306,7 @@ class WebSocket implements MessageComponentInterface
 
         $cols = (int)$cols;
         $rows = (int)$rows;
-        $resizeCmd = "stty cols $cols rows $rows\n";
+        $resizeCmd = "stty cols $cols rows $rows\r";
         fwrite($session['pipes'][0], $resizeCmd);
         fflush($session['pipes'][0]);
     }
