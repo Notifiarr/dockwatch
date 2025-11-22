@@ -2,6 +2,7 @@ let init                = false;
 let containerTableDrawn = false;
 let restoreGroups       = false;
 let currentPage         = 'overview';
+const localStorageKeys  = ['uiContainerSettings', 'uiLogSettings', 'uiNavbarToggle'];
 let smScreen            = false;
 const smScreenWidth     = 750;
 let mdScreen            = false;
@@ -18,6 +19,8 @@ let GRAPH_UTILIZATION_MEMORY_SIZE_COLORS    = '';
 $(document).ready(function () {
     setScreenSizeVars();
     initPage(DEFAULT_PAGE);
+
+    getLocalStorage(localStorageKeys); //-- LOAD LOCAL STORAGE
 
     $('#loading-modal').modal({
         keyboard: false,
