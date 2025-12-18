@@ -61,8 +61,8 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
                     bodypd          = document.getElementById(bodyId),
                     headerpd        = document.getElementById(headerId)
 
-                    let navbarState = getLocalStorage(['uiNavbarToggle']);
-                    if (navbarState['uiNavbarToggle']['toggled'] == '1') {
+                    let navbarState = getLocalStorage(['uiNavbarToggle'])
+                    if (navbarState['uiNavbarToggle']['toggled']) {
                         nav.classList.add('show-navbar')
                         toggle.classList.add('bx-x')
                         bodypd.classList.add('body-pd')
@@ -76,7 +76,7 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
                             bodypd.classList.toggle('body-pd')
                             headerpd.classList.toggle('body-pd')
 
-                            setLocalStorage('uiNavbarToggle', 'toggled', nav.classList.contains('show-navbar') ? '1' : '0');
+                            setLocalStorage('uiNavbarToggle', 'toggled', nav.classList.contains('show-navbar'))
                         })
                     }
                 }
