@@ -1,16 +1,25 @@
 {
-   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-   "extends": [
-     "config:base",
-     "docker:enableMajor",
-     "default:automergeDigest"
-   ],
-   "packageRules": [
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:enableMajor",
+    "default:automergeDigest"
+  ],
+  "packageRules": [
     {
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["ubuntu"],
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "ubuntu"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "automerge": true
     }
   ]
- }
+}
