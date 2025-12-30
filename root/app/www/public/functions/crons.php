@@ -71,15 +71,6 @@ function canCronRun($cron, $settingsTable)
 
     //-- EXTRA CHECKS
     switch ($cron) {
-        case 'health':
-            if (!$settingsTable['restartUnhealthy'] && !apiRequest('database/notification/trigger/enabled', ['trigger' => 'health'])['result']) {
-                logger($log, 'Cron cancelled: restart and notify disabled', 'warn');
-                logger($log, 'run <-');
-                echo date('c') . ' Cron ' . $cron . ' cancelled: restart unhealthy and notify disabled' . "\n";
-                echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
-                return false;
-            }
-            break;
         case 'prune':
             $frequencyHour = $settingsTable['autoPruneHour'] ? $settingsTable['autoPruneHour'] : '12';
 
