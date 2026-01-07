@@ -53,6 +53,9 @@ RUN \
   rm /etc/s6-overlay/s6-rc.d/user/contents.d/init-nginx && \
   rm -r /etc/s6-overlay/s6-rc.d/init-samples && \
   rm /etc/s6-overlay/s6-rc.d/user/contents.d/init-samples && \
+  rm -r /etc/s6-overlay/s6-rc.d/init-version-checks && \
+  rm /etc/s6-overlay/s6-rc.d/user/contents.d/init-version-checks && \
+  rm /etc/s6-overlay/s6-rc.d/init-nginx-end/dependencies.d/init-version-checks && \
   # Overwritten by root/etc/php**/conf.d/99-dockwatch.ini
   rm -r /etc/s6-overlay/s6-rc.d/init-php && \
   rm /etc/s6-overlay/s6-rc.d/user/contents.d/init-php && \
@@ -62,7 +65,11 @@ RUN \
   rm /etc/s6-overlay/s6-rc.d/init-permissions/dependencies.d/init-keygen && \
   # Moved to /config/logs. Before: /config/log*
   rm -r /etc/s6-overlay/s6-rc.d/init-folders && \
-  rm /etc/s6-overlay/s6-rc.d/user/contents.d/init-folders
+  rm /etc/s6-overlay/s6-rc.d/user/contents.d/init-folders && \
+  # Disable custom files
+  rm -r /etc/s6-overlay/s6-rc.d/init-custom-files && \
+  rm /etc/s6-overlay/s6-rc.d/user/contents.d/init-custom-files && \
+  rm /etc/s6-overlay/s6-rc.d/init-services/dependencies.d/init-custom-files
 
 ARG PHP_FPM_CONF="/etc/php${PHP_VERSION}/php-fpm.conf"
 RUN \
