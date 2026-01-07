@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.22
+FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.23
 
 # Version labels
 ARG BUILD_DATE
@@ -11,16 +11,6 @@ ARG COMMIT_MSG=unknown
 
 # https://github.com/Notifiarr/dockwatch/pull/59 - for future reference
 ENV ATTACHED_DEVICES_PERMS="/var/run/docker.sock"
-
-# Pass docker env vars to php-fpm
-RUN \
-  echo "**** configure php-fpm to pass env vars ****" && \
-  sed -E -i 's/^;?clear_env ?=.*$/clear_env = no/g' /etc/php84/php-fpm.d/www.conf && \
-  grep -qxF 'clear_env = no' /etc/php84/php-fpm.d/www.conf || echo 'clear_env = no' >> /etc/php84/php-fpm.d/www.conf && \
-  echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> /etc/php84/php-fpm.conf
-
-# Add composer for PHP package management
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Add regctl for container digest checks
 ARG TARGETARCH
@@ -34,11 +24,25 @@ ARG YQ_VERSION=v4.46.1
 RUN curl -sSf -L -o /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETARCH}" \
   && chmod +x /usr/local/bin/yq
 
-# Install packages and add user to unraiddocker group
-ARG INSTALL_PACKAGES="docker docker-cli-compose memcached expect parallel php84-sockets php84-sqlite3 php84-pecl-memcached php84-pecl-mcrypt php84-tokenizer php84-dom php84-mbstring"
-RUN apk add --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing --no-cache --update ${INSTALL_PACKAGES} && \
-  addgroup -g 281 unraiddocker && \
+# Add composer for PHP package management
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install system packages
+ARG PHP_VERSION=85
+ARG INSTALL_PACKAGES="docker docker-cli-compose memcached expect php${PHP_VERSION}-sockets php${PHP_VERSION}-sqlite3 php${PHP_VERSION}-pecl-memcached php${PHP_VERSION}-tokenizer php${PHP_VERSION}-dom php${PHP_VERSION}-mbstring"
+RUN apk add --repository=https://dl-cdn.alpinelinux.org/alpine/v3.23/main --no-cache --update ${INSTALL_PACKAGES}
+
+# Add user for unraid docker
+RUN addgroup -g 281 unraiddocker && \
   usermod -aG unraiddocker abc
+
+# Pass docker env vars to php-fpm
+ARG PHP_FPM_CONF="/etc/php${PHP_VERSION}/php-fpm.d/www.conf"
+RUN \
+  echo "**** configure php-fpm to pass env vars ****" && \
+  sed -E -i 's/^;?clear_env ?=.*$/clear_env = no/g' "${PHP_FPM_CONF}" && \
+  grep -qxF 'clear_env = no' "${PHP_FPM_CONF}" || echo 'clear_env = no' >> "${PHP_FPM_CONF}" && \
+  echo "env[PATH] = /usr/local/bin:/usr/bin:/bin" >> "${PHP_FPM_CONF}"
 
 # Healthcheck
 HEALTHCHECK --interval=60s --timeout=30s --start-period=180s --start-interval=10s --retries=5 \

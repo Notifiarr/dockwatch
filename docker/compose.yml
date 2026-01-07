@@ -1,5 +1,5 @@
 # Deploy a development environment for Dockwatch
-# --
+---
 services:
   dockwatch:
     container_name: dw_develop
@@ -46,4 +46,3 @@ networks:
       config:
         - subnet: 172.28.0.0/16
           gateway: 172.28.0.1
-

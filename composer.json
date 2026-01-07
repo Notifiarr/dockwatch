@@ -1,6 +1,7 @@
 {
     "name": "notifiarr/dockwatch",
     "type": "project",
+    "homepage": "https://github.com/Notifiarr/dockwatch",
     "require": {
         "cboden/ratchet": "^0.4.4",
         "phiki/phiki": "^2.0"
