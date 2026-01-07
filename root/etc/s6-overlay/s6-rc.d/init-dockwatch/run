@@ -1,0 +1,32 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+# pre create log dirs
+mkdir -p /config/logs/{nginx,php}
+
+# https://github.com/linuxserver/docker-baseimage-alpine-nginx/blob/8a552cef845d94224ac2542e9fe86bb9427d2cc7/root/etc/s6-overlay/s6-rc.d/init-nginx/run#L62-L68
+touch /config/worker_processes.conf
+if ! grep -q 'worker_processes' /config/worker_processes.conf; then
+    WORKER_PROCESSES=$(nproc)
+    echo "**** setting worker_processes to ${WORKER_PROCESSES} ****"
+    echo -e "# This file is auto-generated only on first start, based on the cpu cores detected. Feel free to change it to any other number or to auto to let nginx handle it automatically.\n\nworker_processes ${WORKER_PROCESSES};" >/config/worker_processes.conf
+fi
+
+# copy template
+cp /etc/nginx/template.conf /etc/nginx/nginx.conf
+
+# read base_url from file if it exists else fallback to /
+BASE_URL=$( [ -f /config/base-url.txt ] && cat /config/base-url.txt || echo / )
+[ "$BASE_URL" = "/" ] && BASE_URL=""
+
+# patch nginx.conf for base url
+sed -i -e "s|\${BASE_URL}|${BASE_URL}|g" /etc/nginx/nginx.conf
+echo "**** patched nginx.conf with BASE_URL=${BASE_URL:-/} ****"
+
+# permissions
+find /config ! -user abc -exec chown abc {} +
+
+# run startup script
+echo 's6-overlay init require(/app/www/public/startup.php) ->';
+s6-setuidgid abc php -r "require '/app/www/public/startup.php';"
+echo 's6-overlay init require(/app/www/public/startup.php) <-';

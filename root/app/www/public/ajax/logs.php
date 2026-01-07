@@ -77,7 +77,7 @@ if ($_POST['m'] == 'init') {
                                     continue;
                                 }
 
-                                $logHash = md5($log['name']);
+                                $logHash = md5($log['name'] . mt_rand());
                                 $group = str_contains_any($group, ['login failures']) ? '' : $group . '/';
                                 ?>
                                 <li>

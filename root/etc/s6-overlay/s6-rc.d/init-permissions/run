@@ -1,0 +1,34 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+### Based on base image permissions
+# https://github.com/linuxserver/docker-baseimage-alpine-nginx/blob/8a552cef845d94224ac2542e9fe86bb9427d2cc7/root/etc/s6-overlay/s6-rc.d/init-permissions/run
+
+if [[ -z ${LSIO_READ_ONLY_FS} ]] && [[ -z ${LSIO_NON_ROOT_USER} ]]; then
+    # permissions
+    lsiown -R abc:abc \
+        /var/lib/nginx
+
+    chmod -R 644 /etc/logrotate.d
+fi
+
+if [[ -f "/config/logs/logrotate.status" ]]; then
+    chmod 600 /config/logs/logrotate.status
+fi
+
+if [[ -z ${LSIO_NON_ROOT_USER} ]]; then
+    if [[ -d "/config/logs" ]]; then
+        lsiown -R abc:abc \
+            /config/logs
+    fi
+
+    if [[ -f "/config/worker_processes.conf" ]]; then
+        lsiown abc:abc \
+            /config/worker_processes.conf
+    fi
+
+    if [[ -f "/config/resolver.conf" ]]; then
+        lsiown abc:abc \
+            /config/resolver.conf
+    fi
+fi
