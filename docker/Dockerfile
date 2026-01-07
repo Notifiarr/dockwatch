@@ -41,8 +41,9 @@ COPY /docker/branding /etc/s6-overlay/s6-rc.d/init-adduser/branding
 
 RUN \
   echo "**** customize base lsio image ****" && \
-  # Apply container start up branding
-  sed -i "s|Branch: \${BRANCH}, Hash: \${HASH}|Branch: ${BRANCH}, Hash: ${HASH}|g" /etc/s6-overlay/s6-rc.d/init-adduser/branding && \
+  # Apply branding branch and hash
+  sed -i "s@\${BRANCH}@${BRANCH}@g" /etc/s6-overlay/s6-rc.d/init-adduser/branding && \
+  sed -i "s@\${COMMIT}@${COMMIT:0:7}@g" /etc/s6-overlay/s6-rc.d/init-adduser/branding && \
   # Migrations not needed because we ship with our own static nginx config
   rm -r /etc/s6-overlay/s6-rc.d/init-migrations && \
   rm /etc/s6-overlay/s6-rc.d/user/contents.d/init-migrations && \

@@ -5,6 +5,9 @@
 | (_| | (_) | (__|   <  \ V  V / (_| | || (__| | | |
  \__,_|\___/ \___|_|\_\  \_/\_/ \__,_|\__\___|_| |_|
 
-          Branch: ${BRANCH}, Hash: ${HASH}
+   Branch:  ${BRANCH}, Hash: ${COMMIT}
+   Wiki:    https://dockwatch.wiki
+   Repo:    https://github.com/Notifiarr/dockwatch
+   Support: https://notifiarr.com/discord
 
 ───────────────────────────────────────
