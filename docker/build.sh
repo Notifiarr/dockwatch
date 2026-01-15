@@ -34,3 +34,6 @@ docker buildx build \
   --load \
   --no-cache \
   . "$@"
+
+# Remove builder
+docker buildx rm

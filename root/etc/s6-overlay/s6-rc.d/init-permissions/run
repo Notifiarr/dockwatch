@@ -26,9 +26,4 @@ if [[ -z ${LSIO_NON_ROOT_USER} ]]; then
         lsiown abc:abc \
             /config/worker_processes.conf
     fi
-
-    if [[ -f "/config/resolver.conf" ]]; then
-        lsiown abc:abc \
-            /config/resolver.conf
-    fi
 fi
