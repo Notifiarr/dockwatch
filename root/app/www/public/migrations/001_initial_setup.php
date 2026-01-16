@@ -139,11 +139,10 @@ if (file_exists(APP_DATA_PATH . 'servers.json')) {
                 VALUES " . implode(', ', $serverRows);
     }
 } else {
-    $serverApikey = $_SERVER['APIKEY'] ?? generateApikey(); //-- OVERRIDE WITH APIKEY ENV
     $q[] = "INSERT INTO " . SERVERS_TABLE . "
             (`name`, `url`, `apikey`)
             VALUES
-            ('" . APP_NAME . "', '" . APP_SERVER_URL . "', '" . $serverApikey . "')";
+            ('" . APP_NAME . "', '" . APP_SERVER_URL . "', '" . INITIAL_API_KEY . "')";
 }
 
 if (file_exists(APP_DATA_PATH . 'settings.json')) {

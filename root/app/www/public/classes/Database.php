@@ -35,6 +35,15 @@ class Database
     {
         logger(SYSTEM_LOG, 'Connect to \'' . DATABASE_PATH . DATABASE_NAME . '\'');
         $this->connect(DATABASE_PATH . DATABASE_NAME);
+
+        if (IS_STARTUP && filesize(DATABASE_PATH . 'dockwatch.db') == 0) {
+            define('INITIAL_API_KEY', generateApikey());
+            $this->migrations();
+
+            echo "───────────────────────────────────────" . "\n";
+            echo 'Generated API key: ' . INITIAL_API_KEY . "\n";
+            echo "───────────────────────────────────────" . "\n";
+        }
     }
 
     public function connect($dbFile)

@@ -24,6 +24,11 @@ require __DIR__ . '/../vendor/autoload.php';
 //-- COMPOSER DEPENDENCIES
 use Phiki\Phiki;
 
+//-- NOT STARTUP
+if (!defined('IS_STARTUP')) {
+    define('IS_STARTUP', false);
+}
+
 if ($_SERVER['TZ']) {
     date_default_timezone_set($_SERVER['TZ']);
 }
@@ -119,7 +124,8 @@ if (!IS_SSE) {
     logger(SYSTEM_LOG, 'Init class: Database()');
     $database = new Database();
 
-    if (!$skipMmigrations) {
+    if (!IS_STARTUP) {
+        //-- RUN MIGRATIONS
         apiRequestLocal('database/migrations');
     }
 

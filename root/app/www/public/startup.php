@@ -7,12 +7,13 @@
 ----------------------------------
 */
 
+define('IS_STARTUP', true);
+
 if (!defined('ABSOLUTE_PATH')) {
 	define('ABSOLUTE_PATH', __DIR__ . '/');
 }
 
 echo 'require_once ' . ABSOLUTE_PATH . 'loader.php' . "\n";
-$skipMmigrations = true; //-- DO THIS WHEN THE UI IS LOADED, NOT THE INIT
 require_once ABSOLUTE_PATH . 'loader.php';
 
 //-- INITIALIZE MEMCACHE
