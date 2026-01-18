@@ -43,6 +43,42 @@ trait DockersApi
         return $matches[0][1];
     }
 
+    public function apiVersionError()
+    {
+        if ($_SESSION['dockerVersion']) {
+            $dockerVersion = $_SESSION['dockerVersion'];
+        } else {
+            $cmd    = sprintf(DockerSock::VERSION, '');
+            $shell  = $this->shell->exec($cmd . ' 2>&1');
+
+            if (str_contains_all($shell, ['Error', 'Maximum'])) {
+                $lines = explode("\n", $shell);
+                foreach ($lines as $line) {
+                    if (str_contains($line, 'Error')) {
+                        $dockerVersion = str_replace('Error response from daemon: ', '', $line);
+                        $_SESSION['dockerVersion'] = $dockerVersion;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $dockerVersion;
+    }
+
+    public function apiPermissionsError()
+    {
+        if ($_SESSION['dockerPerms']) {
+            $dockerPerms = $_SESSION['dockerPerms'];
+        } else {
+            $dockerPerms = apiRequest('docker/permissions')['result'];
+            $dockerPerms = json_decode($dockerPerms, true);
+            $_SESSION['dockerPerms'] = $dockerPerms;
+        }
+
+        return $dockerPerms ? false : true;
+    }
+
     public function apiCurl($request, $method)
     {
         $payload    = $request['payload'];

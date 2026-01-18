@@ -10,13 +10,14 @@
 require 'loader.php';
 require 'includes/header.php';
 
-if ($_SESSION['dockerPerms']) {
-    $dockerPerms = $_SESSION['dockerPerms'];
-} else {
-    $dockerPerms = apiRequest('docker/permissions')['result'];
-    $dockerPerms = json_decode($dockerPerms, true);
-    $_SESSION['dockerPerms'] = $dockerPerms;
+//-- CHECK API VERSION
+$apiVersionError = $docker->apiVersionError();
+if ($apiVersionError) {
+    preg_match_all('/[0-9].[0-9]+/', $apiVersionError, $apiVersions);
 }
+
+//-- CHECK DOCKER PERMISSIONS
+$apiPermissionsError = $docker->apiPermissionsError();
 
 $loadError = '';
 if (!$serversTable) {
@@ -54,29 +55,41 @@ if ($loadError) {
     <div id="content-tasks" style="display: none;"></div>
     <div id="content-commands" style="display: none;"></div>
     <div id="content-database" style="display: none;"></div>
-    <div id="content-dockerPermissions" style="display: <?= $dockerPerms ? 'none' : 'block' ?>;">
-        If you are seeing this, it means the user:group running this container does not have permission to run docker commands. Please fix that, restart the container and try again.<br><br>
+    <?php if ($apiVersionError) { ?>
+    <div id="content-dockerAPIVersionError" style="display: block;">
+        The docker API version on the host <code><?= $apiVersions[0][1] ?></code> is older than the docker version here <code><?= $apiVersions[0][0] ?></code>, two choices:
         <div class="bg-secondary rounded p-4">
-            An example for Ubuntu:
             <div class="ms-2">
-                Set the PGID to the docker group<br>
-                &nbsp;&nbsp;&nbsp;- <code>ls -ltra /var/run/docker.sock</code> to see the group running the sock ("docker" for example)<br>
-                &nbsp;&nbsp;&nbsp;- <code>grep docker /etc/group</code> to see the group id and use as the PGID<br>
-                Change the user:group with a chown (if necessary)<br>
-                Wipe the appdir and retry (if necessary)<br>
-                Try with --force-recreate (if necessary)
-            </div>
-        </div>
-        <div class="bg-secondary rounded p-4 mt-3">
-            An example for Synology:
-            <div class="ms-2">
-                Create a docker group <code>sudo synogroup --add docker</code><br>
-                &nbsp;&nbsp;&nbsp;- Take note of the group id it returns next to Group Id: [65537] (for example)<br>
-                Adjust docker sock permissions: <code>sudo chown root:docker /var/run/docker.sock</code><br>
-                Assign the PGID to the group id from above and restart (docker-compose up -d)
+                1. Update the host docker install<br>
+                2. Add an ENV to the Dockwatch compose: <code>DOCKER_API_VERSION=<?= $apiVersions[0][1] ?></code>
             </div>
         </div>
     </div>
+    <?php } elseif ($apiPermissionsError) { ?>
+        <div id="content-dockerPermissions" style="display: block;">
+            If you are seeing this, it means the user:group running this container does not have permission to run docker commands. Please fix that, restart the container and try again.<br><br>
+            <div class="bg-secondary rounded p-4">
+                An example for Ubuntu:
+                <div class="ms-2">
+                    Set the PGID to the docker group<br>
+                    &nbsp;&nbsp;&nbsp;- <code>ls -ltra /var/run/docker.sock</code> to see the group running the sock ("docker" for example)<br>
+                    &nbsp;&nbsp;&nbsp;- <code>grep docker /etc/group</code> to see the group id and use as the PGID<br>
+                    Change the user:group with a chown (if necessary)<br>
+                    Wipe the appdir and retry (if necessary)<br>
+                    Try with --force-recreate (if necessary)
+                </div>
+            </div>
+            <div class="bg-secondary rounded p-4 mt-3">
+                An example for Synology:
+                <div class="ms-2">
+                    Create a docker group <code>sudo synogroup --add docker</code><br>
+                    &nbsp;&nbsp;&nbsp;- Take note of the group id it returns next to Group Id: [65537] (for example)<br>
+                    Adjust docker sock permissions: <code>sudo chown root:docker /var/run/docker.sock</code><br>
+                    Assign the PGID to the group id from above and restart (docker-compose up -d)
+                </div>
+            </div>
+        </div>
+    <?php } ?>
 <?php
 }
 require 'includes/footer.php';

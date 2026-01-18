@@ -129,6 +129,11 @@ function initPage(page)
         return;
     }
 
+    const dockerAPIVersionError = $('#content-dockerAPIVersionError').is(':visible');
+    if (dockerAPIVersionError) {
+        return;
+    }
+
     const dockerPermissionsError = $('#content-dockerPermissions').is(':visible');
     if (dockerPermissionsError) {
         return;
