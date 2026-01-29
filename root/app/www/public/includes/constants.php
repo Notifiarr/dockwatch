@@ -114,10 +114,14 @@ define('SKIP_OFF', 0);
 define('SKIP_FORCE', 1);
 define('SKIP_OPTIONAL', 2);
 
+//-- CONTAINER BLACKLIST
 $skipContainerActions   = [
-                            'dockwatch',    //-- IF THIS GOES DOWN, IT WILL STOP THE CONTAINER WHICH MEANS IT CAN NEVER FINISH
-                            'cloudflared',  //-- IF THIS GOES DOWN, IT WILL KILL THE NETWORK TRAFFIC TO DOCKWATCH
-                            'swag'          //-- IF THIS GOES DOWN, IT WILL KILL THE WEB SERVICE TO DOCKWATCH
+                            'dockwatch',
+                            'cloudflared',
+                            'swag',
+                            'nginx-proxy-manager',
+                            'caddy',
+                            'cloudflareddns'
                         ];
 
 //-- CONTAINER GUI
