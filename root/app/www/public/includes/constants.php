@@ -116,12 +116,14 @@ define('SKIP_OPTIONAL', 2);
 
 //-- CONTAINER BLACKLIST
 $skipContainerActions   = [
-                            'dockwatch',
-                            'cloudflared',
-                            'swag',
-                            'nginx-proxy-manager',
-                            'caddy',
-                            'cloudflareddns'
+                            'dockwatch',            //-- BUILT-IN UPDATER
+                            'cloudflared',          //-- CF ZERO TRUST TUNNEL
+                            'traefik',              //-- REVERSE PROXY
+                            'swag',                 //-- REVERSE PROXY
+                            'nginx',                //-- REVERSE PROXY
+                            'nginx-proxy-manager',  //-- REVERSE PROXY
+                            'caddy',                //-- REVERSE PROXY
+                            'cloudflareddns'        //-- REVERSE PROXY
                         ];
 
 //-- CONTAINER GUI
