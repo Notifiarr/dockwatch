@@ -3,26 +3,34 @@
 
 set -e
 
-# Image name and tag
 IMAGE_NAME="ghcr.io/notifiarr/dockwatch"
 TAG="local"
 
-# Build metadata
+usage() {
+    echo "Usage: $0 [options]"
+    echo "Options:"
+    echo "  -h         Show this help message"
+    echo "  -t TAG     Set image tag (default: local)"
+    exit 0
+}
+
+while getopts "ht:" opt; do
+    case $opt in
+        h) usage ;;
+        t) TAG="$OPTARG" ;;
+    esac
+done
+shift $((OPTIND -1))
+
+command -v docker >/dev/null 2>&1 || { echo "Docker is required"; exit 1; }
+
 BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-COMMITS="0"
-BRANCH="local"
-COMMIT="unknown"
+COMMITS=$(git rev-list --count --all 2>/dev/null || echo "0")
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "local")
+COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
 
-# Platforms to build for
-PLATFORMS="linux/amd64"
-
-# Enable Docker Buildx
-docker buildx create --use --name builder 2>/dev/null || docker buildx use builder
-
-# Build image using repo root as context
-docker buildx build \
+docker build \
   --file docker/Dockerfile \
-  --platform "$PLATFORMS" \
   --build-arg BUILD_DATE="$BUILD_DATE" \
   --build-arg COMMITS="$COMMITS" \
   --build-arg BRANCH="$BRANCH" \
@@ -31,9 +39,4 @@ docker buildx build \
   --label "org.opencontainers.image.created=$BUILD_DATE" \
   --label "org.opencontainers.image.revision=$COMMIT" \
   --label "org.opencontainers.image.version=$TAG" \
-  --load \
-  --no-cache \
   . "$@"
-
-# Remove builder
-docker buildx rm
