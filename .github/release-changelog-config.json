@@ -6,8 +6,8 @@
         }
     ],
     "template": "${{CHANGELOG}}\n\n## 👥 Contributors\n${{CONTRIBUTORS}}",
-    "pr_template": "* ${{TITLE}} by @${{AUTHOR}} in #${{NUMBER}}",
-    "commit_template": "* ${{TITLE}} by @${{AUTHOR}}",
+    "pr_template": "* [${{MERGE_SHA}}](https://github.com/#{{OWNER}}/#{{REPO}}/commit/${{MERGE_SHA}}): ${{TITLE}} by @${{AUTHOR}} in #${{NUMBER}}",
+    "commit_template": "* [${{MERGE_SHA}}](https://github.com/#{{OWNER}}/#{{REPO}}/commit/${{MERGE_SHA}}): ${{TITLE}} by @${{AUTHOR}}",
     "empty_template": "* no changes",
     "fetch_release_information": true
 }
