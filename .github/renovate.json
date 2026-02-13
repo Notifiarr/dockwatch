@@ -1,25 +1,33 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    "docker:enableMajor",
-    "default:automergeDigest"
-  ],
-  "packageRules": [
-    {
-      "matchDatasources": [
-        "docker"
-      ],
-      "matchPackageNames": [
-        "ubuntu"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch",
-        "pin",
-        "digest"
-      ],
-      "automerge": true
-    }
-  ]
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+      "config:recommended",
+      "docker:pinDigests",
+      "default:automergeDigest"
+    ],
+    "packageRules": [
+        {
+            "matchDatasources": ["docker"],
+            "matchPackageNames": ["ghcr.io/linuxserver/baseimage-alpine-nginx"],
+            "matchUpdateTypes": ["major"],
+            "automerge": false
+        },
+        {
+            "matchDatasources": ["docker"],
+            "matchPackageNames": ["ghcr.io/linuxserver/baseimage-alpine-nginx"],
+            "matchUpdateTypes": ["minor", "patch", "digest"],
+            "automerge": true
+        },
+        {
+            "matchDatasources": ["docker"],
+            "matchPackageNames": ["lscr.io/linuxserver/nginx"],
+            "matchUpdateTypes": ["minor", "patch", "digest", "major"],
+            "automerge": true
+        },
+        {
+            "matchPackageNames": ["composer"],
+            "matchUpdateTypes": ["major"],
+            "automerge": false
+        }
+    ]
 }
