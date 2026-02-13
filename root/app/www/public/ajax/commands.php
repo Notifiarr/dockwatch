@@ -114,8 +114,8 @@ if ($_POST['m'] == 'runCommand') {
 
 if ($_POST['m'] == 'saveCommand') {
     logger(SYSTEM_LOG, 'Save command: ' . $_POST['command']);
-    $servers = explode(',', $_POST['servers']);
-    $id = $_POST['id'] ?: md5(bin2hex(random_bytes(16)));
+    $servers      = explode(',', $_POST['servers']);
+    $id           = $_POST['id'] ?: md5(bin2hex(random_bytes(16)));
     $commandsFile = apiRequest('file/commands')['result'] ?: [];
 
     foreach ($serversTable as $serverId => $serverData) {
@@ -143,7 +143,7 @@ if ($_POST['m'] == 'saveCommand') {
 
 if ($_POST['m'] == 'deleteCommand') {
     logger(SYSTEM_LOG, 'Delete command: ' . $_POST['command']);
-    $id = $_POST['id'];
+    $id           = $_POST['id'];
     $commandsFile = apiRequest('file/commands')['result'] ?: [];
 
     if (!empty($id)) {
@@ -175,48 +175,48 @@ if ($_POST['m'] == 'listCommand') {
                     </tr>
                 </thead>
                 <tbody id="listCommandRows">
-                <?php
-                foreach ($commandsFile as $id => $command) {
-                    $escapedCommandJson = htmlspecialchars(json_encode($command));
-                    ?>
-                    <tr id="list-command-<?= $id ?>" class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary"><?= truncateMiddle($id, 16) ?></td>
-                        <td class="bg-secondary"><?= $command['command'] ?></td>
-                        <td class="bg-secondary"><?= $command['container'] ?></td>
-                        <td class="bg-secondary">
-                            <input id="list-command-<?= $id ?>-parameters" type="text" class="form-control" placeholder="None" value="<?= $command['parameters'] ?>" disabled>
-                        </td>
-                        <td class="bg-secondary">
-                            <select class="form-select" id="list-command-<?= $id ?>-servers" disabled>
-                                <?php
+                    <?php
+                    foreach ($commandsFile as $id => $command) {
+                        $escapedCommandJson = htmlspecialchars(json_encode($command));
+                        ?>
+                        <tr id="list-command-<?= $id ?>" class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary"><?= truncateMiddle($id, 16) ?></td>
+                            <td class="bg-secondary"><?= $command['command'] ?></td>
+                            <td class="bg-secondary"><?= $command['container'] ?></td>
+                            <td class="bg-secondary">
+                                <input id="list-command-<?= $id ?>-parameters" type="text" class="form-control" placeholder="None" value="<?= $command['parameters'] ?>" disabled>
+                            </td>
+                            <td class="bg-secondary">
+                                <select class="form-select" id="list-command-<?= $id ?>-servers" disabled>
+                                    <?php
                                     foreach ($serversTable as $serverId => $serverData) {
                                         $isSelected = $command['servers'] == $serverId;
                                         if ($serversTable[$serverId]) { ?>
-                                            <option value="<?= $serverId ?>" <?= $isSelected ? 'selected' : ''?>><?= $serverData['name'] ?></option>
-                                        <?php
+                                            <option value="<?= $serverId ?>" <?= $isSelected ? 'selected' : '' ?>><?= $serverData['name'] ?></option>
+                                            <?php
                                         }
                                     }
-                                ?>
-                            </select>
-                        </td>
-                        <td class="bg-secondary">
-                            <div style="position: relative; display: flex; align-items: center;">
-                                <input id="list-command-<?= $id ?>-cron" type="text" placeholder="Not active" class="form-control" value="<?= $command['cron'] ?: '' ?>" onclick="frequencyCronEditor(this.value, 'list-command-<?= $id ?>-cron', 'Command Cron')" disabled style="padding-right: 25px;">
-                                <i id="list-command-<?= $id ?>-cron-clear" class="fas fa-times text-danger" style="display: none; position: absolute; right: 10px; cursor: pointer;" title="Clear cron" onclick="$('#list-command-<?= $id ?>-cron').val('')"></i>
-                            </div>
-                        </td>
-                        <td class="bg-secondary text-center">
-                            <div id="list-command-<?= $id ?>-buttons">
-                                <i class="fas fa-play text-success" style="display: inline; cursor: pointer;" title="Run command" onclick="runCommand(<?= $escapedCommandJson ?>)"></i>
-                                <i class="far fa-edit text-warning" style="display: inline; cursor: pointer;" title="Edit command" onclick="editCommand('<?= $id ?>')"></i>
-                                <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete command" onclick="deleteCommand('<?= $id ?>')"></i>
-                            </div>
-                            <i id="list-command-<?= $id ?>-save" class="fas fa-check text-success" style="display: none; cursor: pointer;" title="Save command" onclick="editCommand('<?= $id ?>')"></i>
-                        </td>
-                    </tr>
-                    <?php
-                }
-                ?>
+                                    ?>
+                                </select>
+                            </td>
+                            <td class="bg-secondary">
+                                <div style="position: relative; display: flex; align-items: center;">
+                                    <input id="list-command-<?= $id ?>-cron" type="text" placeholder="Not active" class="form-control" value="<?= $command['cron'] ?: '' ?>" onclick="frequencyCronEditor(this.value, 'list-command-<?= $id ?>-cron', 'Command Cron')" disabled style="padding-right: 25px;">
+                                    <i id="list-command-<?= $id ?>-cron-clear" class="fas fa-times text-danger" style="display: none; position: absolute; right: 10px; cursor: pointer;" title="Clear cron" onclick="$('#list-command-<?= $id ?>-cron').val('')"></i>
+                                </div>
+                            </td>
+                            <td class="bg-secondary text-center">
+                                <div id="list-command-<?= $id ?>-buttons">
+                                    <i class="fas fa-play text-success" style="display: inline; cursor: pointer;" title="Run command" onclick="runCommand(<?= $escapedCommandJson ?>)"></i>
+                                    <i class="far fa-edit text-warning" style="display: inline; cursor: pointer;" title="Edit command" onclick="editCommand('<?= $id ?>')"></i>
+                                    <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete command" onclick="deleteCommand('<?= $id ?>')"></i>
+                                </div>
+                                <i id="list-command-<?= $id ?>-save" class="fas fa-check text-success" style="display: none; cursor: pointer;" title="Save command" onclick="editCommand('<?= $id ?>')"></i>
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>

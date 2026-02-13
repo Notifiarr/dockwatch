@@ -23,7 +23,7 @@ $processList            = $getExpandedProcessList['processList'];
 $updatedProcessList     = [];
 
 foreach ($processList as $process) {
-    $nameHash = md5($process['Names']);
+    $nameHash                      = md5($process['Names']);
     $updatedProcessList[$nameHash] = renderContainerRow($nameHash, 'json');
 }
 

@@ -34,12 +34,12 @@ use RuntimeException;
  */
 class CronExpression
 {
-    const MINUTE = 0;
-    const HOUR = 1;
-    const DAY = 2;
-    const MONTH = 3;
+    const MINUTE  = 0;
+    const HOUR    = 1;
+    const DAY     = 2;
+    const MONTH   = 3;
     const WEEKDAY = 4;
-    const YEAR = 5;
+    const YEAR    = 5;
 
     /**
      * @var array CRON expression parts
@@ -80,12 +80,12 @@ class CronExpression
     public static function factory($expression, FieldFactory $fieldFactory = null)
     {
         $mappings = array(
-            '@yearly' => '0 0 1 1 *',
+            '@yearly'   => '0 0 1 1 *',
             '@annually' => '0 0 1 1 *',
-            '@monthly' => '0 0 1 * *',
-            '@weekly' => '0 0 * * 0',
-            '@daily' => '0 0 * * *',
-            '@hourly' => '0 * * * *'
+            '@monthly'  => '0 0 1 * *',
+            '@weekly'   => '0 0 * * 0',
+            '@daily'    => '0 0 * * *',
+            '@hourly'   => '0 * * * *'
         );
 
         if (isset($mappings[$expression])) {
@@ -182,7 +182,7 @@ class CronExpression
     public function setMaxIterationCount($maxIterationCount)
     {
         $this->maxIterationCount = $maxIterationCount;
-        
+
         return $this;
     }
 
@@ -344,17 +344,17 @@ class CronExpression
 
         $currentDate->setTime($currentDate->format('H'), $currentDate->format('i'), 0);
         $nextRun = clone $currentDate;
-        $nth = (int) $nth;
+        $nth     = (int) $nth;
 
         // We don't have to satisfy * or null fields
-        $parts = array();
+        $parts  = array();
         $fields = array();
         foreach (self::$order as $position) {
             $part = $this->getExpression($position);
             if (null === $part || '*' === $part) {
                 continue;
             }
-            $parts[$position] = $part;
+            $parts[$position]  = $part;
             $fields[$position] = $this->fieldFactory->getField($position);
         }
 

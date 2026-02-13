@@ -11,21 +11,21 @@ function telemetry($send = false)
 {
     global $database;
 
-    $database       = $database ?: new Database();
-    $settingsTable  = $database->getSettings();
-    $serversTable   = $database->getServers();
+    $database      = $database ?: new Database();
+    $settingsTable = $database->getSettings();
+    $serversTable  = $database->getServers();
 
     //-- ONE WAY HASH() OF AN MD5() HASHED HOSTNAME + APIKEY TO KEEP THINGS UNIQUE
     $telemetry['token'] = hash('sha256', md5($_SERVER['HOSTNAME'] . $serversTable[1]['apikey']));
 
     //-- INSTANCE INFO
-    $telemetry['branch']    = gitBranch();
-    $telemetry['version']   = gitVersion();
+    $telemetry['branch']  = gitBranch();
+    $telemetry['version'] = gitVersion();
 
     if ($settingsTable['telemetry']) {
-        $containersTable    = $database->getContainers();
-        $groupsTable        = $database->getContainerGroups();
-        $notificationTable  = $database->getNotificationLinks();
+        $containersTable   = $database->getContainers();
+        $groupsTable       = $database->getContainerGroups();
+        $notificationTable = $database->getNotificationLinks();
 
         //-- CONTAINER INFO
         $auto = $check = $ignore = 0;
@@ -39,10 +39,10 @@ function telemetry($send = false)
             }
         }
 
-        $telemetry['telemetry']['containers']['update']['auto']      = $auto;
-        $telemetry['telemetry']['containers']['update']['check']     = $check;
-        $telemetry['telemetry']['containers']['update']['ignore']    = $ignore;
-        $telemetry['telemetry']['containers']['total']               = count($containersTable);
+        $telemetry['telemetry']['containers']['update']['auto']   = $auto;
+        $telemetry['telemetry']['containers']['update']['check']  = $check;
+        $telemetry['telemetry']['containers']['update']['ignore'] = $ignore;
+        $telemetry['telemetry']['containers']['total']            = count($containersTable);
 
         //-- GROUP INFO
         $telemetry['telemetry']['groups']['total'] = count($groupsTable);
@@ -52,12 +52,12 @@ function telemetry($send = false)
 
         //-- COMPOSE INFO
         $existingComposeFolders = [];
-        $dir = opendir(COMPOSE_PATH);
+        $dir                    = opendir(COMPOSE_PATH);
         while ($folder = readdir($dir)) {
             if ($folder[0] == '.') {
                 continue;
             }
-        
+
             $existingComposeFolders[] = COMPOSE_PATH . $folder;
         }
         closedir($dir);
@@ -65,9 +65,9 @@ function telemetry($send = false)
         $telemetry['telemetry']['compose']['total'] = count($existingComposeFolders);
 
         //-- NOTIFICATION INFO
-        $telemetry['telemetry']['notifications']['notifiarr']   = 0;
-        $telemetry['telemetry']['notifications']['telegram']    = 0;
-        $telemetry['telemetry']['notifications']['mattermost']  = 0;
+        $telemetry['telemetry']['notifications']['notifiarr']  = 0;
+        $telemetry['telemetry']['notifications']['telegram']   = 0;
+        $telemetry['telemetry']['notifications']['mattermost'] = 0;
 
         if ($notificationTable) {
             foreach ($notificationTable as $notificationLink) {

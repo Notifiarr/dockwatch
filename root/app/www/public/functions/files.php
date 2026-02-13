@@ -9,17 +9,17 @@
 
 function loadJS()
 {
-    $jsDir  = 'js/';
-    $dir    = opendir($jsDir);
+    $jsDir = 'js/';
+    $dir   = opendir($jsDir);
     while ($file = readdir($dir)) {
         if (str_contains($file, '.js')) {
-            echo '<script src="'. $jsDir . $file .'?t='. filemtime($jsDir . $file) .'"></script>';
+            echo '<script src="' . $jsDir . $file . '?t=' . filemtime($jsDir . $file) . '"></script>';
         }
     }
     closedir($dir);
 }
 
-function getFile($file) 
+function getFile($file)
 {
     logger(SYSTEM_LOG, 'getFile() ' . $file);
 

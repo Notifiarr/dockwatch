@@ -13,16 +13,16 @@ trait Network
     {
         $orphans = [];
 
-        $cmd        = DockerSock::ORPHAN_NETWORKS;
-        $networks   = json_decode($this->shell->exec($cmd . ' 2>&1'), true);
+        $cmd      = DockerSock::ORPHAN_NETWORKS;
+        $networks = json_decode($this->shell->exec($cmd . ' 2>&1'), true);
 
         foreach ($networks as $network) {
             if (str_contains_any($network['Name'], ['bridge', 'host', 'none'])) {
                 continue;
             }
 
-            $cmd        = sprintf(DockerSock::INSPECT_NETWORK, $network['ID']);
-            $inspect    = json_decode($this->shell->exec($cmd . ' 2>&1'), true);
+            $cmd     = sprintf(DockerSock::INSPECT_NETWORK, $network['ID']);
+            $inspect = json_decode($this->shell->exec($cmd . ' 2>&1'), true);
 
             if (empty($inspect[0]['Containers'])) {
                 $orphans[] = $network;

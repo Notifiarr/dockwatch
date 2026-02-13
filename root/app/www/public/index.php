@@ -43,7 +43,7 @@ if ($loadError) {
     </div>
     <?php
 } else {
-?>
+    ?>
     <div id="content-overview" style="display: none;"></div>
     <div id="content-containers" style="display: none;"></div>
     <div id="content-networks" style="display: none;"></div>
@@ -56,23 +56,26 @@ if ($loadError) {
     <div id="content-commands" style="display: none;"></div>
     <div id="content-database" style="display: none;"></div>
     <?php if ($apiVersionError) { ?>
-    <div id="content-dockerAPIVersionError" style="display: block;">
-        The docker API version on the host <code><?= $apiVersions[0][1] ?></code> is older than the docker version here <code><?= $apiVersions[0][0] ?></code>, two choices:
-        <div class="bg-secondary rounded p-4">
-            <div class="ms-2">
-                1. Update the host docker install<br>
-                2. Add an ENV to the Dockwatch compose: <code>DOCKER_API_VERSION=<?= $apiVersions[0][1] ?></code>
+        <div id="content-dockerAPIVersionError" style="display: block;">
+            The docker API version on the host <code><?= $apiVersions[0][1] ?></code> is older than the docker version here
+            <code><?= $apiVersions[0][0] ?></code>, two choices:
+            <div class="bg-secondary rounded p-4">
+                <div class="ms-2">
+                    1. Update the host docker install<br>
+                    2. Add an ENV to the Dockwatch compose: <code>DOCKER_API_VERSION=<?= $apiVersions[0][1] ?></code>
+                </div>
             </div>
         </div>
-    </div>
     <?php } elseif ($apiPermissionsError) { ?>
         <div id="content-dockerPermissions" style="display: block;">
-            If you are seeing this, it means the user:group running this container does not have permission to run docker commands. Please fix that, restart the container and try again.<br><br>
+            If you are seeing this, it means the user:group running this container does not have permission to run docker
+            commands. Please fix that, restart the container and try again.<br><br>
             <div class="bg-secondary rounded p-4">
                 An example for Ubuntu:
                 <div class="ms-2">
                     Set the PGID to the docker group<br>
-                    &nbsp;&nbsp;&nbsp;- <code>ls -ltra /var/run/docker.sock</code> to see the group running the sock ("docker" for example)<br>
+                    &nbsp;&nbsp;&nbsp;- <code>ls -ltra /var/run/docker.sock</code> to see the group running the sock ("docker"
+                    for example)<br>
                     &nbsp;&nbsp;&nbsp;- <code>grep docker /etc/group</code> to see the group id and use as the PGID<br>
                     Change the user:group with a chown (if necessary)<br>
                     Wipe the appdir and retry (if necessary)<br>

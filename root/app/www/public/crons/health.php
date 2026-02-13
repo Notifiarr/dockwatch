@@ -21,7 +21,7 @@ if (!canCronRun('health', $settingsTable)) {
 $containerList = apiRequest('stats/containers')['result']['result'];
 if (empty($containerList)) {
     logger(CRON_HEALTH_LOG, 'Cron run stopped: error fetching container list', 'error');
-    echo date('c').'Cron run stopped: error fetching container list';
+    echo date('c') . 'Cron run stopped: error fetching container list';
     exit();
 }
 
@@ -66,21 +66,21 @@ if ($unhealthy) {
     $containersTable = apiRequest('database/containers')['result'];
 
     foreach ($unhealthy as $nameHash => $container) {
-        $notify         = false;
-        $thisContainer  = apiRequest('database/container/hash', ['hash' => $nameHash])['result'];
-        $skipActions    = skipContainerActions($container['name'], $skipContainerActions);
+        $notify        = false;
+        $thisContainer = apiRequest('database/container/hash', ['hash' => $nameHash])['result'];
+        $skipActions   = skipContainerActions($container['name'], $skipContainerActions);
 
         if ($skipActions) {
             logger(CRON_HEALTH_LOG, 'skipping: ' . $container['name'] . ', blacklisted (no state changes) container', 'warn');
             continue;
         }
 
-        $unhealthy[$nameHash]['notify']     = 0;
-        $unhealthy[$nameHash]['restart']    = 0;
+        $unhealthy[$nameHash]['notify']  = 0;
+        $unhealthy[$nameHash]['restart'] = 0;
 
         if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'health'])['result']) {
             $unhealthy[$nameHash]['notify'] = time();
-            $notify = true;
+            $notify                         = true;
         } else {
             logger(CRON_HEALTH_LOG, 'skipping notification for \'' . $container['name'] . '\', no notification senders with the health event enabled', 'warn');
         }

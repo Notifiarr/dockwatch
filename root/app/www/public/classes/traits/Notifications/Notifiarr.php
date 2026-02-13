@@ -11,9 +11,9 @@ trait Notifiarr
 {
     public function notifiarr($logfile, $apikey, $payload, $test = false)
     {
-        $headers    = ['x-api-key:' . $apikey];
-        $url        = 'https://notifiarr.com/api/v1/notification/dockwatch';
-        $curl       = curl($url, $headers, 'POST', json_encode($payload));
+        $headers = ['x-api-key:' . $apikey];
+        $url     = 'https://notifiarr.com/api/v1/notification/dockwatch';
+        $curl    = curl($url, $headers, 'POST', json_encode($payload));
 
         logger($logfile, 'notification response:' . json_encode($curl), ($curl['code'] != 200 ? 'error' : ''));
 

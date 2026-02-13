@@ -7,11 +7,11 @@
  */
 
 (function ($) {
-    "use strict";
+    'use strict';
 
-    let pluginName = "cron",
+    let pluginName = 'cron',
         defaults = {
-            expression: "0 0 * * *",
+            expression: '0 0 * * *',
             hash: null,
             name: null,
             onChange: undefined,
@@ -51,7 +51,7 @@
         });
 
         if (regExFailed) {
-            toast("Frequency Cron Editor", "Expression is invalid!", "error");
+            toast('Frequency Cron Editor', 'Expression is invalid!', 'error');
             return;
         }
 
@@ -61,7 +61,7 @@
         //     return;
         // }
         if (minute < 0 || minute > 59) {
-            toast("Frequency Cron Editor", "Minute has to be >= 0 and <= 59", "error");
+            toast('Frequency Cron Editor', 'Minute has to be >= 0 and <= 59', 'error');
             return;
         }
 
@@ -71,15 +71,15 @@
     $.extend(Plugin.prototype, {
         destroy: function () {
             // unbind events
-            $("#cronFreqEditor-applyExpression").off("click");
-            $("#cronFreqEditor-hourCheckbox").off("click");
-            $("#cronFreqEditor-dropdownCheckbox").off("click");
-            $(".weekDaysButtons").off("click");
-            $("#cronFreqEditor-hourInput").off("change");
-            $("#cronFreqEditor-minuteInput").off("change");
-            $("#cronFreqEditor-hourDropdown").off("change");
-            $("#cronFreqEditor-minuteDropdown").off("change");
-            $("#cronFreqEditor-result").off("change");
+            $('#cronFreqEditor-applyExpression').off('click');
+            $('#cronFreqEditor-hourCheckbox').off('click');
+            $('#cronFreqEditor-dropdownCheckbox').off('click');
+            $('.weekDaysButtons').off('click');
+            $('#cronFreqEditor-hourInput').off('change');
+            $('#cronFreqEditor-minuteInput').off('change');
+            $('#cronFreqEditor-hourDropdown').off('change');
+            $('#cronFreqEditor-minuteDropdown').off('change');
+            $('#cronFreqEditor-result').off('change');
 
             // delete data
             $(this.element).unbind().removeData();
@@ -91,19 +91,19 @@
             const root = $(this.element);
             let content = [],
                 selectedWeekDays = [],
-                weekDays = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"],
+                weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
                 hourOptions = [],
                 minuteOptions = [],
                 weekDaysButtons = [];
 
             // options and buttons
             for (let i = 1; i <= 23; i++) {
-                hourOptions.push(`<option value="${i}">${i < 10 ? "0" + i : i}</option>`);
+                hourOptions.push(`<option value="${i}">${i < 10 ? '0' + i : i}</option>`);
             }
 
             for (let i = 0; i <= 59; i++) {
                 if (i % 5 == 0) {
-                    minuteOptions.push(`<option value="${i}">${i < 10 ? "0" + i : i}</option>`);
+                    minuteOptions.push(`<option value="${i}">${i < 10 ? '0' + i : i}</option>`);
                 }
             }
 
@@ -120,22 +120,22 @@
                             <div class="mb-2">
                                 <input type="radio" class="form-check-input" name="cronFreqEditor-period" id="cronFreqEditor-hourCheckbox">
                                 <label for="cronFreqEditor-hourCheckbox">Time of the day</label>
-                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-hourInput">${hourOptions.join("\n")}</select> :
-                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-minuteInput">${minuteOptions.join("\n")}</select>
+                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-hourInput">${hourOptions.join('\n')}</select> :
+                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-minuteInput">${minuteOptions.join('\n')}</select>
                             </div>
                             <div>
                                 <input type="radio" class="form-check-input" name="cronFreqEditor-period" id="cronFreqEditor-dropdownCheckbox">
                                 <label for="cronFreqEditor-dropdownCheckbox">Every</label>
-                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-hourDropdown">${hourOptions.join("\n")}</select>
+                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-hourDropdown">${hourOptions.join('\n')}</select>
                                 hour(s) at minute
-                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-minuteDropdown">${minuteOptions.join("\n")}</select>
+                                <select class="form-select d-inline-block" style="width: 80px;" id="cronFreqEditor-minuteDropdown">${minuteOptions.join('\n')}</select>
                             </div>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-sm-3">Day of the week</div>
                         <div class="col-sm-9">
-                            <div class="btn-group" role="group">${weekDaysButtons.join("")}</div>
+                            <div class="btn-group" role="group">${weekDaysButtons.join('')}</div>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -155,17 +155,17 @@
             `);
 
             root.empty();
-            root.html(content.join(""));
+            root.html(content.join(''));
 
-            $("#cronFreqEditor-hourCheckbox").prop("checked", true);
+            $('#cronFreqEditor-hourCheckbox').prop('checked', true);
 
             function toggleCheckbox(value) {
                 if (value) {
-                    $("#cronFreqEditor-hourInput").trigger("change");
-                    $("#cronFreqEditor-minuteInput").trigger("change");
+                    $('#cronFreqEditor-hourInput').trigger('change');
+                    $('#cronFreqEditor-minuteInput').trigger('change');
                 } else {
-                    $("#cronFreqEditor-hourDropdown").trigger("change");
-                    $("#cronFreqEditor-minuteDropdown").trigger("change");
+                    $('#cronFreqEditor-hourDropdown').trigger('change');
+                    $('#cronFreqEditor-minuteDropdown').trigger('change');
                 }
             }
 
@@ -178,32 +178,32 @@
                     selectedWeekDays.push(Number(day));
                 }
 
-                expression[4] = "*";
+                expression[4] = '*';
                 if (selectedWeekDays.length > 0) {
-                    expression[4] = selectedWeekDays.join(",");
+                    expression[4] = selectedWeekDays.join(',');
                 }
 
-                $("#cronFreqEditor-result").val(expression.join(" "));
+                $('#cronFreqEditor-result').val(expression.join(' '));
             }
 
             // parse expression
             let expression = this.opts.expression;
-            if (typeof expression !== "string" || expression == "") {
-                expression = "0 23 * * 0";
+            if (typeof expression !== 'string' || expression == '') {
+                expression = '0 23 * * 0';
             }
-            expression = expression.split(" "); // split into array
+            expression = expression.split(' '); // split into array
 
             // apply the expression to the inputs here
-            if (expression[1].startsWith("*/")) {
+            if (expression[1].startsWith('*/')) {
                 toggleCheckbox(false);
 
-                $(`#cronFreqEditor-hourDropdown option[value='${expression[1].split("*/")[1]}']`).attr("selected", "selected");
-                $(`#cronFreqEditor-minuteDropdown option[value='${expression[0]}']`).attr("selected", "selected");
+                $(`#cronFreqEditor-hourDropdown option[value='${expression[1].split('*/')[1]}']`).attr('selected', 'selected');
+                $(`#cronFreqEditor-minuteDropdown option[value='${expression[0]}']`).attr('selected', 'selected');
             } else {
                 toggleCheckbox(true);
 
-                $(`#cronFreqEditor-hourInput option[value='${expression[1]}']`).attr("selected", "selected");
-                $(`#cronFreqEditor-minuteInput option[value='${expression[0]}']`).attr("selected", "selected");
+                $(`#cronFreqEditor-hourInput option[value='${expression[1]}']`).attr('selected', 'selected');
+                $(`#cronFreqEditor-minuteInput option[value='${expression[0]}']`).attr('selected', 'selected');
             }
 
             let days = expression[4].split(',');
@@ -214,66 +214,66 @@
                 }
             }
 
-            $("#cronFreqEditor-result").attr("value", expression.join(" "));
+            $('#cronFreqEditor-result').attr('value', expression.join(' '));
 
             // events
             const onChangeFn = this.opts.onChange;
             const containerName = this.opts.name;
-            if (typeof onChangeFn === "function") {
-                $("#cronFreqEditor-applyExpression").on("click", function () {
-                    if (testExpression($("#cronFreqEditor-result").val(), containerName, true) == true) {
-                        $("#cronFreqEditor-applyExpression").off("click");
+            if (typeof onChangeFn === 'function') {
+                $('#cronFreqEditor-applyExpression').on('click', function () {
+                    if (testExpression($('#cronFreqEditor-result').val(), containerName, true) == true) {
+                        $('#cronFreqEditor-applyExpression').off('click');
 
-                        onChangeFn($("#cronFreqEditor-result").val());
+                        onChangeFn($('#cronFreqEditor-result').val());
 
-                        $("#cronFreqEditor-applyExpression").attr("data-bs-dismiss", "modal");
-                        $("#cronFreqEditor-applyExpression[data-bs-dismiss=modal]").get(0).click();
+                        $('#cronFreqEditor-applyExpression').attr('data-bs-dismiss', 'modal');
+                        $('#cronFreqEditor-applyExpression[data-bs-dismiss=modal]').get(0).click();
                     }
                 });
             }
-            $("#cronFreqEditor-hourCheckbox").on("click", function () {
+            $('#cronFreqEditor-hourCheckbox').on('click', function () {
                 toggleCheckbox(true);
             });
-            $("#cronFreqEditor-dropdownCheckbox").on("click", function () {
+            $('#cronFreqEditor-dropdownCheckbox').on('click', function () {
                 toggleCheckbox(false);
             });
-            $(".weekDaysButtons").on("click", function (e) {
+            $('.weekDaysButtons').on('click', function (e) {
                 toggleDay(e);
             });
-            $("#cronFreqEditor-hourInput").on("change", function (e) {
+            $('#cronFreqEditor-hourInput').on('change', function (e) {
                 let val = parseInt(e.target.value);
 
                 expression[1] = `${val}`;
-                $("#cronFreqEditor-result").val(expression.join(" "));
+                $('#cronFreqEditor-result').val(expression.join(' '));
 
-                $("#cronFreqEditor-applyExpression").prop("disabled", false);
+                $('#cronFreqEditor-applyExpression').prop('disabled', false);
             });
-            $("#cronFreqEditor-minuteInput").on("change", function (e) {
+            $('#cronFreqEditor-minuteInput').on('change', function (e) {
                 let val = parseInt(e.target.value);
 
                 expression[0] = `${val}`;
-                $("#cronFreqEditor-result").val(expression.join(" "));
+                $('#cronFreqEditor-result').val(expression.join(' '));
 
-                $("#cronFreqEditor-applyExpression").prop("disabled", false);
+                $('#cronFreqEditor-applyExpression').prop('disabled', false);
             });
-            $("#cronFreqEditor-hourDropdown").on("change", function (e) {
+            $('#cronFreqEditor-hourDropdown').on('change', function (e) {
                 let val = parseInt(e.target.value);
 
                 expression[1] = `*/${val}`;
-                $("#cronFreqEditor-result").val(expression.join(" "));
+                $('#cronFreqEditor-result').val(expression.join(' '));
 
-                $("#cronFreqEditor-applyExpression").prop("disabled", false);
+                $('#cronFreqEditor-applyExpression').prop('disabled', false);
             });
-            $("#cronFreqEditor-minuteDropdown").on("change", function (e) {
+            $('#cronFreqEditor-minuteDropdown').on('change', function (e) {
                 let val = parseInt(e.target.value);
 
                 expression[0] = val;
-                $("#cronFreqEditor-result").val(expression.join(" "));
+                $('#cronFreqEditor-result').val(expression.join(' '));
 
-                $("#cronFreqEditor-applyExpression").prop("disabled", false);
+                $('#cronFreqEditor-applyExpression').prop('disabled', false);
             });
-            $("#cronFreqEditor-result").on("change", function (e) {
-                $("#cronFreqEditor-applyExpression").prop("disabled", false);
+            $('#cronFreqEditor-result').on('change', function (e) {
+                $('#cronFreqEditor-applyExpression').prop('disabled', false);
             });
         },
     });

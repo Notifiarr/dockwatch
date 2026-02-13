@@ -45,7 +45,7 @@ function downloadLog(name, hash)
                 //-- CLEAN UP LOG
                 let content = resultData.log;
                 content = content.replace(/<[^>]*>/g, '');
-                content = content.replace(/&quot;/g, '\"');
+                content = content.replace(/&quot;/g, '"');
                 content = content.replace(/&#039;/g, '\'');
                 content = content.replace(/&lt;/g, '<');
                 content = content.replace(/&gt;/g, '>');

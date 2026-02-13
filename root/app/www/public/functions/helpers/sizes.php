@@ -30,9 +30,9 @@ function binaryBytesFromString($string)
 {
     $binaryUnits = ['b', 'kib', 'mib', 'gib', 'tib'];
 
-    $string = strtolower(trim($string));
+    $string     = strtolower(trim($string));
     $stringUnit = preg_replace('/[^a-z]/', '', $string);
-    $number = floatval(preg_replace('/[^0-9.]/', '', $string));
+    $number     = floatval(preg_replace('/[^0-9.]/', '', $string));
 
     if (in_array($stringUnit, $binaryUnits)) {
         $exponent = array_flip($binaryUnits)[$stringUnit];

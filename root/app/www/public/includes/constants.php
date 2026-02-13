@@ -102,7 +102,7 @@ define('REGCTL_PATH', '/usr/local/bin/');
 define('REGCTL_BINARY', 'regctl');
 
 //-- AVAILABLE PAGES
-$pages      = ['overview', 'containers', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs'];
+$pages = ['overview', 'containers', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs'];
 
 //-- WHAT DATA TO GET WHEN VIEWING A PAGE
 $getStats   = ['overview', 'containers'];
@@ -115,16 +115,16 @@ define('SKIP_FORCE', 1);
 define('SKIP_OPTIONAL', 2);
 
 //-- CONTAINER BLACKLIST
-$skipContainerActions   = [
-                            'dockwatch',            //-- BUILT-IN UPDATER
-                            'cloudflared',          //-- CF ZERO TRUST TUNNEL
-                            'traefik',              //-- REVERSE PROXY
-                            'swag',                 //-- REVERSE PROXY
-                            'nginx',                //-- REVERSE PROXY
-                            'nginx-proxy-manager',  //-- REVERSE PROXY
-                            'caddy',                //-- REVERSE PROXY
-                            'cloudflareddns'        //-- REVERSE PROXY
-                        ];
+$skipContainerActions = [
+    'dockwatch',            //-- BUILT-IN UPDATER
+    'cloudflared',          //-- CF ZERO TRUST TUNNEL
+    'traefik',              //-- REVERSE PROXY
+    'swag',                 //-- REVERSE PROXY
+    'nginx',                //-- REVERSE PROXY
+    'nginx-proxy-manager',  //-- REVERSE PROXY
+    'caddy',                //-- REVERSE PROXY
+    'cloudflareddns'        //-- REVERSE PROXY
+];
 
 //-- CONTAINER GUI
 define('LOCAL_GUI', '{protocol}://{url}:{port}');

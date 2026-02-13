@@ -35,12 +35,12 @@ function apiGetActiveServer()
         $_SESSION['activeServerApikey'] = $serversTable[$_SESSION['activeServerId']]['apikey'];
     }
 
-    return  [
-            'id'        => $_SESSION['activeServerId'],
-            'name'      => $_SESSION['activeServerName'],
-            'url'       => $_SESSION['activeServerUrl'],
-            'apikey'    => $_SESSION['activeServerApikey']
-        ];
+    return [
+        'id'     => $_SESSION['activeServerId'],
+        'name'   => $_SESSION['activeServerName'],
+        'url'    => $_SESSION['activeServerUrl'],
+        'apikey' => $_SESSION['activeServerApikey']
+    ];
 }
 
 function apiResponse($code, $response)
@@ -90,7 +90,7 @@ function apiRequestRemote($endpoint, $parameters = [], $payload = [], $activeSer
 
     if ($payload) {
         $parameters['request'] = $endpoint;
-        $parameters = http_build_query($parameters);
+        $parameters            = http_build_query($parameters);
 
         if (!$payload['request']) {
             $payload['request'] = $endpoint;
@@ -99,7 +99,7 @@ function apiRequestRemote($endpoint, $parameters = [], $payload = [], $activeSer
         $curl = curl($activeServer['url'] . '/api/' . ($parameters ? '?' . $parameters : ''), ['x-api-key: ' . $activeServer['apikey']], 'POST', json_encode($payload), [], REMOTE_SERVER_TIMEOUT);
     } else {
         $parameters['request'] = $endpoint;
-        $builtParams = http_build_query($parameters);
+        $builtParams           = http_build_query($parameters);
 
         $curl = curl($activeServer['url'] . '/api/' . ($builtParams ? '?' . $builtParams : ''), ['x-api-key: ' . $activeServer['apikey']], 'GET', '', [], REMOTE_SERVER_TIMEOUT);
     }
@@ -114,10 +114,10 @@ function apiRequestRemote($endpoint, $parameters = [], $payload = [], $activeSer
         }
     }
 
-    $curl['response']   = makeArray($curl['response']);
-    $result['code']     = $curl['response']['code'];
-    $result['result']   = $curl['response']['response']['result'];
-    $result['error']    = $curl['response']['error'];
+    $curl['response'] = makeArray($curl['response']);
+    $result['code']   = $curl['response']['code'];
+    $result['result'] = $curl['response']['response']['result'];
+    $result['error']  = $curl['response']['error'];
 
     //-- FORMAT RESPONSE BANDAGE (WILL FIX LATER)
     if (str_equals_any($endpoint, ['stats/overview', 'stats/containers', 'stats/metrics'])) {
@@ -131,8 +131,8 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
 {
     global $database, $docker, $notifications;
 
-    $IS_POST    = !empty($payload);
-    $IS_GET     = !$IS_POST;
+    $IS_POST = !empty($payload);
+    $IS_GET  = !$IS_POST;
 
     if ($IS_POST) {
         unset($payload['request']);
@@ -153,8 +153,8 @@ function apiRequestServerPings()
 {
     global $database;
 
-    $database ??= new Database();
-    $serversTable = $database->getServers();
+    $database     ??= new Database();
+    $serversTable   = $database->getServers();
 
     $servers = [];
     foreach ($serversTable as $server) {
@@ -163,7 +163,7 @@ function apiRequestServerPings()
         } else {
             apiSetActiveServer($server['id'], $serversTable);
 
-            $apiRequest = apiRequest('server/ping');
+            $apiRequest                           = apiRequest('server/ping');
             $servers[strtolower($server['name'])] = ['id' => $server['id'], 'name' => $server['name'] . ($apiRequest['result'] ? ' [' . $apiRequest['result'] . ']' : ''), 'url' => $server['url'], 'code' => intval($apiRequest['code'])];
         }
     }

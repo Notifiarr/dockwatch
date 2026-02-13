@@ -25,8 +25,8 @@ if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER
     }
 }
 
-$ajaxFile   = basename(debug_backtrace()[0]['file'], '.php');
-$page       = in_array($ajaxFile, $pages) ? $ajaxFile : 'overview';
+$ajaxFile = basename(debug_backtrace()[0]['file'], '.php');
+$page     = in_array($ajaxFile, $pages) ? $ajaxFile : 'overview';
 
 if ($page == 'login' && $_SESSION['authenticated']) {
     $page = 'overview';

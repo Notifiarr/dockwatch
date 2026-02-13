@@ -73,8 +73,8 @@ trait Maint
         $inspectImage[0]['Config']['Image'] = APP_MAINTENANCE_IMAGE;
 
         //-- CLEAR ALL PORTS
-        $inspectImage[0]['HostConfig']['PortBindings']  = [];
-        $inspectImage[0]['NetworkSettings']['Ports']    = [];
+        $inspectImage[0]['HostConfig']['PortBindings'] = [];
+        $inspectImage[0]['NetworkSettings']['Ports']   = [];
 
         //-- SET MAINTENANCE PORT
         $inspectImage[0]['HostConfig']['PortBindings']['80/tcp'][0]['HostPort'] = strval($port);

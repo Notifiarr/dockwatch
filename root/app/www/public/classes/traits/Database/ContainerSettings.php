@@ -81,14 +81,14 @@ trait ContainerSettings
 
         $fieldList = $valList = [];
         foreach ($fields as $field => $val) {
-            $fieldList[]    = '`' . $field . '`';
-            $valList[]      = '"'. $val .'"';
+            $fieldList[] = '`' . $field . '`';
+            $valList[]   = '"' . $val . '"';
         }
 
         $q = "INSERT INTO " . CONTAINER_SETTINGS_TABLE . "
-              (". implode(', ', $fieldList) .")
+              (" . implode(', ', $fieldList) . ")
               VALUES
-              (". implode(', ', $valList) .")";
+              (" . implode(', ', $valList) . ")";
         $this->query($q);
 
         $this->containersTable = '';

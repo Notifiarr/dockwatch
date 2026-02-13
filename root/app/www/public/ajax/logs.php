@@ -64,44 +64,45 @@ if ($_POST['m'] == 'init') {
                                 <span class="small-text text-muted"><?= LOGS_PATH . $group ?>/</span>
                             <?php } ?>
                             <div class="mb-3" style="max-height: 300px; overflow: auto;">
-                            <?php
+                                <?php
 
-                            if (!$groupLogs) {
-                                continue;
-                            }
-                            $rotated = [];
-
-                            foreach ($groupLogs as $log) {
-                                if (str_contains($log['name'], '-')) {
-                                    $rotated[] = $log;
+                                if (!$groupLogs) {
                                     continue;
                                 }
+                                $rotated = [];
 
-                                $logHash = md5($log['name'] . mt_rand());
-                                $group = str_contains_any($group, ['login failures']) ? '' : $group . '/';
-                                ?>
-                                <li>
-                                    <span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group . $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>)
-                                    <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group . $log['name'] ?>')"></i>
-                                    <i class="fas fa-file-download text-primary" style="display: inline; cursor: pointer;" title="Download <?= $log['name'] ?>" onclick="downloadLog('<?= $group . $log['name'] ?>')"></i>
-                                </li>
-                                <?php
-                            }
+                                foreach ($groupLogs as $log) {
+                                    if (str_contains($log['name'], '-')) {
+                                        $rotated[] = $log;
+                                        continue;
+                                    }
 
-                            if ($rotated) {
-                                ?><hr><?php
-                                foreach ($rotated as $log) {
-                                    $logHash = md5($log['name']);
+                                    $logHash = md5($log['name'] . mt_rand());
+                                    $group   = str_contains_any($group, ['login failures']) ? '' : $group . '/';
                                     ?>
                                     <li>
-                                        <span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group .'/'. $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>)
-                                        <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group .'/'. $log['name'] ?>')"></i>
+                                        <span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group . $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>)
+                                        <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group . $log['name'] ?>')"></i>
                                         <i class="fas fa-file-download text-primary" style="display: inline; cursor: pointer;" title="Download <?= $log['name'] ?>" onclick="downloadLog('<?= $group . $log['name'] ?>')"></i>
                                     </li>
                                     <?php
                                 }
-                            }
-                            ?>
+
+                                if ($rotated) {
+                                    ?>
+                                    <hr><?php
+                                    foreach ($rotated as $log) {
+                                        $logHash = md5($log['name']);
+                                        ?>
+                                        <li>
+                                            <span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group . '/' . $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>)
+                                            <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group . '/' . $log['name'] ?>')"></i>
+                                            <i class="fas fa-file-download text-primary" style="display: inline; cursor: pointer;" title="Download <?= $log['name'] ?>" onclick="downloadLog('<?= $group . $log['name'] ?>')"></i>
+                                        </li>
+                                        <?php
+                                    }
+                                }
+                                ?>
                             </div>
                             <?php
                         }

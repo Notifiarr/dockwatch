@@ -11,53 +11,53 @@ require 'shared.php';
 
 if ($_POST['m'] == 'init') {
     $dependencyFile = $docker->setContainerDependencies($processList);
-    $ports = $networks = $graphs = [];
+    $ports          = $networks = $graphs = [];
     $running = $stopped = $memory = $cpu = $network = $size = $updated = $outdated = $healthy = $unhealthy = $unknownhealth = 0;
 
-    $overviewApiResult      = apiRequest('stats/overview')['result']['result'];
-    $containersApiResult    = apiRequest('stats/containers')['result']['result'];
-    $usageMetricsApiResult  = apiRequest('stats/metrics')['result']['result'];
+    $overviewApiResult     = apiRequest('stats/overview')['result']['result'];
+    $containersApiResult   = apiRequest('stats/containers')['result']['result'];
+    $usageMetricsApiResult = apiRequest('stats/metrics')['result']['result'];
 
     //-- METRICS
-    $diskUsageMetric    = $usageMetricsApiResult['disk'];
-    $netIOMetric        = $usageMetricsApiResult['netIO'];
+    $diskUsageMetric = $usageMetricsApiResult['disk'];
+    $netIOMetric     = $usageMetricsApiResult['netIO'];
 
     //-- HEALTH STATS
-    $healthy        = $overviewApiResult['health']['healthy'];
-    $unhealthy      = $overviewApiResult['health']['unhealthy'];
-    $unknownhealth  = $overviewApiResult['health']['unknown'];
+    $healthy       = $overviewApiResult['health']['healthy'];
+    $unhealthy     = $overviewApiResult['health']['unhealthy'];
+    $unknownhealth = $overviewApiResult['health']['unknown'];
 
     //-- CONTAINER STATES
-    $running        = $overviewApiResult['status']['running'];
-    $stopped        = $overviewApiResult['status']['stopped'];
+    $running = $overviewApiResult['status']['running'];
+    $stopped = $overviewApiResult['status']['stopped'];
 
     //-- UPDATE STATS
-    $updated        = $overviewApiResult['updates']['uptodate'];
-    $outdated       = $overviewApiResult['updates']['outdated'];
-    $unchecked      = $overviewApiResult['updates']['unchecked'];
+    $updated   = $overviewApiResult['updates']['uptodate'];
+    $outdated  = $overviewApiResult['updates']['outdated'];
+    $unchecked = $overviewApiResult['updates']['unchecked'];
 
     //-- USAGE
-    $size           = $overviewApiResult['usage']['disk'];
-    $memory         = $overviewApiResult['usage']['memory'];
-    $cpu            = $overviewApiResult['usage']['cpu'];
-    $network        = $overviewApiResult['usage']['netIO'];
+    $size    = $overviewApiResult['usage']['disk'];
+    $memory  = $overviewApiResult['usage']['memory'];
+    $cpu     = $overviewApiResult['usage']['cpu'];
+    $network = $overviewApiResult['usage']['netIO'];
 
     //-- NETWORKS
-    $networks       = $overviewApiResult['network'];
-    $ports          = $overviewApiResult['ports'];
+    $networks = $overviewApiResult['network'];
+    $ports    = $overviewApiResult['ports'];
 
     //-- CONTAINER GRAPHS
     foreach ($containersApiResult as $result) {
         //-- CPU USAGE
-        $graphs['utilization']['cpu']['total']['percent'] = 100;
+        $graphs['utilization']['cpu']['total']['percent']            = 100;
         $graphs['utilization']['cpu']['containers'][$result['name']] = str_replace('%', '', $result['usage']['cpuPerc']);
 
         //-- MEM USAGE
-        list($memUsed, $memTotal) = explode('/', $result['usage']['memSize']);
-        $graphs['utilization']['memory']['total']['size'] = trim(byteConversion(binaryBytesFromString($memTotal), 'MiB'));
-        $graphs['utilization']['memory']['total']['percent'] = 100;
+        list($memUsed, $memTotal)                                                  = explode('/', $result['usage']['memSize']);
+        $graphs['utilization']['memory']['total']['size']                          = trim(byteConversion(binaryBytesFromString($memTotal), 'MiB'));
+        $graphs['utilization']['memory']['total']['percent']                       = 100;
         $graphs['utilization']['memory']['containers'][$result['name']]['percent'] = str_replace('%', '', $result['usage']['memPerc']);
-        $graphs['utilization']['memory']['containers'][$result['name']]['size'] = trim(byteConversion(binaryBytesFromString($memUsed), 'MiB'));
+        $graphs['utilization']['memory']['containers'][$result['name']]['size']    = trim(byteConversion(binaryBytesFromString($memUsed), 'MiB'));
     }
 
     if (intval($settingsTable['cpuAmount']) > 0) {
@@ -186,10 +186,10 @@ if ($_POST['m'] == 'init') {
                         </thead>
                         <tbody>
                             <?php foreach ($networks as $networkName => $networkCount) { ?>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary"><?= $networkName ?></td>
-                                <td class="bg-secondary"><?= $networkCount?></td>
-                            </tr>
+                                <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                                    <td class="bg-secondary"><?= $networkName ?></td>
+                                    <td class="bg-secondary"><?= $networkCount ?></td>
+                                </tr>
                             <?php } ?>
                         </tbody>
                     </table>
@@ -223,7 +223,7 @@ if ($_POST['m'] == 'init') {
                                         ?>
                                         <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                             <td class="bg-secondary"><?= $container ?></td>
-                                            <td class="bg-secondary"><?= $port?></td>
+                                            <td class="bg-secondary"><?= $port ?></td>
                                         </tr>
                                         <?php
                                     }
@@ -271,28 +271,28 @@ if ($_POST['m'] == 'init') {
     //-- MEMORY PERCENT
     $utilizationMemoryPercentLabels = $utilizationMemoryPercentData = [];
     foreach ($graphs['utilization']['memory']['containers'] as $containerName => $graphDetails) {
-        $utilizationMemoryPercentLabels[]   = $containerName;
-        $utilizationMemoryPercentData[]     = $graphDetails['percent'];
+        $utilizationMemoryPercentLabels[] = $containerName;
+        $utilizationMemoryPercentData[]   = $graphDetails['percent'];
     }
 
     //-- MEMORY SIZE
     $utilizationMemorySizeLabels = $utilizationMemorySizeData = $utilizationmemorySizeColors = [];
     foreach ($graphs['utilization']['memory']['containers'] as $containerName => $graphDetails) {
-        $g = str_contains($graphDetails['size'], 'GiB') ? true : false;
-        $utilizationMemorySizeLabels[]  = $containerName;
-        $utilizationMemorySizeData[]    = preg_replace('/[^0-9.]/', '', $graphDetails['size']) * ($g ? 1024 : 1);
-        $utilizationmemorySizeColors[]  = '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+        $g                             = str_contains($graphDetails['size'], 'GiB') ? true : false;
+        $utilizationMemorySizeLabels[] = $containerName;
+        $utilizationMemorySizeData[]   = preg_replace('/[^0-9.]/', '', $graphDetails['size']) * ($g ? 1024 : 1);
+        $utilizationmemorySizeColors[] = '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
     }
 
     ?>
     <script>
-        GRAPH_UTILIZATION_CPU_LABELS            = '<?= json_encode($utilizationCPULabels) ?>';
-        GRAPH_UTILIZATION_CPU_DATA              = '<?= json_encode($utilizationCPUData) ?>';
+        GRAPH_UTILIZATION_CPU_LABELS = '<?= json_encode($utilizationCPULabels) ?>';
+        GRAPH_UTILIZATION_CPU_DATA = '<?= json_encode($utilizationCPUData) ?>';
         GRAPH_UTILIZATION_MEMORY_PERCENT_LABELS = '<?= json_encode($utilizationMemoryPercentLabels) ?>';
-        GRAPH_UTILIZATION_MEMORY_PERCENT_DATA   = '<?= json_encode($utilizationMemoryPercentData) ?>';
-        GRAPH_UTILIZATION_MEMORY_SIZE_LABELS    = '<?= json_encode($utilizationMemorySizeLabels) ?>';
-        GRAPH_UTILIZATION_MEMORY_SIZE_DATA      = '<?= json_encode($utilizationMemorySizeData) ?>';
-        GRAPH_UTILIZATION_MEMORY_SIZE_COLORS    = '<?= json_encode($utilizationmemorySizeColors) ?>';
+        GRAPH_UTILIZATION_MEMORY_PERCENT_DATA = '<?= json_encode($utilizationMemoryPercentData) ?>';
+        GRAPH_UTILIZATION_MEMORY_SIZE_LABELS = '<?= json_encode($utilizationMemorySizeLabels) ?>';
+        GRAPH_UTILIZATION_MEMORY_SIZE_DATA = '<?= json_encode($utilizationMemorySizeData) ?>';
+        GRAPH_UTILIZATION_MEMORY_SIZE_COLORS = '<?= json_encode($utilizationmemorySizeColors) ?>';
     </script>
     <?php
 }

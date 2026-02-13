@@ -13,36 +13,36 @@ function canCronRun($cron, $settingsTable)
 
     switch ($cron) {
         case 'health':
-            $log    = CRON_HEALTH_LOG;
-            $field  = 'taskHealthDisabled';
+            $log = CRON_HEALTH_LOG;
+            $field = 'taskHealthDisabled';
             break;
         case 'housekeeper':
-            $log    = CRON_HOUSEKEEPER_LOG;
-            $field  = 'taskHousekeepingDisabled';
+            $log = CRON_HOUSEKEEPER_LOG;
+            $field = 'taskHousekeepingDisabled';
             break;
         case 'prune':
-            $log    = CRON_PRUNE_LOG;
-            $field  = 'taskPruneDisabled';
+            $log = CRON_PRUNE_LOG;
+            $field = 'taskPruneDisabled';
             break;
         case 'pulls':
-            $log    = CRON_PULLS_LOG;
-            $field  = 'taskPullsDisabled';
+            $log = CRON_PULLS_LOG;
+            $field = 'taskPullsDisabled';
             break;
         case 'sse':
-            $log    = CRON_SSE_LOG;
-            $field  = 'sseEnabled';
+            $log = CRON_SSE_LOG;
+            $field = 'sseEnabled';
             break;
         case 'state':
-            $log    = CRON_STATE_LOG;
-            $field  = 'taskStateDisabled';
+            $log = CRON_STATE_LOG;
+            $field = 'taskStateDisabled';
             break;
         case 'stats':
-            $log    = CRON_STATS_LOG;
-            $field  = 'taskStatsDisabled';
+            $log = CRON_STATS_LOG;
+            $field = 'taskStatsDisabled';
             break;
         case 'commands':
-            $log    = CRON_COMMANDS_LOG;
-            $field  = 'taskCommandsDisabled';
+            $log = CRON_COMMANDS_LOG;
+            $field = 'taskCommandsDisabled';
             break;
     }
 

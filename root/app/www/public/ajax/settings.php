@@ -16,7 +16,7 @@ if ($_POST['m'] == 'init') {
     }
 
     $migrations = '<option value="000">000_fresh_start</option>';
-    $dir = opendir(MIGRATIONS_PATH);
+    $dir        = opendir(MIGRATIONS_PATH);
     while ($migration = readdir($dir)) {
         if (str_contains($migration, '.php')) {
             $migrations .= '<option ' . ($settingsTable['migration'] == substr($migration, 0, 3) ? 'selected ' : '') . 'value="' . substr($migration, 0, 3) . '">' . str_replace('.php', '', $migration) . '</option>';
@@ -66,7 +66,7 @@ if ($_POST['m'] == 'init') {
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">WebSocket URL<sup>5</sup></td>
                         <td class="bg-secondary">
-                            <input class="form-control" type="text" id="globalSetting-websocketUrl" value="<?= $settingsTable['websocketUrl'] ?: '' ?>" placeholder="<?= 'ws://'.$_SERVER['HTTP_HOST'].'/ws'  ?>">
+                            <input class="form-control" type="text" id="globalSetting-websocketUrl" value="<?= $settingsTable['websocketUrl'] ?: '' ?>" placeholder="<?= 'ws://' . $_SERVER['HTTP_HOST'] . '/ws' ?>">
                         </td>
                         <td class="bg-secondary">Best to leave empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Example (https): <code class="mx-1">wss://my.cool.domain/ws</code></td>
                     </tr>
@@ -95,13 +95,14 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary" scope="row">Default page</td>
                         <td class="bg-secondary">
                             <select class="form-select" id="globalSetting-defaultPage">
-                            <?php
-                            $defaultPages = ['overview', 'containers', 'networks', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs'];
+                                <?php
+                                $defaultPages = ['overview', 'containers', 'networks', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs'];
 
-                            foreach ($defaultPages as $defaultPage) {
-                                ?><option <?= $settingsTable['defaultPage'] == $defaultPage ? 'selected' : '' ?> value="<?= $defaultPage ?>"><?= ucfirst($defaultPage) ?></option><?php
-                            }
-                            ?>
+                                foreach ($defaultPages as $defaultPage) {
+                                    ?>
+                                    <option <?= $settingsTable['defaultPage'] == $defaultPage ? 'selected' : '' ?> value="<?= $defaultPage ?>"><?= ucfirst($defaultPage) ?></option><?php
+                                }
+                                ?>
                             </select>
                         </td>
                         <td class="bg-secondary">Which page should be loaded when <?= APP_NAME ?> first opens</td>
@@ -160,54 +161,54 @@ if ($_POST['m'] == 'init') {
                     </tr>
                 </thead>
                 <tbody>
-                <?php
-                if ($_SESSION['activeServerId'] != APP_SERVER_ID) {
-                    ?>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" colspan="3">Sorry, remote management of the server list is not allowed. Go to the <code><?= ACTIVE_SERVER_NAME ?></code> server to make those changes.</td>
-                    </tr>
                     <?php
-                } else {
-                    ?>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['name'] ?>"></td>
-                        <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['url'] ?>"></td>
-                        <td class="bg-secondary"><?= $serversTable[APP_SERVER_ID]['apikey'] ?><input type="hidden" id="globalSetting-serverList-apikey-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['apikey'] ?>"></td>
-                    </tr>
-                    <?php
-                    if (count($serversTable) > 1) {
-                        foreach ($serversTable as $serverSettings) {
-                            if ($serverSettings['id'] == APP_SERVER_ID) {
-                                continue;
+                    if ($_SESSION['activeServerId'] != APP_SERVER_ID) {
+                        ?>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary" colspan="3">Sorry, remote management of the server list is not allowed. Go to the <code><?= ACTIVE_SERVER_NAME ?></code> server to make those changes.</td>
+                        </tr>
+                        <?php
+                    } else {
+                        ?>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary" scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['name'] ?>"></td>
+                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['url'] ?>"></td>
+                            <td class="bg-secondary"><?= $serversTable[APP_SERVER_ID]['apikey'] ?><input type="hidden" id="globalSetting-serverList-apikey-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['apikey'] ?>"></td>
+                        </tr>
+                        <?php
+                        if (count($serversTable) > 1) {
+                            foreach ($serversTable as $serverSettings) {
+                                if ($serverSettings['id'] == APP_SERVER_ID) {
+                                    continue;
+                                }
+                                ?>
+                                <tr id="remoteServer-<?= $serverSettings['id'] ?>">
+                                    <td class="bg-secondary" scope="row">
+                                        <i class="far fa-trash-alt text-warning d-inline-block" style="cursor: pointer;" title="Unlink remote server" onclick="unlinkRemoteServer('<?= $serverSettings['id'] ?>')"></i>
+                                        <input class="form-control d-inline-block" style="width: 90%;" type="text" id="globalSetting-serverList-name-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['name'] ?>">
+                                    </td>
+                                    <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['url'] ?>"></td>
+                                    <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-apikey-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['apikey'] ?>"></td>
+                                </tr>
+                                <?php
                             }
-                            ?>
-                            <tr id="remoteServer-<?= $serverSettings['id'] ?>">
-                                <td class="bg-secondary" scope="row">
-                                    <i class="far fa-trash-alt text-warning d-inline-block" style="cursor: pointer;" title="Unlink remote server" onclick="unlinkRemoteServer('<?= $serverSettings['id'] ?>')"></i>
-                                    <input class="form-control d-inline-block" style="width: 90%;" type="text" id="globalSetting-serverList-name-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['name'] ?>">
-                                </td>
-                                <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['url'] ?>"></td>
-                                <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-apikey-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['apikey'] ?>"></td>
-                            </tr>
-                            <?php
                         }
+                        ?>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary" scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-new" value="" placeholder="New server name"></t>
+                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-new" value="" placeholder="New server url"></td>
+                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-apikey-new" value="" placeholder="New server apikey"></td>
+                        </tr>
+                        <?php
                     }
                     ?>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-new" value="" placeholder="New server name"></t>
-                        <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-new" value="" placeholder="New server url"></td>
-                        <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-apikey-new" value="" placeholder="New server apikey"></td>
+                        <td class="bg-secondary" scope="row">Timeout length</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-remoteServerTimeout" value="<?= $settingsTable['remoteServerTimeout'] ?: DEFAULT_REMOTE_SERVER_TIMEOUT ?>">
+                        </td>
+                        <td class="bg-secondary">How long to wait for a remote server to respond, keep in mind 60-90 seconds will throw apache/nginx/cloudflare timeouts</td>
                     </tr>
-                    <?php
-                }
-                ?>
-                <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                    <td class="bg-secondary" scope="row">Timeout length</td>
-                    <td class="bg-secondary">
-                        <input class="form-control" type="number" id="globalSetting-remoteServerTimeout" value="<?= $settingsTable['remoteServerTimeout'] ?: DEFAULT_REMOTE_SERVER_TIMEOUT ?>">
-                    </td>
-                    <td class="bg-secondary">How long to wait for a remote server to respond, keep in mind 60-90 seconds will throw apache/nginx/cloudflare timeouts</td>
-                </tr>
                 </tbody>
             </table>
         </div>
@@ -285,11 +286,11 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary">
                             <select class="form-select" id="globalSetting-autoPruneHour">
                                 <?php
-                                    $option = '';
-                                    for ($x = 0; $x <= 23; $x++) {
-                                        $option .= '<option ' . ($x == intval($settingsTable['autoPruneHour']) || !$settingsTable['autoPruneHour'] && $x == 12 ? 'selected' : '') . ' value="' . $x . '">' . $x . '</option>';
-                                    }
-                                    echo $option;
+                                $option = '';
+                                for ($x = 0; $x <= 23; $x++) {
+                                    $option .= '<option ' . ($x == intval($settingsTable['autoPruneHour']) || !$settingsTable['autoPruneHour'] && $x == 12 ? 'selected' : '') . ' value="' . $x . '">' . $x . '</option>';
+                                }
+                                echo $option;
                                 ?>
                             </select>
                         </td>
@@ -487,8 +488,8 @@ if ($_POST['m'] == 'init') {
 }
 
 if ($_POST['m'] == 'saveGlobalSettings') {
-    $activeServer   = apiGetActiveServer();
-    $newSettings    = [];
+    $activeServer = apiGetActiveServer();
+    $newSettings  = [];
 
     foreach ($_POST as $key => $val) {
         if ($key == 'm' || str_contains($key, 'serverList')) {

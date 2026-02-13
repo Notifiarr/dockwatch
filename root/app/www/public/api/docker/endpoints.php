@@ -53,8 +53,8 @@ switch ($path) {
                     apiResponse(400, ['error' => 'Missing parameters']);
                 }
 
-                $container      = $parameters['name'];
-                $command        = $parameters['params'];
+                $container = $parameters['name'];
+                $command = $parameters['params'];
 
                 $apiRequestResponse = json_encode($docker->exec($container, $command));
                 break;
@@ -108,10 +108,10 @@ switch ($path) {
                         $return[] = 'restarting dependencies...';
 
                         foreach ($dependencies as $dependency) {
-                            $stopContainer = $docker->stopContainer($dependency);
-                            $return[] = 'docker/container/stop: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
+                            $stopContainer  = $docker->stopContainer($dependency);
+                            $return[]       = 'docker/container/stop: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
                             $startContainer = $docker->startContainer($dependency);
-                            $return[] = 'docker/container/start: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
+                            $return[]       = 'docker/container/start: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
                         }
                     }
                 }
@@ -136,7 +136,7 @@ switch ($path) {
 
                         foreach ($dependencies as $dependency) {
                             $startContainer = $docker->startContainer($dependency);
-                            $return[] = 'docker/container/start: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
+                            $return[]       = 'docker/container/start: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
                         }
                     }
                 }
@@ -161,7 +161,7 @@ switch ($path) {
 
                         foreach ($dependencies as $dependency) {
                             $stopContainer = $docker->stopContainer($dependency);
-                            $return[] = 'docker/container/stop: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
+                            $return[]      = 'docker/container/stop: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
                         }
                     }
                 }

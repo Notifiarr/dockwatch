@@ -48,7 +48,7 @@ class Database
 
     public function connect($dbFile)
     {
-        $db = new SQLite3($dbFile, SQLITE3_OPEN_CREATE | SQLITE3_OPEN_READWRITE);
+        $db       = new SQLite3($dbFile, SQLITE3_OPEN_CREATE | SQLITE3_OPEN_READWRITE);
         $this->db = $db;
     }
 
@@ -101,7 +101,7 @@ class Database
     public function getNewestMigration()
     {
         $newestMigration = '001';
-        $dir = opendir(MIGRATIONS_PATH);
+        $dir             = opendir(MIGRATIONS_PATH);
         while ($migration = readdir($dir)) {
             if (intval(substr($migration, 0, 3)) > intval($newestMigration) && str_contains($migration, '.php')) {
                 $newestMigration = substr($migration, 0, 3);
@@ -114,8 +114,8 @@ class Database
 
     public function migrations()
     {
-        $database   = $this;
-        $db         = $this->db;
+        $database = $this;
+        $db       = $this->db;
 
         //-- DONT RUN MIGRATIONS IF IT IS ALREADY RUNNING
         if (file_exists(MIGRATION_FILE)) {
@@ -135,7 +135,7 @@ class Database
             logger(MIGRATION_LOG, 'migration 001 <-');
 
             $neededMigrations = [];
-            $dir = opendir(MIGRATIONS_PATH);
+            $dir              = opendir(MIGRATIONS_PATH);
             while ($migration = readdir($dir)) {
                 if (substr($migration, 0, 3) > $this->getSetting('migration') && str_contains($migration, '.php')) {
                     $neededMigrations[substr($migration, 0, 3)] = $migration;
@@ -155,7 +155,7 @@ class Database
             }
         } else { //-- GET CURRENT MIGRATION & CHECK FOR NEEDED MIGRATIONS
             $neededMigrations = [];
-            $dir = opendir(MIGRATIONS_PATH);
+            $dir              = opendir(MIGRATIONS_PATH);
             while ($migration = readdir($dir)) {
                 if (substr($migration, 0, 3) > $this->getSetting('migration') && str_contains($migration, '.php')) {
                     $neededMigrations[substr($migration, 0, 3)] = $migration;

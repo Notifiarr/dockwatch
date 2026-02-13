@@ -23,8 +23,8 @@ switch ($path) {
                     apiResponse(400, ['error' => 'Missing hash parameter']);
                 }
 
-                $containersTable    = $database->getContainers();
-                $container          = $database->getContainerFromHash($parameters['hash'], $containersTable);
+                $containersTable = $database->getContainers();
+                $container = $database->getContainerFromHash($parameters['hash'], $containersTable);
 
                 if (!$container['id']) {
                     $database->addContainer(['hash' => $parameters['hash']]);
@@ -79,8 +79,8 @@ switch ($path) {
                 if (!$parameters['group']) {
                     apiResponse(400, ['error' => 'Missing group parameter']);
                 }
-                $containersTable        = $database->getContainers();
-                $containerLinksTable    = $database->getContainerGroupLinks();
+                $containersTable = $database->getContainers();
+                $containerLinksTable = $database->getContainerGroupLinks();
 
                 $apiRequestResponse = $database->getGroupLinkContainersFromGroupId($containerLinksTable, $containersTable, $parameters['group']);
                 break;

@@ -1,8 +1,8 @@
-const sseTimer = 57;
-const sseInterval = 3;
-let sseCountdown = 57;
-let sseUpdated = 0;
-let sseSource = '';
+const sseTimer      = 57;
+const sseInterval   = 3;
+let sseCountdown    = 57;
+let sseUpdated      = 0;
+let sseSource       = '';
 
 function initializeSSE()
 {

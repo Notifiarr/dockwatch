@@ -76,7 +76,7 @@ function drawPieChart(type)
 
     data.labels.forEach((label, index) => {
         const legendItem = document.createElement('div');
-        legendItem.id = label+index+"@parent";
+        legendItem.id = label+index+'@parent';
         legendItem.style.opacity = 1;
         legendItem.style.display = 'flex';
         legendItem.style.alignItems = 'center';
@@ -84,7 +84,7 @@ function drawPieChart(type)
         legendItem.style.marginBottom = '8px';
 
         const colorBox = document.createElement('span');
-        colorBox.id = label+index+"@box";
+        colorBox.id = label+index+'@box';
         colorBox.style.width = '16px';
         colorBox.style.height = '16px';
         colorBox.style.backgroundColor = data.datasets[0].backgroundColor[index];
@@ -93,12 +93,12 @@ function drawPieChart(type)
         legendItem.appendChild(colorBox);
 
         const labelText = document.createElement('span');
-        labelText.id = label+index+"@text";
+        labelText.id = label+index+'@text';
         labelText.textContent = label;
         legendItem.appendChild(labelText);
 
         legendItem.addEventListener('click', (e) => {
-            let targetElem = document.getElementById(e.target.id.split("@")[0]+"@parent");
+            let targetElem = document.getElementById(e.target.id.split('@')[0]+'@parent');
             if (targetElem.style.opacity == 1) {
                 targetElem.style.opacity = 0.5;
             } else {

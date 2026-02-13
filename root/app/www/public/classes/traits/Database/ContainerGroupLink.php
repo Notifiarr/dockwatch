@@ -41,8 +41,8 @@ trait ContainerGroupLink
     public function addContainerGroupLink($groupId, $containerId)
     {
         $q = "INSERT INTO " . CONTAINER_GROUPS_LINK_TABLE . "
-              (`group_id`, `container_id`) 
-              VALUES 
+              (`group_id`, `container_id`)
+              VALUES
               ('" . intval($groupId) . "', '" . intval($containerId) . "')";
         $this->query($q);
 
@@ -52,7 +52,7 @@ trait ContainerGroupLink
     public function removeContainerGroupLink($groupId, $containerId)
     {
         $q = "DELETE FROM " . CONTAINER_GROUPS_LINK_TABLE . "
-              WHERE group_id = '" . intval($groupId) . "' 
+              WHERE group_id = '" . intval($groupId) . "'
               AND container_id = '" . intval($containerId) . "'";
         $this->query($q);
 

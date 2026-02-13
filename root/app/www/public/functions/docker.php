@@ -144,7 +144,7 @@ function dockerState()
 
     if (!empty($processList)) {
         foreach ($processList as $index => $process) {
-            $inspect = apiRequest('docker/container/inspect', ['name' => $process['Names'], 'useCache' => false])['result'];
+            $inspect                        = apiRequest('docker/container/inspect', ['name' => $process['Names'], 'useCache' => false])['result'];
             $processList[$index]['inspect'] = json_decode($inspect, true);
 
             foreach ($dockerStats as $dockerStat) {
@@ -183,11 +183,11 @@ function dockerAutoCompose($containerName)
 {
     global $shell, $phiki;
 
-    $cmd        = sprintf(DockerSock::RUN, '--rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $shell->prepare($containerName));
-    $compose    = $shell->exec($cmd . ' 2>&1');
-    $lines      = explode("\n", $compose);
-    $compose    = [];
-    $skip       = true; //-- IGNORE ALL THE IMAGE PULL NOISE
+    $cmd     = sprintf(DockerSock::RUN, '--rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/red5d/docker-autocompose ' . $shell->prepare($containerName));
+    $compose = $shell->exec($cmd . ' 2>&1');
+    $lines   = explode("\n", $compose);
+    $compose = [];
+    $skip    = true; //-- IGNORE ALL THE IMAGE PULL NOISE
 
     //-- LOOP THIS SO IT REMOVES ALL THE ADD CONTAINER OVERHEAD
     foreach ($lines as $line) {
@@ -221,23 +221,23 @@ function dockerAutoRun($container)
     $containerArray = $containerArray[0];
     $image          = $containerArray['Config']['Image'];
 
-    $cmd            = sprintf(DockerSock::INSPECT_FORMAT, $image);
-    $imageJson      = $shell->exec($cmd . ' 2>&1');
-    $imageArray     = json_decode($imageJson, true);
-    $imageArray     = $imageArray[0];
+    $cmd        = sprintf(DockerSock::INSPECT_FORMAT, $image);
+    $imageJson  = $shell->exec($cmd . ' 2>&1');
+    $imageArray = json_decode($imageJson, true);
+    $imageArray = $imageArray[0];
 
     $runCommand[] = 'docker run \\';
     $runCommand[] = $indent . "--detach \\";
 
     //-- CHECK FOR AN OVERRIDE
-    $name = dockerRunFieldValue('Name', $imageArray['Name'], $containerArray['Name']);
+    $name         = dockerRunFieldValue('Name', $imageArray['Name'], $containerArray['Name']);
     $runCommand[] = $indent . '--name "' . $name . '" \\';
 
     //-- <key> FIELDS
-    $hostConfigKeyFields    = [
-                                'Privileged' => 'privileged',
-                                'AutoRemove' => 'rm'
-                            ];
+    $hostConfigKeyFields = [
+        'Privileged' => 'privileged',
+        'AutoRemove' => 'rm'
+    ];
 
     foreach ($hostConfigKeyFields as $fieldLabel => $fieldKey) {
         if ($containerArray['HostConfig'][$fieldLabel]) {
@@ -246,10 +246,10 @@ function dockerAutoRun($container)
     }
 
     //-- <key>:<val> FIELDS
-    $hostConfigPairFields   = [
-                                'Runtime'   => 'runtime',
-                                'UTSMode'   => 'uts'
-                            ];
+    $hostConfigPairFields = [
+        'Runtime' => 'runtime',
+        'UTSMode' => 'uts'
+    ];
 
     foreach ($hostConfigPairFields as $fieldLabel => $fieldKey) {
         if ($containerArray['HostConfig'][$fieldLabel]) {
@@ -280,7 +280,7 @@ function dockerAutoRun($container)
     //-- MOUNTS
     if ($containerArray['HostConfig']['Mounts']) {
         foreach ($containerArray['HostConfig']['Mounts'] as $mount) {
-            $thisMount = [];
+            $thisMount   = [];
             $thisMount[] = '--mount type=' . $mount['Type'];
             if ($mount['Source']) {
                 $thisMount[] = 'source=' . $mount['Source'];
@@ -403,18 +403,18 @@ function dockerAutoRun($container)
 
         if (!empty($containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig'])) {
             if ($containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv4Address']) {
-                $runCommand[] = $indent . '--ip "'. $containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv4Address'] .'" \\';
+                $runCommand[] = $indent . '--ip "' . $containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv4Address'] . '" \\';
             }
             if ($containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv6Address']) {
-                $runCommand[] = $indent . '--ip6 "'. $containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv6Address'] .'" \\';
+                $runCommand[] = $indent . '--ip6 "' . $containerArray['NetworkSettings']['Networks'][$network]['IPAMConfig']['IPv6Address'] . '" \\';
             }
         }
     }
 
     //-- <key> FIELDS
-    $configKeyFields    = [
-                            'Tty' => 'tty'
-                        ];
+    $configKeyFields = [
+        'Tty' => 'tty'
+    ];
 
     foreach ($configKeyFields as $fieldLabel => $fieldKey) {
         if ($containerArray['Config'][$fieldLabel]) {
@@ -423,9 +423,9 @@ function dockerAutoRun($container)
     }
 
     //-- <key>:<val> FIELDS
-    $configPairFields   = [
-                            'Domainname' => 'domainname'
-                        ];
+    $configPairFields = [
+        'Domainname' => 'domainname'
+    ];
 
     foreach ($configPairFields as $fieldLabel => $fieldKey) {
         if ($containerArray['Config'][$fieldLabel]) {
@@ -517,7 +517,7 @@ function dockerAutoRun($container)
             $entryPoints[] = $containerArray['Config']['Entrypoint'][0];
         }
 
-        $runCommand[] = $indent . '--entrypoint "' .  implode('" "', $entryPoints) . '" \\';
+        $runCommand[] = $indent . '--entrypoint "' . implode('" "', $entryPoints) . '" \\';
     }
 
     $runCommand[] = $indent . '"' . $containerArray['Config']['Image'] . '" \\';

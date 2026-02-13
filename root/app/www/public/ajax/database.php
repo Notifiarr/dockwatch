@@ -11,7 +11,7 @@ require 'shared.php';
 
 if ($_POST['m'] == 'init') {
     $defines = get_defined_constants();
-    $tables = [];
+    $tables  = [];
 
     foreach ($defines as $define => $value) {
         if (str_contains($define, '_TABLE')) {
@@ -21,16 +21,16 @@ if ($_POST['m'] == 'init') {
     sort($tables);
 
     foreach ($tables as $table) {
-        $q = "SELECT sql 
-              FROM sqlite_schema 
+        $q      = "SELECT sql
+              FROM sqlite_schema
               WHERE name = '" . $table . "'";
-        $r = $database->query($q);
+        $r      = $database->query($q);
         $schema = $database->fetchAssoc($r);
 
         $rows = [];
-        $q = "SELECT *
+        $q    = "SELECT *
               FROM '" . $table . "'";
-        $r = $database->query($q);
+        $r    = $database->query($q);
         while ($row = $database->fetchAssoc($r)) {
             $rows[] = $row;
         }
@@ -40,7 +40,9 @@ if ($_POST['m'] == 'init') {
             <table class="table table-hover">
                 <tr>
                     <td style="width:10%;">Schema</td>
-                    <td><pre><?= str_replace('        ', '    ', str_replace('        )', ')', $schema['sql'])) ?></pre></td>
+                    <td>
+                        <pre><?= str_replace('        ', '    ', str_replace('        )', ')', $schema['sql'])) ?></pre>
+                    </td>
                 </tr>
                 <tr>
                     <td>Data</td>
@@ -69,11 +71,14 @@ if ($_POST['m'] == 'init') {
                                 <tbody>
                                     <?php
                                     foreach ($rows as $row) {
-                                        ?><tr><?php
+                                        ?>
+                                        <tr><?php
                                         foreach ($fields as $field) {
-                                            ?><td><?= $row[$field] ?></td><?php
+                                            ?>
+                                                <td><?= $row[$field] ?></td><?php
                                         }
-                                        ?></tr><?php
+                                        ?>
+                                        </tr><?php
                                     }
                                     ?>
                                 </tbody>

@@ -12,7 +12,7 @@ function gitBranch()
     if (!defined('DOCKWATCH_BRANCH')) {
         return 'Source';
     }
-       
+
     return DOCKWATCH_BRANCH;
 }
 

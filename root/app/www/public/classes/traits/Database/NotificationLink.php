@@ -14,7 +14,7 @@ trait NotificationLink
         if ($this->notificationLinkTable) {
             return $this->notificationLinkTable;
         }
-    
+
         $notificationLinkTable = [];
 
         $q = "SELECT *
@@ -42,8 +42,8 @@ trait NotificationLink
     public function addNotificationLink($platformId, $triggerIds, $platformParameters, $senderName)
     {
         $q = "INSERT INTO " . NOTIFICATION_LINK_TABLE . "
-              (`name`, `platform_id`, `platform_parameters`, `trigger_ids`) 
-              VALUES 
+              (`name`, `platform_id`, `platform_parameters`, `trigger_ids`)
+              VALUES
               ('" . $this->prepare($senderName) . "', '" . intval($platformId) . "', '" . json_encode($platformParameters) . "', '" . json_encode($triggerIds) . "')";
         $this->query($q);
 
@@ -63,8 +63,8 @@ trait NotificationLink
 
     public function getNotificationLinkPlatformFromName($name)
     {
-        $notificationLinks      = $this->getNotificationLinks();
-        $notificationTrigger    = $this->getNotificationTriggerFromName($name);
+        $notificationLinks   = $this->getNotificationLinks();
+        $notificationTrigger = $this->getNotificationTriggerFromName($name);
 
         foreach ($notificationLinks as $notificationLink) {
             if ($notificationLink['name'] == $name) {

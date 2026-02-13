@@ -23,8 +23,8 @@ trait Servers
                     break;
                 case !$serverId:
                     $q = "INSERT INTO " . SERVERS_TABLE . "
-                          (`name`, `url`, `apikey`) 
-                          VALUES 
+                          (`name`, `url`, `apikey`)
+                          VALUES
                           ('" . $this->prepare($serverSettings['name']) . "', '" . $this->prepare($serverSettings['url']) . "', '" . $this->prepare($serverSettings['apikey']) . "')";
                     break;
                 default:

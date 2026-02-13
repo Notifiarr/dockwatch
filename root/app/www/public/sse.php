@@ -12,9 +12,9 @@ header('Cache-Control: no-cache');
 
 require 'loader.php';
 
-$database       = new Database();
-$settingsTable  = apiRequestLocal('database/settings');
-$sseFile        = getFile(SSE_FILE);
+$database      = new Database();
+$settingsTable = apiRequestLocal('database/settings');
+$sseFile       = getFile(SSE_FILE);
 
 if ($settingsTable['sseEnabled']) {
     //-- DONT SEND ALL THE DATA EVERY TIME, WASTE

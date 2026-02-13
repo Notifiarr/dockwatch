@@ -1,0 +1,13 @@
+{
+    "name": "dockwatch",
+    "private": true,
+    "type": "module",
+    "devDependencies": {
+        "@types/jquery": "^3.5.33",
+        "eslint": "^9.0.0"
+    },
+    "scripts": {
+        "lint": "eslint root/app/www/public/js/",
+        "lint-fix": "eslint --fix root/app/www/public/js/"
+    }
+}

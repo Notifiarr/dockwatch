@@ -70,10 +70,10 @@ function cpuTotal()
 {
     global $shell;
 
-    $cpus       = 0;
-    $cmd        = 'cat /proc/cpuinfo';
-    $cpuinfo    = $shell->exec($cmd . ' 2>&1');
-    $lines      = explode("\n", $cpuinfo);
+    $cpus    = 0;
+    $cmd     = 'cat /proc/cpuinfo';
+    $cpuinfo = $shell->exec($cmd . ' 2>&1');
+    $lines   = explode("\n", $cpuinfo);
 
     foreach ($lines as $line) {
         if (str_contains($line, 'processor')) {
@@ -110,30 +110,30 @@ function linkWebroot($location)
 
 function trackTime($label, $microtime = 0)
 {
-    $backtrace  = debug_backtrace();
-    $line       = $backtrace[0]['line'];
-    $file       = $backtrace[0]['file'];
+    $backtrace = debug_backtrace();
+    $line      = $backtrace[0]['line'];
+    $file      = $backtrace[0]['file'];
 
     return ['label' => $label, 'microtime' => ($microtime ? $microtime : microtime(true)), 'file' => $file, 'line' => $line];
 }
 
 function displayTimeTracking($loadTimes = [])
 {
-    $backtrace  = debug_backtrace();
-    $line       = $backtrace[0]['line'];
-    $file       = $backtrace[0]['file'];
+    $backtrace = debug_backtrace();
+    $line      = $backtrace[0]['line'];
+    $file      = $backtrace[0]['file'];
 
-    $loadTimes[] = ['label' => 'page <-', 'microtime' => microtime(true), 'file' => $file, 'line' => $line];
+    $loadTimes[]  = ['label' => 'page <-', 'microtime' => microtime(true), 'file' => $file, 'line' => $line];
     $previousTime = 0;
-    $runningTime = 0;
+    $runningTime  = 0;
 
     foreach ($loadTimes as $index => $event) {
         if ($index == 0) {
             $display[] = $event['file'] . '::' . $event['line'] . ' | 0 | ' . $event['label'];
         } else {
-            $runTime = number_format(($event['microtime'] - $previousTime), 4);
+            $runTime      = number_format(($event['microtime'] - $previousTime), 4);
             $runningTime += $runTime;
-            $display[] = $event['file'] . '::' . $event['line'] . ' | ' . $runningTime  . ' | ' . $event['label'];
+            $display[]    = $event['file'] . '::' . $event['line'] . ' | ' . $runningTime . ' | ' . $event['label'];
         }
 
         $previousTime = $event['microtime'];
@@ -149,7 +149,7 @@ function displayTimeTracking($loadTimes = [])
 //-- TAKE ARRAY INPUT OF PORTS AND GROUP THEM TO A RANGE IF THEY ARE WITHIN A SINGLE DIGIT
 function formatPortRanges($ports)
 {
-    $ranges = [];
+    $ranges     = [];
     $rangeStart = $rangeStop = 0;
 
     foreach ($ports as $port => $container) {
@@ -161,13 +161,13 @@ function formatPortRanges($ports)
                 $rangeStop = $port + 1;
             } elseif ($rangeStart) { //-- RANGE EXISTS BUT IS LAST SEQUENTIAL PORT
                 $ranges[$rangeStart . '-' . $rangeStop] = $container;
-                $rangeStart = $rangeStop = 0;
+                $rangeStart                             = $rangeStop = 0;
             } else { //-- NOT A NUMERICALLY SEQUENTIAL PORT
                 $ranges[$port] = $container;
             }
         } elseif ($rangeStart) { //-- NOT SEQUENTIAL NAME WISE BUT PREVIOUS WAS
             $ranges[$rangeStart . '-' . $rangeStop] = $container;
-            $rangeStart = $rangeStop = 0;
+            $rangeStart                             = $rangeStop = 0;
         } else { //-- NOT IN THE SAME CONTAINER GROUP
             $ranges[$port] = $container;
         }
@@ -185,16 +185,16 @@ function breakpoint()
 
 function getServers()
 {
-    $serverPings    = apiRequestServerPings();
-    $serverList     = ['activeServer' => apiGetActiveServer()];
+    $serverPings = apiRequestServerPings();
+    $serverList  = ['activeServer' => apiGetActiveServer()];
 
     foreach ($serverPings as $serverPing) {
-        $serverList['servers'][]    = [
-                                        'id'            => $serverPing['id'],
-                                        'name'          => $serverPing['name'],
-                                        'url'           => $serverPing['url'],
-                                        'disabled'      => $serverPing['code'] != 200 ? ' [HTTP: ' . $serverPing['code'] . ']' : '',
-                                    ];
+        $serverList['servers'][] = [
+            'id'       => $serverPing['id'],
+            'name'     => $serverPing['name'],
+            'url'      => $serverPing['url'],
+            'disabled' => $serverPing['code'] != 200 ? ' [HTTP: ' . $serverPing['code'] . ']' : '',
+        ];
     }
 
     return $serverList;
@@ -206,8 +206,8 @@ function validateServers($servers = [])
         return [];
     }
 
-    $availableServers   = apiRequestLocal('database/servers');
-    $matchingServers    = [];
+    $availableServers = apiRequestLocal('database/servers');
+    $matchingServers  = [];
 
     foreach ($availableServers as $server) {
         $serverName = strtoupper($server['name']);
@@ -223,7 +223,7 @@ function validateServers($servers = [])
 function getThemes()
 {
     $themesPath = ABSOLUTE_PATH . 'themes/';
-    $dir = opendir($themesPath);
+    $dir        = opendir($themesPath);
     while ($file = readdir($dir)) {
         if (str_contains($file, '.min.css')) {
             $themes[] = str_replace('.min.css', '', $file);

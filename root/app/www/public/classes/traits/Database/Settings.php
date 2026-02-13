@@ -11,10 +11,10 @@ trait Settings
 {
     public function getSetting($field)
     {
-        $q = "SELECT value
+        $q   = "SELECT value
               FROM " . SETTINGS_TABLE . "
               WHERE name = '" . $field . "'";
-        $r = $this->query($q);
+        $r   = $this->query($q);
         $row = $this->fetchAssoc($r);
 
         return $row['value'];
@@ -57,7 +57,7 @@ trait Settings
         $settingsTable = [];
 
         $q = "SELECT *
-              FROM " . SETTINGS_TABLE ;
+              FROM " . SETTINGS_TABLE;
         $r = $this->query($q);
         while ($row = $this->fetchAssoc($r)) {
             $settingsTable[$row['name']] = $row['value'];

@@ -21,11 +21,11 @@ if (!canCronRun('housekeeper', $settingsTable)) {
 //-- CONTAINER TABLE CLEANUP (DAILY @ MIDNIGHT)
 if (date('H') == 0 && date('i') <= 5) {
     logger(CRON_HOUSEKEEPER_LOG, 'Container Table Cleanup (daily @ midnight) ->');
-    $containersTable = apiRequest('database/containers')['result'];
+    $containersTable      = apiRequest('database/containers')['result'];
     $containerGroupsTable = apiRequest('database/group/links')['result'];
     foreach ($containersTable as $container) {
         $containerState = $docker->findContainer(['hash' => $container['hash'], 'data' => $stateFile]);
-        if (!$containerState && $container['lastUpdateCronTime'] > 0 && (time() - $container['lastUpdateCronTime']) > CONTAINER_CLEANUP_TIME*86400) {
+        if (!$containerState && $container['lastUpdateCronTime'] > 0 && (time() - $container['lastUpdateCronTime']) > CONTAINER_CLEANUP_TIME * 86400) {
             logger(CRON_HOUSEKEEPER_LOG, 'removing container from settings: ' . $container['hash']);
             apiRequest('database/container/delete', [], ['hash' => $container['hash']]); //-- DELETE FROM SETTINGS TABLE
 
@@ -75,33 +75,43 @@ if (date('H') == 0 && date('i') <= 5) {
 
 //-- LOG FILE CLEANUP (DAILY @ MIDNIGHT)
 if (date('H') == 0 && date('i') <= 5) {
-    $cleanup    = [
-                    [
-                        'crons'         => [[
-                                            'message'   => 'Cron log file cleanup (daily @ midnight)',
-                                            'length'    => ($settingsTable['cronLogLength'] <= 1 ? 1 : $settingsTable['cronLogLength'])
-                                        ]]
-                    ],[
-                        'notifications' => [[
-                                            'message'   => 'Notification log file cleanup (daily @ midnight)',
-                                            'length'    => ($settingsTable['notificationLogLength'] <= 1 ? 1 : $settingsTable['notificationLogLength'])
-                                        ]]
-                    ],[
-                        'system'        => [[
-                                            'type'      => 'app',
-                                            'message'   => 'System log file cleanup (daily @ midnight)',
-                                            'length'    => 1
-                                        ],[
-                                            'type'      => 'ui',
-                                            'message'   => 'UI log file cleanup (daily @ midnight)',
-                                            'length'    => ($settingsTable['uiLogLength'] <= 1 ? 1 : $settingsTable['uiLogLength'])
-                                        ],[
-                                            'type'      => 'api',
-                                            'message'   => 'API log file cleanup (daily @ midnight)',
-                                            'length'    => ($settingsTable['apiLogLength'] <= 1 ? 1 : $settingsTable['apiLogLength'])
-                                        ]]
-                    ]
-                ];
+    $cleanup = [
+        [
+            'crons' => [
+                [
+                    'message' => 'Cron log file cleanup (daily @ midnight)',
+                    'length'  => ($settingsTable['cronLogLength'] <= 1 ? 1 : $settingsTable['cronLogLength'])
+                ]
+            ]
+        ],
+        [
+            'notifications' => [
+                [
+                    'message' => 'Notification log file cleanup (daily @ midnight)',
+                    'length'  => ($settingsTable['notificationLogLength'] <= 1 ? 1 : $settingsTable['notificationLogLength'])
+                ]
+            ]
+        ],
+        [
+            'system' => [
+                [
+                    'type'    => 'app',
+                    'message' => 'System log file cleanup (daily @ midnight)',
+                    'length'  => 1
+                ],
+                [
+                    'type'    => 'ui',
+                    'message' => 'UI log file cleanup (daily @ midnight)',
+                    'length'  => ($settingsTable['uiLogLength'] <= 1 ? 1 : $settingsTable['uiLogLength'])
+                ],
+                [
+                    'type'    => 'api',
+                    'message' => 'API log file cleanup (daily @ midnight)',
+                    'length'  => ($settingsTable['apiLogLength'] <= 1 ? 1 : $settingsTable['apiLogLength'])
+                ]
+            ]
+        ]
+    ];
 
     foreach ($cleanup as $folders) {
         foreach ($folders as $dir => $dirTypes) {

@@ -14,8 +14,18 @@ class MonthField extends AbstractField
         // Convert text month values to integers
         $value = str_ireplace(
             array(
-                'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-                'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
+                'JAN',
+                'FEB',
+                'MAR',
+                'APR',
+                'MAY',
+                'JUN',
+                'JUL',
+                'AUG',
+                'SEP',
+                'OCT',
+                'NOV',
+                'DEC'
             ),
             range(1, 12),
             $value

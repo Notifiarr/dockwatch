@@ -75,7 +75,7 @@ abstract class AbstractField implements FieldInterface
      */
     public function isInIncrementsOfRanges($dateValue, $value)
     {
-        $parts = array_map('trim', explode('/', $value, 2));
+        $parts    = array_map('trim', explode('/', $value, 2));
         $stepSize = isset($parts[1]) ? (int) $parts[1] : 0;
 
         if ($stepSize === 0) {
@@ -86,19 +86,19 @@ abstract class AbstractField implements FieldInterface
             return (int) $dateValue % $stepSize == 0;
         }
 
-        $range = explode('-', $parts[0], 2);
+        $range  = explode('-', $parts[0], 2);
         $offset = $range[0];
-        $to = isset($range[1]) ? $range[1] : $dateValue;
+        $to     = isset($range[1]) ? $range[1] : $dateValue;
         // Ensure that the date value is within the range
         if ($dateValue < $offset || $dateValue > $to) {
             return false;
         }
 
         if ($dateValue > $offset && 0 === $stepSize) {
-          return false;
+            return false;
         }
 
-        for ($i = $offset; $i <= $to; $i+= $stepSize) {
+        for ($i = $offset; $i <= $to; $i += $stepSize) {
             if ($i == $dateValue) {
                 return true;
             }
@@ -121,24 +121,22 @@ abstract class AbstractField implements FieldInterface
 
         if ($this->isRange($expression) || $this->isIncrementsOfRanges($expression)) {
             if (!$this->isIncrementsOfRanges($expression)) {
-                list ($offset, $to) = explode('-', $expression);
-                $stepSize = 1;
-            }
-            else {
-                $range = array_map('trim', explode('/', $expression, 2));
+                list($offset, $to) = explode('-', $expression);
+                $stepSize           = 1;
+            } else {
+                $range    = array_map('trim', explode('/', $expression, 2));
                 $stepSize = isset($range[1]) ? $range[1] : 0;
-                $range = $range[0];
-                $range = explode('-', $range, 2);
-                $offset = $range[0];
-                $to = isset($range[1]) ? $range[1] : $max;
+                $range    = $range[0];
+                $range    = explode('-', $range, 2);
+                $offset   = $range[0];
+                $to       = isset($range[1]) ? $range[1] : $max;
             }
             $offset = $offset == '*' ? 0 : $offset;
             for ($i = $offset; $i <= $to; $i += $stepSize) {
                 $values[] = $i;
             }
             sort($values);
-        }
-        else {
+        } else {
             $values = array($expression);
         }
 

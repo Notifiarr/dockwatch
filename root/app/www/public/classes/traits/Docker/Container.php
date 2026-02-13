@@ -39,9 +39,9 @@ trait Container
 
     public function stopContainer($containerName)
     {
-        $nameHash   = md5($containerName);
-        $container  = $this->database->getContainerFromHash($nameHash);
-        $delay      = intval($container['shutdownDelaySeconds']) >= 5 ? ' -t ' . $container['shutdownDelaySeconds'] : ' -t 120';
+        $nameHash  = md5($containerName);
+        $container = $this->database->getContainerFromHash($nameHash);
+        $delay     = intval($container['shutdownDelaySeconds']) >= 5 ? ' -t ' . $container['shutdownDelaySeconds'] : ' -t 120';
 
         if ($container['shutdownDelay']) {
             logger(SYSTEM_LOG, 'stopContainer() delaying stop command for container ' . $containerName . ' with ' . $delay, 'warn');
@@ -54,8 +54,8 @@ trait Container
 
     public function getUnusedContainers()
     {
-        $unused = [];
-        $cmd = DockerSock::UNUSED_CONTAINERS;
+        $unused     = [];
+        $cmd        = DockerSock::UNUSED_CONTAINERS;
         $containers = $this->shell->exec($cmd . ' 2>&1');
 
         if ($containers) {
@@ -164,7 +164,7 @@ trait Container
         $this->output = '';
 
         //-- CHECK IF CONTAINER IS RUNNING
-        $checkCmd = sprintf(DockerSock::CONTAINER_PROCESS, escapeshellarg($container));
+        $checkCmd       = sprintf(DockerSock::CONTAINER_PROCESS, escapeshellarg($container));
         $containerCheck = trim(shell_exec($checkCmd));
         if (empty($containerCheck)) {
             return "Container " . $container . " is not running or does not exist";
@@ -172,8 +172,8 @@ trait Container
 
         //-- DETECT AVAILABLE SHELL
         $shellCheckCmd = sprintf(DockerSock::EXEC, escapeshellarg($container), "sh -c 'command -v sh || command -v bash || command -v ash || echo no_shell'");
-        $shellCheck = trim(shell_exec($shellCheckCmd));
-        $shell = '/bin/sh';
+        $shellCheck    = trim(shell_exec($shellCheckCmd));
+        $shell         = '/bin/sh';
         if ($shellCheck === 'no_shell') {
             return "No shell found in container " . $container . " (tried sh, bash, ash)";
         } else if (!empty($shellCheck)) {
@@ -182,11 +182,11 @@ trait Container
 
         //-- EXECUTE COMMAND
         $execCmd = sprintf(DockerSock::EXEC, escapeshellarg($container), escapeshellarg($shell) . " -c " . escapeshellarg($command) . " 2>&1");
-        $output = shell_exec($execCmd);
+        $output  = shell_exec($execCmd);
 
         //-- CLEAN OUTPUT
-        $output = preg_replace('/\x1B\[[0-9;]*[a-zA-Z]/', '', $output); //-- REMOVE ANSI CODES
-        $output = trim($output);
+        $output       = preg_replace('/\x1B\[[0-9;]*[a-zA-Z]/', '', $output); //-- REMOVE ANSI CODES
+        $output       = trim($output);
         $this->output = $output;
 
         return $this->output;

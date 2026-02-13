@@ -54,13 +54,13 @@ if (!defined('ABSOLUTE_PATH')) {
     }
 }
 
-$loadTimes  = [];
-$start      = microtime(true);
+$loadTimes = [];
+$start     = microtime(true);
 
 //-- DIRECTORIES TO LOAD FILES FROM, ORDER IS IMPORTANT
-$autoloadDirs       = ['includes', 'functions', 'functions/helpers', 'classes'];
-$autoloadFiles      = ['classes/interfaces/Core.php', 'classes/interfaces/UI.php'];
-$ignoreAutoloads    = ['header.php', 'footer.php'];
+$autoloadDirs    = ['includes', 'functions', 'functions/helpers', 'classes'];
+$autoloadFiles   = ['classes/interfaces/Core.php', 'classes/interfaces/UI.php'];
+$ignoreAutoloads = ['header.php', 'footer.php'];
 
 foreach ($autoloadDirs as $autoloadDir) {
     $dir = ABSOLUTE_PATH . $autoloadDir;
@@ -129,8 +129,8 @@ if (!IS_SSE) {
         apiRequestLocal('database/migrations');
     }
 
-    $settingsTable  = apiRequestLocal('database/settings');
-    $serversTable   = apiRequestLocal('database/servers');
+    $settingsTable = apiRequestLocal('database/settings');
+    $serversTable  = apiRequestLocal('database/servers');
 
     define('USER_THEME', $settingsTable['defaultTheme'] && file_exists('themes/' . $settingsTable['defaultTheme'] . '.min.css') ? $settingsTable['defaultTheme'] : 'nzblack');
     define('USER_THEME_MODE', $settingsTable['defaultThemeMode'] ?: 'dark');
@@ -165,8 +165,8 @@ if (!IS_SSE) {
     logger(SYSTEM_LOG, 'Init class: Phiki()');
 
     if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
-        $stateFile  = apiRequestLocal('file/state');
-        $pullsFile  = apiRequestLocal('file/pull');
+        $stateFile = apiRequestLocal('file/state');
+        $pullsFile = apiRequestLocal('file/pull');
     }
 }
 
@@ -205,21 +205,21 @@ if (!IS_SSE) {
     $activeServer = $activeServer ?: apiGetActiveServer();
 
     if ($activeServer['id'] != APP_SERVER_ID) {
-        $settingsTable  = apiRequest('database/settings')['result'];
-        $serversTable   = apiRequest('database/servers')['result'];
-        $stateFile      = apiRequest('file/state')['result'];
-        $pullsFile      = apiRequest('file/pull')['result'];
+        $settingsTable = apiRequest('database/settings')['result'];
+        $serversTable  = apiRequest('database/servers')['result'];
+        $stateFile     = apiRequest('file/state')['result'];
+        $pullsFile     = apiRequest('file/pull')['result'];
     }
 
     //-- SPECIFIC PATHS THAT NEED TO HAVE AN UPDATED PROCESS LIST
-    $apiPaths           = ['stats/overview', 'stats/containers', 'stats/metrics'];
-    $internalPaths      = ['housekeeper.php'];
+    $apiPaths      = ['stats/overview', 'stats/containers', 'stats/metrics'];
+    $internalPaths = ['housekeeper.php'];
 
-    $fetchProc      = in_array($_POST['page'], $getProc) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array($baseFile, $internalPaths);
-    $fetchStats     = in_array($_POST['page'], $getStats) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array($baseFile, $internalPaths);
-    $fetchInspect   = in_array($_POST['page'], $getInspect) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array($baseFile, $internalPaths);
+    $fetchProc    = in_array($_POST['page'], $getProc) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array($baseFile, $internalPaths);
+    $fetchStats   = in_array($_POST['page'], $getStats) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array($baseFile, $internalPaths);
+    $fetchInspect = in_array($_POST['page'], $getInspect) || $_POST['hash'] || in_array($_GET['endpoint'], $apiPaths) || in_array($baseFile, $internalPaths);
 
-    $loadTimes[] = trackTime('getExpandedProcessList ->');
+    $loadTimes[]            = trackTime('getExpandedProcessList ->');
     $getExpandedProcessList = getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect);
     $processList            = $getExpandedProcessList['processList'];
 

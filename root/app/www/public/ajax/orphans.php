@@ -10,14 +10,14 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $images             = apiRequest('docker/orphans/containers');
-    $images             = json_decode($images['result'], true);
-    $volumes            = apiRequest('docker/orphans/volumes');
-    $volumes            = json_decode($volumes['result'], true);
-    $networks           = apiRequest('docker/orphans/networks');
-    $networks           = json_decode($networks['result'], true);
-    $unusedContainers   = apiRequest('docker/unused/containers');
-    $unusedContainers   = json_decode($unusedContainers['result'], true);
+    $images           = apiRequest('docker/orphans/containers');
+    $images           = json_decode($images['result'], true);
+    $volumes          = apiRequest('docker/orphans/volumes');
+    $volumes          = json_decode($volumes['result'], true);
+    $networks         = apiRequest('docker/orphans/networks');
+    $networks         = json_decode($networks['result'], true);
+    $unusedContainers = apiRequest('docker/unused/containers');
+    $unusedContainers = json_decode($unusedContainers['result'], true);
     ?>
     <ol class="breadcrumb rounded p-1 ps-2">
         <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
@@ -52,7 +52,8 @@ if ($_POST['m'] == 'init') {
                             <?php
                         }
                     } else {
-                        ?><td class="bg-secondary" colspan="5">No orphaned images found</td><?php
+                        ?>
+                        <td class="bg-secondary" colspan="5">No orphaned images found</td><?php
                     }
                     ?>
                 </tbody>
@@ -84,7 +85,8 @@ if ($_POST['m'] == 'init') {
                             <?php
                         }
                     } else {
-                        ?><td class="bg-secondary" colspan="4">No unused containers found</td><?php
+                        ?>
+                        <td class="bg-secondary" colspan="4">No unused containers found</td><?php
                     }
                     ?>
                 </tbody>
@@ -114,7 +116,8 @@ if ($_POST['m'] == 'init') {
                             <?php
                         }
                     } else {
-                        ?><td class="bg-secondary" colspan="3">No orphaned volumes found</td><?php
+                        ?>
+                        <td class="bg-secondary" colspan="3">No orphaned volumes found</td><?php
                     }
                     ?>
                 </tbody>
@@ -146,7 +149,8 @@ if ($_POST['m'] == 'init') {
                             <?php
                         }
                     } else {
-                        ?><td class="bg-secondary" colspan="4">No orphaned networks found</td><?php
+                        ?>
+                        <td class="bg-secondary" colspan="4">No orphaned networks found</td><?php
                     }
                     ?>
                 </tbody>

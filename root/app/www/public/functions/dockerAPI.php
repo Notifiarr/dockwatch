@@ -36,7 +36,7 @@ function dockerVersionAPI()
 {
     global $shell;
 
-    $cmd = '/usr/bin/docker version | grep "API"';
+    $cmd   = '/usr/bin/docker version | grep "API"';
     $shell = $shell->exec($cmd . ' 2>&1');
     preg_match_all("/([0-9]\.[0-9]{1,3})/", $shell, $matches);
 
@@ -47,24 +47,24 @@ function dockerCurlAPI($create, $method)
 {
     global $shell;
 
-    $payload    = $create['payload'];
-    $endpoint   = $create['endpoint'];
-    $container  = $create['container'];
-    $debug      = $create['debug'];
+    $payload   = $create['payload'];
+    $endpoint  = $create['endpoint'];
+    $container = $create['container'];
+    $debug     = $create['debug'];
 
     //-- WRITE THE PAYLOAD TO A FILE
     $filename = $container . '_' . time() . '.json';
     file_put_contents(TMP_PATH . $filename, json_encode($payload, JSON_UNESCAPED_SLASHES));
 
     //-- BUILD THE CURL CALL
-    $headers    = '-H "Content-Type: application/json"';
-    $cmd        = 'curl --silent ' . (strtolower($method) == 'post' ? '-X POST' : '');
+    $headers = '-H "Content-Type: application/json"';
+    $cmd     = 'curl --silent ' . (strtolower($method) == 'post' ? '-X POST' : '');
 
     if ($_SERVER['DOCKER_HOST']) {
-        $cmd        .= ' ' . $_SERVER['DOCKER_HOST'] . $endpoint;
+        $cmd .= ' ' . $_SERVER['DOCKER_HOST'] . $endpoint;
     } else {
-        $version    = dockerVersionAPI();
-        $cmd        .= ' --unix-socket /var/run/docker.sock http://v'. $version . $endpoint;
+        $version  = dockerVersionAPI();
+        $cmd     .= ' --unix-socket /var/run/docker.sock http://v' . $version . $endpoint;
     }
 
     if ($headers) {
@@ -94,8 +94,8 @@ function dockerCurlAPI($create, $method)
 
 function dockerEscapePayloadAPI($payload)
 {
-    $in     = ["\\", '"', '$'];
-    $out    = ["\\\\", '\"', '\$'];
+    $in  = ["\\", '"', '$'];
+    $out = ["\\\\", '\"', '\$'];
 
     return str_replace($in, $out, $payload);
 }
@@ -106,7 +106,7 @@ function dockerContainerStopAPI($name)
     /*
         Only added as a simple way to test it.
         dockerContainerStopAPI('container');
-        $apiResponse if it works: 
+        $apiResponse if it works:
             Array
             (
                 [message] => No such container: container
@@ -121,8 +121,8 @@ function dockerContainerStopAPI($name)
 //-- https://docs.docker.com/engine/api/v1.42/#tag/Container/operation/ContainerCreate
 function dockerContainerCreateAPI($inspect = [])
 {
-    $inspect    = $inspect[0] ? $inspect[0] : $inspect;
-    $image      = $inspect['Config']['Image'];
+    $inspect = $inspect[0] ? $inspect[0] : $inspect;
+    $image   = $inspect['Config']['Image'];
 
     $containerName = '';
     if ($inspect['Name']) {
@@ -138,28 +138,28 @@ function dockerContainerCreateAPI($inspect = [])
         }
     }
 
-    $payload                        = [
-                                        'Hostname'      => $inspect['Config']['Hostname'] ? $inspect['Config']['Hostname'] : $containerName,
-                                        'Domainname'    => $inspect['Config']['Domainname'],
-                                        'User'          => $inspect['Config']['User'],
-                                        'Tty'           => $inspect['Config']['Tty'],
-                                        'Entrypoint'    => $inspect['Config']['Entrypoint'],
-                                        'Image'         => $inspect['Config']['Image'],
-                                        'StopTimeout'   => $inspect['Config']['StopTimeout'],
-                                        'StopSignal'    => $inspect['Config']['StopSignal'],
-                                        'WorkingDir'    => $inspect['Config']['WorkingDir']
-                                    ];
+    $payload = [
+        'Hostname'    => $inspect['Config']['Hostname'] ? $inspect['Config']['Hostname'] : $containerName,
+        'Domainname'  => $inspect['Config']['Domainname'],
+        'User'        => $inspect['Config']['User'],
+        'Tty'         => $inspect['Config']['Tty'],
+        'Entrypoint'  => $inspect['Config']['Entrypoint'],
+        'Image'       => $inspect['Config']['Image'],
+        'StopTimeout' => $inspect['Config']['StopTimeout'],
+        'StopSignal'  => $inspect['Config']['StopSignal'],
+        'WorkingDir'  => $inspect['Config']['WorkingDir']
+    ];
 
-    $payload['Env']                 = $inspect['Config']['Env'];
-    $payload['Cmd']                 = $inspect['Config']['Cmd'];
-    $payload['Healthcheck']         = $inspect['Config']['Healthcheck'];
-    $payload['Labels']              = $inspect['Config']['Labels'];
-    $payload['Volumes']             = $inspect['Config']['Volumes'];
-    $payload['ExposedPorts']        = $inspect['Config']['ExposedPorts'];
-    $payload['HostConfig']          = $inspect['HostConfig'];
-    $payload['NetworkingConfig']    = [
-                                        'EndpointsConfig' => $inspect['NetworkSettings']['Networks']
-                                    ];
+    $payload['Env']              = $inspect['Config']['Env'];
+    $payload['Cmd']              = $inspect['Config']['Cmd'];
+    $payload['Healthcheck']      = $inspect['Config']['Healthcheck'];
+    $payload['Labels']           = $inspect['Config']['Labels'];
+    $payload['Volumes']          = $inspect['Config']['Volumes'];
+    $payload['ExposedPorts']     = $inspect['Config']['ExposedPorts'];
+    $payload['HostConfig']       = $inspect['HostConfig'];
+    $payload['NetworkingConfig'] = [
+        'EndpointsConfig' => $inspect['NetworkSettings']['Networks']
+    ];
 
     //-- API VALIDATION STUFF
     if (empty($payload['HostConfig']['PortBindings'])) {
@@ -192,8 +192,8 @@ function dockerContainerCreateAPI($inspect = [])
 
     //-- PART OF A CONTAINER NETWORK
     if (str_contains($payload['HostConfig']['NetworkMode'], 'container:')) {
-        $payload['Hostname']        = null;
-        $payload['ExposedPorts']    = null;
+        $payload['Hostname']     = null;
+        $payload['ExposedPorts'] = null;
 
         //-- MAKE SURE THE ID IS UPDATED
         $dependencyFile = apiRequest('file/dependency')['result'];
@@ -234,8 +234,8 @@ function dockerContainerCreateAPI($inspect = [])
         }
     }
 
-    $endpoint   = '/containers/create?name=' . $containerName;
-    $debug      = ['dependencyFile' => $dependencyFile];
+    $endpoint = '/containers/create?name=' . $containerName;
+    $debug    = ['dependencyFile' => $dependencyFile];
 
     return ['container' => $containerName, 'endpoint' => $endpoint, 'payload' => $payload, 'debug' => $debug];
 }

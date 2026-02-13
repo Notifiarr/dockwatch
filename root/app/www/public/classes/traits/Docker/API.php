@@ -36,8 +36,8 @@ trait DockersApi
 
     public function apiVersion()
     {
-        $cmd    = sprintf(DockerSock::VERSION, '| grep "API"');
-        $shell  = $this->shell->exec($cmd . ' 2>&1');
+        $cmd   = sprintf(DockerSock::VERSION, '| grep "API"');
+        $shell = $this->shell->exec($cmd . ' 2>&1');
         preg_match_all("/([0-9]\.[0-9]{1,3})/", $shell, $matches);
 
         return $matches[0][1];
@@ -48,14 +48,14 @@ trait DockersApi
         if ($_SESSION['dockerVersion']) {
             $dockerVersion = $_SESSION['dockerVersion'];
         } else {
-            $cmd    = sprintf(DockerSock::VERSION, '');
-            $shell  = $this->shell->exec($cmd . ' 2>&1');
+            $cmd   = sprintf(DockerSock::VERSION, '');
+            $shell = $this->shell->exec($cmd . ' 2>&1');
 
             if (str_contains_all($shell, ['Error', 'Maximum'])) {
                 $lines = explode("\n", $shell);
                 foreach ($lines as $line) {
                     if (str_contains($line, 'Error')) {
-                        $dockerVersion = str_replace('Error response from daemon: ', '', $line);
+                        $dockerVersion             = str_replace('Error response from daemon: ', '', $line);
                         $_SESSION['dockerVersion'] = $dockerVersion;
                         break;
                     }
@@ -71,8 +71,8 @@ trait DockersApi
         if ($_SESSION['dockerPerms']) {
             $dockerPerms = $_SESSION['dockerPerms'];
         } else {
-            $dockerPerms = apiRequest('docker/permissions')['result'];
-            $dockerPerms = json_decode($dockerPerms, true);
+            $dockerPerms             = apiRequest('docker/permissions')['result'];
+            $dockerPerms             = json_decode($dockerPerms, true);
             $_SESSION['dockerPerms'] = $dockerPerms;
         }
 
@@ -81,24 +81,24 @@ trait DockersApi
 
     public function apiCurl($request, $method)
     {
-        $payload    = $request['payload'];
-        $endpoint   = $request['endpoint'];
-        $container  = $request['container'];
-        $debug      = $request['debug'];
+        $payload   = $request['payload'];
+        $endpoint  = $request['endpoint'];
+        $container = $request['container'];
+        $debug     = $request['debug'];
 
         //-- WRITE THE PAYLOAD TO A FILE
         $filename = $container . '_' . time() . '.json';
         file_put_contents(TMP_PATH . $filename, json_encode($payload, JSON_UNESCAPED_SLASHES));
 
         //-- BUILD THE CURL CALL
-        $headers    = '-H "Content-Type: application/json"';
-        $cmd        = 'curl --silent ' . (strtolower($method) == 'post' ? '-X POST' : '');
+        $headers = '-H "Content-Type: application/json"';
+        $cmd     = 'curl --silent ' . (strtolower($method) == 'post' ? '-X POST' : '');
 
         if ($_SERVER['DOCKER_HOST']) {
-            $cmd        .= ' ' . $_SERVER['DOCKER_HOST'] . $endpoint;
+            $cmd .= ' ' . $_SERVER['DOCKER_HOST'] . $endpoint;
         } else {
-            $version    = $this->apiVersion();
-            $cmd        .= ' --unix-socket /var/run/docker.sock http://v'. $version . $endpoint;
+            $version  = $this->apiVersion();
+            $cmd     .= ' --unix-socket /var/run/docker.sock http://v' . $version . $endpoint;
         }
 
         if ($headers) {
@@ -144,8 +144,8 @@ trait DockersApi
 
     public function apiCreateContainer($inspect = [])
     {
-        $inspect    = $inspect[0] ? $inspect[0] : $inspect;
-        $image      = $inspect['Config']['Image'];
+        $inspect = $inspect[0] ? $inspect[0] : $inspect;
+        $image   = $inspect['Config']['Image'];
 
         $containerName = '';
         if ($inspect['Name']) {
@@ -161,28 +161,28 @@ trait DockersApi
             }
         }
 
-        $payload                        = [
-                                            'Hostname'      => $inspect['Config']['Hostname'] ? $inspect['Config']['Hostname'] : $containerName,
-                                            'Domainname'    => $inspect['Config']['Domainname'],
-                                            'User'          => $inspect['Config']['User'],
-                                            'Tty'           => $inspect['Config']['Tty'],
-                                            'Entrypoint'    => $inspect['Config']['Entrypoint'],
-                                            'Image'         => $inspect['Config']['Image'],
-                                            'StopTimeout'   => $inspect['Config']['StopTimeout'],
-                                            'StopSignal'    => $inspect['Config']['StopSignal'],
-                                            'WorkingDir'    => $inspect['Config']['WorkingDir']
-                                        ];
+        $payload = [
+            'Hostname'    => $inspect['Config']['Hostname'] ? $inspect['Config']['Hostname'] : $containerName,
+            'Domainname'  => $inspect['Config']['Domainname'],
+            'User'        => $inspect['Config']['User'],
+            'Tty'         => $inspect['Config']['Tty'],
+            'Entrypoint'  => $inspect['Config']['Entrypoint'],
+            'Image'       => $inspect['Config']['Image'],
+            'StopTimeout' => $inspect['Config']['StopTimeout'],
+            'StopSignal'  => $inspect['Config']['StopSignal'],
+            'WorkingDir'  => $inspect['Config']['WorkingDir']
+        ];
 
-        $payload['Env']                 = $inspect['Config']['Env'];
-        $payload['Cmd']                 = $inspect['Config']['Cmd'];
-        $payload['Healthcheck']         = $inspect['Config']['Healthcheck'];
-        $payload['Labels']              = $inspect['Config']['Labels'];
-        $payload['Volumes']             = $inspect['Config']['Volumes'];
-        $payload['ExposedPorts']        = $inspect['Config']['ExposedPorts'];
-        $payload['HostConfig']          = $inspect['HostConfig'];
-        $payload['NetworkingConfig']    = [
-                                            'EndpointsConfig' => $inspect['NetworkSettings']['Networks']
-                                        ];
+        $payload['Env']              = $inspect['Config']['Env'];
+        $payload['Cmd']              = $inspect['Config']['Cmd'];
+        $payload['Healthcheck']      = $inspect['Config']['Healthcheck'];
+        $payload['Labels']           = $inspect['Config']['Labels'];
+        $payload['Volumes']          = $inspect['Config']['Volumes'];
+        $payload['ExposedPorts']     = $inspect['Config']['ExposedPorts'];
+        $payload['HostConfig']       = $inspect['HostConfig'];
+        $payload['NetworkingConfig'] = [
+            'EndpointsConfig' => $inspect['NetworkSettings']['Networks']
+        ];
 
         //-- API VALIDATION STUFF
         if (empty($payload['HostConfig']['PortBindings'])) {
@@ -232,8 +232,8 @@ trait DockersApi
 
         //-- PART OF A CONTAINER NETWORK
         if (str_contains($payload['HostConfig']['NetworkMode'], 'container:')) {
-            $payload['Hostname']        = null;
-            $payload['ExposedPorts']    = null;
+            $payload['Hostname']     = null;
+            $payload['ExposedPorts'] = null;
 
             //-- MAKE SURE THE ID IS UPDATED
             $dependencyFile = makeArray(apiRequest('file/dependency')['result']);
@@ -274,10 +274,10 @@ trait DockersApi
         }
 
         return [
-                'container' => $containerName,
-                'endpoint'  => sprintf(DockerApi::CREATE_CONTAINER, $this->shell->prepare($containerName)),
-                'payload'   => $payload,
-                'debug'     => ['dependencyFile' => $dependencyFile]
-            ];
+            'container' => $containerName,
+            'endpoint'  => sprintf(DockerApi::CREATE_CONTAINER, $this->shell->prepare($containerName)),
+            'payload'   => $payload,
+            'debug'     => ['dependencyFile' => $dependencyFile]
+        ];
     }
 }

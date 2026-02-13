@@ -20,11 +20,11 @@ if (!canCronRun('prune', $settingsTable)) {
     exit();
 }
 
-$imagePrune = $imageList = $volumePrune = [];
+$imagePrune   = $imageList = $volumePrune = [];
 $networkPrune = [];
-$images     = json_decode($docker->getOrphanContainers(), true);
-$volumes    = json_decode($docker->getOrphanVolumes(), true);
-$networks   = json_decode($docker->getOrphanNetworks(), true);
+$images       = json_decode($docker->getOrphanContainers(), true);
+$volumes      = json_decode($docker->getOrphanVolumes(), true);
+$networks     = json_decode($docker->getOrphanNetworks(), true);
 
 logger(CRON_PRUNE_LOG, 'images=' . json_encode($images));
 logger(CRON_PRUNE_LOG, 'volumes=' . json_encode($volumes));
@@ -33,8 +33,8 @@ logger(CRON_PRUNE_LOG, 'networks=' . json_encode($networks));
 if ($settingsTable['autoPruneImages']) {
     if ($images) {
         foreach ($images as $image) {
-            $imagePrune[]   = $image['ID'];
-            $imageList[]    = ['cr' => $image['Repository'], 'created' => $image['CreatedSince'], 'size' => $image['Size']];
+            $imagePrune[] = $image['ID'];
+            $imageList[]  = ['cr' => $image['Repository'], 'created' => $image['CreatedSince'], 'size' => $image['Size']];
         }
     }
 } else {
@@ -87,7 +87,7 @@ if ($networkPrune) {
 
 if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'prune'])['result'] && (count($volumePrune) > 0 || count($imagePrune) > 0 || count($networkPrune) > 0)) {
     $payload = ['event' => 'prune', 'network' => count($networkPrune), 'volume' => count($volumePrune), 'image' => count($imagePrune), 'imageList' => $imageList];
-	$notifications->notify(0, 'prune', $payload);
+    $notifications->notify(0, 'prune', $payload);
 
     logger(CRON_PRUNE_LOG, 'Notification payload: ' . json_encode($payload));
 }

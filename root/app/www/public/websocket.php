@@ -33,9 +33,9 @@ class WebSocket implements MessageComponentInterface
     public function __construct()
     {
         logger(WEBSOCKET_LOG, 'websocket ->');
-        $this->clients = new \SplObjectStorage;
+        $this->clients            = new \SplObjectStorage;
         $this->container_sessions = [];
-        $this->memcached = new Memcached();
+        $this->memcached          = new Memcached();
         $this->memcached->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
     }
 
@@ -70,9 +70,9 @@ class WebSocket implements MessageComponentInterface
             return;
         }
 
-        $container  = $queryParams['container'];
-        $key        = sprintf(MEMCACHE_SHELL_TOKEN_KEY, $container);
-        $token      = $this->memcached->get($key);
+        $container = $queryParams['container'];
+        $key       = sprintf(MEMCACHE_SHELL_TOKEN_KEY, $container);
+        $token     = $this->memcached->get($key);
 
         if ($queryParams['token'] !== $token) {
             logger(WEBSOCKET_LOG, 'Unauthorized connection attempt (' . $conn->resourceId . ')', 'error');
@@ -134,7 +134,7 @@ class WebSocket implements MessageComponentInterface
     protected function startContainerSession(ConnectionInterface $client, $containerId)
     {
         //-- CHECK IF CONTAINER IS RUNNING
-        $checkCmd = "docker ps --filter name=" . escapeshellarg($containerId) . " --format '{{.Names}}' 2>&1";
+        $checkCmd       = "docker ps --filter name=" . escapeshellarg($containerId) . " --format '{{.Names}}' 2>&1";
         $containerCheck = trim(shell_exec($checkCmd));
         if (empty($containerCheck)) {
             $client->send(json_encode(['error' => "Container '$containerId' is not running or does not exist"]));
@@ -144,8 +144,8 @@ class WebSocket implements MessageComponentInterface
 
         //-- DETECT AVAILABLE SHELL
         $shellCheckCmd = "docker exec " . escapeshellarg($containerId) . " sh -c 'command -v sh || command -v bash || command -v ash || echo no_shell'";
-        $shellCheck = trim(shell_exec($shellCheckCmd));
-        $shell = '/bin/sh';
+        $shellCheck    = trim(shell_exec($shellCheckCmd));
+        $shell         = '/bin/sh';
         if ($shellCheck === 'no_shell') {
             $client->send(json_encode(['error' => "No shell found in container '$containerId' (tried sh, bash, ash)"]));
             $client->close();
@@ -191,11 +191,11 @@ class WebSocket implements MessageComponentInterface
         }
 
         $this->container_sessions[$client->resourceId] = [
-            'process' => $process,
-            'pipes' => $pipes,
+            'process'     => $process,
+            'pipes'       => $pipes,
             'containerId' => $containerId,
-            'buffer' => '',
-            'ready' => false
+            'buffer'      => '',
+            'ready'       => false
         ];
 
         $client->send(json_encode(['success' => true, 'message' => "Connected to container $containerId"]));
@@ -247,7 +247,7 @@ class WebSocket implements MessageComponentInterface
     protected function startOutputLoop(ConnectionInterface $client)
     {
         $session = &$this->container_sessions[$client->resourceId];
-        $loop = Loop::get();
+        $loop    = Loop::get();
 
         $loop->addPeriodicTimer(0.005, function () use ($client, &$session) { //-- FASTER POLLING
             if (!isset($this->container_sessions[$client->resourceId])) {
@@ -255,14 +255,14 @@ class WebSocket implements MessageComponentInterface
             }
 
             $process = $session['process'];
-            $pipes = $session['pipes'];
+            $pipes   = $session['pipes'];
 
             $status = proc_get_status($process);
             if (!$status['running']) {
                 $errorOutput = stream_get_contents($pipes[2], -1, 0);
                 $client->send(json_encode([
-                    'type' => 'exit',
-                    'code' => $status['exitcode'],
+                    'type'    => 'exit',
+                    'code'    => $status['exitcode'],
                     'message' => "Container shell exited with code {$status['exitcode']}" . ($errorOutput ? " ($errorOutput)" : "")
                 ]));
                 $this->closeContainerSession($client);
@@ -304,8 +304,8 @@ class WebSocket implements MessageComponentInterface
             return;
         }
 
-        $cols = (int)$cols;
-        $rows = (int)$rows;
+        $cols      = (int) $cols;
+        $rows      = (int) $rows;
         $resizeCmd = "stty cols $cols rows $rows\r";
         fwrite($session['pipes'][0], $resizeCmd);
         fflush($session['pipes'][0]);

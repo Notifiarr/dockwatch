@@ -72,7 +72,7 @@ if ($_POST['m'] == 'init') {
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('health')"></i></td>
                             </tr>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskPruneDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskPruneDisabled']? 'checked' : '' ?>></td>
+                                <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskPruneDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskPruneDisabled'] ? 'checked' : '' ?>></td>
                                 <td class="bg-secondary">Prune</td>
                                 <td class="bg-secondary">24h</td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('prune')"></i></td>

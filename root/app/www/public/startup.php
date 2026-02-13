@@ -35,7 +35,7 @@ $name = file_exists(TMP_PATH . 'restart.txt') || file_exists(TMP_PATH . 'update.
 
 //-- STARTUP TELEMETRY CHECK
 if ($name == 'dockwatch') {
-    telemetry(true);
+	telemetry(true);
 }
 
 //-- STARTUP NOTIFICATION

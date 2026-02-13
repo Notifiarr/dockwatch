@@ -62,8 +62,8 @@ function getIcon($inspect)
         }
 
         //-- TRY THE ALIAS FILES
-        $aliasFiles     = [EXTERNAL_ICON_ALIAS_FILE, ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE];
-        $matchOptions   = [$imageName, $fullImage, $container];
+        $aliasFiles   = [EXTERNAL_ICON_ALIAS_FILE, ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE];
+        $matchOptions = [$imageName, $fullImage, $container];
 
         foreach ($aliasFiles as $aliasFile) {
             if (file_exists($aliasFile)) {

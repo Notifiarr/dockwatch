@@ -18,12 +18,12 @@ function executeTask($task)
             return json_encode(telemetry(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'processList';
             $getExpandedProcessList = getExpandedProcessList(true, true, true);
-            $processList            = $getExpandedProcessList['processList'];
+            $processList = $getExpandedProcessList['processList'];
 
             return json_encode($processList, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'aliasFile':
-            $external   = getFile(EXTERNAL_ICON_ALIAS_FILE);
-            $internal   = getFile(ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE);
+            $external = getFile(EXTERNAL_ICON_ALIAS_FILE);
+            $internal = getFile(ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE);
 
             return json_encode(['external_file' => EXTERNAL_ICON_ALIAS_FILE, 'external_alias' => $external, 'internal_file' => ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE, 'internal_alias' => $internal], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'state':

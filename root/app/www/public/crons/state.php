@@ -48,12 +48,12 @@ logger(CRON_STATE_LOG, 'currentContainers: ' . json_encode($currentContainers, J
 $containersTable = apiRequest('database/containers')['result'];
 foreach ($currentContainers as $currentContainer) {
     if (!in_array($currentContainer, $previousContainers)) {
-        $containerHash  = md5($currentContainer);
-        $exists         = apiRequest('database/container/hash', ['hash' => $containerHash]);
+        $containerHash = md5($currentContainer);
+        $exists        = apiRequest('database/container/hash', ['hash' => $containerHash]);
 
         if (!$exists) {
-            $updates    = $settingsTable['updates'] ?: 3; //-- CHECK ONLY FALLBACK
-            $frequency  = $settingsTable['updatesFrequency'] ?: DEFAULT_CRON; //-- DAILY FALLBACK
+            $updates   = $settingsTable['updates'] ?: 3; //-- CHECK ONLY FALLBACK
+            $frequency = $settingsTable['updatesFrequency'] ?: DEFAULT_CRON; //-- DAILY FALLBACK
 
             apiRequest('database/container/add', [], ['hash' => $containerHash, 'updates' => $updates, 'frequency' => $frequency]);
         }
@@ -72,8 +72,8 @@ logger(CRON_STATE_LOG, 'Added containers: ' . json_encode($added, JSON_UNESCAPED
 //-- CHECK FOR REMOVED CONTAINERS
 foreach ($previousContainers as $previousContainer) {
     if (!in_array($previousContainer, $currentContainers)) {
-        $containerHash  = md5($previousContainer);
-        $container      = apiRequest('database/container/hash', ['hash' => $containerHash])['result'];
+        $containerHash = md5($previousContainer);
+        $container     = apiRequest('database/container/hash', ['hash' => $containerHash])['result'];
 
         if (!$container['disableNotifications']) {
             $removed[] = ['container' => $previousContainer];
@@ -89,8 +89,8 @@ if ($removed && apiRequest('database/notification/trigger/enabled', ['trigger' =
 //-- CHECK FOR STATE CHANGED CONTAINERS
 foreach ($currentStates as $currentState) {
     foreach ($previousStates as $previousState) {
-        $containerHash  = md5($currentState['Names']);
-        $container      = apiRequest('database/container/hash', ['hash' => $containerHash])['result'];
+        $containerHash = md5($currentState['Names']);
+        $container     = apiRequest('database/container/hash', ['hash' => $containerHash])['result'];
 
         if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'stateChange'])['result'] && !$container['disableNotifications'] && $currentState['Names'] == $previousState['Names']) {
             if ($previousState['State'] != $currentState['State']) {
@@ -102,14 +102,14 @@ foreach ($currentStates as $currentState) {
 logger(CRON_STATE_LOG, 'State changed containers: ' . json_encode($notify['state']['changed'], JSON_UNESCAPED_SLASHES));
 
 foreach ($currentStates as $currentState) {
-    $containerHash  = md5($currentState['Names']);
-    $container      = apiRequest('database/container/hash', ['hash' => $containerHash])['result'];
+    $containerHash = md5($currentState['Names']);
+    $container     = apiRequest('database/container/hash', ['hash' => $containerHash])['result'];
 
     //-- CHECK FOR HIGH CPU USAGE CONTAINERS
     if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'cpuHigh'])['result'] && !$container['disableNotifications'] && floatval($settingsTable['cpuThreshold']) > 0) {
         if ($currentState['stats']['CPUPerc']) {
-            $cpu        = floatval(str_replace('%', '', $currentState['stats']['CPUPerc']));
-            $cpuAmount  = intval($settingsTable['cpuAmount']);
+            $cpu       = floatval(str_replace('%', '', $currentState['stats']['CPUPerc']));
+            $cpuAmount = intval($settingsTable['cpuAmount']);
 
             if ($cpuAmount > 0) {
                 $cpu = number_format(($cpu / $cpuAmount), 2);
@@ -150,7 +150,7 @@ if ($notify['state']) {
     if (
         apiRequest('database/notification/link/platform/name', ['name' => 'stateChange'])['result'] == apiRequest('database/notification/link/platform/name', ['name' => 'added'])['result'] &&
         apiRequest('database/notification/link/platform/name', ['name' => 'stateChange'])['result'] == apiRequest('database/notification/link/platform/name', ['name' => 'removed'])['result']
-        ) {
+    ) {
         $payload = ['event' => 'state', 'changes' => $notify['state']['changed'], 'added' => $notify['state']['added'], 'removed' => $notify['state']['removed']];
         $notifications->notify(0, 'stateChange', $payload);
 

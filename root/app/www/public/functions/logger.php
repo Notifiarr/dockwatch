@@ -16,11 +16,11 @@ function viewLog($log)
         if (str_contains_any($log, ['login_failures'])) {
             $content = json_encode(json_decode(file_get_contents($path), true), JSON_PRETTY_PRINT);
         } else {
-            $log        = file($path);
-            $header     = 'Lines: ' . count($log);
-            
+            $log    = file($path);
+            $header = 'Lines: ' . count($log);
+
             foreach ($log as $index => $line) {
-                $content .= str_pad(($index + 1), strlen(count($log)), ' ', STR_PAD_RIGHT) .' | '. $line;
+                $content .= str_pad(($index + 1), strlen(count($log)), ' ', STR_PAD_RIGHT) . ' | ' . $line;
             }
         }
     } else {
@@ -35,8 +35,8 @@ function deleteLog($log)
     $path = str_contains_any($log, ['login_failures']) ? APP_DATA_PATH . $log : LOGS_PATH . $log;
 
     logger(UI_LOG, 'deleteLog() ->');
-    logger(UI_LOG, '$log: \''. $path .'\'');
-    logger(UI_LOG, 'removing \''. $path .'\'');
+    logger(UI_LOG, '$log: \'' . $path . '\'');
+    logger(UI_LOG, 'removing \'' . $path . '\'');
     unlink($path);
     logger(UI_LOG, 'deleteLog() <-');
 
@@ -62,8 +62,8 @@ function purgeLogs($group)
         closedir($dir);
     } else {
         logger(UI_LOG, '$group: \'' . $group . '\'');
-        $logDir = LOGS_PATH . $group .'/';
-        $dir = opendir($logDir);
+        $logDir = LOGS_PATH . $group . '/';
+        $dir    = opendir($logDir);
         while ($log = readdir($dir)) {
             if ($log[0] == '.' || is_dir($logDir . $log)) {
                 continue;
@@ -124,8 +124,8 @@ function loggerLoopArray($stack, $depth = 0, $output = '')
 
         if (is_array($val)) {
             $output .= $tabs . '[' . $key . ']' . "\n";
-            $output = loggerLoopArray($val, ($depth += 1), $output);
-            $depth -= 1;
+            $output  = loggerLoopArray($val, ($depth += 1), $output);
+            $depth  -= 1;
         } else {
             $output .= $tabs . '[' . $key . '] => ' . $val . "\n";
         }

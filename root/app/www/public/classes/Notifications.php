@@ -28,11 +28,11 @@ class Notifications
     {
         global $platforms, $settingsTable, $database;
 
-        $this->database     = $database ?? new Database();
-        $this->logpath      = LOGS_PATH . 'notifications/';
+        $this->database = $database ?? new Database();
+        $this->logpath  = LOGS_PATH . 'notifications/';
 
-        $settingsTable      = $settingsTable ?? apiRequest('database/settings');
-        $this->serverName   = is_array($settingsTable) ? $settingsTable['serverName'] : '';
+        $settingsTable    = $settingsTable ?? apiRequest('database/settings');
+        $this->serverName = is_array($settingsTable) ? $settingsTable['serverName'] : '';
     }
 
     public function __toString()
@@ -42,11 +42,11 @@ class Notifications
 
     public function sendTestNotification($linkId, $name)
     {
-        $linkIds                    = [];
-        $return                     = $notificationLinkData = '';
-        $tests                      = $this->getTestPayloads();
-        $notificationPlatformTable  = $this->database->getNotificationPlatforms();
-        $notificationLinkTable      = $this->database->getNotificationLinks();
+        $linkIds                   = [];
+        $return                    = $notificationLinkData = '';
+        $tests                     = $this->getTestPayloads();
+        $notificationPlatformTable = $this->database->getNotificationPlatforms();
+        $notificationLinkTable     = $this->database->getNotificationLinks();
 
         foreach ($notificationLinkTable as $notificationLink) {
             if ($notificationLink['id'] == $linkId) {
@@ -63,21 +63,21 @@ class Notifications
         logger($logfile, 'test payload=' . json_encode($tests[$name]));
 
         $result = $this->notify($linkId, $name, $tests[$name], true);
-    
+
         if ($result['code'] != 200) {
             $return = 'Code ' . $result['code'] . ', ' . $result['error'];
         }
-    
+
         return ['code' => $result['code'], 'result' => $return];
     }
 
     public function notify($linkId, $trigger, $payload, $test = false)
     {
-        $linkIds                    = [];
-        $notificationPlatformTable  = $this->database->getNotificationPlatforms();
-        $notificationTriggersTable  = $this->database->getNotificationTriggers();
-        $notificationLinkTable      = $this->database->getNotificationLinks();
-        $triggerFields              = $this->getTemplate($trigger);
+        $linkIds                   = [];
+        $notificationPlatformTable = $this->database->getNotificationPlatforms();
+        $notificationTriggersTable = $this->database->getNotificationTriggers();
+        $notificationLinkTable     = $this->database->getNotificationLinks();
+        $triggerFields             = $this->getTemplate($trigger);
 
         //-- MAKE IT MATCH THE TEMPLATE
         foreach ($payload as $payloadField => $payloadVal) {
@@ -97,8 +97,8 @@ class Notifications
                 }
             }
 
-            $notificationLink       = $notificationLinkTable[$linkId];
-            $notificationPlatform   = $notificationPlatformTable[$notificationLink['platform_id']];
+            $notificationLink     = $notificationLinkTable[$linkId];
+            $notificationPlatform = $notificationPlatformTable[$notificationLink['platform_id']];
         } else {
             foreach ($notificationTriggersTable as $notificationTrigger) {
                 if ($notificationTrigger['name'] == $trigger) {

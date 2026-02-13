@@ -1,0 +1,35 @@
+{
+    "editor.defaultFormatter": null,
+
+    "[php]": {
+        "editor.defaultFormatter": "DEVSENSE.phptools-vscode",
+        "editor.formatOnSave": true
+    },
+    "php.stubs": ["*", "memcached"],
+    "php.format.rules.alignConsecutiveAssignments": true,
+    "php.format.rules.alignConstants": true,
+    "php.format.rules.alignProperties": true,
+    "php.format.rules.arrayInitializersAlignKeyValuePairs": true,
+    "php.format.rules.openBraceOnNewLineForFunctions": true,
+    "php.format.codeStyle": "PSR-12",
+
+    "[javascript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+        "editor.formatOnSave": true
+    },
+    "eslint.enable": true,
+    "eslint.validate": ["javascript"],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+
+    "html.format.enable": true,
+    "html.format.wrapLineLength": 0,
+    "html.format.indentInnerHtml": true,
+    "html.format.wrapAttributes": "auto",
+    "html.format.extraLiners": "head, body, /html",
+
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true
+}

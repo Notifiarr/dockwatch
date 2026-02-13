@@ -20,20 +20,20 @@ function renderContainerRow($nameHash, $return)
         }
     }
 
-    $isDockwatch        = isDockwatchContainer($process) ? true : false;
-    $skipActions        = skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions);
-    $containerSettings  = apiRequest('database/container/hash', ['hash' => $nameHash])['result'];
-    $logo               = getIcon($process['inspect']);
-    $notificationIcon   = '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container" style="display: ' . ($containerSettings['disableNotifications'] ? 'inline-block' : 'none') . '"></i> ';
-    $isRunning          = $process['State'] == 'running';
-    $start = $stop = $restart = '';
+    $isDockwatch       = isDockwatchContainer($process) ? true : false;
+    $skipActions       = skipContainerActions($process['inspect'][0]['Config']['Image'], $skipContainerActions);
+    $containerSettings = apiRequest('database/container/hash', ['hash' => $nameHash])['result'];
+    $logo              = getIcon($process['inspect']);
+    $notificationIcon  = '<i id="disableNotifications-icon-' . $nameHash . '" class="fas fa-bell-slash text-muted" title="Notifications disabled for this container" style="display: ' . ($containerSettings['disableNotifications'] ? 'inline-block' : 'none') . '"></i> ';
+    $isRunning         = $process['State'] == 'running';
+    $start             = $stop = $restart = '';
 
     if (!$skipActions) {
         if ($isRunning) {
-            $restart    = '<a class="dropdown-item" href="javascript:void;" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"><i class="fas fa-sync-alt fa-xs text-success container-restart-btn me-1"></i> Restart</a>';
-            $stop       = '<a class="dropdown-item" href="javascript:void;" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"><i class="fas fa-power-off fa-xs text-danger container-stop-btn me-1"></i> Stop</a>';
+            $restart = '<a class="dropdown-item" href="javascript:void;" title="Restart" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(2); massApplyContainerTrigger();"><i class="fas fa-sync-alt fa-xs text-success container-restart-btn me-1"></i> Restart</a>';
+            $stop    = '<a class="dropdown-item" href="javascript:void;" title="Stop" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(3); massApplyContainerTrigger();"><i class="fas fa-power-off fa-xs text-danger container-stop-btn me-1"></i> Stop</a>';
         } else {
-            $start      = '<a class="dropdown-item" href="javascript:void;" title="Start" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"><i class="fas fa-play fa-xs text-success container-start-btn me-1"></i> Start</a>';
+            $start = '<a class="dropdown-item" href="javascript:void;" title="Start" onclick="$(\'#massTrigger-' . $nameHash . '\').prop(\'checked\', true); $(\'#massContainerTrigger\').val(1); massApplyContainerTrigger();"><i class="fas fa-play fa-xs text-success container-start-btn me-1"></i> Start</a>';
         }
     }
 
@@ -73,8 +73,8 @@ function renderContainerRow($nameHash, $return)
         list($time, $healthMsg) = explode('(', $process['Status']);
     }
 
-    $time   = str_replace('ago', '', $time);
-    $parts  = explode(' ', $time);
+    $time  = str_replace('ago', '', $time);
+    $parts = explode(' ', $time);
 
     $length = [];
     foreach ($parts as $timePart) {
@@ -98,12 +98,12 @@ function renderContainerRow($nameHash, $return)
 
             $mounts[] = $mount['Destination'] . ' ' . $arrow . ' ' . $mount['Source'] . ($mount['Mode'] ? ':' . $mount['Mode'] : '');
             if (!$previewMount) {
-                 $previewMount = truncateEnd($mount['Destination'], 18) . ' ' . $arrow . ' ' . truncateEnd($mount['Source'], 18) . ($mount['Mode'] ? ':' . $mount['Mode'] : '');
+                $previewMount = truncateEnd($mount['Destination'], 18) . ' ' . $arrow . ' ' . truncateEnd($mount['Source'], 18) . ($mount['Mode'] ? ':' . $mount['Mode'] : '');
             }
         }
 
         if ($mounts) {
-            $mountList = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-mount-btn-' . $nameHash . '" onclick="hideContainerMounts(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-mount-btn-' . $nameHash . '" onclick="showContainerMounts(\'' . $nameHash . '\')"></i> ';
+            $mountList  = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-mount-btn-' . $nameHash . '" onclick="hideContainerMounts(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-mount-btn-' . $nameHash . '" onclick="showContainerMounts(\'' . $nameHash . '\')"></i> ';
             $mountList .= '<span id="mount-list-preview-' . $nameHash . '">' . $previewMount . '</span><br>';
             $mountList .= '<div id="mount-list-full-' . $nameHash . '" style="display: none;">';
             $mountList .= implode('<br>', $mounts);
@@ -125,14 +125,14 @@ function renderContainerRow($nameHash, $return)
 
         if ($ports) {
             if (!$previewPort) {
-                $slicePorts     = array_slice($ports, 0, 2);
-                $previewPort    = implode('<br>', $slicePorts);
+                $slicePorts  = array_slice($ports, 0, 2);
+                $previewPort = implode('<br>', $slicePorts);
             }
 
             if (count($ports) <= 2) {
                 $portList = $previewPort;
             } else {
-                $portList = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-port-btn-' . $nameHash . '" onclick="hideContainerPorts(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-port-btn-' . $nameHash . '" onclick="showContainerPorts(\'' . $nameHash . '\')"></i> ';
+                $portList  = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-port-btn-' . $nameHash . '" onclick="hideContainerPorts(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-port-btn-' . $nameHash . '" onclick="showContainerPorts(\'' . $nameHash . '\')"></i> ';
                 $portList .= '<span id="port-list-preview-' . $nameHash . '">' . $previewPort . '</span><br>';
                 $portList .= '<div id="port-list-full-' . $nameHash . '" style="display: none;">';
                 $portList .= implode('<br>', $ports);
@@ -148,8 +148,8 @@ function renderContainerRow($nameHash, $return)
         $env = [];
 
         foreach ($process['inspect'][0]['Config']['Env'] as $envVar) {
-            $envLabel   = explode('=', $envVar)[0] . ' &rarr; ' . explode('=', $envVar)[1];
-            $env[]      = $envLabel;
+            $envLabel = explode('=', $envVar)[0] . ' &rarr; ' . explode('=', $envVar)[1];
+            $env[]    = $envLabel;
 
             if (!$previewEnv) {
                 $previewEnv = strlen(explode('=', $envVar)[0] . ' &rarr; ') > 30 ? explode('=', $envVar)[0] . '...' : truncateEnd($envLabel, 30);
@@ -157,7 +157,7 @@ function renderContainerRow($nameHash, $return)
         }
 
         if ($env) {
-            $envList = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-env-btn-' . $nameHash . '" onclick="hideContainerEnv(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-env-btn-' . $nameHash . '" onclick="showContainerEnv(\'' . $nameHash . '\')"></i> ';
+            $envList  = '<i class="far fa-minus-square" style="cursor: pointer; display: none;" id="hide-env-btn-' . $nameHash . '" onclick="hideContainerEnv(\'' . $nameHash . '\')"></i><i class="far fa-plus-square" style="cursor: pointer;" id="show-env-btn-' . $nameHash . '" onclick="showContainerEnv(\'' . $nameHash . '\')"></i> ';
             $envList .= '<span id="env-list-preview-' . $nameHash . '">' . $previewEnv . '</span><br>';
             $envList .= '<div id="env-list-full-' . $nameHash . '" style="display: none;">';
             $envList .= implode('<br>', $env);
@@ -166,32 +166,32 @@ function renderContainerRow($nameHash, $return)
     }
 
     //-- TODO: This is likely not to work in every scenario (other networks, reverse proxies, etc)
-    $gui            = $isRunning && $containerLink && !$isDockwatch ? '<a class="dropdown-item" href="javascript:void;" style="cursor:pointer;" title="Open container" onclick="window.open(\'' . $containerLink . '\')"><i class="text-primary fas fa-external-link-alt fa-xs me-1"></i> GUI</a>' : '';
-    $onlineClass    = $isRunning ? 'text-success' : 'text-danger';
+    $gui         = $isRunning && $containerLink && !$isDockwatch ? '<a class="dropdown-item" href="javascript:void;" style="cursor:pointer;" title="Open container" onclick="window.open(\'' . $containerLink . '\')"><i class="text-primary fas fa-external-link-alt fa-xs me-1"></i> GUI</a>' : '';
+    $onlineClass = $isRunning ? 'text-success' : 'text-danger';
 
     if ($return == 'json') {
         return [
-                'update'        => $updateStatus . '<br><span class="text-muted small-text" title="' . $pullData['imageDigest'] .'">' . truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 20) . '</span>',
-                'state'         => $process['State'],
-                'mounts'        => $mountList,
-                'ports'         => $portList,
-                'env'           => $envList,
-                'length'        => $length,
-                'cpu'           => $cpuUsage,
-                'cpuTitle'      => $process['stats']['CPUPerc'],
-                'mem'           => $process['stats']['MemPerc'],
-                'health'        => $health,
-                'gui'           => $gui,
-                'onlineClass'   => $onlineClass,
-                'start'         => $start,
-                'stop'          => $stop,
-                'restart'       => $restart
-            ];
+            'update'      => $updateStatus . '<br><span class="text-muted small-text" title="' . $pullData['imageDigest'] . '">' . truncateMiddle(str_replace('sha256:', '', $pullData['imageDigest']), 20) . '</span>',
+            'state'       => $process['State'],
+            'mounts'      => $mountList,
+            'ports'       => $portList,
+            'env'         => $envList,
+            'length'      => $length,
+            'cpu'         => $cpuUsage,
+            'cpuTitle'    => $process['stats']['CPUPerc'],
+            'mem'         => $process['stats']['MemPerc'],
+            'health'      => $health,
+            'gui'         => $gui,
+            'onlineClass' => $onlineClass,
+            'start'       => $start,
+            'stop'        => $stop,
+            'restart'     => $restart
+        ];
     } else {
         $network = $process['inspect'][0]['HostConfig']['NetworkMode'];
         if (str_contains($network, ':')) {
             list($null, $containerId) = explode(':', $network);
-            $network = 'container:' . $docker->findContainer(['id' => $containerId, 'data' => $processList]);
+            $network                  = 'container:' . $docker->findContainer(['id' => $containerId, 'data' => $processList]);
         }
 
         ?>
@@ -211,7 +211,7 @@ function renderContainerRow($nameHash, $return)
                         </span>
                         <ul class="dropdown-menu" aria-labelledby="containerMenu-<?= $nameHash ?>">
                             <?php if ($isRunning) { ?>
-                            <li><a class="dropdown-item" href="javascript:void" onclick="containerShell('<?= $process['Names'] ?>')" style="cursor:pointer;"><i class="text-primary fas fa-terminal fa-xs me-1"></i> Shell</a></li>
+                                <li><a class="dropdown-item" href="javascript:void" onclick="containerShell('<?= $process['Names'] ?>')" style="cursor:pointer;"><i class="text-primary fas fa-terminal fa-xs me-1"></i> Shell</a></li>
                             <?php } ?>
                             <li id="<?= $nameHash ?>-menu-start" style="display:<?= !$start ? 'none' : '' ?>;"><?= $start ?></li>
                             <li id="<?= $nameHash ?>-menu-stop" style="display:<?= !$stop ? 'none' : '' ?>;"><?= $stop ?></li>
@@ -257,8 +257,8 @@ function skipContainerActions($container, $containers)
 {
     global $docker, $settingsTable, $stateFile;
 
-    $stateFile          = $stateFile ?: apiRequest('file/state')['result'];
-    $containersTable    = apiRequest('database/containers')['result'];
+    $stateFile       = $stateFile ?: apiRequest('file/state')['result'];
+    $containersTable = apiRequest('database/containers')['result'];
 
     if ($containersTable) {
         foreach ($containersTable as $containerSettings) {
@@ -325,9 +325,9 @@ function buildContainerGuiLink($containerInspect, $containerDb, $templateOnly = 
         }
     }
 
-    $find               = ['{protocol}', '{url}', '{port}', '{container}'];
-    $replace            = [$_SERVER['REQUEST_SCHEME'], $_SERVER['SERVER_NAME'], $port, $containerInspect['Config']['Hostname']];
-    $containerGuiLink   = str_replace($find, $replace, $guiSetting);
+    $find             = ['{protocol}', '{url}', '{port}', '{container}'];
+    $replace          = [$_SERVER['REQUEST_SCHEME'], $_SERVER['SERVER_NAME'], $port, $containerInspect['Config']['Hostname']];
+    $containerGuiLink = str_replace($find, $replace, $guiSetting);
 
     return $containerGuiLink;
 }

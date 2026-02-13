@@ -20,16 +20,16 @@ if (!canCronRun('pulls', $settingsTable)) {
     exit();
 }
 
-$containersTable    = apiRequest('database/containers')['result'];
-$notify             = [];
-$startStamp         = new DateTime();
-$lastUpdatedHashes  = [];
+$containersTable   = apiRequest('database/containers')['result'];
+$notify            = [];
+$startStamp        = new DateTime();
+$lastUpdatedHashes = [];
 
 if ($containersTable) {
     $imagesUpdated = [];
 
     foreach ($containersTable as $containerSettings) {
-        $containerHash = $containerSettings['hash'];
+        $containerHash  = $containerSettings['hash'];
         $containerState = $docker->findContainer(['hash' => $containerHash, 'data' => $stateFile]);
 
         //-- UPDATE CONTAINERS LAST UPDATE CRON TIME
@@ -134,23 +134,23 @@ if ($containersTable) {
                     }
                 }
 
-                $msg = 'Updating pull data: ' . $containerState['Names'] . "\n";
-                $msg .= '|__ regctl \'' . truncateMiddle(str_replace('sha256:', '', $regctlDigest), 30) . '\' image \'' . truncateMiddle(str_replace('sha256:', '', $imageDigest), 30) .'\'';
+                $msg  = 'Updating pull data: ' . $containerState['Names'] . "\n";
+                $msg .= '|__ regctl \'' . truncateMiddle(str_replace('sha256:', '', $regctlDigest), 30) . '\' image \'' . truncateMiddle(str_replace('sha256:', '', $imageDigest), 30) . '\'';
                 logger(CRON_PULLS_LOG, $msg);
                 echo date('c') . ' ' . $msg . "\n";
 
-                $pullsFile[$containerHash]  = [
-                                                'checked'       => time(),
-                                                'name'          => $containerState['Names'],
-                                                'regctlDigest'  => $regctlDigest,
-                                                'imageDigest'   => $imageDigest
-                                            ];
+                $pullsFile[$containerHash] = [
+                    'checked'      => time(),
+                    'name'         => $containerState['Names'],
+                    'regctlDigest' => $regctlDigest,
+                    'imageDigest'  => $imageDigest
+                ];
 
                 //-- SKIP IF AGE < MINAGE
-                $digestTag = explode(':', $image)[0] . '@' . $regctlDigest;
+                $digestTag     = explode(':', $image)[0] . '@' . $regctlDigest;
                 $checkImageAge = regctlGetCreatedDate($digestTag);
                 if ($checkImageAge < $containerSettings['minAge']) {
-                    $msg = 'Skipping container update: ' . $containerState['Names'] . ' (does not meet the minimum age requirement of '.$containerSettings['minAge'].' days, got '.$checkImageAge.' days)';
+                    $msg = 'Skipping container update: ' . $containerState['Names'] . ' (does not meet the minimum age requirement of ' . $containerSettings['minAge'] . ' days, got ' . $checkImageAge . ' days)';
                     logger(CRON_PULLS_LOG, $msg, 'warn');
                     echo date('c') . ' ' . $msg . "\n";
 
@@ -195,12 +195,12 @@ if ($containersTable) {
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo date('c') . ' ' . $msg . "\n";
 
-                                $pullsFile[$containerHash]  = [
-                                                                'checked'       => time(),
-                                                                'name'          => $containerState['Names'],
-                                                                'regctlDigest'  => $regctlDigest,
-                                                                'imageDigest'   => $regctlDigest
-                                                            ];
+                                $pullsFile[$containerHash] = [
+                                    'checked'      => time(),
+                                    'name'         => $containerState['Names'],
+                                    'regctlDigest' => $regctlDigest,
+                                    'imageDigest'  => $regctlDigest
+                                ];
 
                                 //-- UPDATE THE PULLS FILE BEFORE THIS CALL SINCE THIS STOPS THE PROCESS
                                 apiRequest('file/pull', [], ['contents' => $pullsFile]);
@@ -247,12 +247,12 @@ if ($containersTable) {
                                     $msg = 'Updating pull data: ' . $containerState['Names'];
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo date('c') . ' ' . $msg . "\n";
-                                    $pullsFile[$containerHash]  = [
-                                                                    'checked'       => time(),
-                                                                    'name'          => $containerState['Names'],
-                                                                    'regctlDigest'  => $regctlDigest,
-                                                                    'imageDigest'   => $regctlDigest
-                                                                ];
+                                    $pullsFile[$containerHash] = [
+                                        'checked'      => time(),
+                                        'name'         => $containerState['Names'],
+                                        'regctlDigest' => $regctlDigest,
+                                        'imageDigest'  => $regctlDigest
+                                    ];
 
                                     if (str_contains($containerState['State'], 'running')) {
                                         $msg = 'Starting container: ' . $containerState['Names'];
@@ -267,8 +267,8 @@ if ($containersTable) {
                                     $msg = 'Inspecting image: ' . $image;
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo date('c') . ' ' . $msg . "\n";
-                                    $inspectImage   = $docker->inspect($image, false);
-                                    $inspectImage   = json_decode($inspectImage, true);
+                                    $inspectImage = $docker->inspect($image, false);
+                                    $inspectImage = json_decode($inspectImage, true);
 
                                     if ($inspectImage) {
                                         foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
@@ -318,8 +318,8 @@ if ($containersTable) {
                                             echo date('c') . ' ' . $msg . "\n";
                                             $apiRequest = apiRequest('docker/container/create', [], ['inspect' => $inspectImage]);
                                             logger(CRON_PULLS_LOG, 'docker/container/create:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-                                            $update         = $apiRequest['result'];
-                                            $createResult   = 'failed';
+                                            $update       = $apiRequest['result'];
+                                            $createResult = 'failed';
 
                                             if (strlen($update['Id']) == 64) {
                                                 $createResult = 'complete';
@@ -339,15 +339,15 @@ if ($containersTable) {
                                     }
 
                                     if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'updated'])['result'] && !$containerSettings['disableNotifications']) {
-                                        $notify['updated'][]    = [
-                                                                    'container' => $containerState['Names'],
-                                                                    'image'     => $image,
-                                                                    'pre'       => ['digest' => str_replace('sha256:', '', $imageDigest), 'version' => $preVersion],
-                                                                    'post'      => ['digest' => str_replace('sha256:', '', $regctlDigest), 'version' => $postVersion]
-                                                                ];
+                                        $notify['updated'][] = [
+                                            'container' => $containerState['Names'],
+                                            'image'     => $image,
+                                            'pre'       => ['digest' => str_replace('sha256:', '', $imageDigest), 'version' => $preVersion],
+                                            'post'      => ['digest' => str_replace('sha256:', '', $regctlDigest), 'version' => $postVersion]
+                                        ];
                                     }
                                 } else {
-                                    $msg = 'Invalid hash length: \'' . $update .'\'=' . strlen($update['Id']);
+                                    $msg = 'Invalid hash length: \'' . $update . '\'=' . strlen($update['Id']);
                                     logger(CRON_PULLS_LOG, $msg, 'error');
                                     echo date('c') . ' ' . $msg . "\n";
 
@@ -361,8 +361,8 @@ if ($containersTable) {
                             if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'updates'])['result'] && !$containerSettings['disableNotifications'] && $inspectImage[0]['Id'] != $inspectContainer[0]['Image']) {
                                 $notify['available'][] = [
                                     'container' => $containerState['Names'],
-                                    'minAge' => $containerSettings['minAge'] ?? 0,
-                                    'age' => $checkImageAge ?? 0
+                                    'minAge'    => $containerSettings['minAge'] ?? 0,
+                                    'age'       => $checkImageAge ?? 0
                                 ];
                             }
                             break;

@@ -15,9 +15,9 @@ trait Mattermost
             return ['code' => 400, 'error' => 'Missing webhook url'];
         }
 
-        $message    = $this->buildMattermostMessage($payload, $test);
-        $payload    = ['text' => $message];
-        $curl       = curl($url, [], 'POST', json_encode($payload));
+        $message = $this->buildMattermostMessage($payload, $test);
+        $payload = ['text' => $message];
+        $curl    = curl($url, [], 'POST', json_encode($payload));
 
         logger($logfile, 'notification response:' . json_encode($curl), ($curl['code'] != 200 ? 'error' : ''));
 
@@ -238,7 +238,7 @@ trait Mattermost
                 if ($payload['mem']) {
                     $message .= '*Memory* (>= ' . $payload['memThreshold'] . '%):' . "\n";
                     foreach ($payload['mem'] as $mem) {
-                        $message .=  '- ' . $mem['container'] . ' → ' . $mem['usage'] . "%\n";
+                        $message .= '- ' . $mem['container'] . ' → ' . $mem['usage'] . "%\n";
                     }
                     $message .= "\n";
                 }

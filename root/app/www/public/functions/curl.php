@@ -11,11 +11,11 @@ function curl($url, $headers = [], $method = 'GET', $payload = '', $userPass = [
 {
     $payload = !is_string($payload) ? '' : $payload;
 
-    $curlHeaders    = [
-                        'user-agent:' . APP_NAME,
-                        'content-length:' . strlen($payload),
-                        'Content-Type:application/json'
-                    ];
+    $curlHeaders = [
+        'user-agent:' . APP_NAME,
+        'content-length:' . strlen($payload),
+        'Content-Type:application/json'
+    ];
 
     if ($headers) {
         foreach ($headers as $header) {
@@ -61,18 +61,18 @@ function curl($url, $headers = [], $method = 'GET', $payload = '', $userPass = [
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
     }
 
-    $response       = curl_exec($ch);
-    $jsonResponse   = json_decode($response, true);
-    $response       = !empty($jsonResponse) ? $jsonResponse : $response;
-    $error          = json_decode(curl_error($ch), true);
-    $code           = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $response     = curl_exec($ch);
+    $jsonResponse = json_decode($response, true);
+    $response     = !empty($jsonResponse) ? $jsonResponse : $response;
+    $error        = json_decode(curl_error($ch), true);
+    $code         = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
     return [
-            'url'       => $url,
-            'method'    => $method,
-            'payload'   => $payload,
-            'response'  => $response,
-            'error'     => $error,
-            'code'      => $code
-        ];
+        'url'      => $url,
+        'method'   => $method,
+        'payload'  => $payload,
+        'response' => $response,
+        'error'    => $error,
+        'code'     => $code
+    ];
 }

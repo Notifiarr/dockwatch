@@ -188,7 +188,7 @@ function initPage(page)
                         } else {
                             if (data.order[0] > 1) {
                                 if ($('.container-group-row').length) {
-                                    $('.container-group-row').show()
+                                    $('.container-group-row').show();
                                     $('.container-group').hide();
                                     $('#group-restore-btn').show();
                                 }

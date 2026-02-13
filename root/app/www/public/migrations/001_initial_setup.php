@@ -7,14 +7,14 @@
 ----------------------------------
 */
 
-$q = [];
-$q[] = "CREATE TABLE " . SETTINGS_TABLE . " ( 
+$q   = [];
+$q[] = "CREATE TABLE " . SETTINGS_TABLE . " (
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
         value TEXT NOT NULL
         )";
 
-$q[] = "CREATE TABLE " . CONTAINER_SETTINGS_TABLE . " ( 
+$q[] = "CREATE TABLE " . CONTAINER_SETTINGS_TABLE . " (
         id INTEGER PRIMARY KEY,
         hash TEXT NOT NULL UNIQUE,
         updates INTEGER NOT NULL,
@@ -25,31 +25,31 @@ $q[] = "CREATE TABLE " . CONTAINER_SETTINGS_TABLE . " (
         shutdownDelaySeconds INTEGER NOT NULL
         )";
 
-$q[] = "CREATE TABLE " . CONTAINER_GROUPS_TABLE . " ( 
+$q[] = "CREATE TABLE " . CONTAINER_GROUPS_TABLE . " (
         id INTEGER PRIMARY KEY,
         hash TEXT NOT NULL UNIQUE,
         name TEXT NOT NULL
         )";
 
-$q[] = "CREATE TABLE " . CONTAINER_GROUPS_LINK_TABLE . " ( 
+$q[] = "CREATE TABLE " . CONTAINER_GROUPS_LINK_TABLE . " (
         id INTEGER PRIMARY KEY,
         group_id INTEGER NOT NULL,
         container_id INTEGER NOT NULL
         )";
 
-$q[] = "CREATE TABLE " . NOTIFICATION_PLATFORM_TABLE . " ( 
+$q[] = "CREATE TABLE " . NOTIFICATION_PLATFORM_TABLE . " (
         id INTEGER PRIMARY KEY,
         platform TEXT NOT NULL UNIQUE,
         parameters TEXT NOT NULL
         )";
 
 $q[] = "INSERT INTO " . NOTIFICATION_PLATFORM_TABLE . "
-        (`id`, `platform`, `parameters`) 
-        VALUES 
+        (`id`, `platform`, `parameters`)
+        VALUES
         ('" . NotificationPlatforms::NOTIFIARR . "', 'Notifiarr', '{\"apikey\":{\"label\":\"API Key\",\"description\":\"The Notifiarr API key from your profile (integration specific or global)\",\"type\":\"text\",\"required\":\"true\"}}'),
         ('" . NotificationPlatforms::TELEGRAM . "', 'Telegram', '')";
 
-$q[] = "CREATE TABLE " . NOTIFICATION_TRIGGER_TABLE . " ( 
+$q[] = "CREATE TABLE " . NOTIFICATION_TRIGGER_TABLE . " (
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
         label TEXT NOT NULL,
@@ -58,8 +58,8 @@ $q[] = "CREATE TABLE " . NOTIFICATION_TRIGGER_TABLE . " (
         )";
 
 $q[] = "INSERT INTO " . NOTIFICATION_TRIGGER_TABLE . "
-        (`name`, `label`, `description`, `event`) 
-        VALUES 
+        (`name`, `label`, `description`, `event`)
+        VALUES
         ('updated', 'Updated', 'Send a notification when a container has had an update applied', 'updates'),
         ('updates', 'Updates', 'Send a notification when a container has an update available', 'updates'),
         ('stateChange', 'State change', 'Send a notification when a container has a state change (running -> down)', 'state'),
@@ -70,7 +70,7 @@ $q[] = "INSERT INTO " . NOTIFICATION_TRIGGER_TABLE . "
         ('memHigh', 'Memory usage', 'Send a notification when container memory usage exceeds threshold (set in Settings)', 'usage'),
         ('health', 'Health change', 'Send a notification when container becomes unhealthy', 'health')";
 
-$q[] = "CREATE TABLE " . NOTIFICATION_LINK_TABLE . " ( 
+$q[] = "CREATE TABLE " . NOTIFICATION_LINK_TABLE . " (
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
         platform_id INTEGER NOT NULL,
@@ -78,7 +78,7 @@ $q[] = "CREATE TABLE " . NOTIFICATION_LINK_TABLE . " (
         trigger_ids TEXT NOT NULL
         )";
 
-$q[] = "CREATE TABLE " . SERVERS_TABLE . " ( 
+$q[] = "CREATE TABLE " . SERVERS_TABLE . " (
         id INTEGER PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
         url TEXT NOT NULL,
@@ -86,48 +86,48 @@ $q[] = "CREATE TABLE " . SERVERS_TABLE . " (
         )";
 
 $globalSettings = [
-                    'serverName'                => '',
-                    'maintenanceIP'             => '',
-                    'maintenancePort'           => 9998,
-                    'loginFailures'             => 6,
-                    'loginTimeout'              => 60,
-                    'updates'                   => 2,
-                    'updatesFrequency'          => '0 2 * * *',
-                    'autoPruneImages'           => false,
-                    'autoPruneVolumes'          => false,
-                    'autoPruneNetworks'         => false,
-                    'autoPruneHour'             => 12,
-                    'cpuThreshold'              => '',
-                    'cpuAmount'                 => '',
-                    'memThreshold'              => '',
-                    'sseEnabled'                => false,
-                    'cronLogLength'             => 1,
-                    'notificationLogLength'     => 1,
-                    'uiLogLength'               => 1,
-                    'apiLogLength'              => 1,
-                    'environment'               => 0,
-                    'overrideBlacklist'         => false,
-                    'externalLoading'           => 0,
-                    'taskStatsDisabled'         => 0,
-                    'taskStateDisabled'         => 0,
-                    'taskPullsDisabled'         => 0,
-                    'taskHousekeepingDisabled'  => 0,
-                    'taskHealthDisabled'        => 0,
-                    'taskPruneDisabled'         => 0
-                ];
+    'serverName'               => '',
+    'maintenanceIP'            => '',
+    'maintenancePort'          => 9998,
+    'loginFailures'            => 6,
+    'loginTimeout'             => 60,
+    'updates'                  => 2,
+    'updatesFrequency'         => '0 2 * * *',
+    'autoPruneImages'          => false,
+    'autoPruneVolumes'         => false,
+    'autoPruneNetworks'        => false,
+    'autoPruneHour'            => 12,
+    'cpuThreshold'             => '',
+    'cpuAmount'                => '',
+    'memThreshold'             => '',
+    'sseEnabled'               => false,
+    'cronLogLength'            => 1,
+    'notificationLogLength'    => 1,
+    'uiLogLength'              => 1,
+    'apiLogLength'             => 1,
+    'environment'              => 0,
+    'overrideBlacklist'        => false,
+    'externalLoading'          => 0,
+    'taskStatsDisabled'        => 0,
+    'taskStateDisabled'        => 0,
+    'taskPullsDisabled'        => 0,
+    'taskHousekeepingDisabled' => 0,
+    'taskHealthDisabled'       => 0,
+    'taskPruneDisabled'        => 0
+];
 
 foreach ($globalSettings as $key => $val) {
     $settingRows[] = "('" . $key . "', '" . $val . "')";
 }
 
 $q[] = "INSERT INTO " . SETTINGS_TABLE . "
-        (`name`, `value`) 
+        (`name`, `value`)
         VALUES " . implode(', ', $settingRows);
 
 //-- PRE-DB SUPPORT, POPULATE THE NEW TABLES WITH EXISTING DATA
 if (file_exists(APP_DATA_PATH . 'servers.json')) {
-    $serversFile    = getFile(SERVERS_FILE);
-    $serverRows     = [];
+    $serversFile = getFile(SERVERS_FILE);
+    $serverRows  = [];
 
     foreach ($serversFile as $server) {
         $serverRows[] = "('" . $server['name'] . "', '" . $server['url'] . "', '" . $server['apikey'] . "')";
@@ -135,7 +135,7 @@ if (file_exists(APP_DATA_PATH . 'servers.json')) {
 
     if ($serverRows) {
         $q[] = "INSERT INTO " . SERVERS_TABLE . "
-                (`name`, `url`, `apikey`) 
+                (`name`, `url`, `apikey`)
                 VALUES " . implode(', ', $serverRows);
     }
 } else {
@@ -173,7 +173,7 @@ if (file_exists(APP_DATA_PATH . 'settings.json')) {
 
         if ($containerSettingsRows) {
             $q[] = "INSERT INTO " . CONTAINER_SETTINGS_TABLE . "
-                    (`hash`, `updates`, `frequency`, `restartUnhealthy`, `disableNotifications`, `shutdownDelay`, `shutdownDelaySeconds`) 
+                    (`hash`, `updates`, `frequency`, `restartUnhealthy`, `disableNotifications`, `shutdownDelay`, `shutdownDelaySeconds`)
                     VALUES " . implode(', ', $containerSettingsRows);
         }
     }
@@ -187,7 +187,7 @@ if (file_exists(APP_DATA_PATH . 'settings.json')) {
 
         if ($containerGroupRows) {
             $q[] = "INSERT INTO " . CONTAINER_GROUPS_TABLE . "
-                    (`hash`, `name`) 
+                    (`hash`, `name`)
                     VALUES " . implode(', ', $containerGroupRows);
         }
     }
@@ -224,8 +224,8 @@ if (file_exists(APP_DATA_PATH . 'settings.json')) {
             }
 
             $q[] = "INSERT INTO " . NOTIFICATION_LINK_TABLE . "
-                    (`id`, `name`, `platform_id`, `platform_parameters`, `trigger_ids`) 
-                    VALUES 
+                    (`id`, `name`, `platform_id`, `platform_parameters`, `trigger_ids`)
+                    VALUES
                     ('1', 'Notifiarr', '" . NotificationPlatforms::NOTIFIARR . "', '{\"apikey\":\"" . $settingsFile['notifications']['platforms'][NotificationPlatforms::NOTIFIARR]['apikey'] . "\"}', '[" . implode(',', $triggerIds) . "]')";
         }
     }
@@ -233,29 +233,29 @@ if (file_exists(APP_DATA_PATH . 'settings.json')) {
 
 //-- ALWAYS NEED TO BUMP THE MIGRATION ID
 $q[] = "INSERT INTO " . SETTINGS_TABLE . "
-        (`name`, `value`) 
-        VALUES 
+        (`name`, `value`)
+        VALUES
         ('migration', '001')";
 
 foreach ($q as $query) {
-	logger(MIGRATION_LOG, '<span class="text-success">[Q]</span> ' . preg_replace('!\s+!', ' ', $query));
+    logger(MIGRATION_LOG, '<span class="text-success">[Q]</span> ' . preg_replace('!\s+!', ' ', $query));
 
     $db->query($query);
 
-	if ($database->error() != 'not an error') {
-		logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $database->error(), 'error');
-	} else {
-		logger(MIGRATION_LOG, '<span class="text-info">[R]</span> query applied!');
-	}
+    if ($database->error() != 'not an error') {
+        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $database->error(), 'error');
+    } else {
+        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> query applied!');
+    }
 }
 
 //-- PRE-DB SUPPORT, POPULATE THE NEW TABLES WITH EXISTING DATA
 if ($settingsFile) {
     logger(MIGRATION_LOG, 'settings file found, trying to migrate existing data...');
 
-    $q                  = $containerLinkRows = [];
-    $containers         = $database->getContainers();
-    $containerGroups    = $database->getContainerGroups();
+    $q               = $containerLinkRows = [];
+    $containers      = $database->getContainers();
+    $containerGroups = $database->getContainerGroups();
     logger(MIGRATION_LOG, '$containers=' . json_encode($containers));
     logger(MIGRATION_LOG, '$containerGroups=' . json_encode($containerGroups));
 
@@ -264,17 +264,17 @@ if ($settingsFile) {
 
         foreach ($settingsFile['containerGroups'] as $groupHash => $groupData) {
             if ($groupData['containers']) {
-                logger(MIGRATION_LOG, 'found ' . count($groupData['containers']) .' containers assigned to the group \'' . $groupData['name'] . '\', finding their info...');
+                logger(MIGRATION_LOG, 'found ' . count($groupData['containers']) . ' containers assigned to the group \'' . $groupData['name'] . '\', finding their info...');
 
                 foreach ($groupData['containers'] as $groupContainerHash) {
-                    $container  = $database->getContainerFromHash($groupContainerHash);
-                    $group      = $database->getContainerGroupFromHash($groupHash, $containerGroups);
+                    $container = $database->getContainerFromHash($groupContainerHash);
+                    $group     = $database->getContainerGroupFromHash($groupHash, $containerGroups);
 
                     if ($group['id'] && $container['id']) {
                         logger(MIGRATION_LOG, 'found container \'' . $container['hash'] . '\', adding to the list');
                         $containerLinkRows[] = "('" . $group['id'] . "', '" . $container['id'] . "')";
                     } else {
-                        logger(MIGRATION_LOG, 'Could not match container hash (' . $groupContainerHash . ') with group hash (' . $groupHash. ') to an existing group', 'error');
+                        logger(MIGRATION_LOG, 'Could not match container hash (' . $groupContainerHash . ') with group hash (' . $groupHash . ') to an existing group', 'error');
                         logger(MIGRATION_LOG, '$container=' . json_encode($container));
                         logger(MIGRATION_LOG, '$group=' . json_encode($group));
                     }
@@ -283,10 +283,10 @@ if ($settingsFile) {
         }
 
         if ($containerLinkRows) {
-            logger(MIGRATION_LOG, 'matched ' . count($containerLinkRows) .' container links, adding them to the database...');
+            logger(MIGRATION_LOG, 'matched ' . count($containerLinkRows) . ' container links, adding them to the database...');
 
             $q[] = "INSERT INTO " . CONTAINER_GROUPS_LINK_TABLE . "
-                    (`group_id`, `container_id`) 
+                    (`group_id`, `container_id`)
                     VALUES " . implode(', ', $containerLinkRows);
 
             logger(MIGRATION_LOG, 'group link query: ' . json_encode($q));

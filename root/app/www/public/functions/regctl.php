@@ -43,8 +43,8 @@ function regctlGetCreatedDate($image)
     }
 
     $created = new DateTime($regctl);
-    $now = new DateTime();
-    $diff = $created->diff($now);
+    $now     = new DateTime();
+    $diff    = $created->diff($now);
 
     return $diff->days;
 }

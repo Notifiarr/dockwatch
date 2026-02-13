@@ -138,7 +138,7 @@ function editCommand(id)
         });
     };
 
-    if (!$(`#list-command-${id}-buttons`).is(`:visible`)) {
+    if (!$(`#list-command-${id}-buttons`).is(':visible')) {
         buttons.show();
         saveButton.hide();
         hideElements(true);

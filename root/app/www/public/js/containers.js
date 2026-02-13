@@ -72,29 +72,29 @@ function containerFrequencyHelp()
 function frequencyCronEditor(frequency, hash, name)
 {
     dialogOpen({
-        id: "frequencyCronEditor",
+        id: 'frequencyCronEditor',
         title: `Frequency Cron Editor (${name})`,
-        size: "lg",
-        body: $("#frequencyCronEditorDiv").html(),
+        size: 'lg',
+        body: $('#frequencyCronEditorDiv').html(),
     });
 
-    $(`.modal-body #cron`).cron({
+    $('.modal-body #cron').cron({
         expression: frequency,
         hash: hash,
         name: name,
         onChange: function (expression) {
-            if (hash == "global") {
-                $(`#globalSetting-updatesFrequency`).val(expression);
+            if (hash == 'global') {
+                $('#globalSetting-updatesFrequency').val(expression);
                 return;
             }
 
-            if (hash == "autoRestart") {
-                $(`#autoRestartFrequency`).val(expression);
-                $(`#autoRestartFrequency`).change();
+            if (hash == 'autoRestart') {
+                $('#autoRestartFrequency').val(expression);
+                $('#autoRestartFrequency').change();
                 return;
             }
 
-            if (hash.startsWith("list-command")) {
+            if (hash.startsWith('list-command')) {
                 $(`#${hash}`).val(expression);
                 $(`#${hash}`).change();
                 return;
@@ -158,7 +158,7 @@ function updateContainerRowText(hash, data)
     $('#' + hash + '-ports').html(data.ports);
     $('#' + hash + '-env').html(data.env);
     $('#' + hash + '-length').html(data.length);
-    $('#' + hash + '-usage').html(data.cpu + "<br>" + data.mem);
+    $('#' + hash + '-usage').html(data.cpu + '<br>' + data.mem);
     $('#' + hash + '-health').html(data.health);
 
     hideContainerMounts(hash);
@@ -191,7 +191,7 @@ function massApplyContainerTrigger(dependencyTrigger = false, action = 0, contai
 
     if (container) {
         $.each($('[id^=massTrigger-]'), function () {
-            $(this).prop('checked', false)
+            $(this).prop('checked', false);
         });
 
         $('#massTrigger-' + container).prop('checked', true);
@@ -311,7 +311,7 @@ function massApplyContainerTrigger(dependencyTrigger = false, action = 0, contai
                 success: function (resultData) {
                     retries = 0;
                     if (parseInt($('#massContainerTrigger').val()) == 5) {
-                        $('#massTrigger-results').prepend(resultData.result + "\n");
+                        $('#massTrigger-results').prepend(resultData.result + '\n');
                     } else {
                         updateContainerRowText(containerHash, resultData);
                         $('#massTrigger-results').prepend((c + 1) + '/' + selectedContainers.length + ': ' + resultData.result);
@@ -597,7 +597,7 @@ function massChangeFrequency(option)
             });
             break;
         case 2: //-- ALL
-            $('.container-frequency').val(frequency)
+            $('.container-frequency').val(frequency);
             break;
     }
 }
@@ -697,7 +697,7 @@ function containerShell(container, close = true, sendCommand = '')
                     setTimeout(() => fitAddon.fit(), 100);
                     setTimeout(() => fitAddon.fit(), 300);
                 }
-            }
+            };
 
             const socket = new WebSocket(`${JSON.parse(resultData)['url']}`);
             let msgCount = 0;
@@ -713,9 +713,9 @@ function containerShell(container, close = true, sendCommand = '')
             };
 
             socket.onclose = () => {
-                terminal.writeln(`\r\nWebSocket connection closed.`);
+                terminal.writeln('\r\nWebSocket connection closed.');
                 if (msgCount === 0) {
-                    terminal.writeln(`Possible reasons:\n- WebSocket Port (default :9910) not reachable\n- Connect URL is incorrect\n- Socket token is invalid`);
+                    terminal.writeln('Possible reasons:\n- WebSocket Port (default :9910) not reachable\n- Connect URL is incorrect\n- Socket token is invalid');
                 }
             };
 

@@ -16,7 +16,7 @@ $q[] = "UPDATE " . SETTINGS_TABLE . "
 foreach ($q as $query) {
 	logger(MIGRATION_LOG, '<span class="text-success">[Q]</span> ' . preg_replace('!\s+!', ' ', $query));
 
-  $database->query($query);
+	$database->query($query);
 
 	if ($database->error() != 'not an error') {
 		logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $database->error(), 'error');

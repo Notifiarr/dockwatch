@@ -10,9 +10,9 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $notificationPlatformTable  = apiRequest('database/notification/platforms')['result'];
-    $notificationTriggersTable  = apiRequest('database/notification/triggers')['result'];
-    $notificationLinkTable      = apiRequest('database/notification/links')['result'];
+    $notificationPlatformTable = apiRequest('database/notification/platforms')['result'];
+    $notificationTriggersTable = apiRequest('database/notification/triggers')['result'];
+    $notificationLinkTable     = apiRequest('database/notification/links')['result'];
 
     ?>
     <ol class="breadcrumb rounded p-1 ps-2">
@@ -43,37 +43,37 @@ if ($_POST['m'] == 'init') {
         <span class="h6">Configured senders</span>
         <div class="row mt-3">
             <?php if (!$notificationLinkTable) { ?>
-            <div class="container">
-                <div class="bg-secondary rounded p-4">
-                    Notifications have not been setup yet, click the plus icon above to set them up.
+                <div class="container">
+                    <div class="bg-secondary rounded p-4">
+                        Notifications have not been setup yet, click the plus icon above to set them up.
+                    </div>
                 </div>
-            </div>
             <?php } else { ?>
-                <?php 
+                <?php
                 foreach ($notificationLinkTable as $notificationLink) {
                     ?>
                     <div class="col-sm-4 rounded border border-light me-3">
                         <div class="container">
                             <div class="bg-secondary rounded text-center p-2">
                                 <h4 class="mt-3">
-                                    <?= $notificationLink['name'] ?> 
+                                    <?= $notificationLink['name'] ?>
                                     <i class="fas fa-tools text-light ms-3" style="cursor: pointer;" title="Update this sender triggers" onclick="openNotificationTriggers(<?= $notificationLink['platform_id'] ?>, <?= $notificationLink['id'] ?>)"></i>
                                     <i class="far fa-bell text-light ms-1" style="cursor: pointer;" title="Send test notification" onclick="testNotify(<?= $notificationLink['id'] ?>, 'test')"></i>
                                 </h4>
                                 <div class="row text-left">
-                                    <?php 
+                                    <?php
                                     if (!$notificationLink['trigger_ids']) {
                                         ?>You have not configured any triggers for this notification<?php
                                     } else {
-                                        $triggerIds = $notificationLink['trigger_ids'] ? json_decode($notificationLink['trigger_ids'], true) : [];
+                                        $triggerIds      = $notificationLink['trigger_ids'] ? json_decode($notificationLink['trigger_ids'], true) : [];
                                         $enabledTriggers = [];
                                         foreach ($triggerIds as $triggerId) {
-                                            $trigger = $notifications->getNotificationTriggerNameFromId($triggerId, $notificationTriggersTable);
+                                            $trigger           = $notifications->getNotificationTriggerNameFromId($triggerId, $notificationTriggersTable);
                                             $enabledTriggers[] = $trigger;
                                         }
 
                                         echo '<div><span class="text-success d-inline-block">Enabled:</span> ' . ($enabledTriggers ? implode(', ', $enabledTriggers) : 'No triggers enabled') . '</div>';
-                                    } 
+                                    }
                                     ?>
                                 </div>
                             </div>
@@ -89,15 +89,15 @@ if ($_POST['m'] == 'init') {
 }
 
 if ($_POST['m'] == 'openNotificationTriggers') {
-    $_POST['linkId']            = $_POST['linkId'] ?: 0;
-    $notificationPlatformTable  = apiRequest('database/notification/platforms')['result'];
-    $notificationTriggersTable  = apiRequest('database/notification/triggers')['result'];
-    $notificationLinkTable      = apiRequest('database/notification/links')['result'];
-    $platformParameters         = json_decode($notificationPlatformTable[$_POST['platformId']]['parameters'], true);
-    $platformName               = $notifications->getNotificationPlatformNameFromId($_POST['platformId'], $notificationPlatformTable);
-    $linkRow                    = $notificationLinkTable[$_POST['linkId']];
-    $existingTriggers           = $existingParameters = [];
-    $tests                      = $notifications->getTestPayloads();
+    $_POST['linkId']           = $_POST['linkId'] ?: 0;
+    $notificationPlatformTable = apiRequest('database/notification/platforms')['result'];
+    $notificationTriggersTable = apiRequest('database/notification/triggers')['result'];
+    $notificationLinkTable     = apiRequest('database/notification/links')['result'];
+    $platformParameters        = json_decode($notificationPlatformTable[$_POST['platformId']]['parameters'], true);
+    $platformName              = $notifications->getNotificationPlatformNameFromId($_POST['platformId'], $notificationPlatformTable);
+    $linkRow                   = $notificationLinkTable[$_POST['linkId']];
+    $existingTriggers          = $existingParameters = [];
+    $tests = $notifications->getTestPayloads();
 
     if ($linkRow) {
         $existingTriggers   = $linkRow['trigger_ids'] ? json_decode($linkRow['trigger_ids'], true) : [];
@@ -154,13 +154,13 @@ if ($_POST['m'] == 'openNotificationTriggers') {
                         <tr>
                             <td width="50%"><?= $platformParameterData['label'] . ($platformParameterData['required'] ? '<span class="ms-2 small-text text-danger">Required</span>' : '') ?><br><span class="small-text"><?= $platformParameterData['description'] ?></span></td>
                             <td>
-                            <?php
-                            switch ($platformParameterData['type']) {
-                                case 'text':
-                                    ?><input <?= $platformParameterData['required'] ? 'data-required="true"' : '' ?> type="text" id="notificationPlatformParameter-<?= $platformParameterField ?>" class="form-control" value="<?= $existingParameters[$platformParameterField] ?>"><?php
-                                    break;
-                            }
-                            ?>
+                                <?php
+                                switch ($platformParameterData['type']) {
+                                    case 'text':
+                                        ?><input <?= $platformParameterData['required'] ? 'data-required="true"' : '' ?> type="text" id="notificationPlatformParameter-<?= $platformParameterField ?>" class="form-control" value="<?= $existingParameters[$platformParameterField] ?>"><?php
+                                                   break;
+                                }
+                                ?>
                             </td>
                         </tr>
                         <?php
@@ -188,11 +188,11 @@ if ($_POST['m'] == 'addNotification') {
     }
 
     if (!$error) {
-        $notificationPlatformTable  = apiRequest('database/notification/platforms')['result'];
-        $notificationTriggersTable  = apiRequest('database/notification/triggers')['result'];
-        $notificationLinkTable      = apiRequest('database/notification/links')['result'];
-        $platformParameters         = json_decode($notificationPlatformTable[$_POST['platformId']]['parameters'], true);
-        $platformName               = $notifications->getNotificationPlatformNameFromId($_POST['platformId'], $notificationPlatformTable);
+        $notificationPlatformTable = apiRequest('database/notification/platforms')['result'];
+        $notificationTriggersTable = apiRequest('database/notification/triggers')['result'];
+        $notificationLinkTable     = apiRequest('database/notification/links')['result'];
+        $platformParameters        = json_decode($notificationPlatformTable[$_POST['platformId']]['parameters'], true);
+        $platformName              = $notifications->getNotificationPlatformNameFromId($_POST['platformId'], $notificationPlatformTable);
 
         //-- CHECK FOR REQUIRED FIELDS
         foreach ($platformParameters as $platformParameterField => $platformParameterData) {
@@ -238,11 +238,11 @@ if ($_POST['m'] == 'saveNotification') {
     }
 
     if (!$error) {
-        $notificationPlatformTable  = apiRequest('database/notification/platforms')['result'];
-        $notificationTriggersTable  = apiRequest('database/notification/triggers')['result'];
-        $notificationLinkTable      = apiRequest('database/notification/links')['result'];
-        $platformParameters         = json_decode($notificationPlatformTable[$_POST['platformId']]['parameters'], true);
-        $platformName               = $notifications->getNotificationPlatformNameFromId($_POST['platformId'], $notificationPlatformTable);
+        $notificationPlatformTable = apiRequest('database/notification/platforms')['result'];
+        $notificationTriggersTable = apiRequest('database/notification/triggers')['result'];
+        $notificationLinkTable     = apiRequest('database/notification/links')['result'];
+        $platformParameters        = json_decode($notificationPlatformTable[$_POST['platformId']]['parameters'], true);
+        $platformName              = $notifications->getNotificationPlatformNameFromId($_POST['platformId'], $notificationPlatformTable);
 
         //-- CHECK FOR REQUIRED FIELDS
         foreach ($platformParameters as $platformParameterField => $platformParameterData) {

@@ -7,7 +7,7 @@ This project, Dockwatch, is a PHP-based web application that provides a user int
 The application follows a traditional web server architecture:
 
 - **Web Server:** Nginx is used as the web server to serve the PHP application.
-- **Application Logic:** The core application logic is written in PHP. It uses the `cboden/ratchet` library for WebSocket communication and `phiki/phiki` for templating.
+- **Application Logic:** The core application logic is written in PHP. It uses the `cboden/ratchet` library for WebSocket communication.
 - **Backend Services:** The application relies on several backend services and tools:
     - **Docker:** The application interacts with the Docker daemon to manage containers.
     - **`regctl`:** This tool is used for container digest checks.
@@ -46,3 +46,8 @@ This will start the Dockwatch application on port 10000.
 - **Development Environment:** The `docker-compose.yml` file in the `docker` directory is configured for development, with the local application code mounted into the container.
 - **Cron Jobs:** Scheduled tasks are managed with cron jobs, defined in `root/etc/crontabs/abc`.
 - **Database:** The application uses a SQLite database, and migrations are handled by the application itself.
+
+## Code Style and Linting
+
+- **PHP:** Use [DEVSENSE](https://www.devsense.com) for linting and formatting. The PSR-12 coding style is enforced.
+- **JavaScript:** Use [ESLint](https://eslint.org) for linting and formatting.

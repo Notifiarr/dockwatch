@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "commonjs",
+        "baseUrl": ".",
+        "typeRoots": ["./node_modules/@types"],
+        "ignoreDeprecations": "6.0"
+    },
+    "include": [
+        "root/app/www/public/js/**/*",
+        "node_modules/@types/**/*"
+    ]
+}

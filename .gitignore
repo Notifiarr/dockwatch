@@ -1,7 +1,7 @@
 /root/app/www/public/logs/*
 /root/app/www/public/api/container-alias.json
-/.vscode/*
 
 /vendor/
 /data/
 /docker/.data/
+/node_modules

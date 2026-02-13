@@ -10,8 +10,8 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $apiResult  = apiRequest('docker/networks', ['params' => 'ls'])['result'];
-    $neworks    = explode("\n", $apiResult);
+    $apiResult = apiRequest('docker/networks', ['params' => 'ls'])['result'];
+    $neworks   = explode("\n", $apiResult);
 
     ?>
     <ol class="breadcrumb rounded p-1 ps-2">
@@ -20,59 +20,61 @@ if ($_POST['m'] == 'init') {
     </ol>
     <div class="bg-secondary rounded p-4">
         <div class="table-responsive bg-secondary">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="rounded-top-left-1 bg-primary ps-3">Name</th>
-                    <th class="bg-primary ps-3">Driver</th>
-                    <th class="bg-primary ps-3">Gateway</th>
-                    <th class="bg-primary ps-3">Subnet</th>
-                    <th class="rounded-top-right-1 bg-primary ps-3 w-50">Containers</th>
-                </tr>
-            </thead>
-            <?php
-            foreach ($neworks as $index => $network) {
-                if ($index == 0) {
-                    continue;
-                }
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3">Name</th>
+                        <th class="bg-primary ps-3">Driver</th>
+                        <th class="bg-primary ps-3">Gateway</th>
+                        <th class="bg-primary ps-3">Subnet</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3 w-50">Containers</th>
+                    </tr>
+                </thead>
+                <?php
+                foreach ($neworks as $index => $network) {
+                    if ($index == 0) {
+                        continue;
+                    }
 
-                list($network, $id, $name, $driver, $scope) = explode(' ', $network);
+                    list($network, $id, $name, $driver, $scope) = explode(' ', $network);
 
-                if ($network) {
-                    $apiResult      = apiRequest('docker/networks', ['params' => 'inspect ' . $network])['result'];
-                    $networkData    = json_decode($apiResult, true);
+                    if ($network) {
+                        $apiResult   = apiRequest('docker/networks', ['params' => 'inspect ' . $network])['result'];
+                        $networkData = json_decode($apiResult, true);
 
-                    ?><tbody><?php
-                    foreach ($networkData as $network) {
-                        $gateway = $subnet = $containers = '';
-                        if ($network['IPAM'] && $network['IPAM']['Config']) {
-                            $gateway    = $network['IPAM']['Config'][0]['Gateway'];
-                            $subnet     = $network['IPAM']['Config'][0]['Subnet'];
-                        }
-
-                        if ($network['Containers']) {
-                            $containerList = [];
-                            foreach ($network['Containers'] as $containerId => $container) {
-                                $containerList[] = $container['Name'];
+                        ?>
+                        <tbody><?php
+                        foreach ($networkData as $network) {
+                            $gateway = $subnet = $containers = '';
+                            if ($network['IPAM'] && $network['IPAM']['Config']) {
+                                $gateway = $network['IPAM']['Config'][0]['Gateway'];
+                                $subnet  = $network['IPAM']['Config'][0]['Subnet'];
                             }
 
-                            $containers = implode(', ', $containerList);
+                            if ($network['Containers']) {
+                                $containerList = [];
+                                foreach ($network['Containers'] as $containerId => $container) {
+                                    $containerList[] = $container['Name'];
+                                }
+
+                                $containers = implode(', ', $containerList);
+                            }
+                            ?>
+                                <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                                    <td class="bg-secondary"><?= $network['Name'] ?><br><span class="small-text text-muted" title="<?= $network['Id'] ?>"><?= truncateMiddle($network['Id'], 30) ?></span></td>
+                                    <td class="bg-secondary"><?= $network['Driver'] ?></td>
+                                    <td class="bg-secondary"><?= $gateway ?></td>
+                                    <td class="bg-secondary"><?= $subnet ?></td>
+                                    <td class="bg-secondary"><?= $containers ?></td>
+                                </tr>
+                                <?php
                         }
                         ?>
-                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                            <td class="bg-secondary"><?= $network['Name'] ?><br><span class="small-text text-muted" title="<?= $network['Id'] ?>"><?= truncateMiddle($network['Id'], 30) ?></span></td>
-                            <td class="bg-secondary"><?= $network['Driver'] ?></td>
-                            <td class="bg-secondary"><?= $gateway ?></td>
-                            <td class="bg-secondary"><?= $subnet ?></td>
-                            <td class="bg-secondary"><?= $containers ?></td>
-                        </tr>
-                        <?php
+                        </tbody><?php
                     }
-                    ?></tbody><?php
                 }
-            }
-    ?>
-        </table>
+                ?>
+            </table>
         </div>
     </div>
     <?php

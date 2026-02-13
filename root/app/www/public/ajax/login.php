@@ -18,8 +18,8 @@ if ($_POST['m'] == 'login') {
     logger(SYSTEM_LOG, 'login ->');
 
     $_SESSION['authenticated'] = false;
-    $error = '';
-    $timeout = false;
+    $error                     = '';
+    $timeout                   = false;
 
     if (!file_exists(LOGIN_FILE)) {
         $error = 'Could not find login file \'' . LOGIN_FILE . '\'';
@@ -48,8 +48,8 @@ if ($_POST['m'] == 'login') {
                     list($user, $pass) = explode(':', $login);
 
                     //-- STRIP OUT THE SPACES AND LINE BREAKS USERS ACCIDENTALLY PROVIDE
-                    $user = trim($user);
-                    $pass = trim($pass);
+                    $user          = trim($user);
+                    $pass          = trim($pass);
                     $_POST['user'] = trim($_POST['user']);
                     $_POST['pass'] = trim($_POST['pass']);
 
@@ -74,7 +74,7 @@ if ($_POST['m'] == 'login') {
                     logger(SYSTEM_LOG, $error, 'error');
 
                     $loginFailures['lastFailure'] = time();
-                    $loginFailures['failures'][] = ['time' => date('c'), 'user' => $_POST['user'], 'pass' => $_POST['pass']];
+                    $loginFailures['failures'][]  = ['time' => date('c'), 'user' => $_POST['user'], 'pass' => $_POST['pass']];
                     file_put_contents(LOGIN_FAILURE_FILE, json_encode($loginFailures));
                 }
             }

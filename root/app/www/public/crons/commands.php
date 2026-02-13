@@ -19,24 +19,24 @@ if (!canCronRun('commands', $settingsTable)) {
 }
 
 //-- RUN COMMANDS
-$startStamp     = new DateTime();
-$commandsFile   = apiRequest('file/commands')['result'] ?: [];
-$migrate        = [
-    "docker-inspect"            => "docker/container/inspect",
-    "docker-networks"           => "docker/networks",
-    "docker-port"               => "docker/container/ports",
-    "docker-startContainer"     => "docker/container/start",
-    "docker-stopContainer"      => "docker/container/stop",
-    "docker-restartContainer"   => "docker/container/restart",
-    "docker-exec"               => "docker/container/shell",
-    "docker-processList"        => "docker/processList"
+$startStamp   = new DateTime();
+$commandsFile = apiRequest('file/commands')['result'] ?: [];
+$migrate      = [
+    "docker-inspect"          => "docker/container/inspect",
+    "docker-networks"         => "docker/networks",
+    "docker-port"             => "docker/container/ports",
+    "docker-startContainer"   => "docker/container/start",
+    "docker-stopContainer"    => "docker/container/stop",
+    "docker-restartContainer" => "docker/container/restart",
+    "docker-exec"             => "docker/container/shell",
+    "docker-processList"      => "docker/processList"
 ];
 foreach ($commandsFile as $id => $command) {
     if ($migrate[$command['command']]) { //-- MIGRATE
         $newCommand = $migrate[$command['command']];
 
         $commandsFile[$id]['command'] = $newCommand; //-- UPDATE FILE
-        $command['command'] = $newCommand; //-- CURRENT CRON RUN
+        $command['command']           = $newCommand; //-- CURRENT CRON RUN
     }
 
     $cron = !empty($command['cron']) ? Cron\CronExpression::factory($command['cron']) : [];

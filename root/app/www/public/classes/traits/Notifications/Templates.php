@@ -14,50 +14,50 @@ trait NotificationTemplates
         switch ($trigger) {
             case 'health':
                 return [
-                        'event'     => '', 
-                        'container' => '', 
-                        'restarted' => ''
-                    ];
+                    'event'     => '',
+                    'container' => '',
+                    'restarted' => ''
+                ];
             case 'prune':
                 return [
-                        'event'     => '', 
-                        'network'   => '', 
-                        'volume'    => '', 
-                        'image'     => '', 
-                        'imageList' => ''
-                    ];
+                    'event'     => '',
+                    'network'   => '',
+                    'volume'    => '',
+                    'image'     => '',
+                    'imageList' => ''
+                ];
             case 'added':
             case 'removed':
             case 'stateChange':
                 return [
-                        'event'     => '', 
-                        'changes'   => '',
-                        'added'     => '',
-                        'removed'   => ''
-                    ];
+                    'event'   => '',
+                    'changes' => '',
+                    'added'   => '',
+                    'removed' => ''
+                ];
             case 'test':
                 return [
-                        'event'     => '', 
-                        'title'     => '', 
-                        'message'   => ''
-                    ];
+                    'event'   => '',
+                    'title'   => '',
+                    'message' => ''
+                ];
             case 'updated':
             case 'updates':
                 return [
-                        'event'     => '', 
-                        'available' => '', 
-                        'updated'   => ''
+                    'event'     => '',
+                    'available' => '',
+                    'updated'   => ''
                 ];
             case 'cpuHigh':
             case 'memHigh':
                 return [
-                        'event'         => '', 
-                        'container'     => '',
-                        'usage'         => '',
-                        'cpu'           => '', 
-                        'cpuThreshold'  => '',
-                        'mem'           => '',
-                        'memThreshold'  => ''
+                    'event'        => '',
+                    'container'    => '',
+                    'usage'        => '',
+                    'cpu'          => '',
+                    'cpuThreshold' => '',
+                    'mem'          => '',
+                    'memThreshold' => ''
                 ];
             default:
                 return [];

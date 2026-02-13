@@ -41,8 +41,8 @@ class Docker
             return $statsFile;
         }
 
-        $cmd    = DockerSock::STATS_FORMAT;
-        $shell  = $this->shell->exec($cmd . ' 2>&1');
+        $cmd   = DockerSock::STATS_FORMAT;
+        $shell = $this->shell->exec($cmd . ' 2>&1');
 
         if ($shell) {
             apiRequest('file/stats', [], ['contents' => $shell]);
@@ -66,18 +66,18 @@ class Docker
 
     public function logs($container)
     {
-        $cmd    = sprintf(DockerSock::LOGS, $this->shell->prepare($container));
-        $shell  = $this->shell->exec($cmd . ' 2>&1');
-        $in     = ["\n", '[36m', '[31m', '[0m'];
-        $out    = ['<br>', '', '', ''];
+        $cmd   = sprintf(DockerSock::LOGS, $this->shell->prepare($container));
+        $shell = $this->shell->exec($cmd . ' 2>&1');
+        $in    = ["\n", '[36m', '[31m', '[0m'];
+        $out   = ['<br>', '', '', ''];
 
         return str_replace($in, $out, $shell);
     }
 
     public function login($registry, $username, $password)
     {
-        $cmd    = sprintf(DockerSock::LOGIN, $this->shell->prepare($password), $this->shell->prepare($registry), $this->shell->prepare($username));
-        $shell  = $this->shell->exec($cmd . ' 2>&1');
+        $cmd   = sprintf(DockerSock::LOGIN, $this->shell->prepare($password), $this->shell->prepare($registry), $this->shell->prepare($username));
+        $shell = $this->shell->exec($cmd . ' 2>&1');
 
         return $shell;
     }
@@ -85,11 +85,11 @@ class Docker
     public function getDockerLogs($container, $log)
     {
         if ($log != 'docker' && file_exists('/appdata/' . $container . '/logs/' . $log . '.log')) {
-            $logFile    = file('/appdata/' . $container . '/logs/' . $log . '.log');
-            $return     = '';
+            $logFile = file('/appdata/' . $container . '/logs/' . $log . '.log');
+            $return  = '';
 
             foreach ($logFile as $line) {
-                $line = json_decode($line, true);
+                $line    = json_decode($line, true);
                 $return .= '[' . $line['timestamp'] . '] {' . $line['level'] . '} ' . $line['message'] . "\n";
             }
 

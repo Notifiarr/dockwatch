@@ -7,7 +7,7 @@
 ----------------------------------
 */
 
-function convertDockerTimestamp($input) 
+function convertDockerTimestamp($input)
 {
     //-- 300000000000 -> 300s -> 5m
     $seconds = $input / 1e9;
@@ -32,9 +32,9 @@ function calculateDaysFromString($str)
 
 function daysBetweenDates($ymdStart, $ymdEnd)
 {
-    $start  = new DateTime($ymdStart . ' 12:00:00');
-    $end    = new DateTime($ymdEnd . '12:00:00');
-    $diff   = $end->diff($start)->format('%a');
+    $start = new DateTime($ymdStart . ' 12:00:00');
+    $end   = new DateTime($ymdEnd . '12:00:00');
+    $diff  = $end->diff($start)->format('%a');
 
     return $diff;
 }

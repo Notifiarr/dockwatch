@@ -16,9 +16,9 @@ trait ContainerGroups
         }
 
         $containerGroups = [];
-        $q = "SELECT *
+        $q               = "SELECT *
               FROM " . CONTAINER_GROUPS_TABLE;
-        $r = $this->query($q);
+        $r               = $this->query($q);
         while ($row = $this->fetchAssoc($r)) {
             $containerGroups[] = $row;
         }
@@ -31,7 +31,7 @@ trait ContainerGroups
     {
         if (!$groups) {
             $this->containerGroupsTable = '';
-            $groups = $this->getContainerGroups();
+            $groups                     = $this->getContainerGroups();
         }
 
         foreach ($groups as $group) {
@@ -61,8 +61,8 @@ trait ContainerGroups
     public function addContainerGroup($groupName)
     {
         $q = "INSERT INTO " . CONTAINER_GROUPS_TABLE . "
-              (`hash`, `name`) 
-              VALUES 
+              (`hash`, `name`)
+              VALUES
               ('" . md5($groupName) . "', '" . $this->prepare($groupName) . "')";
         $this->query($q);
 

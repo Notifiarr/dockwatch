@@ -43,8 +43,8 @@ trait NotificationTrigger
 
     public function isNotificationTriggerEnabled($name)
     {
-        $notificationLinks      = $this->getNotificationLinks();
-        $notificationTrigger    = $this->getNotificationTriggerFromName($name);
+        $notificationLinks   = $this->getNotificationLinks();
+        $notificationTrigger = $this->getNotificationTriggerFromName($name);
 
         foreach ($notificationLinks as $notificationLink) {
             $triggers = makeArray(json_decode($notificationLink['trigger_ids'], true));

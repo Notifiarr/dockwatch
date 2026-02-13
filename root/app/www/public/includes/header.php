@@ -8,11 +8,12 @@
 */
 
 $_SESSION['IN_DOCKWATCH'] = true;
-$currentPage = $settingsTable['currentPage'] && in_array($settingsTable['currentPage'], $pages) ? $settingsTable['currentPage'] : 'overview';
+$currentPage              = $settingsTable['currentPage'] && in_array($settingsTable['currentPage'], $pages) ? $settingsTable['currentPage'] : 'overview';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
     <head>
         <meta charset="utf-8">
         <title><?= APP_NAME ?><?= $settingsTable['serverName'] ? ' - ' . $settingsTable['serverName'] : '' ?></title>
@@ -54,12 +55,12 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
             const APP_SERVER_ID = <?= APP_SERVER_ID ?>;
             const ACCESS_MODE = '<?= ACCESS_MODE ?>';
 
-            document.addEventListener('DOMContentLoaded', function(event) {
+            document.addEventListener('DOMContentLoaded', function (event) {
                 const showNavbar = (toggleId, navId, bodyId, headerId) => {
-                    const toggle    = document.getElementById(toggleId),
-                    nav             = document.getElementById(navId),
-                    bodypd          = document.getElementById(bodyId),
-                    headerpd        = document.getElementById(headerId)
+                    const toggle = document.getElementById(toggleId),
+                        nav = document.getElementById(navId),
+                        bodypd = document.getElementById(bodyId),
+                        headerpd = document.getElementById(headerId)
 
                     let navbarState = getLocalStorage(['uiNavbarToggle'])
                     if (navbarState['uiNavbarToggle']['toggled']) {
@@ -185,12 +186,12 @@ $currentPage = $settingsTable['currentPage'] && in_array($settingsTable['current
                     </div>
                 </div>
                 <?php if (USE_AUTH) { ?>
-                <div class="d-flex flex-column align-items-start">
-                    <a href="#" onclick="logout()" class="nav_link">
-                        <i class="fas fa-sign-out-alt fa-fw nav_icon"></i>
-                        <span class="nav_name d-none d-xl-inline show-text">Logout</span>
-                    </a>
-                </div>
+                    <div class="d-flex flex-column align-items-start">
+                        <a href="#" onclick="logout()" class="nav_link">
+                            <i class="fas fa-sign-out-alt fa-fw nav_icon"></i>
+                            <span class="nav_name d-none d-xl-inline show-text">Logout</span>
+                        </a>
+                    </div>
                 <?php } ?>
             </nav>
         </div>

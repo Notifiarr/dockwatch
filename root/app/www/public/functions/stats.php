@@ -9,9 +9,9 @@
 
 function getContainerStats($servers = [])
 {
-    $processList                = getFile(STATE_FILE);
-    $pullsFile                  = getFile(PULL_FILE);
-    $containers                 = [];
+    $processList = getFile(STATE_FILE);
+    $pullsFile   = getFile(PULL_FILE);
+    $containers  = [];
 
     if (!empty($servers)) {
         foreach ($servers as $server) {
@@ -19,8 +19,8 @@ function getContainerStats($servers = [])
                 continue;
             }
 
-            $processListRemote  = apiRequestRemote('file/state', [], [], $server)['result'] ?: [];
-            $pullsFileRemote    = apiRequestRemote('file/pull', [], [], $server)['result'] ?: [];
+            $processListRemote = apiRequestRemote('file/state', [], [], $server)['result'] ?: [];
+            $pullsFileRemote   = apiRequestRemote('file/pull', [], [], $server)['result'] ?: [];
 
             //-- ADD SERVER IDENTIFIER TO CONTAINERS
             foreach ($processListRemote as &$container) {
@@ -29,29 +29,29 @@ function getContainerStats($servers = [])
 
             //-- MERGE ARRAYS
             $processList = array_merge($processList, $processListRemote);
-            $pullsFile = array_merge($pullsFile, $pullsFileRemote);
+            $pullsFile   = array_merge($pullsFile, $pullsFileRemote);
         }
     }
 
     foreach ($processList as $container) {
-        $id         = $container['ID'];
-        $name       = $container['Names'];
-        $image      = $container['Image'];
-        $imageSize  = $container['size'];
-        $status     = $container['State'];
-        $health     = $container['inspect'][0]['State']['Health']['Status'];
-        $createdAt  = $container['CreatedAt'];
-        $server     = $container['server'] ?: 'local';
+        $id        = $container['ID'];
+        $name      = $container['Names'];
+        $image     = $container['Image'];
+        $imageSize = $container['size'];
+        $status    = $container['State'];
+        $health    = $container['inspect'][0]['State']['Health']['Status'];
+        $createdAt = $container['CreatedAt'];
+        $server    = $container['server'] ?: 'local';
 
-        $startedAt  = $container['inspect'][0]['State']['StartedAt'];
-        $uptime     = (new DateTime())->diff(new DateTime($startedAt));
-        $hours      = $uptime->h + ($uptime->days * 24);
-        $minutes    = $uptime->i;
-        $uptime     = sprintf('%02dh%02dm', $hours, $minutes);
+        $startedAt = $container['inspect'][0]['State']['StartedAt'];
+        $uptime    = (new DateTime())->diff(new DateTime($startedAt));
+        $hours     = $uptime->h + ($uptime->days * 24);
+        $minutes   = $uptime->i;
+        $uptime    = sprintf('%02dh%02dm', $hours, $minutes);
 
-        $networkMode   = !empty($container['Networks']) ? $container['Networks'] : 'container:' . explode(':', $container['inspect'][0]['Config']['Labels']['com.docker.compose.depends_on'])[0];
+        $networkMode = !empty($container['Networks']) ? $container['Networks'] : 'container:' . explode(':', $container['inspect'][0]['Config']['Labels']['com.docker.compose.depends_on'])[0];
 
-        $ports = [];
+        $ports    = [];
         $portList = explode(',', $container['Ports']);
         foreach ($portList as $port) {
             $protocol = $ip = $publicPort = $privatePort = $exposedPort = [];
@@ -85,19 +85,19 @@ function getContainerStats($servers = [])
                 continue;
             }
 
-            $ports[]    = [
-                            'ip'            => $ip,
-                            'publicPort'    => !empty($publicPort) ? $publicPort : $exposedPort,
-                            'privatePort'   => $privatePort,
-                            'protocol'      => $protocol
-                        ];
+            $ports[] = [
+                'ip'          => $ip,
+                'publicPort'  => !empty($publicPort) ? $publicPort : $exposedPort,
+                'privatePort' => $privatePort,
+                'protocol'    => $protocol
+            ];
         }
 
         $dockwatch = [];
         foreach ($pullsFile as $hash => $pull) {
             if (md5($name) == $hash) {
                 $dockwatch['pull'] = $pull['regctlDigest'] == $pull['imageDigest'] ? 'Up to date' : 'Outdated';
-                $checked = new DateTime();
+                $checked           = new DateTime();
                 $checked->setTimestamp($pull['checked']);
                 $dockwatch['lastPull'] = $checked->format('Y-m-d H:i:s');
 
@@ -105,58 +105,59 @@ function getContainerStats($servers = [])
             }
         }
 
-        $usage              = [];
-        $usage['cpuPerc']   = $container['stats']['CPUPerc'];
-        $usage['memPerc']   = $container['stats']['MemPerc'];
-        $usage['memSize']   = $container['stats']['MemUsage'];
-        $usage['blockIO']   = $container['stats']['BlockIO'];
-        $usage['netIO']     = $container['stats']['NetIO'];
+        $usage            = [];
+        $usage['cpuPerc'] = $container['stats']['CPUPerc'];
+        $usage['memPerc'] = $container['stats']['MemPerc'];
+        $usage['memSize'] = $container['stats']['MemUsage'];
+        $usage['blockIO'] = $container['stats']['BlockIO'];
+        $usage['netIO']   = $container['stats']['NetIO'];
 
-        $containers[]   = [
-                            'id'            => $id,
-                            'name'          => $name,
-                            'image'         => $image,
-                            'imageSize'     => $imageSize,
-                            'status'        => $status,
-                            'health'        => $health,
-                            'createdAt'     => $createdAt,
-                            'uptime'        => $uptime,
-                            'networkMode'   => $networkMode,
-                            'ports'         => $ports,
-                            'dockwatch'     => $dockwatch,
-                            'usage'         => $usage,
-                            'server'        => $server
-                        ];
+        $containers[] = [
+            'id'          => $id,
+            'name'        => $name,
+            'image'       => $image,
+            'imageSize'   => $imageSize,
+            'status'      => $status,
+            'health'      => $health,
+            'createdAt'   => $createdAt,
+            'uptime'      => $uptime,
+            'networkMode' => $networkMode,
+            'ports'       => $ports,
+            'dockwatch'   => $dockwatch,
+            'usage'       => $usage,
+            'server'      => $server
+        ];
     }
 
     return $containers;
 }
 
-function initializeStats() {
+function initializeStats()
+{
     return [
-        'status' => [
+        'status'  => [
             'running' => 0,
             'stopped' => 0,
-            'total' => 0
+            'total'   => 0
         ],
-        'health' => [
-            'healthy' => 0,
+        'health'  => [
+            'healthy'   => 0,
             'unhealthy' => 0,
-            'unknown' => 0
+            'unknown'   => 0
         ],
         'updates' => [
-            'uptodate' => 0,
-            'outdated' => 0,
+            'uptodate'  => 0,
+            'outdated'  => 0,
             'unchecked' => 0
         ],
-        'usage' => [
-            'disk' => 0,
-            'cpu' => 0,
+        'usage'   => [
+            'disk'   => 0,
+            'cpu'    => 0,
             'memory' => 0,
-            'netIO' => 0
+            'netIO'  => 0
         ],
         'network' => [],
-        'ports' => []
+        'ports'   => []
     ];
 }
 
@@ -168,23 +169,23 @@ function updateContainerStats(&$stats, $container, $serverKey = '')
     if ($serverKey) {
         $stats['servers'][$serverKey]['status']['running'] += ($container['status'] == 'running' ? 1 : 0);
         $stats['servers'][$serverKey]['status']['stopped'] += ($container['status'] == 'exited' ? 1 : 0);
-        $stats['servers'][$serverKey]['status']['total'] = $stats['servers'][$serverKey]['status']['running'] + $stats['servers'][$serverKey]['status']['stopped'];
+        $stats['servers'][$serverKey]['status']['total']    = $stats['servers'][$serverKey]['status']['running'] + $stats['servers'][$serverKey]['status']['stopped'];
     } else {
         $stats['status']['running'] += ($container['status'] == 'running' ? 1 : 0);
         $stats['status']['stopped'] += ($container['status'] == 'exited' ? 1 : 0);
-        $stats['status']['total'] = $stats['status']['running'] + $stats['status']['stopped'];
+        $stats['status']['total']    = $stats['status']['running'] + $stats['status']['stopped'];
     }
 
     //-- HEALTH
     if ($container['status'] == 'running') {
         if ($serverKey) {
-            $stats['servers'][$serverKey]['health']['healthy'] += ($container['health'] == 'healthy' ? 1 : 0);
+            $stats['servers'][$serverKey]['health']['healthy']   += ($container['health'] == 'healthy' ? 1 : 0);
             $stats['servers'][$serverKey]['health']['unhealthy'] += ($container['health'] == 'unhealthy' ? 1 : 0);
-            $stats['servers'][$serverKey]['health']['unknown'] += ($container['health'] === null ? 1 : 0);
+            $stats['servers'][$serverKey]['health']['unknown']   += ($container['health'] === null ? 1 : 0);
         } else {
-            $stats['health']['healthy'] += ($container['health'] == 'healthy' ? 1 : 0);
+            $stats['health']['healthy']   += ($container['health'] == 'healthy' ? 1 : 0);
             $stats['health']['unhealthy'] += ($container['health'] == 'unhealthy' ? 1 : 0);
-            $stats['health']['unknown'] += ($container['health'] === null ? 1 : 0);
+            $stats['health']['unknown']   += ($container['health'] === null ? 1 : 0);
         }
     }
 
@@ -207,22 +208,22 @@ function updateContainerStats(&$stats, $container, $serverKey = '')
 
     //-- USAGE
     if ($serverKey) {
-        $stats['servers'][$serverKey]['usage']['disk'] += ($container['imageSize'] !== null ? bytesFromString($container['imageSize']) : 0);
-        $stats['servers'][$serverKey]['usage']['cpu'] += ($container['usage']['cpuPerc'] !== null ? floatval(str_replace('%', '', $container['usage']['cpuPerc'])) : 0);
+        $stats['servers'][$serverKey]['usage']['disk']   += ($container['imageSize'] !== null ? bytesFromString($container['imageSize']) : 0);
+        $stats['servers'][$serverKey]['usage']['cpu']    += ($container['usage']['cpuPerc'] !== null ? floatval(str_replace('%', '', $container['usage']['cpuPerc'])) : 0);
         $stats['servers'][$serverKey]['usage']['memory'] += ($container['usage']['memPerc'] !== null ? floatval(str_replace('%', '', $container['usage']['memPerc'])) : 0);
 
         if ($container['usage']['netIO'] !== null && !str_starts_with($container['networkMode'], 'container:')) {
-            list($netUsed, $netAllowed) = explode(' / ', $container['usage']['netIO']);
+            list($netUsed, $netAllowed)                      = explode(' / ', $container['usage']['netIO']);
             $stats['servers'][$serverKey]['usage']['netIO'] += bytesFromString($netUsed);
         }
     } else {
-        $stats['usage']['disk'] += ($container['imageSize'] !== null ? bytesFromString($container['imageSize']) : 0);
-        $stats['usage']['cpu'] += ($container['usage']['cpuPerc'] !== null ? floatval(str_replace('%', '', $container['usage']['cpuPerc'])) : 0);
+        $stats['usage']['disk']   += ($container['imageSize'] !== null ? bytesFromString($container['imageSize']) : 0);
+        $stats['usage']['cpu']    += ($container['usage']['cpuPerc'] !== null ? floatval(str_replace('%', '', $container['usage']['cpuPerc'])) : 0);
         $stats['usage']['memory'] += ($container['usage']['memPerc'] !== null ? floatval(str_replace('%', '', $container['usage']['memPerc'])) : 0);
 
         if ($container['usage']['netIO'] !== null && !str_starts_with($container['networkMode'], 'container:')) {
-            list($netUsed, $netAllowed) = explode(' / ', $container['usage']['netIO']);
-            $stats['usage']['netIO'] += bytesFromString($netUsed);
+            list($netUsed, $netAllowed)  = explode(' / ', $container['usage']['netIO']);
+            $stats['usage']['netIO']    += bytesFromString($netUsed);
         }
     }
 
@@ -238,8 +239,10 @@ function updateContainerStats(&$stats, $container, $serverKey = '')
 
     //-- PORTS
     $containerKey = $container['name'];
-    if (!str_starts_with($container['networkMode'], 'container:') &&
-        !str_starts_with($container['networkMode'], 'host')) {
+    if (
+        !str_starts_with($container['networkMode'], 'container:') &&
+        !str_starts_with($container['networkMode'], 'host')
+    ) {
         if ($serverKey) {
             $stats['servers'][$serverKey]['ports'][$containerKey] = $stats['servers'][$serverKey]['ports'][$containerKey] ?? [];
             foreach ($container['ports'] as $port) {
@@ -260,7 +263,7 @@ function updateContainerStats(&$stats, $container, $serverKey = '')
 
 function getOverviewStats($servers = [])
 {
-    $data = getContainerStats($servers);
+    $data  = getContainerStats($servers);
     $stats = initializeStats();
 
     foreach ($data as $container) {
@@ -281,9 +284,9 @@ function getOverviewStats($servers = [])
 function getUsageMetrics($servers = [])
 {
     $metricsFile = getFile(METRICS_FILE);
-    $metrics = $metricsFile ?: ['history' => ['disk' => [], 'netIO' => []]];
-    $allMetrics = ['local' => $metrics];
-    $retentions = ['local' => apiRequestLocal('database/settings')['usageMetricsRetention']];
+    $metrics     = $metricsFile ?: ['history' => ['disk' => [], 'netIO' => []]];
+    $allMetrics  = ['local' => $metrics];
+    $retentions  = ['local' => apiRequestLocal('database/settings')['usageMetricsRetention']];
 
     if (!empty($servers)) {
         foreach ($servers as $server) {
@@ -291,7 +294,7 @@ function getUsageMetrics($servers = [])
                 continue;
             }
 
-            $remoteMetrics = apiRequestRemote('file/metrics', [], [], $server)['result'] ?: ['history' => ['disk' => [], 'netIO' => []]];
+            $remoteMetrics  = apiRequestRemote('file/metrics', [], [], $server)['result'] ?: ['history' => ['disk' => [], 'netIO' => []]];
             $remoteSettings = apiRequestRemote('database/settings', [], [], $server)['result'] ?: ['usageMetricsRetention' => 0];
 
             $allMetrics[$server['name']] = $remoteMetrics;
@@ -330,10 +333,10 @@ function calculateUsageMetrics($metrics, $retention = 1)
             $sign = $change > 0 ? '+' : '-';
 
             $summary[$key] = $sign . byteConversion(binaryBytesFromString($change)) . ($change == 0 ? ' B' : '') . ' over last ' .
-            ($retention == 1 ? 'day' : ($retention == 2 ? 'week' : 'month'));
+                ($retention == 1 ? 'day' : ($retention == 2 ? 'week' : 'month'));
         } else {
             $summary[$key] = '+0 B over last ' .
-            ($retention == 1 ? 'day' : ($retention == 2 ? 'week' : 'month'));
+                ($retention == 1 ? 'day' : ($retention == 2 ? 'week' : 'month'));
         }
     }
 
@@ -346,10 +349,10 @@ function cacheUsageMetrics($retention = 0)
         return null;
     }
 
-    $currentUsage   = getOverviewStats()['usage'];
-    $metricsFile    = getFile(METRICS_FILE);
-    $metrics        = $metricsFile ?: ['history' => ['disk' => [], 'netIO' => []]];
-    $timestamp      = time();
+    $currentUsage = getOverviewStats()['usage'];
+    $metricsFile  = getFile(METRICS_FILE);
+    $metrics      = $metricsFile ?: ['history' => ['disk' => [], 'netIO' => []]];
+    $timestamp    = time();
 
     if ($currentUsage['disk'] == 0 || $currentUsage['netIO'] == 0) {
         return null;
@@ -391,4 +394,3 @@ function cacheUsageMetrics($retention = 0)
     setFile(METRICS_FILE, json_encode($metrics, JSON_PRETTY_PRINT));
     return calculateUsageMetrics($metrics);
 }
-
