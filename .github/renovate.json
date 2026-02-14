@@ -1,33 +1,20 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-      "config:recommended",
-      "docker:pinDigests",
-      "default:automergeDigest"
-    ],
+    "extends": ["config:recommended", "docker:pinDigests", "default:automergeDigest"],
     "packageRules": [
         {
-            "matchDatasources": ["docker"],
-            "matchPackageNames": ["ghcr.io/linuxserver/baseimage-alpine-nginx"],
             "matchUpdateTypes": ["major"],
-            "automerge": false
+            "automerge": false,
+            "minimumReleaseAge": "7 days"
         },
         {
-            "matchDatasources": ["docker"],
-            "matchPackageNames": ["ghcr.io/linuxserver/baseimage-alpine-nginx"],
             "matchUpdateTypes": ["minor", "patch", "digest"],
-            "automerge": true
-        },
-        {
-            "matchDatasources": ["docker"],
-            "matchPackageNames": ["lscr.io/linuxserver/nginx"],
-            "matchUpdateTypes": ["minor", "patch", "digest", "major"],
-            "automerge": true
-        },
-        {
-            "matchPackageNames": ["composer"],
-            "matchUpdateTypes": ["major"],
-            "automerge": false
+            "automerge": true,
+            "minimumReleaseAge": "7 days"
         }
-    ]
+    ],
+    "lockFileMaintenance": {
+        "enabled": true,
+        "automerge": true
+    }
 }
