@@ -8,6 +8,6 @@
     },
     "scripts": {
         "lint": "eslint root/app/www/public/js/",
-        "lint-fix": "eslint --fix root/app/www/public/js/"
+        "lint:fix": "eslint --fix root/app/www/public/js/"
     }
 }

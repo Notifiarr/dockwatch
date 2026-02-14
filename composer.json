@@ -2,9 +2,10 @@
     "name": "notifiarr/dockwatch",
     "type": "project",
     "homepage": "https://github.com/Notifiarr/dockwatch",
+    "license": "MIT",
     "require": {
+        "php": "^8.4",
         "cboden/ratchet": "^0.4.4",
         "phiki/phiki": "^2.0"
-    },
-    "license": "MIT"
+    }
 }
