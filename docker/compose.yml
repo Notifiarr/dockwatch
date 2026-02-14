@@ -36,7 +36,7 @@ services:
     volumes:
       - ./nginx.conf:/config/nginx/site-confs/default.conf:ro
     restart: unless-stopped
-    image: lscr.io/linuxserver/nginx:1.28.2
+    image: lscr.io/linuxserver/nginx:1.28.2@sha256:6c8d2797fae3b029dd54bc8baca455b96b23c99ba09eb295a16ef741808c0490
 
 networks:
   isolated_nw:
