@@ -15,6 +15,12 @@ fi
 # copy template
 cp /etc/nginx/template.conf /etc/nginx/nginx.conf
 
+# patch nginx.conf for ipv6 disable
+if [ "${DISABLE_IPV6:-0}" = "1" ]; then
+    sed -i '/listen \[::\]:80/d' /etc/nginx/nginx.conf
+    echo "**** DISABLE_IPV6=1, patched nginx.conf to disable IPv6 ****"
+fi
+
 # read base_url from file if it exists else fallback to /
 BASE_URL=$( [ -f /config/base-url.txt ] && cat /config/base-url.txt || echo / )
 [ "$BASE_URL" = "/" ] && BASE_URL=""
