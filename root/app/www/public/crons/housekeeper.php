@@ -93,6 +93,14 @@ if (date('H') == 0 && date('i') <= 5) {
             ]
         ],
         [
+            'trivy' => [
+                [
+                    'message' => 'Trivy scan file cleanup (daily @ midnight)',
+                    'length'  => ($settingsTable['trivyScanLength'] <= 2 ? 2 : $settingsTable['trivyScanLength'])
+                ]
+            ]
+        ],
+        [
             'system' => [
                 [
                     'type'    => 'app',
@@ -115,7 +123,7 @@ if (date('H') == 0 && date('i') <= 5) {
 
     foreach ($cleanup as $folders) {
         foreach ($folders as $dir => $dirTypes) {
-            $thisDir = LOGS_PATH . $dir . '/';
+            $thisDir = ($dir !== 'trivy' ? LOGS_PATH . $dir . '/' : TRIVY_PATH);
             if (!is_dir($thisDir)) {
                 continue;
             }
@@ -125,17 +133,50 @@ if (date('H') == 0 && date('i') <= 5) {
                 logger(CRON_HOUSEKEEPER_LOG, 'Allowed ' . $dir . ' log age: ' . $settings['length']);
 
                 $folder = opendir($thisDir);
-                while ($log = readdir($folder)) {
-                    if ($log[0] != '.' && !is_dir($thisDir . $log)) {
-                        $daysBetween = daysBetweenDates(date('Ymd', filemtime($thisDir . $log)), date('Ymd'));
-                        logger(CRON_HOUSEKEEPER_LOG, 'logfile: ' . $thisDir . $log . ', days: ' . $daysBetween);
 
-                        if ($daysBetween > $settings['length']) {
-                            logger(CRON_HOUSEKEEPER_LOG, 'removing logfile');
-                            $shell->exec('rm -rf ' . $thisDir . $log);
+                //-- CLEAN UP TRIVY SCANS
+                if ($dir === 'trivy') {
+                    while ($hash = readdir($folder)) {
+                        if ($hash[0] == '.' || !is_dir($thisDir . $hash))
+                            continue;
+
+                        $scanFolder = opendir($thisDir . $hash);
+                        while ($log = readdir($scanFolder)) {
+                            if ($log[0] == '.' || !str_starts_with($log, 'result_'))
+                                continue;
+
+                            $path        = $thisDir . $hash . '/' . $log;
+                            $daysBetween = daysBetweenDates(date('Ymd', filemtime($path)), date('Ymd'));
+                            logger(CRON_HOUSEKEEPER_LOG, 'logfile: ' . $path . ', days: ' . $daysBetween);
+
+                            if ($daysBetween > $settings['length']) {
+                                logger(CRON_HOUSEKEEPER_LOG, 'removing logfile');
+                                $shell->exec('rm -rf ' . $path);
+                            }
+                        }
+                        closedir($scanFolder);
+
+                        $remaining = glob($thisDir . $hash . '/*');
+                        if (empty($remaining)) {
+                            logger(CRON_HOUSEKEEPER_LOG, 'removing empty folder ' . $hash);
+                            rmdir($thisDir . $hash);
+                        }
+                    }
+                } else {
+                    //-- LOG FILES
+                    while ($log = readdir($folder)) {
+                        if ($log[0] != '.' && !is_dir($thisDir . $log)) {
+                            $daysBetween = daysBetweenDates(date('Ymd', filemtime($thisDir . $log)), date('Ymd'));
+                            logger(CRON_HOUSEKEEPER_LOG, 'logfile: ' . $thisDir . $log . ', days: ' . $daysBetween);
+
+                            if ($daysBetween > $settings['length']) {
+                                logger(CRON_HOUSEKEEPER_LOG, 'removing logfile');
+                                $shell->exec('rm -rf ' . $thisDir . $log);
+                            }
                         }
                     }
                 }
+
                 closedir($folder);
             }
         }

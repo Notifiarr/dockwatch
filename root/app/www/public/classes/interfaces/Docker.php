@@ -43,6 +43,8 @@ interface DockerSock
     public const PULL_IMAGE      = '/usr/bin/docker image pull %s';
     public const PRUNE_IMAGE     = '/usr/bin/docker image prune -af';
     public const DIGEST_IMAGE_ID = '/usr/bin/docker image ls --digests --format \'{{.ID}}|{{.Digest}}\' | grep %s';
+    public const IMAGE_HASH      = '/usr/bin/docker image inspect %s --format \'{{.ID}}\'';
+
     //-- VOLUME SPECIFIC
     public const ORPHAN_VOLUMES = '/usr/bin/docker volume ls -qf dangling=true --format="{{json . }}" | jq -s --tab .';
     public const PRUNE_VOLUME   = '/usr/bin/docker volume prune -af';

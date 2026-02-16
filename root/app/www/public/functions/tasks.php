@@ -34,6 +34,7 @@ function executeTask($task)
         case 'stats':
         case 'sse':
         case 'commands':
+        case 'trivy':
             $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'crons/' . $task . '.php';
 
             return $shell->exec($cmd . ' 2>&1');

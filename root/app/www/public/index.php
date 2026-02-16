@@ -55,6 +55,7 @@ if ($loadError) {
     <div id="content-tasks" style="display: none;"></div>
     <div id="content-commands" style="display: none;"></div>
     <div id="content-database" style="display: none;"></div>
+    <div id="content-trivy" style="display: none;"></div>
     <?php if ($apiVersionError) { ?>
         <div id="content-dockerAPIVersionError" style="display: block;">
             The docker API version on the host <code><?= $apiVersions[0][1] ?></code> is older than the docker version here

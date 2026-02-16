@@ -44,6 +44,10 @@ function canCronRun($cron, $settingsTable)
             $log = CRON_COMMANDS_LOG;
             $field = 'taskCommandsDisabled';
             break;
+        case 'trivy':
+            $log = CRON_TRIVY_LOG;
+            $field = 'trivyEnabled';
+            break;
     }
 
     if (IS_MIGRATION_RUNNING) {
@@ -61,10 +65,10 @@ function canCronRun($cron, $settingsTable)
         }
     }
 
-    if (($cron == 'sse' && !$settingsTable[$field]) || ($cron != 'sse' && $settingsTable[$field])) {
-        logger($log, 'Cron cancelled: disabled in tasks menu', 'warn');
+    if ((in_array($cron, ['sse', 'trivy']) && !$settingsTable[$field]) || (!in_array($cron, ['sse', 'trivy']) && $settingsTable[$field])) {
+        logger($log, 'Cron cancelled: disabled in tasks menu or settings', 'warn');
         logger($log, 'run <-');
-        echo date('c') . ' Cron: ' . $cron . ' cancelled, disabled in tasks menu' . "\n";
+        echo date('c') . ' Cron: ' . $cron . ' cancelled, disabled in tasks menu or settings' . "\n";
         echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
         return false;
     }
@@ -72,9 +76,20 @@ function canCronRun($cron, $settingsTable)
     //-- EXTRA CHECKS
     switch ($cron) {
         case 'prune':
-            $frequencyHour = $settingsTable['autoPruneHour'] ? $settingsTable['autoPruneHour'] : '12';
+            $frequencyHour = $settingsTable['autoPruneHour'] ?: '12';
 
-            if ($frequencyHour !== date('G')) {
+            if ($frequencyHour != date('G')) {
+                logger($log, 'Cron: skipped, frequency setting will run at hour ' . $frequencyHour, 'warn');
+                logger($log, 'run <-');
+                echo date('c') . ' Cron: skipped, frequency setting will run at hour ' . $frequencyHour . "\n";
+                echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
+                return false;
+            }
+            break;
+        case 'trivy':
+            $frequencyHour = $settingsTable['trivyScanHour'] ?: '12';
+
+            if ($frequencyHour != date('G')) {
                 logger($log, 'Cron: skipped, frequency setting will run at hour ' . $frequencyHour, 'warn');
                 logger($log, 'run <-');
                 echo date('c') . ' Cron: skipped, frequency setting will run at hour ' . $frequencyHour . "\n";

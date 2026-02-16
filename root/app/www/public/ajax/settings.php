@@ -96,7 +96,7 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary">
                             <select class="form-select" id="globalSetting-defaultPage">
                                 <?php
-                                $defaultPages = ['overview', 'containers', 'networks', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs'];
+                                $defaultPages = ['overview', 'containers', 'networks', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs', 'trivy'];
 
                                 foreach ($defaultPages as $defaultPage) {
                                     ?>
@@ -235,7 +235,7 @@ if ($_POST['m'] == 'init') {
                         </td>
                         <td class="bg-secondary">What settings to use for new containers that are added</td>
                     </tr>
-                    <tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Default GUI</td>
                         <td class="bg-secondary">
                             <select class="form-select d-inline-block" id="globalSetting-containerGui">
@@ -245,6 +245,49 @@ if ($_POST['m'] == 'init') {
                             </select>
                         </td>
                         <td class="bg-secondary">How to build the GUI link for containers. By default it will use the current URL and add the tcp port to the end <?= LOCAL_GUI ?>, example: <code><?= $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] ?>:9999</code>. An alternative would be <?= RP_DIR_GUI ?> or <?= RP_SUB_GUI ?> ({container} is the containers hostname), example: <code>https://dockwatch.mysite.com</code>. If you need to adjust a specific container you can do so in its settings.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="text-info">Trivy<i class="far fa-question-circle text-white" style="cursor: help; font-size: 12px; padding-left: 5px;" title="Container vulnerability scanner"></i></h4>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Enabled<sup>3</sup></td>
+                        <td class="bg-secondary">
+                            <input class="form-check-input" type="checkbox" id="globalSetting-trivyEnabled" <?= $settingsTable['trivyEnabled'] ? 'checked' : '' ?>>
+                        </td>
+                        <td class="bg-secondary">Automatically scan for vulnerabilities in container images</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Hour</td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-trivyScanHour">
+                                <?php
+                                $option = '';
+                                for ($x = 0; $x <= 23; $x++) {
+                                    $option .= '<option ' . ($x == intval($settingsTable['trivyScanHour']) || !$settingsTable['trivyScanHour'] && $x == 12 ? 'selected' : '') . ' value="' . $x . '">' . $x . '</option>';
+                                }
+                                echo $option;
+                                ?>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">At which hour trivy should run (0-23)</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Scan retention</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-trivyScanLength" value="<?= $settingsTable['trivyScanLength'] <= 2 ? 2 : $settingsTable['trivyScanLength'] ?>">
+                        </td>
+                        <td class="bg-secondary">How long to store past scan files (min 2 days)</td>
                     </tr>
                 </tbody>
             </table>

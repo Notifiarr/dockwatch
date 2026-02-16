@@ -183,6 +183,12 @@ $currentPage              = $settingsTable['currentPage'] && in_array($settingsT
                             <i class="fas fa-file-code fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Logs</span>
                         </a>
+                        <?php if ($settingsTable['trivyEnabled']) { ?>
+                            <a href="#" onclick="initPage('trivy')" class="nav_link">
+                                <i class="fas fa-bug fa-fw nav_icon"></i>
+                                <span class="nav_name d-none d-xl-inline show-text">Trivy</span>
+                            </a>
+                        <?php } ?>
                     </div>
                 </div>
                 <?php if (USE_AUTH) { ?>

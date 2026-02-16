@@ -79,6 +79,12 @@ if ($_POST['m'] == 'init') {
                             </tr>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"></td>
+                                <td class="bg-secondary">Trivy scan</td>
+                                <td class="bg-secondary">24h</td>
+                                <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('trivy')"></i></td>
+                            </tr>
+                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                                <td class="bg-secondary ps-3"></td>
                                 <td class="bg-secondary">Icon update</td>
                                 <td class="bg-secondary">24h</td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('icons')"></i></td>

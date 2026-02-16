@@ -499,3 +499,176 @@ tr.container-group-row.odd td {
 .access-ro {
     display: none;
 }
+
+/* Trivy Select Dropdown */
+.select-dropdown {
+    position: relative;
+    min-width: 300px;
+}
+.select-dropdown .search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-radius: 4px;
+}
+.select-dropdown .search-wrapper svg {
+    color: var(--bs-secondary);
+    flex-shrink: 0;
+}
+.select-dropdown .search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--light);
+    outline: none;
+    font-size: 14px;
+}
+.select-dropdown .search-filter {
+    display: none;
+}
+.select-dropdown.visible .search-input[readonly] {
+    display: none;
+}
+.select-dropdown.visible .search-filter {
+    display: block;
+}
+.select-dropdown .search-input::placeholder {
+    color: var(--bs-secondary);
+}
+.select-dropdown .options-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-height: 250px;
+    overflow-y: auto;
+    background: var(--bs-body-bg);
+    border: 1px solid var(--bs-border-color);
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    margin-top: 0;
+    z-index: 1000;
+    display: none;
+}
+.select-dropdown.visible .options-list {
+    display: block;
+}
+.select-dropdown .option-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--bs-border-color);
+    transition: background 0.2s;
+}
+.select-dropdown .option-item:last-child {
+    border-bottom: none;
+}
+.select-dropdown .option-item:hover,
+.select-dropdown .option-item.selected {
+    background: var(--bs-primary);
+}
+.select-dropdown .option-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.select-dropdown .container-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    /* background: var(--bs-dark); */
+    border-radius: 4px;
+}
+.select-dropdown .container-icon img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+.select-dropdown .option-info {
+    display: flex;
+    flex-direction: column;
+}
+.select-dropdown .option-name {
+    font-weight: 500;
+    font-size: 13px;
+}
+.select-dropdown .option-image {
+    font-size: 10px;
+    /* color: var(--bs-); */
+}
+#trivy-table .severity-badge {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+#trivy-table .severity-badge.severity-critical {
+    background: #dc3545;
+    color: white;
+}
+#trivy-table .severity-badge.severity-high {
+    background: #fd7e14;
+    color: white;
+}
+#trivy-table .severity-badge.severity-medium {
+    background: #ffc107;
+    color: black;
+}
+#trivy-table .severity-badge.severity-low {
+    background: #20c997;
+    color: black;
+}
+#trivy-table .severity-badge.severity-safe {
+    background: #198754;
+    color: white;
+}
+#trivy-table .severity-badge.severity-none {
+    background: var(--bs-secondary);
+    color: white;
+}
+
+/* Trivy Table */
+.trivy-content {
+    margin-top: 1rem;
+}
+#trivy-table {
+    font-size: 13px;
+    margin-bottom: 0;
+}
+#trivy-table thead th {
+    white-space: nowrap;
+    padding: 10px 12px;
+    vertical-align: middle;
+    font-weight: 500;
+}
+#trivy-table tbody tr {
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+#trivy-table tbody tr.group-start {
+    border-bottom-color: transparent;
+}
+
+#trivy-table tbody tr:hover {
+    background-color: var(--bs-secondary);
+}
+#trivy-table td {
+    vertical-align: middle;
+    padding: 8px 12px;
+    font-size: 13px;
+}
+#trivy-table td a {
+    color: var(--bs-primary);
+    text-decoration: none;
+}
+#trivy-table td a:hover {
+    text-decoration: underline;
+}

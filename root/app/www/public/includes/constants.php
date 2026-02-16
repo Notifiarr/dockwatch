@@ -51,6 +51,8 @@ define('TMP_PATH', APP_DATA_PATH . 'tmp/');
 define('COMPOSE_PATH', APP_DATA_PATH . 'compose/');
 define('DATABASE_PATH', APP_DATA_PATH . 'database/');
 define('MIGRATIONS_PATH', ABSOLUTE_PATH . 'migrations/');
+define('TRIVY_PATH', APP_DATA_PATH . 'trivy/');
+
 
 //-- DATA FILES
 define('SERVERS_FILE', APP_DATA_PATH . 'servers.json');
@@ -88,6 +90,7 @@ define('CRON_STATS_LOG', LOGS_PATH . 'crons/stats.log');
 define('CRON_COMMANDS_LOG', LOGS_PATH . 'crons/commands.log');
 define('CRON_HEALTH_LOG', LOGS_PATH . 'crons/health.log');
 define('CRON_SSE_LOG', LOGS_PATH . 'crons/sse.log');
+define('CRON_TRIVY_LOG', LOGS_PATH . 'crons/trivy.log');
 define('LOG_ROTATE_SIZE', 2); //-- MB UNTIL ROTATE
 
 //-- MEMCACHE
@@ -98,7 +101,7 @@ define('MEMCACHE_SHELL_TOKEN_KEY', (MEMCACHE_PREFIX . 'shell-%s'));
 define('MEMCACHE_SHELL_TOKEN_TIME', 300);
 
 //-- REGCTL
-define('REGCTL_PATH', '/usr/local/bin/');
+define('REGCTL_PATH', '/usr/bin/');
 define('REGCTL_BINARY', 'regctl');
 
 //-- AVAILABLE PAGES

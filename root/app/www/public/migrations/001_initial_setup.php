@@ -142,7 +142,7 @@ if (file_exists(APP_DATA_PATH . 'servers.json')) {
     $q[] = "INSERT INTO " . SERVERS_TABLE . "
             (`name`, `url`, `apikey`)
             VALUES
-            ('" . APP_NAME . "', '" . APP_SERVER_URL . "', '" . INITIAL_API_KEY . "')";
+            ('" . APP_NAME . "', '" . APP_SERVER_URL . "', '" . (defined('INITIAL_API_KEY') ? INITIAL_API_KEY : generateApikey()) . "')";
 }
 
 if (file_exists(APP_DATA_PATH . 'settings.json')) {

@@ -14,7 +14,7 @@ class Shell
 
     }
 
-    public function __tostring()
+    public function __toString()
     {
         return 'Class loaded: Shell';
     }

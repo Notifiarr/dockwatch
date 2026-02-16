@@ -38,4 +38,10 @@ trait Image
         $cmd = sprintf(DockerSock::DIGEST_IMAGE_ID, $this->shell->prepare($image));
         return $this->shell->exec($cmd . ' 2>&1');
     }
+
+    public function getImageHash($image)
+    {
+        $cmd = sprintf(DockerSock::IMAGE_HASH, $this->shell->prepare($image));
+        return $this->shell->exec($cmd . ' 2>&1');
+    }
 }

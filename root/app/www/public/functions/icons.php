@@ -87,3 +87,46 @@ function getIcon($inspect)
         return;
     }
 }
+
+function getIconByName($imageName, $containerName)
+{
+    $icons = getIcons();
+
+    //-- GET JUST IMAGE NAME
+    $imageShort = explode('/', $imageName);
+    $imageShort = $imageShort[count($imageShort) - 1];
+    $imageShort = explode(':', $imageShort);
+    $imageShort = $imageShort[0];
+
+    //-- GET SOURCE/IMAGE
+    list($fullImage, $tag) = explode(':', $imageName) + ['', ''];
+
+    if ($icons[$imageShort] || $icons[$containerName]) {
+        return $icons[$containerName] ? ICON_URL . $icons[$containerName] : ICON_URL . $icons[$imageShort];
+    }
+
+    //-- TRY THE ALIAS FILES
+    $aliasFiles   = [EXTERNAL_ICON_ALIAS_FILE, ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE];
+    $matchOptions = [$imageShort, $fullImage, $containerName];
+
+    foreach ($aliasFiles as $aliasFile) {
+        if (file_exists($aliasFile)) {
+            $aliasList = getFile($aliasFile);
+
+            foreach ($aliasList as $name => $aliasOptions) {
+                if (array_equals_any($aliasOptions, $matchOptions)) {
+                    switch (true) {
+                        case str_contains($name, 'http'): //-- ALLOW FOR EXTERNAL URL
+                            return $name;
+                        case substr($name, 0, 1) == '/': //-- ALLOW FOR LOCAL IMAGES
+                            return 'data:image/' . substr($name, -3) . ';charset=utf-8;base64, ' . base64_encode(file_get_contents($name));
+                        default:
+                            return ICON_URL . $icons[$name]; //-- MAP TO THE IMAGES REPO
+                    }
+                }
+            }
+        }
+    }
+
+    return;
+}

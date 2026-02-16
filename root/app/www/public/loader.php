@@ -164,6 +164,10 @@ if (!IS_SSE) {
     $phiki = new Phiki();
     logger(SYSTEM_LOG, 'Init class: Phiki()');
 
+    //-- INITIALIZE TRIVY
+    $trivy = new Trivy();
+    logger(SYSTEM_LOG, 'Init class: Trivy()');
+
     if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
         $stateFile = apiRequestLocal('file/state');
         $pullsFile = apiRequestLocal('file/pull');
