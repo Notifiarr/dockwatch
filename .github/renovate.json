@@ -5,16 +5,16 @@
         {
             "matchUpdateTypes": ["major"],
             "automerge": false,
-            "minimumReleaseAge": "7 days"
+            "minimumReleaseAge": "30 days"
         },
         {
             "matchUpdateTypes": ["minor", "patch", "digest"],
-            "automerge": true,
+            "automerge": false,
             "minimumReleaseAge": "7 days"
         }
     ],
     "lockFileMaintenance": {
-        "enabled": true,
+        "enabled": false,
         "automerge": true
     }
 }
