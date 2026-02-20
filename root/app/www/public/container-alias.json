@@ -12,7 +12,8 @@
     "docker-moby": ["moby/buildkit"],
     "soulseek": ["slskd", "ghcr.io/slskd/slskd"],
     "kometa": ["quickstart", "kometateam/quickstart"],
-    "immich": ["immich", "immich_server", "ghcr.io/immich-app/immich-server"],
+    "immich": ["immich", "immich_server", "ghcr.io/immich-app/immich-server", "ghcr.io/immich-app/immich-machine-learning"],
     "cloudflare-zero-trust": ["cloudflared-tunnel", "cloudflare/cloudflared"]
 }
+
 
