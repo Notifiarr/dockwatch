@@ -11,5 +11,8 @@
     "gitea": ["gitea/act_runner"],
     "docker-moby": ["moby/buildkit"],
     "soulseek": ["slskd", "ghcr.io/slskd/slskd"],
-    "kometa": ["quickstart", "kometateam/quickstart"]
+    "kometa": ["quickstart", "kometateam/quickstart"],
+    "immich": ["immich", "immich_server", "ghcr.io/immich-app/immich-server"],
+    "cloudflare-zero-trust": ["cloudflared-tunnel", "cloudflare/cloudflared"]
 }
+
