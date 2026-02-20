@@ -57,10 +57,6 @@ function getIcon($inspect)
         //-- GET CONTAINER
         $container = str_replace('/', '', $inspect[0]['Name']);
 
-        if ($icons[$imageName] || $icons[$container]) {
-            return $icons[$container] ? ICON_URL . $icons[$container] : ICON_URL . $icons[$imageName];
-        }
-
         //-- TRY THE ALIAS FILES
         $aliasFiles   = [EXTERNAL_ICON_ALIAS_FILE, ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE];
         $matchOptions = [$imageName, $fullImage, $container];
@@ -84,6 +80,10 @@ function getIcon($inspect)
             }
         }
 
+        if ($icons[$imageName] || $icons[$container]) {
+            return $icons[$container] ? ICON_URL . $icons[$container] : ICON_URL . $icons[$imageName];
+        }
+
         return;
     }
 }
@@ -100,10 +100,6 @@ function getIconByName($imageName, $containerName)
 
     //-- GET SOURCE/IMAGE
     list($fullImage, $tag) = explode(':', $imageName) + ['', ''];
-
-    if ($icons[$imageShort] || $icons[$containerName]) {
-        return $icons[$containerName] ? ICON_URL . $icons[$containerName] : ICON_URL . $icons[$imageShort];
-    }
 
     //-- TRY THE ALIAS FILES
     $aliasFiles   = [EXTERNAL_ICON_ALIAS_FILE, ABSOLUTE_PATH . INTERNAL_ICON_ALIAS_FILE];
@@ -126,6 +122,10 @@ function getIconByName($imageName, $containerName)
                 }
             }
         }
+    }
+
+    if ($icons[$imageShort] || $icons[$containerName]) {
+        return $icons[$containerName] ? ICON_URL . $icons[$containerName] : ICON_URL . $icons[$imageShort];
     }
 
     return;
