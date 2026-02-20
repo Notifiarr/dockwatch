@@ -131,7 +131,7 @@ if ($_POST['m'] == 'init') {
                                         }
                                     }
                                     ?>
-                                    <tr id="<?= $groupHash ?>" class="container-group">
+                                    <tr id="<?= $groupHash ?>" class="container-group-row">
                                         <td class="container-table-row bg-secondary"><input type="checkbox" class="form-check-input containers-check" onchange="$('.group-<?= $groupHash ?>-check').prop('checked', $(this).prop('checked'));"></td>
                                         <td class="container-table-row bg-secondary"><img src="images/container-group.png" height="32" width="32"></td>
                                         <td class="container-table-row bg-secondary">

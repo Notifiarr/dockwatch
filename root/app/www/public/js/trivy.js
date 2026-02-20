@@ -20,6 +20,7 @@ function initTrivyDropdown() {
     $selector.on('click', '.search-wrapper', function(e) {
         e.stopPropagation();
         $selector.addClass('visible');
+        $('.search-filter').focus();
     });
 
     const $hiddenSearch = $('<input class="search-input search-filter" type="text" placeholder="Search containers..." aria-label="Search containers" />');
