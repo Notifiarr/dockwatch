@@ -9,5 +9,7 @@
     "qbitmanage": ["qbit_manage"],
     "https://pelican.dev/img/logo.png": ["ghcr.io/pelican-dev/panel", "ghcr.io/parkervcp/yolks", "ghcr.io/parkervcp/steamcmd"],
     "gitea": ["gitea/act_runner"],
-    "docker-moby": ["moby/buildkit"]
+    "docker-moby": ["moby/buildkit"],
+    "kometa": ["quickstart", "kometateam/quickstart"]
 }
+
