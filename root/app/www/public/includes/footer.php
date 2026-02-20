@@ -23,7 +23,7 @@
             <div id="footer-themes" class="col-sm-12 col-lg-4 text-center">
                 <span class="text-muted">
                     Themes by
-                    <a href="https://nzxl.space" target="_blank">
+                    <a href="https://nzxl.ntfr.io" target="_blank">
                         <img class="nzxl_space_logo" src="images/nzxl-logo.svg" width="28" alt="nzxl" />
                     </a>
                 </span>
