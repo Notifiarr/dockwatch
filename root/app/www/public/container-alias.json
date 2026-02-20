@@ -10,5 +10,6 @@
     "https://pelican.dev/img/logo.png": ["ghcr.io/pelican-dev/panel", "ghcr.io/parkervcp/yolks", "ghcr.io/parkervcp/steamcmd", "ghcr.io/pelican-eggs/yolks", "ghcr.io/pelican-eggs/games"],
     "gitea": ["gitea/act_runner"],
     "docker-moby": ["moby/buildkit"],
-    "soulseek": ["slskd", "ghcr.io/slskd/slskd"]
+    "soulseek": ["slskd", "ghcr.io/slskd/slskd"],
+    "kometa": ["quickstart", "kometateam/quickstart"]
 }
