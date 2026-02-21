@@ -477,17 +477,7 @@ if ($_POST['m'] == 'init') {
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Override blacklist</td>
                         <td class="bg-secondary"><input class="form-check-input" type="checkbox" id="globalSetting-overrideBlacklist" <?= $settingsTable['overrideBlacklist'] ? 'checked' : '' ?>></td>
-                        <td class="bg-secondary">Generally not recommended, it's at your own risk.</td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Environment<sup>5</sup></td>
-                        <td class="bg-secondary">
-                            <select class="form-select" id="globalSetting-environment">
-                                <option <?= $settingsTable['environment'] == 0 ? 'selected' : '' ?> value="0">Internal</option>
-                                <option <?= $settingsTable['environment'] == 1 ? 'selected' : '' ?> value="1">External</option>
-                            </select>
-                        </td>
-                        <td class="bg-secondary">Location of webroot, do not change this without working files externally!</td>
+                        <td class="bg-secondary">Allow manual updates of network containers (nginx, caddy, cloudflared, etc.) that are typically skipped. It's generally not recommended to enable this override.</td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Debug zip</td>
@@ -548,15 +538,6 @@ if ($_POST['m'] == 'saveGlobalSettings') {
         }
 
         $newSettings[$key] = trim($val);
-    }
-
-    //-- ENVIRONMENT SWITCHING
-    if ($settingsTable['environment'] != $_POST['environment']) {
-        if ($_POST['environment'] == 0) { //-- USE INTERNAL
-            linkWebroot('internal');
-        } else { //-- USE EXTERNAL
-            linkWebroot('external');
-        }
     }
 
     //-- BASE URL VALIDATION

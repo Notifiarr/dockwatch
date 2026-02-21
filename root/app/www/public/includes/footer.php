@@ -35,10 +35,8 @@
                     }
                     ?>
                 </select>
-                <!--
-                            | <i class="fas fa-stopwatch" onclick="$('#loadtime-debug').toggle()"></i>
-                            | <i title="Clear session" class="fas fa-sign-out-alt" onclick="resetSession()"></i></span>
-                        -->
+                <!-- | <i class="fas fa-stopwatch" onclick="$('#loadtime-debug').toggle()"></i>
+                | <i title="Clear session" class="fas fa-sign-out-alt" onclick="resetSession()"></i></span> -->
             </div>
         </div>
     </div>
