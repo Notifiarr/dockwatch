@@ -36,6 +36,7 @@ $trivy->downloadJavaDB();
 foreach ($containerList as $container) {
     $nameHash = md5($container['name']);
     $hash     = substr(preg_replace('/sha256\:/', '', $docker->getImageHash($container['image'])), 0, 4);
+    $notify   = false;
 
     if (in_array($hash, $imagesScanned)) {
         continue;
@@ -56,7 +57,23 @@ foreach ($containerList as $container) {
         logger(logfile: CRON_TRIVY_LOG, msg: ' found ' . count($newVulns) . ' new or updated vulns in image ' . $container['image']);
         echo date('c') . ' found ' . count($newVulns) . ' new or updated vulns in image ' . $container['image'] . "\n";
 
-        //-- TODO: SEND NOTIFICATION
+        if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'security'])['result']) {
+            $notify = true;
+        } else {
+            logger(CRON_TRIVY_LOG, 'skipping notification for \'' . $container['name'] . '\', no notification senders with the security event enabled', 'warn');
+        }
+    }
+
+    if ($notify) {
+        logger(CRON_TRIVY_LOG, 'sending notification for \'' . $container['name'] . '\'');
+        echo date('c') . ' sending notification for \'' . $container['name'] . '\'' . "\n";
+
+        $payload = ['event' => 'security', 'container' => $container['name'], 'image' => $container['image'], 'count' => count($newVulns), 'vulns' => $newVulns];
+        //-- TODO: ADD TEMPLATES FOR NOTIFICATION PLATFORMS AND FILTERING
+        // $notifications->notify(0, 'security', $payload);
+
+        logger(CRON_TRIVY_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
+        echo date('c') . ' Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES) . "\n";
     }
 
     logger(logfile: CRON_TRIVY_LOG, msg: ' scanning image ' . $container['image'] . ' <-');

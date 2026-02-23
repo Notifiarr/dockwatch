@@ -59,6 +59,14 @@ trait NotificationTemplates
                     'mem'          => '',
                     'memThreshold' => ''
                 ];
+            case 'security':
+                return [
+                    'event'     => '',
+                    'container' => '',
+                    'image'     => '',
+                    'count'     => '',
+                    'vulns'     => ''
+                ];
             default:
                 return [];
         }

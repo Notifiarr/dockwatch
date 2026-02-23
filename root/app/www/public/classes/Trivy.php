@@ -157,7 +157,7 @@ class Trivy
         }
 
         $resultFiles = glob($imagePath . '/result_*.json');
-        if (empty($resultFiles) || count($resultFiles) < 2) {
+        if (empty($resultFiles)) {
             return [];
         }
 
@@ -165,7 +165,18 @@ class Trivy
             return filemtime($b) - filemtime($a);
         });
 
-        $latestScan   = json_decode(file_get_contents($resultFiles[0]), true);
+        $latestScan  = json_decode(file_get_contents($resultFiles[0]), true);
+        $latestVulns = $this->parseVulns($latestScan);
+
+        if (count($resultFiles) < 2) {
+            $newVulns = [];
+            foreach ($latestVulns as $vuln) {
+                $vuln['changeType'] = 'new';
+                $newVulns[]         = $vuln;
+            }
+            return $newVulns;
+        }
+
         $previousScan = json_decode(file_get_contents($resultFiles[1]), true);
 
         $latestVulns   = $this->parseVulns($latestScan);

@@ -1,30 +1,22 @@
 <?php
 /*
 ----------------------------------
- ------  Created: 021626   ------
+ ------  Created: 022426   ------
  ------  nzxl	           ------
 ----------------------------------
 */
 
 $q = [];
 
-//-- TRIVY SETTINGS
-$q[] = "INSERT INTO " . SETTINGS_TABLE . "
-        (`name`, `value`)
+//-- TRIVY NOTIFICATION TRIGGER
+$q[] = "INSERT INTO " . NOTIFICATION_TRIGGER_TABLE . "
+        (`name`, `label`, `description`, `event`)
         VALUES
-        ('trivyEnabled', '0')";
-$q[] = "INSERT INTO " . SETTINGS_TABLE . "
-        (`name`, `value`)
-        VALUES
-        ('trivyScanHour', '12')";
-$q[] = "INSERT INTO " . SETTINGS_TABLE . "
-        (`name`, `value`)
-        VALUES
-        ('trivyScanLength', '2')";
+        ('security', 'Vulnerability found', 'Send a notification when a new vulnerability has been found or updated in a container image (enable Trivy in Settings)', 'security')";
 
 //-- ALWAYS NEED TO BUMP THE MIGRATION ID
 $q[] = "UPDATE " . SETTINGS_TABLE . "
-        SET value = '018'
+        SET value = '019'
         WHERE name = 'migration'";
 
 foreach ($q as $query) {

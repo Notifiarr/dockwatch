@@ -83,20 +83,7 @@ $currentPage              = $settingsTable['currentPage'] && in_array($settingsT
                 }
 
                 showNavbar('header-toggle', 'nav-bar', 'body-pd', 'header', 'footer')
-
-                const linkColor = document.querySelectorAll('.nav_link')
-
-                function colorLink() {
-                    if (linkColor) {
-                        linkColor.forEach(l => l.classList.remove('active'))
-                        this.classList.add('active')
-                    }
-                }
-
-                linkColor.forEach(l => {
-                    if (l.onclick.toString().match(/initPage\('(.+)'\)/)[1] == DEFAULT_PAGE) l.classList.add('active')
-                    l.addEventListener('click', colorLink)
-                })
+                setActiveNavLink(document.querySelectorAll('.nav_link'), DEFAULT_PAGE)
             });
         </script>
     </head>

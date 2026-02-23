@@ -2,11 +2,12 @@ let init                = false;
 let containerTableDrawn = false;
 let restoreGroups       = false;
 let currentPage         = 'overview';
-const localStorageKeys  = ['uiContainerSettings', 'uiLogSettings', 'uiNavbarToggle'];
+const localStorageKeys  = ['uiContainerSettings', 'uiLogSettings', 'uiNavbarToggle', 'uiLastVisitedPage'];
 let smScreen            = false;
 const smScreenWidth     = 750;
 let mdScreen            = false;
 const mdScreenWidth     = 1300;
+const defaultPageTTL    = 600;
 
 let GRAPH_UTILIZATION_CPU_LABELS            = '';
 let GRAPH_UTILIZATION_CPU_DATA              = '';
@@ -18,9 +19,15 @@ let GRAPH_UTILIZATION_MEMORY_SIZE_COLORS    = '';
 
 $(document).ready(function () {
     setScreenSizeVars();
-    initPage(DEFAULT_PAGE);
+    let keys = getLocalStorage(localStorageKeys); //-- LOAD LOCAL STORAGE
 
-    getLocalStorage(localStorageKeys); //-- LOAD LOCAL STORAGE
+    //-- SET LAST VISITED PAGE IF TTL DIDN'T EXPIRE
+    if (keys['uiLastVisitedPage']['ttl'] && keys['uiLastVisitedPage']['ttl'] - Math.floor(Date.now() / 1000) > 0) {
+        initPage(keys['uiLastVisitedPage']['page']);
+        setActiveNavLink(document.querySelectorAll('.nav_link'), keys['uiLastVisitedPage']['page']);
+    } else {
+        initPage(DEFAULT_PAGE);
+    }
 
     $('#loading-modal').modal({
         keyboard: false,
@@ -144,6 +151,10 @@ function initPage(page)
     if (page == 'containers') {
         $('#menu-containers-label').addClass('text-primary');
     }
+
+    //-- SAVE CURRENT PAGE STATE
+    setLocalStorage('uiLastVisitedPage', 'page', page);
+    setLocalStorage('uiLastVisitedPage', 'ttl', (Math.floor(Date.now() / 1000) + defaultPageTTL));
 
     currentPage = page;
     init = true;
@@ -527,5 +538,21 @@ function resetSession()
         success: function (resultData) {
             reload();
         }
+    });
+}
+// -------------------------------------------------------------------------------------------
+function setActiveNavLink(linkColor, DEFAULT_PAGE)
+{
+    function colorLink() {
+        if (linkColor) {
+            linkColor.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+        }
+    }
+
+    linkColor.forEach(l => {
+        if (l.classList.contains('active')) l.classList.remove('active');
+        if (l.onclick.toString().match(/initPage\('(.+)'\)/)[1] == DEFAULT_PAGE) l.classList.add('active');
+        l.addEventListener('click', colorLink);
     });
 }
