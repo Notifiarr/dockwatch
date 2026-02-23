@@ -46,8 +46,18 @@ foreach ($containerList as $container) {
     echo date(format: 'c') . ' scanning image ' . $container['image'] . ' ->' . "\n";
 
     $scan = $trivy->scanImage($hash);
-    logger(logfile: CRON_TRIVY_LOG, msg: $scan);
-    echo date('c') . "\n" . $scan;
+    if (!empty($scan)) {
+        logger(logfile: CRON_TRIVY_LOG, msg: $scan);
+        echo date('c') . "\n" . $scan;
+    }
+
+    $newVulns = $trivy->getNewVulns($hash);
+    if (count($newVulns) > 0) {
+        logger(logfile: CRON_TRIVY_LOG, msg: ' found ' . count($newVulns) . ' new or updated vulns in image ' . $container['image']);
+        echo date('c') . ' found ' . count($newVulns) . ' new or updated vulns in image ' . $container['image'] . "\n";
+
+        //-- TODO: SEND NOTIFICATION
+    }
 
     logger(logfile: CRON_TRIVY_LOG, msg: ' scanning image ' . $container['image'] . ' <-');
     echo date(format: 'c') . ' scanning image ' . $container['image'] . ' <-' . "\n";

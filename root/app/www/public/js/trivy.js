@@ -1,4 +1,12 @@
 let selectedContainer = null;
+let trivySortBy = 'date';
+const severityOrder = {
+    'CRITICAL': 0,
+    'HIGH': 1,
+    'MEDIUM': 2,
+    'LOW': 3,
+    'UNKNOWN': 4
+};
 // ---------------------------------------------------------------------------------------------
 function initTrivyDropdown() {
     const $selector = $('#container-selector');
@@ -107,10 +115,22 @@ function loadTrivyVulnerabilities(container) {
     }
 
     const sortedVulns = [...vulns].sort((a, b) => {
+        if (trivySortBy === 'severity') {
+            const severityA = severityOrder[a.severity?.toUpperCase()] ?? 4;
+            const severityB = severityOrder[b.severity?.toUpperCase()] ?? 4;
+            if (severityA !== severityB) {
+                return severityA - severityB;
+            }
+            const dateA = a.published ? new Date(a.published) : new Date(0);
+            const dateB = b.published ? new Date(b.published) : new Date(0);
+            return dateB - dateA;
+        }
         const dateA = a.published ? new Date(a.published) : new Date(0);
         const dateB = b.published ? new Date(b.published) : new Date(0);
         return dateB - dateA;
     });
+
+    updateTrivySortIcon();
 
     let currentPkg = null;
     sortedVulns.forEach(function(vuln, index) {
@@ -158,6 +178,22 @@ function getSeverityClass(severity) {
             return 'severity-low';
         default:
             return 'severity-none';
+    }
+}
+// ---------------------------------------------------------------------------------------------
+function toggleTrivySort() {
+    trivySortBy = trivySortBy === 'date' ? 'severity' : 'date';
+    if (selectedContainer) {
+        loadTrivyVulnerabilities(selectedContainer);
+    }
+}
+// ---------------------------------------------------------------------------------------------
+function updateTrivySortIcon() {
+    const $icon = $('.trivy-sort-icon');
+    if (trivySortBy === 'severity') {
+        $icon.removeClass('fa-sort').addClass('fa-sort-down');
+    } else {
+        $icon.removeClass('fa-sort-down').addClass('fa-sort');
     }
 }
 // ---------------------------------------------------------------------------------------------

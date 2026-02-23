@@ -179,12 +179,12 @@ class Trivy
         $newVulns = [];
         foreach ($latestVulns as $vuln) {
             if (!isset($previousMap[$vuln['id']])) {
-                $vuln['change_type'] = 'new';
-                $newVulns[]          = $vuln;
+                $vuln['changeType'] = 'new';
+                $newVulns[]         = $vuln;
             } elseif ($vuln['status'] !== $previousMap[$vuln['id']]['status']) {
-                $vuln['change_type']     = 'updated';
-                $vuln['previous_status'] = $previousMap[$vuln['id']]['status'];
-                $newVulns[]              = $vuln;
+                $vuln['changeType']     = 'updated';
+                $vuln['previousStatus'] = $previousMap[$vuln['id']]['status'];
+                $newVulns[]             = $vuln;
             }
         }
 

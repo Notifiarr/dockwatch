@@ -55,7 +55,7 @@ if ($_POST['m'] == 'init') {
                         <tr>
                             <th scope="col" class="rounded-top-left-1 bg-primary ps-3">Library</th>
                             <th scope="col" class="bg-primary ps-3">Vulnerability</th>
-                            <th scope="col" class="bg-primary ps-3">Severity</th>
+                            <th scope="col" class="bg-primary ps-3" style="cursor: pointer;" onclick="toggleTrivySort()">Severity <i class="fas fa-sort trivy-sort-icon"></i></th>
                             <th scope="col" class="bg-primary ps-3">Status</th>
                             <th scope="col" class="bg-primary ps-3">Installed</th>
                             <th scope="col" class="bg-primary ps-3">Fixed</th>
