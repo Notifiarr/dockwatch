@@ -2,3 +2,6 @@
 /LICENSE
 /README.md
 /.github
+/docker/.data
+/node_modules
+/vendor

@@ -101,7 +101,7 @@ define('MEMCACHE_SHELL_TOKEN_KEY', (MEMCACHE_PREFIX . 'shell-%s'));
 define('MEMCACHE_SHELL_TOKEN_TIME', 300);
 
 //-- REGCTL
-define('REGCTL_PATH', '/usr/bin/');
+define('REGCTL_PATH', '/usr/local/bin/');
 define('REGCTL_BINARY', 'regctl');
 
 //-- AVAILABLE PAGES

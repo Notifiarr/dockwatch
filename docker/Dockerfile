@@ -18,17 +18,22 @@ ARG YQ_VERSION=v4.52.4
 RUN curl -sSf -L -o /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETARCH}" \
     && chmod +x /usr/local/bin/yq
 
+# Add regctl for container digest checks
+ARG TARGETARCH
+ARG REGCTL_VERSION=v0.11.1
+RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclient/releases/download/${REGCTL_VERSION}/regctl-linux-${TARGETARCH}" \
+    && chmod +x /usr/local/bin/regctl
+
+# Add trivy for container vulnerability scanning
+COPY --from=aquasec/trivy:0.69.1 /usr/local/bin/trivy /usr/local/bin/trivy
+
 # Add composer for PHP package management
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install system packages
 ARG PHP_VERSION=85
-ARG INSTALL_PACKAGES="docker=29.1.3-r2 docker-cli-compose=2.40.3-r3 memcached expect php${PHP_VERSION}-sockets php${PHP_VERSION}-sqlite3 php${PHP_VERSION}-pecl-memcached php${PHP_VERSION}-tokenizer php${PHP_VERSION}-dom php${PHP_VERSION}-mbstring"
+ARG INSTALL_PACKAGES="docker docker-cli-compose memcached expect php${PHP_VERSION}-sockets php${PHP_VERSION}-sqlite3 php${PHP_VERSION}-pecl-memcached php${PHP_VERSION}-tokenizer php${PHP_VERSION}-dom php${PHP_VERSION}-mbstring"
 RUN apk add --repository=https://dl-cdn.alpinelinux.org/alpine/v3.23/main --no-cache --update ${INSTALL_PACKAGES}
-
-# Packages that are not available in main
-ARG UNSTABLE_PACKAGES="trivy=0.69.1-r0 regclient=0.11.1-r2"
-RUN apk add --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing --no-cache --update ${UNSTABLE_PACKAGES}
 
 # Add user for unraid docker
 RUN addgroup -g 281 unraiddocker && \
