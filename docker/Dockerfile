@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6
 FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.23@sha256:9916162288b1c8e1c5ea5c885610c9195410705acc1fc642337852b9949b3ee7
+ARG TARGETARCH
 
 # Version labels
 ARG BUILD_DATE
@@ -13,13 +14,13 @@ ARG COMMIT_MSG=unknown
 ENV ATTACHED_DEVICES_PERMS="/var/run/docker.sock"
 
 # Add yq for YAML processing
-ARG TARGETARCH
+# renovate: datasource=github-releases lookupName=mikefarah/yq
 ARG YQ_VERSION=v4.52.4
 RUN curl -sSf -L -o /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETARCH}" \
     && chmod +x /usr/local/bin/yq
 
 # Add regctl for container digest checks
-ARG TARGETARCH
+# renovate: datasource=github-releases lookupName=regclient/regclient
 ARG REGCTL_VERSION=v0.11.1
 RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclient/releases/download/${REGCTL_VERSION}/regctl-linux-${TARGETARCH}" \
     && chmod +x /usr/local/bin/regctl
