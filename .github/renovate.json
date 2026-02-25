@@ -1,6 +1,15 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "extends": ["config:recommended", "docker:pinDigests", "default:automergeDigest"],
+    "customManagers": [
+      {
+        "customType": "regex",
+        "fileMatch": ["(^|/)Dockerfile$"],
+        "matchStrings": [
+          "# renovate: datasource=(?<datasource>.*?) lookupName=(?<lookupName>.*?)(?: versioning=(?<versioning>.*?))?\\s+ARG\\s+(?<depName>.*?)_VERSION=(?<currentValue>.*)\\s"
+        ]
+      }
+    ],
     "packageRules": [
         {
             "matchUpdateTypes": ["major"],
