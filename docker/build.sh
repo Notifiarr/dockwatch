@@ -19,10 +19,10 @@ generate_changelog() {
     FROM_TAG=$(git for-each-ref --sort=-creatordate --format '%(refname:short)' refs/tags | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
     [ -z "$FROM_TAG" ] && { echo "Error: No version tags found" >&2; exit 1; }
 
-    COMMITS=$(git log "$FROM_TAG..HEAD" --pretty=format:"- [\`%h\`](https://github.com/notifiarr/dockwatch/commit/%H): %s by @%an" --reverse 2>/dev/null)
+    COMMITS=$(git log "$FROM_TAG..HEAD" --pretty=format:"- [\`%h\`](https://github.com/notifiarr/dockwatch/commit/%H): %s by @%an" --reverse 2>/dev/null | grep -v "renovate\[bot\]")
     [ -z "$COMMITS" ] && COMMITS="- no changes"
 
-    CONTRIBUTORS=$(git log "$FROM_TAG..HEAD" --pretty=format:"@%an" 2>/dev/null | sort -u | tr '\n' ' ')
+    CONTRIBUTORS=$(git log "$FROM_TAG..HEAD" --pretty=format:"@%an" 2>/dev/null | grep -v "renovate\[bot\]" | sort -u | tr '\n' ' ')
 
     cat <<EOF
 ## 📝 What's Changed
