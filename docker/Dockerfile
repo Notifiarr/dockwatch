@@ -21,7 +21,7 @@ RUN curl -sSf -L -o /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/
 
 # Add regctl for container digest checks
 # renovate: datasource=github-releases lookupName=regclient/regclient
-ARG REGCTL_VERSION=v0.11.1
+ARG REGCTL_VERSION=v0.11.2
 RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclient/releases/download/${REGCTL_VERSION}/regctl-linux-${TARGETARCH}" \
     && chmod +x /usr/local/bin/regctl
 
