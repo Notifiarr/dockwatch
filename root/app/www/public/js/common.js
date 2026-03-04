@@ -171,8 +171,14 @@ function initPage(page)
             init = false;
             $('#content-' + page).html(resultData).fadeIn(100);
 
+            setActiveNavLink(document.querySelectorAll('.nav_link'), page);
+
             if (page == 'overview') {
                 drawOverview();
+            }
+
+            if (page == 'trivy') {
+                initTrivyTable();
             }
 
             if (page == 'containers') {

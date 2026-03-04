@@ -455,10 +455,3 @@ function getSeverityBadgeClass(severity) {
     }
 }
 // ---------------------------------------------------------------------------------------------
-$(document).ready(function() {
-    initTrivyTable();
-});
-// ---------------------------------------------------------------------------------------------
-$(document).ajaxComplete(function() {
-    initTrivyTable();
-});
