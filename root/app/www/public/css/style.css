@@ -496,6 +496,21 @@ tr.container-group-row .container-group-label {
     border-color: var(--bs-primary);
 }
 
+#trivy-table_filter>label {
+    font-size: 0;
+}
+#trivy-table_filter>label * {
+    font-size: initial;
+}
+#trivy-table_filter>label>input {
+    min-width: 20vh;
+}
+#trivy-table_filter>label>input:focus {
+    box-shadow: none !important;
+    outline: none !important;
+    border-color: var(--bs-primary);
+}
+
 .access-ro {
     display: none;
 }
@@ -650,28 +665,13 @@ tr.container-group-row .container-group-label {
     margin-top: 1rem;
 }
 #trivy-table {
-    font-size: 13px;
     margin-bottom: 0;
-}
-#trivy-table thead th {
-    white-space: nowrap;
-    padding: 10px 12px;
-    vertical-align: middle;
-    font-weight: 500;
 }
 #trivy-table tbody tr {
     border-bottom: 1px solid var(--bs-border-color);
 }
-#trivy-table tbody tr.group-start {
-    border-bottom-color: transparent;
-}
 #trivy-table tbody tr:hover {
     background-color: var(--bs-secondary);
-}
-#trivy-table td {
-    vertical-align: middle;
-    padding: 8px 12px;
-    font-size: 13px;
 }
 #trivy-table td a {
     color: var(--bs-primary);
@@ -679,4 +679,35 @@ tr.container-group-row .container-group-label {
 }
 #trivy-table td a:hover {
     text-decoration: underline;
+}
+#trivy-table .small-text {
+    font-size: 0.85rem;
+}
+#trivy-table .badge {
+    font-size: 0.9rem;
+}
+.trivy-expand {
+    font-size: 1.1rem;
+}
+#trivy-vulns-table {
+    margin-bottom: 0;
+}
+#trivy-vulns-table tbody tr {
+    border-bottom: 1px solid var(--bs-border-color);
+}
+#trivy-vulns-table tbody tr:hover {
+    background-color: var(--bs-secondary);
+}
+#trivy-vulns-table tbody tr.group-start {
+    border-bottom-color: transparent;
+}
+#trivy-table tfoot {
+    display: table-row-group !important;
+}
+#trivy-table tfoot td {
+    display: table-cell !important;
+}
+#trivyModal .modal-body {
+    max-height: 70vh;
+    overflow-x: auto;
 }

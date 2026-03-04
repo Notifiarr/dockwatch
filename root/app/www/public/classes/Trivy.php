@@ -14,12 +14,16 @@ class Trivy
 {
     protected $shell;
     protected $docker;
+    protected $memcache;
 
     public function __construct()
     {
         global $shell, $docker;
         $this->shell  = $shell ?? new Shell();
         $this->docker = $docker ?? new Docker();
+
+        $this->memcache = $memcache ?? new Memcached();
+        $this->memcache->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
     }
 
     public function downloadDB()
@@ -58,6 +62,13 @@ class Trivy
      */
     public function scanImage($image)
     {
+        //-- BUST CACHE
+        $this->memcache->delete(sprintf(MEMCACHE_TRIVY_VULNS_KEY, $image));
+        $this->memcache->delete(sprintf(MEMCACHE_TRIVY_VULNS_COUNT_KEY, $image));
+        $this->memcache->delete(sprintf(MEMCACHE_TRIVY_SCAN_HISTORY_COUNT_KEY, $image));
+        $this->memcache->delete(sprintf(MEMCACHE_TRIVY_SCAN_HISTORY_KEY, $image));
+        $this->memcache->delete(sprintf(MEMCACHE_TRIVY_NEW_VULNS_KEY, $image));
+
         $hash       = $this->docker->getImageHash($image);
         $hashPrefix = substr(preg_replace('/sha256\:/', '', $hash), 0, 4);
         createDirectoryTree(TRIVY_PATH . $hashPrefix);
@@ -77,10 +88,16 @@ class Trivy
     /**
      * Get image vulnerabilities from most recent scan file
      * @param mixed Image (hash or full tag)
+     * @param string|null $file Specific scan file to read
      * @return array|null
      */
-    public function getVulns($image)
+    public function getVulns($image, $file = null)
     {
+        $cache = $this->memcache->get(sprintf(MEMCACHE_TRIVY_VULNS_KEY, $image));
+        if (!empty($cache)) {
+            return $cache;
+        }
+
         $hash       = $this->docker->getImageHash($image);
         $hashPrefix = substr(preg_replace('/sha256\:/', '', $hash), 0, 4);
         $imagePath  = TRIVY_PATH . $hashPrefix;
@@ -98,14 +115,161 @@ class Trivy
             return filemtime($b) - filemtime($a);
         });
 
-        $latestScan = $resultFiles[0];
-        $scanData   = json_decode(file_get_contents($latestScan), true);
+        if ($file) {
+            $scanFile = $imagePath . '/' . $file;
+            if (!file_exists($scanFile)) {
+                return null;
+            }
+        } else {
+            $scanFile = $resultFiles[0];
+        }
+
+        $scanData = json_decode(file_get_contents($scanFile), true);
 
         if (empty($scanData['Results'])) {
             return null;
         }
 
-        return $this->parseVulns($scanData);
+        $parsedVulns = $this->parseVulns($scanData);
+        $this->memcache->set(sprintf(MEMCACHE_TRIVY_VULNS_KEY, $file ?: $image), $parsedVulns, MEMCACHE_TRIVY_VULNS_TIME);
+
+        return $parsedVulns;
+    }
+
+    public function getVulnCounts($image)
+    {
+        $cache = $this->memcache->get(sprintf(MEMCACHE_TRIVY_VULNS_COUNT_KEY, $image));
+        if (!empty($cache)) {
+            return $cache;
+        }
+
+        $hash       = $this->docker->getImageHash($image);
+        $hashPrefix = substr(preg_replace('/sha256\:/', '', $hash), 0, 4);
+        $imagePath  = TRIVY_PATH . $hashPrefix;
+
+        $counts = [
+            'critical' => 0,
+            'high'     => 0,
+            'medium'   => 0,
+            'low'      => 0,
+            'unknown'  => 0,
+            'lastScan' => null
+        ];
+
+        if (!is_dir($imagePath)) {
+            return $counts;
+        }
+
+        $resultFiles = glob($imagePath . '/result_*.json');
+        if (empty($resultFiles)) {
+            return $counts;
+        }
+
+        usort($resultFiles, function ($a, $b) {
+            return filemtime($b) - filemtime($a);
+        });
+
+        $counts['lastScan'] = filemtime($resultFiles[0]);
+
+        $latestScan = $resultFiles[0];
+        $scanData   = json_decode(file_get_contents($latestScan), true);
+
+        if (empty($scanData['Results'])) {
+            return $counts;
+        }
+
+        foreach ($scanData['Results'] as $result) {
+            if (!empty($result['Vulnerabilities'])) {
+                foreach ($result['Vulnerabilities'] as $vuln) {
+                    $severity = strtolower($vuln['Severity'] ?? 'unknown');
+                    if (isset($counts[$severity])) {
+                        $counts[$severity]++;
+                    } else {
+                        $counts['unknown']++;
+                    }
+                }
+            }
+        }
+
+        $this->memcache->set(sprintf(MEMCACHE_TRIVY_VULNS_COUNT_KEY, $image), $counts, MEMCACHE_TRIVY_VULNS_COUNT_TIME);
+        return $counts;
+    }
+
+    public function getScanHistoryCount($image)
+    {
+        $cache = $this->memcache->get(sprintf(MEMCACHE_TRIVY_SCAN_HISTORY_COUNT_KEY, $image));
+        if (!empty($cache)) {
+            return $cache;
+        }
+
+        $hash       = $this->docker->getImageHash($image);
+        $hashPrefix = substr(preg_replace('/sha256\:/', '', $hash), 0, 4);
+        $imagePath  = TRIVY_PATH . $hashPrefix;
+
+        if (!is_dir($imagePath)) {
+            return 0;
+        }
+
+        $resultFiles = glob($imagePath . '/result_*.json');
+
+        $this->memcache->set(sprintf(MEMCACHE_TRIVY_SCAN_HISTORY_COUNT_KEY, $image), count($resultFiles), MEMCACHE_TRIVY_SCAN_HISTORY_COUNT_TIME);
+        return count($resultFiles);
+    }
+
+    public function getScanHistory($image)
+    {
+        $cache = $this->memcache->get(sprintf(MEMCACHE_TRIVY_SCAN_HISTORY_KEY, $image));
+        if (!empty($cache)) {
+            return $cache;
+        }
+
+        $hash       = $this->docker->getImageHash($image);
+        $hashPrefix = substr(preg_replace('/sha256\:/', '', $hash), 0, 4);
+        $imagePath  = TRIVY_PATH . $hashPrefix;
+
+        if (!is_dir($imagePath)) {
+            return [];
+        }
+
+        $resultFiles = glob($imagePath . '/result_*.json');
+        if (empty($resultFiles)) {
+            return [];
+        }
+
+        usort($resultFiles, function ($a, $b) {
+            return filemtime($b) - filemtime($a);
+        });
+
+        $history = [];
+        foreach ($resultFiles as $file) {
+            $scanData = json_decode(file_get_contents($file), true);
+            $counts   = ['critical' => 0, 'high' => 0, 'medium' => 0, 'low' => 0, 'unknown' => 0];
+
+            if (!empty($scanData['Results'])) {
+                foreach ($scanData['Results'] as $result) {
+                    if (!empty($result['Vulnerabilities'])) {
+                        foreach ($result['Vulnerabilities'] as $vuln) {
+                            $severity = strtolower($vuln['Severity'] ?? 'unknown');
+                            if (isset($counts[$severity])) {
+                                $counts[$severity]++;
+                            } else {
+                                $counts['unknown']++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            $history[] = [
+                'file'      => basename($file),
+                'timestamp' => filemtime($file),
+                'date'      => date('Y-m-d H:i:s', filemtime($file)),
+                'counts'    => $counts
+            ];
+        }
+
+        $this->memcache->set(sprintf(MEMCACHE_TRIVY_SCAN_HISTORY_KEY, $image), $history, MEMCACHE_TRIVY_SCAN_HISTORY_TIME);
+        return $history;
     }
 
     /**
@@ -148,6 +312,11 @@ class Trivy
      */
     public function getNewVulns($image)
     {
+        $cache = $this->memcache->get(sprintf(MEMCACHE_TRIVY_NEW_VULNS_KEY, $image));
+        if (!empty($cache)) {
+            return $cache;
+        }
+
         $hash       = $this->docker->getImageHash($image);
         $hashPrefix = substr(preg_replace('/sha256\:/', '', $hash), 0, 4);
         $imagePath  = TRIVY_PATH . $hashPrefix;
@@ -199,6 +368,7 @@ class Trivy
             }
         }
 
+        $this->memcache->set(sprintf(MEMCACHE_TRIVY_NEW_VULNS_KEY, $image), $newVulns, MEMCACHE_TRIVY_NEW_VULNS_TIME);
         return $newVulns;
     }
 

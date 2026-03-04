@@ -99,6 +99,16 @@ define('MEMCACHE_PORT', 11211);
 define('MEMCACHE_PREFIX', 'dockwatch-');
 define('MEMCACHE_SHELL_TOKEN_KEY', (MEMCACHE_PREFIX . 'shell-%s'));
 define('MEMCACHE_SHELL_TOKEN_TIME', 300);
+define('MEMCACHE_TRIVY_VULNS_KEY', (MEMCACHE_PREFIX . 'trivy-vulns-%s'));
+define('MEMCACHE_TRIVY_VULNS_TIME', 300);
+define('MEMCACHE_TRIVY_VULNS_COUNT_KEY', (MEMCACHE_PREFIX . 'trivy-vulns-count-%s'));
+define('MEMCACHE_TRIVY_VULNS_COUNT_TIME', 300);
+define('MEMCACHE_TRIVY_SCAN_HISTORY_COUNT_KEY', (MEMCACHE_PREFIX . 'trivy-history-count-%s'));
+define('MEMCACHE_TRIVY_SCAN_HISTORY_COUNT_TIME', 300);
+define('MEMCACHE_TRIVY_SCAN_HISTORY_KEY', (MEMCACHE_PREFIX . 'trivy-history-%s'));
+define('MEMCACHE_TRIVY_SCAN_HISTORY_TIME', 300);
+define('MEMCACHE_TRIVY_NEW_VULNS_KEY', (MEMCACHE_PREFIX . 'trivy-new-vulns-%s'));
+define('MEMCACHE_TRIVY_NEW_VULNS_TIME', 300);
 
 //-- REGCTL
 define('REGCTL_PATH', '/usr/local/bin/');

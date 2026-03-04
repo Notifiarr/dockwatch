@@ -12,6 +12,7 @@ function getContainerStats($servers = [])
     $processList = getFile(STATE_FILE);
     $pullsFile   = getFile(PULL_FILE);
     $containers  = [];
+    $trivy       = new Trivy();
 
     if (!empty($servers)) {
         foreach ($servers as $server) {
@@ -105,6 +106,15 @@ function getContainerStats($servers = [])
             }
         }
 
+        $vulnCounts = $trivy->getVulnCounts($image);
+        $vulns      = [
+            'scanned'  => !empty($vulnCounts['lastScan']),
+            'critical' => $vulnCounts['critical'],
+            'high'     => $vulnCounts['high'],
+            'medium'   => $vulnCounts['medium'],
+            'low'      => $vulnCounts['low']
+        ];
+
         $usage            = [];
         $usage['cpuPerc'] = $container['stats']['CPUPerc'];
         $usage['memPerc'] = $container['stats']['MemPerc'];
@@ -125,6 +135,7 @@ function getContainerStats($servers = [])
             'ports'       => $ports,
             'dockwatch'   => $dockwatch,
             'usage'       => $usage,
+            'vulns'       => $vulns,
             'server'      => $server
         ];
     }
@@ -149,6 +160,13 @@ function initializeStats()
             'uptodate'  => 0,
             'outdated'  => 0,
             'unchecked' => 0
+        ],
+        'vulns'   => [
+            'scanned'  => 0,
+            'critical' => 0,
+            'high'     => 0,
+            'medium'   => 0,
+            'low'      => 0
         ],
         'usage'   => [
             'disk'   => 0,
@@ -203,6 +221,25 @@ function updateContainerStats(&$stats, $container, $serverKey = '')
             $stats['updates']['outdated'] += ($container['dockwatch']['pull'] == 'Outdated' ? 1 : 0);
         } else {
             $stats['updates']['unchecked']++;
+        }
+    }
+
+    //-- VULNS
+    if ($serverKey) {
+        if (!empty($container['vulns'])) {
+            $stats['servers'][$serverKey]['vulns']['scanned']  += ($container['vulns']['scanned'] ? 1 : 0);
+            $stats['servers'][$serverKey]['vulns']['critical'] += intval($container['vulns']['critical']);
+            $stats['servers'][$serverKey]['vulns']['high']     += intval($container['vulns']['high']);
+            $stats['servers'][$serverKey]['vulns']['medium']   += intval($container['vulns']['medium']);
+            $stats['servers'][$serverKey]['vulns']['low']      += intval($container['vulns']['low']);
+        }
+    } else {
+        if (!empty($container['vulns'])) {
+            $stats['vulns']['scanned']  += ($container['vulns']['scanned'] ? 1 : 0);
+            $stats['vulns']['critical'] += intval($container['vulns']['critical']);
+            $stats['vulns']['high']     += intval($container['vulns']['high']);
+            $stats['vulns']['medium']   += intval($container['vulns']['medium']);
+            $stats['vulns']['low']      += intval($container['vulns']['low']);
         }
     }
 

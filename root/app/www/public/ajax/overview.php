@@ -36,6 +36,13 @@ if ($_POST['m'] == 'init') {
     $outdated  = $overviewApiResult['updates']['outdated'];
     $unchecked = $overviewApiResult['updates']['unchecked'];
 
+    //-- VULNERABILITIES
+    $criticalVuln      = $overviewApiResult['vulns']['critical'];
+    $highVuln          = $overviewApiResult['vulns']['high'];
+    $mediumVuln        = $overviewApiResult['vulns']['medium'];
+    $lowVuln           = $overviewApiResult['vulns']['low'];
+    $scannedContainers = $overviewApiResult['vulns']['scanned'];
+
     //-- USAGE
     $size    = $overviewApiResult['usage']['disk'];
     $memory  = $overviewApiResult['usage']['memory'];
@@ -127,6 +134,35 @@ if ($_POST['m'] == 'init') {
                     </div>
                 </div>
             </div>
+            <?php if ($settingsTable['trivyEnabled']) { ?>
+                <div class="bg-secondary p-2 w-100 rounded-end" style="cursor:pointer;" onclick="initPage('trivy')">
+                    <div class="d-flex flex-row">
+                        <span class="h5"><i class="fas fa-bug"></i> Vulnerabilities</span>
+                    </div>
+                    <div class="d-flex flex-row">
+                        <div class="p-2 flex-fill bd-highlight">
+                            <span class="text-danger">Critical</span><br>
+                            <?= $criticalVuln ?>
+                        </div>
+                        <div class="p-2 flex-fill bd-highlight">
+                            <span class="text-warning">High</span><br>
+                            <?= $highVuln ?>
+                        </div>
+                        <div class="p-2 flex-fill bd-highlight">
+                            <span class="text-info" style="font-size: 16px !important;">Medium</span><br>
+                            <?= $mediumVuln ?>
+                        </div>
+                        <div class="p-2 flex-fill bd-highlight">
+                            Low<br>
+                            <?= $lowVuln ?>
+                        </div>
+                        <div class="p-2 flex-fill bd-highlight">
+                            Scanned<br>
+                            <?= $scannedContainers ?>
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
         </div>
     </div>
     <div class="row mt-2">

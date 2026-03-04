@@ -16,55 +16,106 @@ if ($_POST['m'] == 'init') {
         <li class="breadcrumb-item active" aria-current="page">Trivy</li>
     </ol>
     <div class="bg-secondary rounded p-4">
-        <div class="mb-3">
-            <div class="select-dropdown" id="container-selector" role="listbox" aria-label="Docker containers">
-                <div class="search-wrapper" onclick="$('#container-selector').addClass('visible');">
-                    <i class="fas fa-search text-gray"></i>
-                    <input class="search-input" type="text" placeholder="Select a container..." id="container-search" aria-label="Search containers" readonly />
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="table-responsive">
+                    <table class="table" id="trivy-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="rounded-top-left-1 bg-primary ps-3 container-table-header noselect no-sort"></th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect no-sort"></th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect">Container</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect no-sort"></th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect text-center">Critical</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect text-center">High</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect text-center">Medium</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect text-center">Low</th>
+                                <th scope="col" class="bg-primary ps-3 container-table-header noselect no-sort">Last Scan</th>
+                                <th scope="col" class="rounded-top-right-1 bg-primary ps-3 container-table-header noselect no-sort">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $trivy = new Trivy();
+                            foreach ($containerList as $container) {
+                                $imageName     = $container['image'];
+                                $containerName = $container['name'];
+                                $containerHash = md5($containerName);
+                                $iconUrl       = getIconByName($imageName, $containerName);
+                                $vulnCounts    = $trivy->getVulnCounts($imageName);
+                                $scanCount     = $trivy->getScanHistoryCount($imageName);
+                                $hasHistory    = $scanCount > 1;
+                                ?>
+                                <tr id="trivy-row-<?= $containerHash ?>" data-hash="<?= $containerHash ?>" data-image="<?= htmlspecialchars($imageName) ?>" data-name="<?= htmlspecialchars($containerName) ?>" data-has-history="<?= $hasHistory ? '1' : '0' ?>">
+                                    <td class="container-table-row bg-secondary"><input type="checkbox" class="form-check-input trivy-check" onchange="toggleTrivyCheckAll()"></td>
+                                    <td class="container-table-row bg-secondary">
+                                        <?php if ($iconUrl): ?>
+                                            <img src="<?= htmlspecialchars($iconUrl) ?>" width="32" height="32" alt="" />
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="container-table-row bg-secondary">
+                                        <span class="container-name"><?= htmlspecialchars($containerName) ?></span><br>
+                                        <span class="text-muted small-text"><?= htmlspecialchars($imageName) ?></span>
+                                    </td>
+                                    <td class="container-table-row bg-secondary text-center">
+                                        <?php if ($hasHistory): ?>
+                                            <i class="fas fa-plus-square text-info trivy-expand" style="cursor: pointer;" onclick="toggleTrivyScans('<?= $containerHash ?>')"></i>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="container-table-row bg-secondary text-center" data-sort="<?= $vulnCounts['critical'] ?>">
+                                        <?php if ($vulnCounts['critical'] > 0): ?>
+                                            <span class="badge bg-danger"><?= $vulnCounts['critical'] ?></span>
+                                        <?php else: ?>
+                                            <span class="text-muted">0</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="container-table-row bg-secondary text-center" data-sort="<?= $vulnCounts['high'] ?>">
+                                        <?php if ($vulnCounts['high'] > 0): ?>
+                                            <span class="badge bg-warning text-dark"><?= $vulnCounts['high'] ?></span>
+                                        <?php else: ?>
+                                            <span class="text-muted">0</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="container-table-row bg-secondary text-center" data-sort="<?= $vulnCounts['medium'] ?>">
+                                        <?php if ($vulnCounts['medium'] > 0): ?>
+                                            <span class="badge bg-info text-dark"><?= $vulnCounts['medium'] ?></span>
+                                        <?php else: ?>
+                                            <span class="text-muted">0</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="container-table-row bg-secondary text-center" data-sort="<?= $vulnCounts['low'] ?>">
+                                        <?php if ($vulnCounts['low'] > 0): ?>
+                                            <span class="badge bg-secondary"><?= $vulnCounts['low'] ?></span>
+                                        <?php else: ?>
+                                            <span class="text-muted">0</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="container-table-row bg-secondary">
+                                        <?php if ($vulnCounts['lastScan']): ?>
+                                            <span class="small-text text-muted"><?= date('Y-m-d H:i', $vulnCounts['lastScan']) ?></span>
+                                        <?php else: ?>
+                                            <span class="small-text text-muted">Never</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="container-table-row bg-secondary">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button type="button" class="btn btn-outline-light bg-secondary btn-sm" title="View Current Scan" onclick="viewTrivyScan('<?= $containerHash ?>', '<?= htmlspecialchars($imageName) ?>', 'current')"><i class="fas fa-eye fa-xs"></i></button>
+                                            <button type="button" class="btn btn-outline-light bg-secondary btn-sm" title="View Scan History" onclick="viewTrivyScanHistory('<?= $containerHash ?>', '<?= htmlspecialchars($imageName) ?>')"><i class="fas fa-history fa-xs"></i></button>
+                                            <button type="button" class="btn btn-outline-light bg-secondary btn-sm access-rw" title="Run Scan" onclick="runTrivyScan('<?= $containerHash ?>', '<?= htmlspecialchars($imageName) ?>', '<?= htmlspecialchars($containerName) ?>')"><i class="fas fa-shield-alt fa-xs"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php } ?>
+                        <tfoot>
+                            <tr>
+                                <td class="rounded-bottom-right-1 rounded-bottom-left-1 bg-primary ps-3" colspan="10">
+                                    <button id="check-all-trivy-btn" class="dt-button mt-2 buttons-collection access-rw" tabindex="0" aria-controls="trivy-table" type="button"><input type="checkbox" class="form-check-input" onclick="toggleAllTrivy()" id="trivy-toggle-all"></button>
+                                    <button id="trivy-scan-btn" class="dt-button mt-2 buttons-collection access-rw" tabindex="0" aria-controls="trivy-table" type="button" onclick="massApplyTrivyScan()">Scan Selected</button>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
-                <div class="options-list" id="container-options">
-                    <?php
-                    foreach ($containerList as $container) {
-                        $imageName     = $container['image'];
-                        $containerName = $container['name'];
-                        $iconUrl       = getIconByName($imageName, $containerName);
-                        ?>
-                        <div class="option-item" role="option" aria-selected="false" data-id="<?= htmlspecialchars($container['id']) ?>" data-name="<?= htmlspecialchars($containerName) ?>" data-image="<?= htmlspecialchars($imageName) ?>">
-                            <div class="option-left">
-                                <div class="container-icon">
-                                    <?php if ($iconUrl): ?>
-                                        <img src="<?= htmlspecialchars($iconUrl) ?>" width="20" height="20" alt="" />
-                                    <?php endif; ?>
-                                </div>
-                                <div class="option-info">
-                                    <span class="option-name"><?= htmlspecialchars($containerName) ?></span>
-                                    <span class="option-image"><?= htmlspecialchars($imageName) ?></span>
-                                </div>
-                            </div>
-                        </div>
-                        <?php
-                    }
-                    ?>
-                </div>
-            </div>
-        </div>
-        <div class="trivy-content">
-            <div class="table-responsive">
-                <table class="table" id="trivy-table">
-                    <thead>
-                        <tr>
-                            <th scope="col" class="rounded-top-left-1 bg-primary ps-3">Library</th>
-                            <th scope="col" class="bg-primary ps-3">Vulnerability</th>
-                            <th scope="col" class="bg-primary ps-3" style="cursor: pointer;" onclick="toggleTrivySort()">Severity <i class="fas fa-sort trivy-sort-icon"></i></th>
-                            <th scope="col" class="bg-primary ps-3">Status</th>
-                            <th scope="col" class="bg-primary ps-3">Installed</th>
-                            <th scope="col" class="bg-primary ps-3">Fixed</th>
-                            <th scope="col" class="rounded-top-right-1 bg-primary ps-3">Title</th>
-                        </tr>
-                    </thead>
-                    <tbody id="trivy-tbody" class="container-table-row">
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -73,8 +124,47 @@ if ($_POST['m'] == 'init') {
 
 if ($_POST['m'] == 'getVulns') {
     $image = $_POST['image'] ?? '';
+    $file  = $_POST['file'] ?? null;
     $trivy = new Trivy();
-    $vulns = $trivy->getVulns($image);
-    header('Content-Type: application/json');
+    $vulns = $trivy->getVulns($image, $file);
     echo json_encode($vulns ?? []);
+}
+
+if ($_POST['m'] == 'getScanHistory') {
+    $image   = $_POST['image'] ?? '';
+    $trivy   = new Trivy();
+    $history = $trivy->getScanHistory($image);
+    echo json_encode($history);
+}
+
+if ($_POST['m'] == 'getRecentScans') {
+    $image   = $_POST['image'] ?? '';
+    $limit   = intval($_POST['limit'] ?? 3);
+    $trivy   = new Trivy();
+    $history = $trivy->getScanHistory($image);
+    $recent  = array_slice($history, 1, $limit);
+    echo json_encode($recent);
+}
+
+if ($_POST['m'] == 'runScan') {
+    $image = $_POST['image'] ?? '';
+    $name  = $_POST['name'] ?? '';
+
+    logger(UI_LOG, 'scanning image ' . $image . ' ->');
+
+    $trivy  = new Trivy();
+    $result = $trivy->scanImage($image);
+
+    if (!empty($result)) {
+        logger(UI_LOG, $result);
+    }
+
+    logger(UI_LOG, 'scanning image ' . $image . ' <-');
+
+    $vulnCounts = $trivy->getVulnCounts($image);
+    echo json_encode([
+        'success' => true,
+        'result'  => $result,
+        'counts'  => $vulnCounts
+    ]);
 }

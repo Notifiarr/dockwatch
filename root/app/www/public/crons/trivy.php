@@ -69,7 +69,7 @@ foreach ($containerList as $container) {
         echo date('c') . ' sending notification for \'' . $container['name'] . '\'' . "\n";
 
         $payload = ['event' => 'security', 'container' => $container['name'], 'image' => $container['image'], 'count' => count($newVulns), 'vulns' => $newVulns];
-        //-- TODO: ADD TEMPLATES FOR NOTIFICATION PLATFORMS AND FILTERING
+        //-- TODO: MATTERMOST/TELEGRAM MESSAGE & NOTIFIARR INTEGRATION MESSAGE
         // $notifications->notify(0, 'security', $payload);
 
         logger(CRON_TRIVY_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
