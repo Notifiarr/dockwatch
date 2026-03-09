@@ -689,6 +689,9 @@ tr.container-group-row .container-group-label {
 .trivy-expand {
     font-size: 1.1rem;
 }
+.trivy-download-db {
+    font-size: 1rem;
+}
 #trivy-vulns-table {
     margin-bottom: 0;
 }

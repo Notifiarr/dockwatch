@@ -36,6 +36,9 @@ function isDockwatchContainer($container)
     if (str_contains($container['inspect'][0]['Config']['Image'], $imageMatch) && $container['Names'] != 'dockwatch-maintenance') {
         return true;
     }
+    if (str_contains($container['image'], $imageMatch) && $container['name'] != 'dockwatch-maintenance') {
+        return true;
+    }
 
     return false;
 }

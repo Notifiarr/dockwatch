@@ -701,13 +701,20 @@ function containerShell(container, close = true, sendCommand = '')
 
             const socket = new WebSocket(`${JSON.parse(resultData)['url']}`);
             let msgCount = 0;
+            let resizeSent = false;
 
             socket.onopen = () => {
                 terminal.writeln('WebSocket connection established');
                 setTimeout(() => {
-                    if (socket.readyState === WebSocket.OPEN) {
+                    if (socket.readyState === WebSocket.OPEN && !resizeSent) {
+                        resizeSent = true;
                         terminal.focus();
                         fitTerminal();
+                        socket.send(JSON.stringify({
+                            action: 'resize',
+                            cols: terminal.cols,
+                            rows: terminal.rows
+                        }));
                     }
                 }, 500);
             };
@@ -734,11 +741,14 @@ function containerShell(container, close = true, sendCommand = '')
                     if (data.type === 'ready') {
                         fitTerminal();
 
-                        socket.send(JSON.stringify({
-                            action: 'resize',
-                            cols: terminal.cols,
-                            rows: terminal.rows
-                        }));
+                        if (!resizeSent) {
+                            resizeSent = true;
+                            socket.send(JSON.stringify({
+                                action: 'resize',
+                                cols: terminal.cols,
+                                rows: terminal.rows
+                            }));
+                        }
 
                         if (sendCommand && sendCommand.length > 0) {
                             socket.send(JSON.stringify({
@@ -767,6 +777,10 @@ function containerShell(container, close = true, sendCommand = '')
             };
 
             const dataHandler = terminal.onData(data => {
+                // eslint-disable-next-line no-control-regex
+                if (data === '\x1b[>0;126;24c' || data.match(/^\x1b\[[0-9;]+R$/)) {
+                    return;
+                }
                 if (socket.readyState === WebSocket.OPEN) {
                     socket.send(JSON.stringify({
                         action: 'command',

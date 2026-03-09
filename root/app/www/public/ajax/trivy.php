@@ -9,7 +9,11 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $containerList = apiRequest('stats/containers')['result']['result'];
+    $containerList     = apiRequest('stats/containers')['result']['result'];
+    $trivy             = new Trivy();
+    $dbNotice          = ($trivy->getDBSize() == 0 || $trivy->getJavaDBSize() == 0);
+    $downloadDbCmd     = sprintf(TrivyCLI::UPDATE_DB_SHELL, TRIVY_PATH);
+    $downloadJavaDbCmd = sprintf(TrivyCLI::UPDATE_DB_JAVA_SHELL, TRIVY_PATH);
     ?>
     <ol class="breadcrumb rounded p-1 ps-2">
         <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
@@ -18,6 +22,17 @@ if ($_POST['m'] == 'init') {
     <div class="bg-secondary rounded p-4">
         <div class="row">
             <div class="col-sm-12">
+                <?php if ($dbNotice) { ?>
+                    <div class="col-sm-12">
+                        <div class="rounded m-2 p-2 bg-gray">
+                            It seems like this is your first time using Trivy.<br>
+                            To scan container images Trivy uses pre-populated vulnerability databases that need to be downloaded first.<br>
+                            This is usually an automatic process triggered by the scheduled cron task, but if you'd like to manually scan your containers now, you'll need to download the databases first.<br>
+                            Click on the Download icon next to the Dockwatch container.<br>
+                            Note: The DBs are ~2.3GB big, depending on your internet connection this could take a few minutes.
+                        </div>
+                    </div>
+                <?php } ?>
                 <div class="table-responsive">
                     <table class="table" id="trivy-table">
                         <thead>
@@ -36,11 +51,11 @@ if ($_POST['m'] == 'init') {
                         </thead>
                         <tbody>
                             <?php
-                            $trivy = new Trivy();
                             foreach ($containerList as $container) {
                                 $imageName     = $container['image'];
                                 $containerName = $container['name'];
                                 $containerHash = md5($containerName);
+                                $isDockwatch   = isDockwatchContainer($container);
                                 $iconUrl       = getIconByName($imageName, $containerName);
                                 $vulnCounts    = $trivy->getVulnCounts($imageName);
                                 $scanCount     = $trivy->getScanHistoryCount($imageName);
@@ -54,7 +69,11 @@ if ($_POST['m'] == 'init') {
                                         <?php endif; ?>
                                     </td>
                                     <td class="container-table-row bg-secondary">
-                                        <span class="container-name"><?= htmlspecialchars($containerName) ?></span><br>
+                                        <span class="container-name"><?= htmlspecialchars($containerName) ?></span>
+                                        <?php if ($isDockwatch): ?>
+                                            <i class="fas fa-download trivy-download-db" style="cursor: pointer;" title="Download DB" onclick="containerShell('<?= $containerName ?>', false, 'clear && <?= $downloadDbCmd ?> && <?= $downloadJavaDbCmd ?> && echo Finished downloading DB, exiting in 5s && sleep 5 && exit')"></i>
+                                        <?php endif; ?>
+                                        <br>
                                         <span class="text-muted small-text"><?= htmlspecialchars($imageName) ?></span>
                                     </td>
                                     <td class="container-table-row bg-secondary text-center">

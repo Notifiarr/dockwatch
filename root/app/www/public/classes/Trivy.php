@@ -26,6 +26,30 @@ class Trivy
         $this->memcache->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
     }
 
+    public function getDBSize()
+    {
+        createDirectoryTree(TRIVY_PATH);
+
+        $dbPath = TRIVY_PATH . 'db/trivy.db';
+        if (!file_exists($dbPath)) {
+            return 0;
+        }
+
+        return filesize($dbPath) ?: 0;
+    }
+
+    public function getJavaDBSize()
+    {
+        createDirectoryTree(TRIVY_PATH);
+
+        $dbPath = TRIVY_PATH . 'java-db/trivy-java.db';
+        if (!file_exists($dbPath)) {
+            return 0;
+        }
+
+        return filesize($dbPath) ?: 0;
+    }
+
     public function downloadDB()
     {
         createDirectoryTree(TRIVY_PATH);
@@ -33,23 +57,15 @@ class Trivy
         $cmd   = sprintf(TrivyCLI::UPDATE_DB, TRIVY_PATH);
         $shell = $this->shell->exec($cmd . ' 2>&1');
 
-        $dbPath = TRIVY_PATH . 'db/trivy.db';
-        if (!file_exists($dbPath) || filesize($dbPath) == 0) {
-            //-- FAILED TO UPDATE DB
-        }
-
         return $shell;
     }
 
     public function downloadJavaDB()
     {
+        createDirectoryTree(TRIVY_PATH);
+
         $cmd   = sprintf(TrivyCLI::UPDATE_DB_JAVA, TRIVY_PATH);
         $shell = $this->shell->exec($cmd . ' 2>&1');
-
-        $dbPath = TRIVY_PATH . 'java-db/trivy-java.db';
-        if (!file_exists($dbPath) || filesize($dbPath) == 0) {
-            //-- FAILED TO UPDATE DB
-        }
 
         return $shell;
     }

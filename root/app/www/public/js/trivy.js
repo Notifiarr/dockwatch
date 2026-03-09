@@ -9,8 +9,8 @@ const severityOrder = {
 };
 // ---------------------------------------------------------------------------------------------
 function initTrivyTable() {
-    const table = document.getElementById('trivy-table');
-    if (!table) {
+    const table = $('#trivy-table');
+    if (!table.length) {
         trivyTableDrawn = false;
         return;
     }
@@ -54,39 +54,31 @@ function initTrivyTable() {
 }
 // ---------------------------------------------------------------------------------------------
 function toggleTrivyCheckAll() {
-    const checkboxes = document.querySelectorAll('.trivy-check');
-    const allChecked = checkboxes.length > 0 && document.querySelectorAll('.trivy-check:checked').length === checkboxes.length;
-    document.getElementById('trivy-toggle-all').checked = allChecked;
+    const checkboxes = $('.trivy-check');
+    const allChecked = checkboxes.length > 0 && $('.trivy-check:checked').length === checkboxes.length;
+    $('#trivy-toggle-all').prop('checked', allChecked);
 }
 // ---------------------------------------------------------------------------------------------
 function toggleAllTrivy() {
-    const isChecked = document.getElementById('trivy-toggle-all').checked;
-    document.querySelectorAll('.trivy-check').forEach(function(cb) {
-        cb.checked = isChecked;
-    });
+    const isChecked = $('#trivy-toggle-all').prop('checked');
+    $('.trivy-check').prop('checked', isChecked);
 }
 // ---------------------------------------------------------------------------------------------
 function toggleTrivyScans(hash) {
-    const row = document.getElementById('trivy-row-' + hash);
-    const icon = row.querySelector('.trivy-expand');
-    const imageName = row.dataset.image;
-    const containerName = row.dataset.name;
-    const existingRows = document.querySelectorAll('.trivy-expanded-row[data-parent="' + hash + '"]');
+    const row = $('#trivy-row-' + hash);
+    const icon = row.find('.trivy-expand');
+    const imageName = row.data('image');
+    const containerName = row.data('name');
+    const existingRows = $('.trivy-expanded-row[data-parent="' + hash + '"]');
 
     if (existingRows.length > 0) {
-        const firstRow = existingRows[0];
-        if (firstRow.classList.contains('d-none')) {
-            existingRows.forEach(function(r) {
-                r.classList.remove('d-none');
-            });
-            icon.classList.remove('fa-plus-square', 'text-info');
-            icon.classList.add('fa-minus-square', 'text-muted');
+        const firstRow = existingRows.first();
+        if (firstRow.hasClass('d-none')) {
+            existingRows.removeClass('d-none');
+            icon.removeClass('fa-plus-square text-info').addClass('fa-minus-square text-muted');
         } else {
-            existingRows.forEach(function(r) {
-                r.classList.add('d-none');
-            });
-            icon.classList.remove('fa-minus-square', 'text-muted');
-            icon.classList.add('fa-plus-square', 'text-info');
+            existingRows.addClass('d-none');
+            icon.removeClass('fa-minus-square text-muted').addClass('fa-plus-square text-info');
         }
         return;
     }
@@ -97,10 +89,11 @@ function toggleTrivyScans(hash) {
         }
 
         scans.forEach(function(scan) {
-            const tr = document.createElement('tr');
-            tr.className = 'trivy-expanded-row';
-            tr.dataset.parent = hash;
-            tr.innerHTML =
+            const tr = $('<tr>', {
+                class: 'trivy-expanded-row',
+                'data-parent': hash
+            });
+            tr.html(
                 '<td class="bg-primary"></td>' +
                 '<td class="bg-primary"></td>' +
                 '<td class="bg-primary small-text">' + containerName + '<br>Previous scan</td>' +
@@ -110,23 +103,23 @@ function toggleTrivyScans(hash) {
                 '<td class="bg-primary text-center">' + (scan.counts.medium > 0 ? '<span class="badge bg-info text-dark">' + scan.counts.medium + '</span>' : '<span class="text-muted">0</span>') + '</td>' +
                 '<td class="bg-primary text-center">' + (scan.counts.low > 0 ? '<span class="badge bg-secondary">' + scan.counts.low + '</span>' : '<span class="text-muted">0</span>') + '</td>' +
                 '<td class="bg-primary"><span class="small-text text-muted">' + scan.date + '</span></td>' +
-                '<td class="bg-primary"><button type="button" class="btn btn-outline-light bg-secondary btn-sm" title="View Scan" onclick="viewTrivyScanByFile(\'' + hash + '\', \'' + imageName.replace(/'/g, '\\\'') + '\', \'' + scan.file + '\')"><i class="fas fa-eye fa-xs"></i></button></td>';
-            row.parentNode.insertBefore(tr, row.nextSibling);
+                '<td class="bg-primary"><button type="button" class="btn btn-outline-light bg-secondary btn-sm" title="View Scan" onclick="viewTrivyScanByFile(\'' + hash + '\', \'' + imageName.replace(/'/g, '\\\'') + '\', \'' + scan.file + '\')"><i class="fas fa-eye fa-xs"></i></button></td>'
+            );
+            row.after(tr);
         });
 
-        icon.classList.remove('fa-plus-square', 'text-info');
-        icon.classList.add('fa-minus-square', 'text-muted');
+        icon.removeClass('fa-plus-square text-info').addClass('fa-minus-square text-muted');
     }, 'json');
 }
 // ---------------------------------------------------------------------------------------------
 function getSelectedTrivyContainers() {
     const selected = [];
-    document.querySelectorAll('.trivy-check:checked').forEach(function(cb) {
-        const row = cb.closest('tr');
+    $('.trivy-check:checked').each(function() {
+        const row = $(this).closest('tr');
         selected.push({
-            hash: row.dataset.hash,
-            image: row.dataset.image,
-            name: row.dataset.name
+            hash: row.data('hash'),
+            image: row.data('image'),
+            name: row.data('name')
         });
     });
     return selected;
@@ -148,18 +141,19 @@ function massApplyTrivyScan() {
     $('#trivyScanModal').hide();
     $('#trivyScanModal').modal('show');
 
-    document.getElementById('trivyScan-header').textContent = 'Scanning ' + selected.length + ' container(s)';
-    document.getElementById('trivyScan-spinner').style.display = 'block';
-    document.getElementById('trivyScan-results').innerHTML = '';
-    document.getElementById('trivyScan-close-btn').style.display = 'none';
+    $('#trivyScan-header').text('Scanning ' + selected.length + ' container(s)');
+
+    $('#trivyScan-spinner').show();
+    $('#trivyScan-close-btn').hide();
+    $('#trivyScan-results').html('');
 
     let c = 0;
 
     function runScan()
     {
         if (c == selected.length) {
-            document.getElementById('trivyScan-spinner').style.display = 'none';
-            document.getElementById('trivyScan-close-btn').style.display = 'inline-block';
+            $('#trivyScan-spinner').hide();
+            $('#trivyScan-close-btn').show();
             initPage('trivy');
             return;
         }
@@ -173,21 +167,20 @@ function massApplyTrivyScan() {
             timeout: 600000,
             data: { m: 'runScan', image: container.image, name: container.name },
             success: function(response) {
-                let resultHtml = (c + 1) + '/' + selected.length + ': ' + container.name + ': ';
+                let result = (c + 1) + '/' + selected.length + ': ' + container.name + ': ';
                 if (response.success) {
-                    resultHtml += 'Critical: ' + response.counts.critical + ', High: ' + response.counts.high + ', Medium: ' + response.counts.medium + ', Low: ' + response.counts.low;
+                    result += 'Critical: ' + response.counts.critical + ', High: ' + response.counts.high + ', Medium: ' + response.counts.medium + ', Low: ' + response.counts.low;
                 } else {
-                    resultHtml += 'Scan failed';
+                    result += 'Scan failed';
                 }
 
-                const resultsDiv = document.getElementById('trivyScan-results');
-                resultsDiv.insertAdjacentHTML('afterbegin', resultHtml + '<br>');
+                $('#trivyScan-results').prepend(result + '<br>');
+
                 c++;
                 runScan();
             },
             error: function(jqhdr, textStatus, errorThrown) {
-                const resultsDiv = document.getElementById('trivyScan-results');
-                resultsDiv.insertAdjacentHTML('afterbegin', (c + 1) + '/' + selected.length + ': ' + container.name + ': ajax error (' + (errorThrown ? errorThrown : 'timeout') + ')<br>');
+                $('#trivyScan-results').prepend((c + 1) + '/' + selected.length + ': ' + container.name + ': ajax error (' + (errorThrown ? errorThrown : 'timeout') + ')<br>');
                 c++;
                 runScan();
             }
@@ -222,7 +215,7 @@ function viewTrivyScanByFile(hash, image, file) {
             }
 
             const containerName = $('#trivy-row-' + hash).data('name');
-            document.getElementById('trivyModalTitle').textContent = 'Trivy Scan - ' + containerName;
+            $('#trivyModalTitle').text('Trivy Scan - ' + containerName);
 
             let html = '';
             if (vulns.length === 0) {
@@ -323,7 +316,7 @@ function viewTrivyScanHistory(hash, image) {
             pageLoadingStop();
 
             const containerName = $('#trivy-row-' + hash).data('name');
-            document.getElementById('trivyModalTitle').textContent = 'Trivy Scan History - ' + containerName;
+            $('#trivyModalTitle').text('Trivy Scan History - ' + containerName);
 
             let html = '';
             if (!history || history.length === 0) {
@@ -411,15 +404,13 @@ function toggleTrivySortModal() {
 }
 // ---------------------------------------------------------------------------------------------
 function updateTrivySortIcon() {
-    const icon = document.querySelector('.trivy-sort-icon');
-    if (!icon) return;
+    const icon = $('.trivy-sort-icon');
+    if (!icon.length) return;
 
     if (trivySortBy === 'severity') {
-        icon.classList.remove('fa-sort');
-        icon.classList.add('fa-sort-down');
+        icon.removeClass('fa-sort').addClass('fa-sort-down');
     } else {
-        icon.classList.remove('fa-sort-down');
-        icon.classList.add('fa-sort');
+        icon.removeClass('fa-sort-down').addClass('fa-sort');
     }
 }
 // ---------------------------------------------------------------------------------------------
