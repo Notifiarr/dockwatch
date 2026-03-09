@@ -249,7 +249,7 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="text-info">Trivy<i class="far fa-question-circle text-white" style="cursor: help; font-size: 12px; padding-left: 5px;" title="Container vulnerability scanner"></i></h4>
+        <h4 class="text-info">Vulnerability Scanner (Trivy)</h4>
         <div class="table-responsive">
             <table class="table table-sm">
                 <thead>
