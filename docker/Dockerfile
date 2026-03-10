@@ -26,7 +26,7 @@ RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclien
     && chmod +x /usr/local/bin/regctl
 
 # Add trivy for container vulnerability scanning
-COPY --from=aquasec/trivy:0.69.1@sha256:1c78ed1ef824ab8bb05b04359d186e4c1229d0b3e67005faacb54a7d71974f73 /usr/local/bin/trivy /usr/local/bin/trivy
+COPY --from=aquasec/trivy:0.69.3@sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c /usr/local/bin/trivy /usr/local/bin/trivy
 
 # Add composer for PHP package management
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
