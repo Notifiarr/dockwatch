@@ -34,7 +34,7 @@ logger(CRON_HEALTH_LOG, '$unhealthy=' . json_encode($unhealthy, JSON_UNESCAPED_S
 foreach ($containerList as $container) {
     $nameHash = md5($container['name']);
 
-    if (!str_contains($container['State'], 'running')) {
+    if (!str_contains($container['status'], 'running')) {
         unset($unhealthy[$nameHash]);
         logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' is not running and wont be checked');
         continue;
