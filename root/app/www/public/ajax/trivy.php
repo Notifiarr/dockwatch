@@ -2,7 +2,7 @@
 /*
 ----------------------------------
  ------  Created: 021826   ------
- ------  nzxl       	   ------
+ ------       nzxl         ------
 ----------------------------------
 */
 
@@ -184,6 +184,6 @@ if ($_POST['m'] == 'runScan') {
     echo json_encode([
         'success' => true,
         'result'  => $result,
-        'counts'  => $vulnCounts
+        'counts'  => $vulnCounts,
     ]);
 }

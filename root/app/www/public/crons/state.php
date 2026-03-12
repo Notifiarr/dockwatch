@@ -12,7 +12,7 @@ require ABSOLUTE_PATH . 'loader.php';
 
 logger(SYSTEM_LOG, 'Cron: running state');
 logger(CRON_STATE_LOG, 'run ->');
-echo date('c') . ' Cron: state' . "\n";
+echo date('c') . ' Cron: state ->' . "\n";
 
 if (!canCronRun('state', $settingsTable)) {
     exit();

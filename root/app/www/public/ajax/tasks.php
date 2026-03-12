@@ -167,7 +167,7 @@ if ($_POST['m'] == 'runTask') {
     if ($apiRequest['code'] == 200) {
         $result = $apiRequest['result'];
     } else {
-        $error = 'Failed to run taks on server ' . ACTIVE_SERVER_NAME;
+        $error = 'Failed to run task on server ' . ACTIVE_SERVER_NAME;
     }
 
     echo json_encode(['error' => $error, 'result' => $result, 'server' => ACTIVE_SERVER_NAME]);

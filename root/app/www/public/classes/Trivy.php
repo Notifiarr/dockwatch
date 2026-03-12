@@ -3,7 +3,7 @@
 /*
 ----------------------------------
  ------  Created: 021626   ------
- ------  nzxl	             ------
+ ------       nzxl         ------
 ----------------------------------
 */
 
@@ -70,7 +70,6 @@ class Trivy
         return $shell;
     }
 
-
     /**
      * Scan image for vulnerabilities
      * @param mixed Image (hash or full tag)
@@ -94,7 +93,7 @@ class Trivy
             TRIVY_PATH,
             TRIVY_PATH,
             $this->shell->prepare('"' . TRIVY_PATH . $hashPrefix . '/result_' . time() . '.json"'),
-            $this->shell->prepare($image)
+            $this->shell->prepare($image),
         );
         $shell = $this->shell->exec($cmd . ' 2>&1');
 
@@ -169,7 +168,7 @@ class Trivy
             'medium'   => 0,
             'low'      => 0,
             'unknown'  => 0,
-            'lastScan' => null
+            'lastScan' => null,
         ];
 
         if (!is_dir($imagePath)) {
@@ -280,7 +279,7 @@ class Trivy
                 'file'      => basename($file),
                 'timestamp' => filemtime($file),
                 'date'      => date('Y-m-d H:i:s', filemtime($file)),
-                'counts'    => $counts
+                'counts'    => $counts,
             ];
         }
 

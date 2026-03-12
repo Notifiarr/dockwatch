@@ -12,7 +12,7 @@ require ABSOLUTE_PATH . 'loader.php';
 
 logger(SYSTEM_LOG, 'Cron: running commands');
 logger(CRON_COMMANDS_LOG, 'run ->');
-echo date('c') . ' Cron: commands' . "\n";
+echo date('c') . ' Cron: commands ->' . "\n";
 
 if (!canCronRun('commands', $settingsTable)) {
     exit();
@@ -29,7 +29,7 @@ $migrate      = [
     "docker-stopContainer"    => "docker/container/stop",
     "docker-restartContainer" => "docker/container/restart",
     "docker-exec"             => "docker/container/shell",
-    "docker-processList"      => "docker/processList"
+    "docker-processList"      => "docker/processList",
 ];
 foreach ($commandsFile as $id => $command) {
     if ($migrate[$command['command']]) { //-- MIGRATE

@@ -31,5 +31,11 @@
 
     "files.eol": "\n",
     "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true
+    "files.trimFinalNewlines": true,
+    "cSpell.words": [
+        "NOTIFIARR",
+        "nzxl",
+        "vulns",
+        "Vulns"
+    ]
 }

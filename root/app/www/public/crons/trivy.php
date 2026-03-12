@@ -3,7 +3,7 @@
 /*
 ----------------------------------
  ------  Created: 021626   ------
- ------  nzxl	             ------
+ ------       nzxl         ------
 ----------------------------------
 */
 
@@ -12,7 +12,7 @@ require ABSOLUTE_PATH . 'loader.php';
 
 logger(SYSTEM_LOG, 'Cron: running trivy');
 logger(CRON_TRIVY_LOG, 'run ->');
-echo date('c') . ' Cron: trivy' . "\n";
+echo date('c') . ' Cron: trivy ->' . "\n";
 
 if (!canCronRun('trivy', $settingsTable)) {
     exit();
@@ -28,7 +28,7 @@ if (empty($containerList)) {
 }
 $imagesScanned = [];
 
-logger(logfile: CRON_TRIVY_LOG, msg: ' updating vuln databases.. (might take 1-2 mins)');
+logger(CRON_TRIVY_LOG, ' updating vuln databases.. (might take 1-2 mins)');
 echo date(format: 'c') . ' updating vuln databases.. (might take 1-2 mins)' . "\n";
 $trivy->downloadDB();
 $trivy->downloadJavaDB();
@@ -43,18 +43,18 @@ foreach ($containerList as $container) {
     }
     $imagesScanned[] = $hash;
 
-    logger(logfile: CRON_TRIVY_LOG, msg: ' scanning image ' . $container['image'] . ' ->');
+    logger(CRON_TRIVY_LOG, ' scanning image ' . $container['image'] . ' ->');
     echo date(format: 'c') . ' scanning image ' . $container['image'] . ' ->' . "\n";
 
     $scan = $trivy->scanImage($hash);
     if (!empty($scan)) {
-        logger(logfile: CRON_TRIVY_LOG, msg: $scan);
+        logger(CRON_TRIVY_LOG, $scan);
         echo date('c') . "\n" . $scan;
     }
 
     $newVulns = $trivy->getNewVulns($hash);
     if (count($newVulns) > 0) {
-        logger(logfile: CRON_TRIVY_LOG, msg: ' found ' . count($newVulns) . ' new or updated vulns in image ' . $container['image']);
+        logger(CRON_TRIVY_LOG, ' found ' . count($newVulns) . ' new or updated vulns in image ' . $container['image']);
         echo date('c') . ' found ' . count($newVulns) . ' new or updated vulns in image ' . $container['image'] . "\n";
 
         if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'security'])['result']) {
@@ -68,15 +68,20 @@ foreach ($containerList as $container) {
         logger(CRON_TRIVY_LOG, 'sending notification for \'' . $container['name'] . '\'');
         echo date('c') . ' sending notification for \'' . $container['name'] . '\'' . "\n";
 
-        $payload = ['event' => 'security', 'container' => $container['name'], 'image' => $container['image'], 'count' => count($newVulns), 'vulns' => $newVulns];
-        //-- TODO: MATTERMOST/TELEGRAM MESSAGE & NOTIFIARR INTEGRATION MESSAGE
-        // $notifications->notify(0, 'security', $payload);
+        $payload = [
+            'event'     => 'security',
+            'container' => $container['name'],
+            'image'     => $container['image'],
+            'count'     => count($newVulns),
+            'vulns'     => $newVulns,
+        ];
+        $notifications->notify(0, 'security', $payload);
 
         logger(CRON_TRIVY_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
         echo date('c') . ' Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES) . "\n";
     }
 
-    logger(logfile: CRON_TRIVY_LOG, msg: ' scanning image ' . $container['image'] . ' <-');
+    logger(CRON_TRIVY_LOG, ' scanning image ' . $container['image'] . ' <-');
     echo date(format: 'c') . ' scanning image ' . $container['image'] . ' <-' . "\n";
 }
 

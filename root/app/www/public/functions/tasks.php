@@ -9,7 +9,7 @@
 
 function executeTask($task)
 {
-    global $database, $shell;
+    global $database, $shell, $memcache;
 
     $return = '[]';
 
@@ -18,7 +18,7 @@ function executeTask($task)
             return json_encode(telemetry(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'processList';
             $getExpandedProcessList = getExpandedProcessList(true, true, true);
-            $processList = $getExpandedProcessList['processList'];
+            $processList            = $getExpandedProcessList['processList'];
 
             return json_encode($processList, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
         case 'aliasFile':
@@ -35,11 +35,18 @@ function executeTask($task)
         case 'sse':
         case 'commands':
         case 'trivy':
+            memcacheSet('runTask-' . $task, true, 60);
             $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'crons/' . $task . '.php';
 
-            return $shell->exec($cmd . ' 2>&1');
+            $return  = $task . ' -><br>';
+            $return .= 'Setting runTask-' . $task . ' cache key for 60 seconds...<br>';
+            $return .= 'Sending task to background process...<br>';
+            $return .= $shell->background($cmd . ' 2>&1') . '<br>';
+            $return .= $task . ' <-';
+
+            return $return;
         case 'server':
-            $return = 'cli:<br>';
+            $return  = 'cli:<br>';
             $return .= '/usr/bin/php -r \'print_r($_SERVER);\'<br><br>';
             $return .= 'browser:<br>';
 

@@ -13,39 +13,39 @@ function canCronRun($cron, $settingsTable)
 
     switch ($cron) {
         case 'health':
-            $log = CRON_HEALTH_LOG;
+            $log   = CRON_HEALTH_LOG;
             $field = 'taskHealthDisabled';
             break;
         case 'housekeeper':
-            $log = CRON_HOUSEKEEPER_LOG;
+            $log   = CRON_HOUSEKEEPER_LOG;
             $field = 'taskHousekeepingDisabled';
             break;
         case 'prune':
-            $log = CRON_PRUNE_LOG;
+            $log   = CRON_PRUNE_LOG;
             $field = 'taskPruneDisabled';
             break;
         case 'pulls':
-            $log = CRON_PULLS_LOG;
+            $log   = CRON_PULLS_LOG;
             $field = 'taskPullsDisabled';
             break;
         case 'sse':
-            $log = CRON_SSE_LOG;
+            $log   = CRON_SSE_LOG;
             $field = 'sseEnabled';
             break;
         case 'state':
-            $log = CRON_STATE_LOG;
+            $log   = CRON_STATE_LOG;
             $field = 'taskStateDisabled';
             break;
         case 'stats':
-            $log = CRON_STATS_LOG;
+            $log   = CRON_STATS_LOG;
             $field = 'taskStatsDisabled';
             break;
         case 'commands':
-            $log = CRON_COMMANDS_LOG;
+            $log   = CRON_COMMANDS_LOG;
             $field = 'taskCommandsDisabled';
             break;
         case 'trivy':
-            $log = CRON_TRIVY_LOG;
+            $log   = CRON_TRIVY_LOG;
             $field = 'trivyEnabled';
             break;
     }
@@ -71,6 +71,13 @@ function canCronRun($cron, $settingsTable)
         echo date('c') . ' Cron: ' . $cron . ' cancelled, disabled in tasks menu or settings' . "\n";
         echo date('c') . ' Cron: ' . $cron . ' <-' . "\n";
         return false;
+    }
+
+    if (memcacheGet('runTask-' . $cron)) {
+        logger($log, 'runTask-' . $cron . ' cache key present, skipping checks and triggering task');
+        echo date('c') . ' runTask-' . $cron . ' cache key present, skipping checks and triggering task' . "\n";
+        memcacheBust('runTask-' . $cron);
+        return true;
     }
 
     //-- EXTRA CHECKS
