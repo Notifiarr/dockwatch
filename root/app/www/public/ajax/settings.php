@@ -33,7 +33,7 @@ if ($_POST['m'] == 'init') {
     <div class="bg-secondary rounded p-4">
         <h4 class="text-info">Instance</h4>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
@@ -82,7 +82,7 @@ if ($_POST['m'] == 'init') {
         </div>
         <h4 class="text-info">UI</h4>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
@@ -124,7 +124,7 @@ if ($_POST['m'] == 'init') {
         </div>
         <h4 class="text-info">Login failures</h4>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
@@ -152,7 +152,7 @@ if ($_POST['m'] == 'init') {
         </div>
         <h4 class="text-info"><?= APP_NAME ?> servers</h4>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
@@ -214,7 +214,7 @@ if ($_POST['m'] == 'init') {
         </div>
         <h4 class="text-info">Containers</h4>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
@@ -251,7 +251,7 @@ if ($_POST['m'] == 'init') {
         </div>
         <h4 class="text-info">Vulnerability Scanner (Trivy)</h4>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
@@ -294,7 +294,7 @@ if ($_POST['m'] == 'init') {
         </div>
         <h4 class="text-info">Auto prune</h4>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
@@ -344,7 +344,7 @@ if ($_POST['m'] == 'init') {
         </div>
         <h4 class="mt-3 text-info">Thresholds</h4>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
@@ -379,7 +379,7 @@ if ($_POST['m'] == 'init') {
         </div>
         <h4 class="mt-3 text-info">SSE</h4>
         <div class="table-responsive mt-2">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
@@ -400,7 +400,7 @@ if ($_POST['m'] == 'init') {
         </div>
         <h4 class="mt-3 text-info">Logging</h4>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
@@ -442,7 +442,7 @@ if ($_POST['m'] == 'init') {
         </div>
         <h4 class="mt-3"><i class="far fa-plus-square text-light development-settings" onclick="$('.development-settings').toggle()"></i> <i class="far fa-minus-square text-light development-settings" onclick="$('.development-settings').toggle()" style="display: none;"></i> <span class="text-info">Development</span></h4>
         <div class="table-responsive development-settings" style="display: none;">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>

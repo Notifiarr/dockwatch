@@ -213,7 +213,7 @@ if ($_POST['m'] == 'init') {
         <div class="col-sm-12 col-lg-6 mt-sm-0">
             <div class="bg-secondary rounded p-2" style="cursor:pointer;" onclick="initPage('networks')">
                 <div class="table-responsive bg-secondary" style="height:25vh; max-height:25vh; overflow:auto;">
-                    <table class="table table-sm">
+                    <table class="table table-sm table-no-squish">
                         <thead>
                             <tr>
                                 <th class="w-50 rounded-top-left-1 bg-primary ps-3">Network</th>
@@ -235,7 +235,7 @@ if ($_POST['m'] == 'init') {
         <div class="col-sm-12 col-lg-6 mt-sm-0">
             <div class="bg-secondary rounded p-2">
                 <div class="table-responsive-sm" style="height:25vh; max-height:25vh; overflow:auto;">
-                    <table class="table table-sm">
+                    <table class="table table-sm table-no-squish">
                         <thead>
                             <tr>
                                 <th class="w-50 rounded-top-left-1 bg-primary ps-3">Container</th>

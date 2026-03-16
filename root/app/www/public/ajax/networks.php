@@ -20,7 +20,7 @@ if ($_POST['m'] == 'init') {
     </ol>
     <div class="bg-secondary rounded p-4">
         <div class="table-responsive bg-secondary">
-            <table class="table">
+            <table class="table table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3">Name</th>

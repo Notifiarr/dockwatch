@@ -50,7 +50,7 @@ if ($_POST['m'] == 'init') {
             <h4>Add new compose</h4>
             <span class="small-text"><code><?= COMPOSE_PATH ?>{name}/docker-compose.yml</code></span>
             <div class="table-responsive">
-                <table class="table table-sm">
+                <table class="table table-sm table-no-squish">
                     <thead>
                         <tr>
                             <th class="rounded-top-left-1 bg-primary ps-3">Name</th>
@@ -81,7 +81,7 @@ if ($_POST['m'] == 'init') {
             <h4>Compose management</h4>
             <span class="small-text text-muted">You can ssh into the container and run it manually <code>cd <?= COMPOSE_PATH ?>{name} && docker-compose pull</code></span>
             <div class="table-responsive">
-                <table class="table table-sm">
+                <table class="table table-sm table-no-squish">
                     <thead>
                         <tr>
                             <th class="rounded-top-left-1 bg-primary ps-3">Compose Location</th>

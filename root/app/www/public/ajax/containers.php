@@ -85,7 +85,7 @@ if ($_POST['m'] == 'init') {
             </div>
             <div class="col-sm-12">
                 <div class="table-responsive">
-                    <table class="table" id="container-table">
+                    <table class="table table-no-squish" id="container-table">
                         <thead>
                             <tr>
                                 <th scope="col" class="rounded-top-left-1 bg-primary ps-3 container-table-header noselect no-sort"></th>
@@ -888,7 +888,7 @@ if ($_POST['m'] == 'openContainerGroups') {
             </div>
         </div>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input" onclick="$('.group-check').prop('checked', $(this).prop('checked'));"></th>
@@ -1059,7 +1059,7 @@ if ($_POST['m'] == 'openUpdateOptions') {
     ?>
     <div class="bg-secondary rounded h-100 p-4">
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input" onclick="$('.container-update-checkbox').prop('checked', $(this).prop('checked'));"></th>
@@ -1174,7 +1174,7 @@ if ($_POST['m'] == 'openEditContainer') {
         <?= $container['Names'] ?> (<?= $container['stats']['Container'] ?>)<br>
         <span class="text-muted"><?= $container['Image'] ?></span><br>
         <div class="table-responsive">
-            <table class="table">
+            <table class="table table-no-squish">
                 <thead>
                     <th>&nbsp;</th>
                     <th>&nbsp;</th>

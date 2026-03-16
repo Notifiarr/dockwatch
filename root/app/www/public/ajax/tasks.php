@@ -19,7 +19,7 @@ if ($_POST['m'] == 'init') {
         <div class="row">
             <div class="col-sm-4">
                 <div class="table-responsive">
-                    <table class="table table-sm">
+                    <table class="table table-sm table-no-squish">
                         <thead>
                             <tr>
                                 <th class="rounded-top-left-1 bg-primary ps-3">Disable</th>
@@ -94,7 +94,7 @@ if ($_POST['m'] == 'init') {
                 </div>
                 <br clear="all">
                 <div class="table-responsive">
-                    <table class="table table-sm">
+                    <table class="table table-sm table-no-squish">
                         <thead>
                             <tr>
                                 <th class="rounded-top-left-1 bg-primary ps-3">Task</th>

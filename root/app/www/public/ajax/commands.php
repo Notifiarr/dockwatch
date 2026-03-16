@@ -50,7 +50,7 @@ if ($_POST['m'] == 'init') {
                     </div>
                 </div>
                 <div class="table-responsive mt-2">
-                    <table class="table table-sm">
+                    <table class="table table-sm table-no-squish">
                         <thead>
                             <tr>
                                 <th class="w-25 rounded-top-left-1 bg-primary ps-3">Run</th>
@@ -162,7 +162,7 @@ if ($_POST['m'] == 'listCommand') {
     ?>
     <div class="bg-secondary rounded h-100 p-4">
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col">ID</th>

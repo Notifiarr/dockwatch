@@ -4,9 +4,11 @@
     --normal-font-size: 1rem;
     --z-fixed: 100
 }
+
 *, ::before, ::after {
     box-sizing: border-box;
 }
+
 body {
     position: relative;
     margin: var(--header-height) 0 0 0;
@@ -14,15 +16,18 @@ body {
     font-size: var(--normal-font-size);
     transition: .5s;
 }
+
 a {
     text-decoration: none
 }
+
 .header {
     top: 0;
     left: 0;
     padding: 0 1rem;
     transition: .5s;
 }
+
 #footer, #header {
     width: 100%;
     height: var(--header-height);
@@ -32,9 +37,11 @@ a {
     position: fixed;
     z-index: 99;
 }
+
 #nav-bar {
     background-color: var(--bs-primary);
 }
+
 .header_toggle {
     color: var(--bs-secondary);
     font-size: 1.5rem;
@@ -162,6 +169,7 @@ a {
         top: 150px;
     }
 }
+
 @media screen and (max-width: 768px) {
     #footer-content {
         padding-top: 5px;
@@ -175,7 +183,12 @@ a {
     #container-table_filter {
         margin-top: 3em !important;
     }
+    .table-no-squish {
+        width: auto !important;
+        white-space: nowrap;
+    }
 }
+
 td, span, div {
     color: var(--light);
 }

@@ -34,7 +34,7 @@ if ($_POST['m'] == 'init') {
                     </div>
                 <?php } ?>
                 <div class="table-responsive">
-                    <table class="table" id="trivy-table">
+                    <table class="table table-no-squish" id="trivy-table">
                         <thead>
                             <tr>
                                 <th scope="col" class="rounded-top-left-1 bg-primary ps-3 container-table-header noselect no-sort"></th>

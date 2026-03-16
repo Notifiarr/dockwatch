@@ -27,7 +27,7 @@ if ($_POST['m'] == 'init') {
         <h4 class="mt-3 mb-0">Images</h4>
         <span class="text-muted"><code><?= DockerSock::ORPHAN_CONTAINERS ?></code></span>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanImages-check').prop('checked', $(this).prop('checked'));"></th>
@@ -62,7 +62,7 @@ if ($_POST['m'] == 'init') {
         <h4 class="mt-3 mb-0">Unused containers</h4>
         <span class="text-muted"><code><?= DockerSock::UNUSED_CONTAINERS ?></code></span>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanUnusedContainers-check').prop('checked', $(this).prop('checked'));"></th>
@@ -95,7 +95,7 @@ if ($_POST['m'] == 'init') {
         <h4 class="mt-3 mb-0">Volumes</h4>
         <span class="text-muted"><code><?= DockerSock::ORPHAN_VOLUMES ?></code></span>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanVolumes-check').prop('checked', $(this).prop('checked'));"></th>
@@ -126,7 +126,7 @@ if ($_POST['m'] == 'init') {
         <h4 class="mt-3 mb-0">Networks</h4>
         <span class="text-muted"><code><?= DockerSock::ORPHAN_NETWORKS ?></code></span>
         <div class="table-responsive">
-            <table class="table table-sm">
+            <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
                         <th class="rounded-top-left-1 bg-primary ps-3" scope="col"><input type="checkbox" class="form-check-input orphan-checkall" onclick="$('.orphanNetworks-check').prop('checked', $(this).prop('checked'));"></th>

@@ -224,7 +224,7 @@ function viewTrivyScanByFile(hash, image, file) {
                 html = `
                     <div class="trivy-content">
                         <div class="table-responsive">
-                            <table class="table" id="trivy-vulns-table">
+                            <table class="table table-no-squish" id="trivy-vulns-table">
                                 <thead>
                                     <tr>
                                         <th class="rounded-top-left-1 bg-primary ps-3">Library</th>
@@ -324,7 +324,7 @@ function viewTrivyScanHistory(hash, image) {
             } else {
                 html = `
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table table-no-squish">
                             <thead>
                                 <tr>
                                     <th class="rounded-top-left-1 bg-primary ps-3">Date</th>
