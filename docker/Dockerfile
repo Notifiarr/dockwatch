@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1@sha256:b6afd42430b15f2d2a4c5a02b919e98a525b785b1aaff16747d2f623364e39b6
-FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.23@sha256:f7d143bf6d2ea4eb1d6198ee56f3b8c47a68b55fa6e5c688bd0606e697b999e2
+FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.23@sha256:1a5f561b528dde3f6bc6b20b1a8c4b10a7ac41e68ae668a119a9314df0a94df5
 ARG TARGETARCH
 
 # Version labels
