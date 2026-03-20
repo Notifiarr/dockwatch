@@ -61,11 +61,14 @@ trait NotificationTemplates
                 ];
             case 'security':
                 return [
-                    'event'     => '',
-                    'container' => '',
-                    'image'     => '',
-                    'count'     => '',
-                    'vulns'     => ''
+                    'event'      => '',
+                    'containers' => '',
+                    'critical'   => '',
+                    'high'       => '',
+                    'medium'     => '',
+                    'low'        => '',
+                    'unknown'    => '',
+                    'details'    => ''
                 ];
             default:
                 return [];

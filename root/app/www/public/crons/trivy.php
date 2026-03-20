@@ -27,6 +27,16 @@ if (empty($containerList)) {
     exit();
 }
 $imagesScanned = [];
+$payload       = [
+    'event'      => 'security',
+    'containers' => 0,
+    'critical'   => 0,
+    'high'       => 0,
+    'medium'     => 0,
+    'low'        => 0,
+    'unknown'    => 0,
+    'details'    => []
+];
 
 logger(CRON_TRIVY_LOG, ' updating vuln databases.. (might take 1-2 mins)');
 echo date(format: 'c') . ' updating vuln databases.. (might take 1-2 mins)' . "\n";
@@ -57,32 +67,42 @@ foreach ($containerList as $container) {
         logger(CRON_TRIVY_LOG, ' found ' . count($newVulns) . ' new or updated vulns in image ' . $container['image']);
         echo date('c') . ' found ' . count($newVulns) . ' new or updated vulns in image ' . $container['image'] . "\n";
 
-        if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'security'])['result']) {
-            $notify = true;
-        } else {
-            logger(CRON_TRIVY_LOG, 'skipping notification for \'' . $container['name'] . '\', no notification senders with the security event enabled', 'warn');
+        $payload['containers']++;
+        foreach ($newVulns as $vuln) {
+            if ($vuln['severity'] === "CRITICAL") {
+                $payload['critical']++;
+            }
+
+            if ($vuln['severity'] === "HIGH") {
+                $payload['high']++;
+            }
+
+            if ($vuln['severity'] === "MEDIUM") {
+                $payload['medium']++;
+            }
+
+            if ($vuln['severity'] === "LOW") {
+                $payload['low']++;
+            }
+
+            if ($vuln['severity'] === "UNKNOWN") {
+                $payload['unknown']++;
+            }
         }
-    }
-
-    if ($notify) {
-        logger(CRON_TRIVY_LOG, 'sending notification for \'' . $container['name'] . '\'');
-        echo date('c') . ' sending notification for \'' . $container['name'] . '\'' . "\n";
-
-        $payload = [
-            'event'     => 'security',
-            'container' => $container['name'],
-            'image'     => $container['image'],
-            'count'     => count($newVulns),
-            'vulns'     => $newVulns,
-        ];
-        $notifications->notify(0, 'security', $payload);
-
-        logger(CRON_TRIVY_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
-        echo date('c') . ' Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES) . "\n";
+        $payload['details'][$container['image']] = $newVulns;
     }
 
     logger(CRON_TRIVY_LOG, ' scanning image ' . $container['image'] . ' <-');
     echo date(format: 'c') . ' scanning image ' . $container['image'] . ' <-' . "\n";
+}
+
+if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'security'])['result']) {
+    $notifications->notify(0, 'security', $payload);
+
+    logger(CRON_TRIVY_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
+    echo date('c') . ' Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES) . "\n";
+} else {
+    logger(CRON_TRIVY_LOG, 'skipping notification, no notification senders with the security event enabled', 'warn');
 }
 
 echo date('c') . ' Cron: trivy <-' . "\n";
