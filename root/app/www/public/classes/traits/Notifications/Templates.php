@@ -62,6 +62,7 @@ trait NotificationTemplates
             case 'security':
                 return [
                     'event'      => '',
+                    'changed'    => '',
                     'containers' => '',
                     'critical'   => '',
                     'high'       => '',

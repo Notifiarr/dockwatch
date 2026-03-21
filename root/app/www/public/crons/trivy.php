@@ -26,9 +26,10 @@ if (empty($containerList)) {
     echo date('c') . 'Cron run stopped: error fetching container list';
     exit();
 }
-$imagesScanned = [];
-$payload       = [
+$imagesScanned    = [];
+$payload          = [
     'event'      => 'security',
+    'changed'    => false,
     'containers' => 0,
     'critical'   => 0,
     'high'       => 0,
@@ -37,6 +38,7 @@ $payload       = [
     'unknown'    => 0,
     'details'    => []
 ];
+$skipNotification = false;
 
 logger(CRON_TRIVY_LOG, ' updating vuln databases.. (might take 1-2 mins)');
 echo date(format: 'c') . ' updating vuln databases.. (might take 1-2 mins)' . "\n";
@@ -46,7 +48,6 @@ $trivy->downloadJavaDB();
 foreach ($containerList as $container) {
     $nameHash = md5($container['name']);
     $hash     = substr(preg_replace('/sha256\:/', '', $docker->getImageHash($container['image'])), 0, 4);
-    $notify   = false;
 
     if (in_array($hash, $imagesScanned)) {
         continue;
@@ -62,41 +63,31 @@ foreach ($containerList as $container) {
         echo date('c') . "\n" . $scan;
     }
 
-    $newVulns = $trivy->getNewVulns($hash);
-    if (count($newVulns) > 0) {
-        logger(CRON_TRIVY_LOG, ' found ' . count($newVulns) . ' new or updated vulns in image ' . $container['image']);
-        echo date('c') . ' found ' . count($newVulns) . ' new or updated vulns in image ' . $container['image'] . "\n";
+    $vulns = $trivy->getVulns($hash);
+    if (count($vulns) > 0) {
+        logger(CRON_TRIVY_LOG, ' found ' . count($vulns) . ' vulns in image ' . $container['image']);
+        echo date('c') . ' found ' . count($vulns) . ' vulns in image ' . $container['image'] . "\n";
 
         $payload['containers']++;
-        foreach ($newVulns as $vuln) {
-            if ($vuln['severity'] === "CRITICAL") {
-                $payload['critical']++;
-            }
-
-            if ($vuln['severity'] === "HIGH") {
-                $payload['high']++;
-            }
-
-            if ($vuln['severity'] === "MEDIUM") {
-                $payload['medium']++;
-            }
-
-            if ($vuln['severity'] === "LOW") {
-                $payload['low']++;
-            }
-
-            if ($vuln['severity'] === "UNKNOWN") {
-                $payload['unknown']++;
-            }
+        foreach ($vulns as $vuln) {
+            $payload[strtolower($vuln['severity'])]++;
         }
-        $payload['details'][$container['image']] = $newVulns;
+        $payload['details'][$container['image']] = $vulns;
+    }
+
+    if (count($trivy->getNewVulns($hash)) > 0) {
+        $payload['changed'] = true;
     }
 
     logger(CRON_TRIVY_LOG, ' scanning image ' . $container['image'] . ' <-');
     echo date(format: 'c') . ' scanning image ' . $container['image'] . ' <-' . "\n";
 }
 
-if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'security'])['result']) {
+if ($payload['containers'] < 1) {
+    $skipNotification = true;
+}
+
+if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'security'])['result'] && !$skipNotification) {
     $notifications->notify(0, 'security', $payload);
 
     logger(CRON_TRIVY_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
