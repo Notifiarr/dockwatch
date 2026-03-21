@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "devDependencies": {
-        "@types/jquery": "^3.5.33",
+        "@types/jquery": "^4.0.0",
         "eslint": "^9.0.0"
     },
     "scripts": {
