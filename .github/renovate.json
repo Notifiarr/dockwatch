@@ -3,7 +3,9 @@
     "extends": [
         "config:recommended",
         "docker:pinDigests",
-        "default:automergeDigest"
+        "default:automergeDigest",
+        "group:allNonMajor",
+        "group:allDigest"
     ],
     "customManagers": [
         {
@@ -21,21 +23,7 @@
             "matchUpdateTypes": [
                 "major"
             ],
-            "automerge": false,
             "minimumReleaseAge": "30 days"
-        },
-        {
-            "matchUpdateTypes": [
-                "minor",
-                "patch",
-                "digest"
-            ],
-            "automerge": false,
-            "minimumReleaseAge": "7 days"
         }
-    ],
-    "lockFileMaintenance": {
-        "enabled": false,
-        "automerge": true
-    }
+    ]
 }
