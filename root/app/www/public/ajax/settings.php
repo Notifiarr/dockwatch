@@ -462,6 +462,11 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary">Browse the <?= APP_NAME ?> database</td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Containers clean up</td>
+                        <td class="bg-secondary"><button class="btn btn-sm btn-warning" onclick="cleanupContainers()">Clean</button></td>
+                        <td class="bg-secondary">Remove all containers from the database that no longer exist in Docker. Use with caution.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">State cron time</td>
                         <td class="bg-secondary">
                             <select class="form-select" id="globalSetting-stateCronTime">
@@ -653,4 +658,41 @@ if ($_POST['m'] == 'unlinkRemoteServer') {
 
 if ($_POST['m'] == 'updateSetting') {
     $database->setSetting($_POST['setting'], $_POST['value']);
+}
+
+if ($_POST['m'] == 'cleanupContainers') {
+    $containersTable      = apiRequest('database/containers')['result'];
+    $containerGroupsTable = apiRequest('database/group/links')['result'];
+    $removed              = 0;
+
+    foreach ($containersTable as $container) {
+        $containerState = $docker->findContainer(['hash' => $container['hash'], 'data' => $stateFile]);
+        if (!$containerState) {
+            apiRequest('database/container/delete', [], ['hash' => $container['hash']]);
+
+            foreach ($containerGroupsTable as $containerGroup) {
+                if ($containerGroup['container_id'] == $container['id']) {
+                    apiRequest('database/group/container/link/remove', [], ['groupId' => $containerGroup['group_id'], 'containerId' => $container['id']]);
+                }
+            }
+
+            $removed++;
+        }
+    }
+
+    echo json_encode(['removed' => $removed]);
+}
+
+if ($_POST['m'] == 'previewCleanupContainers') {
+    $containersTable   = apiRequest('database/containers')['result'];
+    $cleanupContainers = [];
+
+    foreach ($containersTable as $container) {
+        $containerState = $docker->findContainer(['hash' => $container['hash'], 'data' => $stateFile]);
+        if (!$containerState) {
+            $cleanupContainers[] = $container['hash'];
+        }
+    }
+
+    echo json_encode(['containers' => $cleanupContainers]);
 }

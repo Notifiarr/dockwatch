@@ -64,3 +64,50 @@ function updateSetting(setting, value)
     });
 }
 // ---------------------------------------------------------------------------------------------
+function cleanupContainers()
+{
+    pageLoadingStart();
+
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/settings.php',
+        data: '&m=previewCleanupContainers',
+        dataType: 'json',
+        success: function (resultData) {
+            pageLoadingStop();
+            let containers = resultData.containers;
+
+            if (containers.length === 0) {
+                toast('Containers clean up', 'No dead containers found', 'info');
+                return;
+            }
+            let containerList = containers.map(hash => `<li>${hash}</li>`).join('');
+
+            dialogOpen({
+                id: 'cleanupContainersModal',
+                title: 'Confirm Cleanup',
+                body: `<p>The following containers will be removed from the database:</p><ul>${containerList}</ul>`,
+                footer: '<button type="button" class="btn btn-outline-danger" id="cleanupContainersConfirm">Remove</button><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>',
+                onOpen: function() {
+                    $('#cleanupContainersConfirm').on('click', function() {
+                        dialogClose('cleanupContainersModal');
+                        pageLoadingStart();
+
+                        $.ajax({
+                            type: 'POST',
+                            url: 'ajax/settings.php',
+                            data: '&m=cleanupContainers',
+                            dataType: 'json',
+                            success: function (resultData) {
+                                pageLoadingStop();
+                                toast('Containers clean up', `Removed ${resultData.removed} dead container(s) from the database`, 'success');
+                                initPage('settings');
+                            }
+                        });
+                    });
+                }
+            });
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
