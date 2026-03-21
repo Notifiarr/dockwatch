@@ -309,16 +309,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.8.0",
+            "version": "2.8.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "4efa10c1e56488e658d10adf7b7b7dcd19940bfb"
+                "reference": "59fb075d2101740c337c7216e3f32b36c204218b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/4efa10c1e56488e658d10adf7b7b7dcd19940bfb",
-                "reference": "4efa10c1e56488e658d10adf7b7b7dcd19940bfb",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/59fb075d2101740c337c7216e3f32b36c204218b",
+                "reference": "59fb075d2101740c337c7216e3f32b36c204218b",
                 "shasum": ""
             },
             "require": {
@@ -343,9 +343,9 @@
                 "phpstan/phpstan": "^1.8.2",
                 "phpunit/phpunit": "^9.5.21 || ^10.5.9 || ^11.0.0",
                 "scrutinizer/ocular": "^1.8.1",
-                "symfony/finder": "^5.3 | ^6.0 | ^7.0",
-                "symfony/process": "^5.4 | ^6.0 | ^7.0",
-                "symfony/yaml": "^2.3 | ^3.0 | ^4.0 | ^5.0 | ^6.0 | ^7.0",
+                "symfony/finder": "^5.3 | ^6.0 | ^7.0 || ^8.0",
+                "symfony/process": "^5.4 | ^6.0 | ^7.0 || ^8.0",
+                "symfony/yaml": "^2.3 | ^3.0 | ^4.0 | ^5.0 | ^6.0 | ^7.0 || ^8.0",
                 "unleashedtech/php-coding-standard": "^3.1.1",
                 "vimeo/psalm": "^4.24.0 || ^5.0.0 || ^6.0.0"
             },
@@ -412,7 +412,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-11-26T21:48:24+00:00"
+            "time": "2026-03-19T13:16:38+00:00"
         },
         {
             "name": "league/config",
@@ -652,16 +652,16 @@
         },
         {
             "name": "phiki/phiki",
-            "version": "v2.1.0",
+            "version": "v2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phikiphp/phiki.git",
-                "reference": "b16020573e9f4ad3c9d230c17ed4c84c15356e28"
+                "reference": "546c7d6fca490c6597fbeb2381de28a79c76643d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phikiphp/phiki/zipball/b16020573e9f4ad3c9d230c17ed4c84c15356e28",
-                "reference": "b16020573e9f4ad3c9d230c17ed4c84c15356e28",
+                "url": "https://api.github.com/repos/phikiphp/phiki/zipball/546c7d6fca490c6597fbeb2381de28a79c76643d",
+                "reference": "546c7d6fca490c6597fbeb2381de28a79c76643d",
                 "shasum": ""
             },
             "require": {
@@ -707,7 +707,7 @@
             "description": "Syntax highlighting using TextMate grammars in PHP.",
             "support": {
                 "issues": "https://github.com/phikiphp/phiki/issues",
-                "source": "https://github.com/phikiphp/phiki/tree/v2.1.0"
+                "source": "https://github.com/phikiphp/phiki/tree/v2.1.1"
             },
             "funding": [
                 {
@@ -719,7 +719,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-01-20T21:26:48+00:00"
+            "time": "2026-03-18T20:23:32+00:00"
         },
         {
             "name": "psr/event-dispatcher",
@@ -1977,5 +1977,5 @@
         "php": "^8.4"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
