@@ -3,7 +3,6 @@
     "extends": [
         "config:recommended",
         "docker:pinDigests",
-        "default:automergeDigest",
         "group:allNonMajor",
         "group:allDigest"
     ],
