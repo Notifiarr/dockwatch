@@ -10,12 +10,18 @@
 //-- BRING IN THE EXTRAS
 loadClassExtras('Security');
 
+/**
+ * Security class for vulnerability scanning and management.
+ */
 class Security
 {
     protected $shell;
     protected $docker;
     protected $memcache;
 
+    /**
+     * Constructor.
+     */
     public function __construct()
     {
         global $shell, $docker;
@@ -27,8 +33,12 @@ class Security
     }
 
     /**
-     * Scan image for vulnerabilities
-     * @param mixed Image (hash or full tag)
+     * Scan image for vulnerabilities.
+     *
+     * @param string $image     Image (hash or full tag)
+     * @param string $scanner   Scanner type (default: SecurityScanner::GRYPE_SCAN_ID)
+     * @param string $snykApiKey Snyk API key (required for SNYK scanner)
+     *
      * @return bool|string|null
      */
     public function scanImage($image, $scanner = SecurityScanner::GRYPE_SCAN_ID, $snykApiKey)
@@ -79,9 +89,11 @@ class Security
     }
 
     /**
-     * Get image vulnerabilities from most recent scan file
-     * @param mixed Image (hash or full tag)
-     * @param string|null $file Specific scan file to read
+     * Get image vulnerabilities from most recent scan file.
+     *
+     * @param string      $image Image (hash or full tag)
+     * @param string|null $file  Specific scan file to read
+     *
      * @return array|null
      */
     public function getVulns($image, $file = null)
@@ -128,6 +140,13 @@ class Security
         return $parsedVulns;
     }
 
+    /**
+     * Get vulnerability counts for an image.
+     *
+     * @param string $image Image (hash or full tag)
+     *
+     * @return array{critical: int, high: int, medium: int, low: int, unknown: int, lastScan: int|null}
+     */
     public function getVulnCounts($image)
     {
         $cache = $this->memcache->get(sprintf(MEMCACHE_SECURITY_VULNS_COUNT_KEY, $image));
@@ -184,6 +203,13 @@ class Security
         return $counts;
     }
 
+    /**
+     * Get the number of scan history entries for an image.
+     *
+     * @param string $image Image (hash or full tag)
+     *
+     * @return int
+     */
     public function getScanHistoryCount($image)
     {
         $cache = $this->memcache->get(sprintf(MEMCACHE_SECURITY_SCAN_HISTORY_COUNT_KEY, $image));
@@ -205,6 +231,13 @@ class Security
         return count($resultFiles);
     }
 
+    /**
+     * Get scan history for an image.
+     *
+     * @param string $image Image (hash or full tag)
+     *
+     * @return array
+     */
     public function getScanHistory($image)
     {
         $cache = $this->memcache->get(sprintf(MEMCACHE_SECURITY_SCAN_HISTORY_KEY, $image));
@@ -259,8 +292,10 @@ class Security
     }
 
     /**
-     * Parse vulnerabilities from scan data
-     * @param array $scanData
+     * Parse vulnerabilities from scan data.
+     *
+     * @param array $scanData Raw scan data from scanner
+     *
      * @return array
      */
     private function parseVulns($scanData)
@@ -311,7 +346,7 @@ class Security
             }
         }
 
-        //-- SNYK SCAN - Root level vulnerabilities
+        //-- SNYK SCAN - APP
         if (!empty($scanData['vulnerabilities'])) {
             foreach ($scanData['vulnerabilities'] as $vuln) {
                 $pkgName = $vuln['packageName'] ?? 'unknown';
@@ -329,7 +364,7 @@ class Security
             }
         }
 
-        //-- SNYK SCAN - Application level vulnerabilities
+        //-- SNYK SCAN - DEPENDENCIES
         if (!empty($scanData['applications'])) {
             foreach ($scanData['applications'] as $app) {
                 if (!empty($app['vulnerabilities'])) {
@@ -355,9 +390,11 @@ class Security
     }
 
     /**
-     * Get new or updated vulnerabilities by comparing most recent scan with previous scan
-     * @param mixed Image (hash or full tag)
-     * @return array Array of new/updated vulnerabilities with 'type' => 'new'|'updated'
+     * Get new or updated vulnerabilities by comparing most recent scan with previous scan.
+     *
+     * @param string $image Image (hash or full tag)
+     *
+     * @return array Array of new/updated vulnerabilities with 'changeType' => 'new'|'updated'
      */
     public function getNewVulns($image)
     {
@@ -419,6 +456,11 @@ class Security
         return $newVulns;
     }
 
+    /**
+     * Returns a string representation of the class.
+     *
+     * @return string
+     */
     public function __toString()
     {
         return 'Class loaded: Security';
