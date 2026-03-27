@@ -1,5 +1,5 @@
-let trivyTableDrawn = false;
-let trivySortBy = 'date';
+let securityTableDrawn = false;
+let securitySortBy = 'date';
 const severityOrder = {
     'CRITICAL': 0,
     'HIGH': 1,
@@ -8,20 +8,20 @@ const severityOrder = {
     'UNKNOWN': 4
 };
 // ---------------------------------------------------------------------------------------------
-function initTrivyTable() {
-    const table = $('#trivy-table');
+function initSecurityTable() {
+    const table = $('#security-table');
     if (!table.length) {
-        trivyTableDrawn = false;
+        securityTableDrawn = false;
         return;
     }
 
-    if ($.fn.DataTable.isDataTable('#trivy-table')) {
+    if ($.fn.DataTable.isDataTable('#security-table')) {
         return;
     }
 
-    trivyTableDrawn = false;
+    securityTableDrawn = false;
 
-    $('#trivy-table').dataTable({
+    $('#security-table').dataTable({
         dom: 'lfBrtip',
         stateSave: false,
         paging: false,
@@ -34,14 +34,14 @@ function initTrivyTable() {
             'colvis'
         ],
         initComplete: function () {
-            $('#trivy-table_filter label').addClass('text-secondary');
-            $('#trivy-table_filter input').attr('placeholder', 'Search').removeClass('form-control').addClass('text-muted form-control-sm');
+            $('#security-table_filter label').addClass('text-secondary');
+            $('#security-table_filter input').attr('placeholder', 'Search').removeClass('form-control').addClass('text-muted form-control-sm');
 
             $('.buttons-colvis').on('click', function () {
                 $('.dt-button-collection').addClass('bg-secondary');
             });
 
-            $('.dt-buttons').prepend($('#check-all-trivy-btn')).append($('#trivy-scan-btn'));
+            $('.dt-buttons').prepend($('#check-all-security-btn')).append($('#security-scan-btn'));
 
             $('.dataTables_filter').addClass('dt-buttons');
 
@@ -49,27 +49,27 @@ function initTrivyTable() {
         }
     });
 
-    trivyTableDrawn = true;
+    securityTableDrawn = true;
     setScreenSizeVars();
 }
 // ---------------------------------------------------------------------------------------------
-function toggleTrivyCheckAll() {
-    const checkboxes = $('.trivy-check');
-    const allChecked = checkboxes.length > 0 && $('.trivy-check:checked').length === checkboxes.length;
-    $('#trivy-toggle-all').prop('checked', allChecked);
+function toggleSecurityCheckAll() {
+    const checkboxes = $('.security-check');
+    const allChecked = checkboxes.length > 0 && $('.security-check:checked').length === checkboxes.length;
+    $('#security-toggle-all').prop('checked', allChecked);
 }
 // ---------------------------------------------------------------------------------------------
-function toggleAllTrivy() {
-    const isChecked = $('#trivy-toggle-all').prop('checked');
-    $('.trivy-check').prop('checked', isChecked);
+function toggleAllSecurity() {
+    const isChecked = $('#security-toggle-all').prop('checked');
+    $('.security-check').prop('checked', isChecked);
 }
 // ---------------------------------------------------------------------------------------------
-function toggleTrivyScans(hash) {
-    const row = $('#trivy-row-' + hash);
-    const icon = row.find('.trivy-expand');
+function toggleSecurityScans(hash) {
+    const row = $('#security-row-' + hash);
+    const icon = row.find('.security-expand');
     const imageName = row.data('image');
     const containerName = row.data('name');
-    const existingRows = $('.trivy-expanded-row[data-parent="' + hash + '"]');
+    const existingRows = $('.security-expanded-row[data-parent="' + hash + '"]');
 
     if (existingRows.length > 0) {
         const firstRow = existingRows.first();
@@ -83,14 +83,14 @@ function toggleTrivyScans(hash) {
         return;
     }
 
-    $.post('ajax/trivy.php', { m: 'getRecentScans', image: imageName, limit: 3 }, function(scans) {
+    $.post('ajax/security.php', { m: 'getRecentScans', image: imageName, limit: 3 }, function(scans) {
         if (!scans || scans.length === 0) {
             return;
         }
 
         scans.forEach(function(scan) {
             const tr = $('<tr>', {
-                class: 'trivy-expanded-row',
+                class: 'security-expanded-row',
                 'data-parent': hash
             });
             tr.html(
@@ -103,7 +103,7 @@ function toggleTrivyScans(hash) {
                 '<td class="bg-primary text-center">' + (scan.counts.medium > 0 ? '<span class="badge bg-info text-dark">' + scan.counts.medium + '</span>' : '<span class="text-muted">0</span>') + '</td>' +
                 '<td class="bg-primary text-center">' + (scan.counts.low > 0 ? '<span class="badge bg-secondary">' + scan.counts.low + '</span>' : '<span class="text-muted">0</span>') + '</td>' +
                 '<td class="bg-primary"><span class="small-text text-muted">' + scan.date + '</span></td>' +
-                '<td class="bg-primary"><button type="button" class="btn btn-outline-light bg-secondary btn-sm" title="View Scan" onclick="viewTrivyScanByFile(\'' + hash + '\', \'' + imageName.replace(/'/g, '\\\'') + '\', \'' + scan.file + '\')"><i class="fas fa-eye fa-xs"></i></button></td>'
+                '<td class="bg-primary"><button type="button" class="btn btn-outline-light bg-secondary btn-sm" title="View Scan" onclick="viewSecurityScanByFile(\'' + hash + '\', \'' + imageName.replace(/'/g, '\\\'') + '\', \'' + scan.file + '\')"><i class="fas fa-eye fa-xs"></i></button></td>'
             );
             row.after(tr);
         });
@@ -112,9 +112,9 @@ function toggleTrivyScans(hash) {
     }, 'json');
 }
 // ---------------------------------------------------------------------------------------------
-function getSelectedTrivyContainers() {
+function getSelectedSecurityContainers() {
     const selected = [];
-    $('.trivy-check:checked').each(function() {
+    $('.security-check:checked').each(function() {
         const row = $(this).closest('tr');
         selected.push({
             hash: row.data('hash'),
@@ -125,36 +125,36 @@ function getSelectedTrivyContainers() {
     return selected;
 }
 // ---------------------------------------------------------------------------------------------
-function massApplyTrivyScan() {
-    const selected = getSelectedTrivyContainers();
+function massApplySecurityScan() {
+    const selected = getSelectedSecurityContainers();
 
     if (selected.length === 0) {
-        toast('Trivy Scan', 'Please select at least one container to scan', 'error');
+        toast('Security Scan', 'Please select at least one container to scan', 'error');
         return;
     }
 
-    $('#trivyScanModal').modal({
+    $('#securityScanModal').modal({
         keyboard: false,
         backdrop: 'static'
     });
 
-    $('#trivyScanModal').hide();
-    $('#trivyScanModal').modal('show');
+    $('#securityScanModal').hide();
+    $('#securityScanModal').modal('show');
 
-    $('#trivyScan-header').text('Scanning ' + selected.length + ' container(s)');
+    $('#securityScan-header').text('Scanning ' + selected.length + ' container(s)');
 
-    $('#trivyScan-spinner').show();
-    $('#trivyScan-close-btn').hide();
-    $('#trivyScan-results').html('');
+    $('#securityScan-spinner').show();
+    $('#securityScan-close-btn').hide();
+    $('#securityScan-results').html('');
 
     let c = 0;
 
     function runScan()
     {
         if (c == selected.length) {
-            $('#trivyScan-spinner').hide();
-            $('#trivyScan-close-btn').show();
-            initPage('trivy');
+            $('#securityScan-spinner').hide();
+            $('#securityScan-close-btn').show();
+            initPage('security');
             return;
         }
 
@@ -162,7 +162,7 @@ function massApplyTrivyScan() {
 
         $.ajax({
             type: 'POST',
-            url: 'ajax/trivy.php',
+            url: 'ajax/security.php',
             dataType: 'json',
             timeout: 600000,
             data: { m: 'runScan', image: container.image, name: container.name },
@@ -174,13 +174,13 @@ function massApplyTrivyScan() {
                     result += 'Scan failed';
                 }
 
-                $('#trivyScan-results').prepend(result + '<br>');
+                $('#securityScan-results').prepend(result + '<br>');
 
                 c++;
                 runScan();
             },
             error: function(jqhdr, textStatus, errorThrown) {
-                $('#trivyScan-results').prepend((c + 1) + '/' + selected.length + ': ' + container.name + ': ajax error (' + (errorThrown ? errorThrown : 'timeout') + ')<br>');
+                $('#securityScan-results').prepend((c + 1) + '/' + selected.length + ': ' + container.name + ': ajax error (' + (errorThrown ? errorThrown : 'timeout') + ')<br>');
                 c++;
                 runScan();
             }
@@ -190,11 +190,11 @@ function massApplyTrivyScan() {
     runScan();
 }
 // ---------------------------------------------------------------------------------------------
-function viewTrivyScan(hash, image, type) {
-    viewTrivyScanByFile(hash, image, null);
+function viewSecurityScan(hash, image, type) {
+    viewSecurityScanByFile(hash, image, null);
 }
 
-function viewTrivyScanByFile(hash, image, file) {
+function viewSecurityScanByFile(hash, image, file) {
     pageLoadingStart();
 
     const data = { m: 'getVulns', image: image };
@@ -204,7 +204,7 @@ function viewTrivyScanByFile(hash, image, file) {
 
     $.ajax({
         type: 'POST',
-        url: 'ajax/trivy.php',
+        url: 'ajax/security.php',
         dataType: 'json',
         data: data,
         success: function(vulns) {
@@ -214,22 +214,22 @@ function viewTrivyScanByFile(hash, image, file) {
                 vulns = [];
             }
 
-            const containerName = $('#trivy-row-' + hash).data('name');
-            $('#trivyModalTitle').text('Trivy Scan - ' + containerName);
+            const containerName = $('#security-row-' + hash).data('name');
+            $('#securityModalTitle').text('Security Scan - ' + containerName);
 
             let html = '';
             if (vulns.length === 0) {
                 html = '<div class="text-center py-4 text-muted">No vulnerabilities found</div>';
             } else {
                 html = `
-                    <div class="trivy-content">
+                    <div class="security-content">
                         <div class="table-responsive">
-                            <table class="table table-no-squish" id="trivy-vulns-table">
+                            <table class="table table-no-squish" id="security-vulns-table">
                                 <thead>
                                     <tr>
                                         <th class="rounded-top-left-1 bg-primary ps-3">Library</th>
                                         <th class="bg-primary ps-3">Vulnerability</th>
-                                        <th class="bg-primary ps-3" style="cursor: pointer; white-space: nowrap;" onclick="toggleTrivySortModal()">Severity <i class="fas fa-sort trivy-sort-icon"></i></th>
+                                        <th class="bg-primary ps-3" style="cursor: pointer; white-space: nowrap;" onclick="toggleSecuritySortModal()">Severity <i class="fas fa-sort security-sort-icon"></i></th>
                                         <th class="bg-primary ps-3">Status</th>
                                         <th class="bg-primary ps-3">Installed</th>
                                         <th class="bg-primary ps-3">Fixed</th>
@@ -240,7 +240,7 @@ function viewTrivyScanByFile(hash, image, file) {
                 `;
 
                 const sortedVulns = [...vulns].sort((a, b) => {
-                    if (trivySortBy === 'severity') {
+                    if (securitySortBy === 'severity') {
                         const severityA = severityOrder[a.severity?.toUpperCase()] ?? 4;
                         const severityB = severityOrder[b.severity?.toUpperCase()] ?? 4;
                         if (severityA !== severityB) {
@@ -255,7 +255,7 @@ function viewTrivyScanByFile(hash, image, file) {
                     return dateB - dateA;
                 });
 
-                updateTrivySortIcon();
+                updateSecuritySortIcon();
 
                 const pkgGroups = {};
                 sortedVulns.forEach(function(vuln) {
@@ -278,8 +278,8 @@ function viewTrivyScanByFile(hash, image, file) {
                         }
 
                         html += `
-                            <td class="bg-secondary"><a href="https://nvd.nist.gov/vuln/detail/${vuln.id}" target="_blank">${vuln.id}</a></td>
-                            <td class="bg-secondary"><span class="badge ${getSeverityBadgeClass(vuln.severity)}">${vuln.severity || 'UNKNOWN'}</span></td>
+                            <td class="bg-secondary"><a href="${vuln.source}" target="_blank">${vuln.id}</a></td>
+                            <td class="bg-secondary"><span class="badge ${getSeverityBadgeClass(vuln.severity)}">${vuln.severity.toUpperCase() || 'UNKNOWN'}</span></td>
                             <td class="bg-secondary">${vuln.status || '-'}</td>
                             <td class="bg-secondary">${vuln.installed || '-'}</td>
                             <td class="bg-secondary">${vuln.fixed || '-'}</td>
@@ -291,32 +291,32 @@ function viewTrivyScanByFile(hash, image, file) {
                 html += '</tbody></table></div></div>';
             }
 
-            $('#trivyModalBody').html(html);
-            $('#trivyModal').data('currentHash', hash);
-            $('#trivyModal').data('currentImage', image);
-            $('#trivyModal').data('currentFile', file);
-            $('#trivyModal').modal('show');
+            $('#securityModalBody').html(html);
+            $('#securityModal').data('currentHash', hash);
+            $('#securityModal').data('currentImage', image);
+            $('#securityModal').data('currentFile', file);
+            $('#securityModal').modal('show');
         },
         error: function() {
             pageLoadingStop();
-            toast('Trivy', 'Failed to load vulnerabilities', 'error');
+            toast('Security', 'Failed to load vulnerabilities', 'error');
         }
     });
 }
 // ---------------------------------------------------------------------------------------------
-function viewTrivyScanHistory(hash, image) {
+function viewSecurityScanHistory(hash, image) {
     pageLoadingStart();
 
     $.ajax({
         type: 'POST',
-        url: 'ajax/trivy.php',
+        url: 'ajax/security.php',
         dataType: 'json',
         data: { m: 'getScanHistory', image: image },
         success: function(history) {
             pageLoadingStop();
 
-            const containerName = $('#trivy-row-' + hash).data('name');
-            $('#trivyModalTitle').text('Trivy Scan History - ' + containerName);
+            const containerName = $('#security-row-' + hash).data('name');
+            $('#securityModalTitle').text('Security Scan History - ' + containerName);
 
             let html = '';
             if (!history || history.length === 0) {
@@ -347,7 +347,7 @@ function viewTrivyScanHistory(hash, image) {
                             <td class="bg-secondary text-center">${scan.counts.medium > 0 ? '<span class="badge bg-info text-dark">' + scan.counts.medium + '</span>' : '0'}</td>
                             <td class="bg-secondary text-center">${scan.counts.low > 0 ? '<span class="badge bg-secondary">' + scan.counts.low + '</span>' : '0'}</td>
                             <td class="bg-secondary">
-                                <button class="btn btn-outline-light btn-sm" onclick="viewTrivyScanByFile('${hash}', '${image}', '${scan.file}')">
+                                <button class="btn btn-outline-light btn-sm" onclick="viewSecurityScanByFile('${hash}', '${image}', '${scan.file}')">
                                     <i class="fas fa-eye"></i> View
                                 </button>
                             </td>
@@ -358,56 +358,56 @@ function viewTrivyScanHistory(hash, image) {
                 html += '</tbody></table></div>';
             }
 
-            $('#trivyModalBody').html(html);
-            $('#trivyModal').modal('show');
+            $('#securityModalBody').html(html);
+            $('#securityModal').modal('show');
         },
         error: function() {
             pageLoadingStop();
-            toast('Trivy', 'Failed to load scan history', 'error');
+            toast('Security', 'Failed to load scan history', 'error');
         }
     });
 }
 // ---------------------------------------------------------------------------------------------
-function runTrivyScan(hash, image, name) {
+function runSecurityScan(hash, image, name) {
     pageLoadingStart();
 
     $.ajax({
         type: 'POST',
-        url: 'ajax/trivy.php',
+        url: 'ajax/security.php',
         dataType: 'json',
         data: { m: 'runScan', image: image, name: name },
         success: function(response) {
             pageLoadingStop();
 
             if (response.success) {
-                toast('Trivy Scan Complete', name + ': Critical: ' + response.counts.critical + ', High: ' + response.counts.high + ', Medium: ' + response.counts.medium + ', Low: ' + response.counts.low, 'success');
-                initPage('trivy');
+                toast('Security Scan Complete', name + ': Critical: ' + response.counts.critical + ', High: ' + response.counts.high + ', Medium: ' + response.counts.medium + ', Low: ' + response.counts.low, 'success');
+                initPage('security');
             } else {
-                toast('Trivy Scan Failed', response.result || 'Unknown error', 'error');
+                toast('Security Scan Failed', response.result || 'Unknown error', 'error');
             }
         },
         error: function() {
             pageLoadingStop();
-            toast('Trivy Scan', 'Failed to run scan', 'error');
+            toast('Security Scan', 'Failed to run scan', 'error');
         }
     });
 }
 // ---------------------------------------------------------------------------------------------
-function toggleTrivySortModal() {
-    trivySortBy = trivySortBy === 'date' ? 'severity' : 'date';
-    const hash = $('#trivyModal').data('currentHash');
-    const image = $('#trivyModal').data('currentImage');
-    const file = $('#trivyModal').data('currentFile');
+function toggleSecuritySortModal() {
+    securitySortBy = securitySortBy === 'date' ? 'severity' : 'date';
+    const hash = $('#securityModal').data('currentHash');
+    const image = $('#securityModal').data('currentImage');
+    const file = $('#securityModal').data('currentFile');
     if (hash && image) {
-        viewTrivyScanByFile(hash, image, file);
+        viewSecurityScanByFile(hash, image, file);
     }
 }
 // ---------------------------------------------------------------------------------------------
-function updateTrivySortIcon() {
-    const icon = $('.trivy-sort-icon');
+function updateSecuritySortIcon() {
+    const icon = $('.security-sort-icon');
     if (!icon.length) return;
 
-    if (trivySortBy === 'severity') {
+    if (securitySortBy === 'severity') {
         icon.removeClass('fa-sort').addClass('fa-sort-down');
     } else {
         icon.removeClass('fa-sort-down').addClass('fa-sort');

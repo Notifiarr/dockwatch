@@ -12,7 +12,7 @@ function getContainerStats($servers = [])
     $processList = getFile(STATE_FILE);
     $pullsFile   = getFile(PULL_FILE);
     $containers  = [];
-    $trivy       = new Trivy();
+    $security    = new Security();
 
     if (!empty($servers)) {
         foreach ($servers as $server) {
@@ -106,7 +106,7 @@ function getContainerStats($servers = [])
             }
         }
 
-        $vulnCounts = $trivy->getVulnCounts($image);
+        $vulnCounts = $security->getVulnCounts($image);
         $vulns      = [
             'scanned'  => !empty($vulnCounts['lastScan']),
             'critical' => $vulnCounts['critical'],

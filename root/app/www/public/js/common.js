@@ -177,8 +177,8 @@ function initPage(page)
                 drawOverview();
             }
 
-            if (page == 'trivy') {
-                initTrivyTable();
+            if (page == 'security') {
+                initSecurityTable();
             }
 
             if (page == 'containers') {

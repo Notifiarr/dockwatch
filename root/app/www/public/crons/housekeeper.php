@@ -93,10 +93,10 @@ if (date('H') == 0 && date('i') <= 5) {
             ]
         ],
         [
-            'trivy' => [
+            'security' => [
                 [
-                    'message' => 'Trivy scan file cleanup (daily @ midnight)',
-                    'length'  => ($settingsTable['trivyScanLength'] <= 2 ? 2 : $settingsTable['trivyScanLength'])
+                    'message' => 'Scan file cleanup (daily @ midnight)',
+                    'length'  => ($settingsTable['securityScanLength'] <= 2 ? 2 : $settingsTable['securityScanLength'])
                 ]
             ]
         ],
@@ -123,7 +123,7 @@ if (date('H') == 0 && date('i') <= 5) {
 
     foreach ($cleanup as $folders) {
         foreach ($folders as $dir => $dirTypes) {
-            $thisDir = ($dir !== 'trivy' ? LOGS_PATH . $dir . '/' : TRIVY_PATH);
+            $thisDir = ($dir !== 'security' ? LOGS_PATH . $dir . '/' : SECURITY_PATH);
             if (!is_dir($thisDir)) {
                 continue;
             }
@@ -134,8 +134,8 @@ if (date('H') == 0 && date('i') <= 5) {
 
                 $folder = opendir($thisDir);
 
-                //-- CLEAN UP TRIVY SCANS
-                if ($dir === 'trivy') {
+                //-- CLEAN UP SECURITY SCANS
+                if ($dir === 'security') {
                     while ($hash = readdir($folder)) {
                         if ($hash[0] == '.' || !is_dir($thisDir . $hash))
                             continue;

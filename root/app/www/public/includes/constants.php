@@ -51,7 +51,7 @@ define('TMP_PATH', APP_DATA_PATH . 'tmp/');
 define('COMPOSE_PATH', APP_DATA_PATH . 'compose/');
 define('DATABASE_PATH', APP_DATA_PATH . 'database/');
 define('MIGRATIONS_PATH', ABSOLUTE_PATH . 'migrations/');
-define('TRIVY_PATH', APP_DATA_PATH . 'trivy/');
+define('SECURITY_PATH', APP_DATA_PATH . 'security/');
 
 
 //-- DATA FILES
@@ -90,7 +90,7 @@ define('CRON_STATS_LOG', LOGS_PATH . 'crons/stats.log');
 define('CRON_COMMANDS_LOG', LOGS_PATH . 'crons/commands.log');
 define('CRON_HEALTH_LOG', LOGS_PATH . 'crons/health.log');
 define('CRON_SSE_LOG', LOGS_PATH . 'crons/sse.log');
-define('CRON_TRIVY_LOG', LOGS_PATH . 'crons/trivy.log');
+define('CRON_SECURITY_LOG', LOGS_PATH . 'crons/security.log');
 define('LOG_ROTATE_SIZE', 2); //-- MB UNTIL ROTATE
 
 //-- MEMCACHE
@@ -99,16 +99,16 @@ define('MEMCACHE_PORT', 11211);
 define('MEMCACHE_PREFIX', 'dockwatch-');
 define('MEMCACHE_SHELL_TOKEN_KEY', (MEMCACHE_PREFIX . 'shell-%s'));
 define('MEMCACHE_SHELL_TOKEN_TIME', 300);
-define('MEMCACHE_TRIVY_VULNS_KEY', (MEMCACHE_PREFIX . 'trivy-vulns-%s'));
-define('MEMCACHE_TRIVY_VULNS_TIME', 300);
-define('MEMCACHE_TRIVY_VULNS_COUNT_KEY', (MEMCACHE_PREFIX . 'trivy-vulns-count-%s'));
-define('MEMCACHE_TRIVY_VULNS_COUNT_TIME', 300);
-define('MEMCACHE_TRIVY_SCAN_HISTORY_COUNT_KEY', (MEMCACHE_PREFIX . 'trivy-history-count-%s'));
-define('MEMCACHE_TRIVY_SCAN_HISTORY_COUNT_TIME', 300);
-define('MEMCACHE_TRIVY_SCAN_HISTORY_KEY', (MEMCACHE_PREFIX . 'trivy-history-%s'));
-define('MEMCACHE_TRIVY_SCAN_HISTORY_TIME', 300);
-define('MEMCACHE_TRIVY_NEW_VULNS_KEY', (MEMCACHE_PREFIX . 'trivy-new-vulns-%s'));
-define('MEMCACHE_TRIVY_NEW_VULNS_TIME', 300);
+define('MEMCACHE_SECURITY_VULNS_KEY', (MEMCACHE_PREFIX . 'security-vulns-%s'));
+define('MEMCACHE_SECURITY_VULNS_TIME', 300);
+define('MEMCACHE_SECURITY_VULNS_COUNT_KEY', (MEMCACHE_PREFIX . 'security-vulns-count-%s'));
+define('MEMCACHE_SECURITY_VULNS_COUNT_TIME', 300);
+define('MEMCACHE_SECURITY_SCAN_HISTORY_COUNT_KEY', (MEMCACHE_PREFIX . 'security-history-count-%s'));
+define('MEMCACHE_SECURITY_SCAN_HISTORY_COUNT_TIME', 300);
+define('MEMCACHE_SECURITY_SCAN_HISTORY_KEY', (MEMCACHE_PREFIX . 'security-history-%s'));
+define('MEMCACHE_SECURITY_SCAN_HISTORY_TIME', 300);
+define('MEMCACHE_SECURITY_NEW_VULNS_KEY', (MEMCACHE_PREFIX . 'security-new-vulns-%s'));
+define('MEMCACHE_SECURITY_NEW_VULNS_TIME', 300);
 
 //-- REGCTL
 define('REGCTL_PATH', '/usr/local/bin/');

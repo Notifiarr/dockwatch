@@ -509,16 +509,16 @@ tr.container-group-row .container-group-label {
     border-color: var(--bs-primary);
 }
 
-#trivy-table_filter>label {
+#security-table_filter>label {
     font-size: 0;
 }
-#trivy-table_filter>label * {
+#security-table_filter>label * {
     font-size: initial;
 }
-#trivy-table_filter>label>input {
+#security-table_filter>label>input {
     min-width: 20vh;
 }
-#trivy-table_filter>label>input:focus {
+#security-table_filter>label>input:focus {
     box-shadow: none !important;
     outline: none !important;
     border-color: var(--bs-primary);
@@ -528,7 +528,7 @@ tr.container-group-row .container-group-label {
     display: none;
 }
 
-/* Trivy Select Dropdown */
+/* Security Select Dropdown */
 .select-dropdown {
     position: relative;
     min-width: 300px;
@@ -641,89 +641,89 @@ tr.container-group-row .container-group-label {
 .select-dropdown .option-image {
     font-size: 10px;
 }
-#trivy-table .severity-badge {
+#security-table .severity-badge {
     padding: 2px 8px;
     border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
 }
-#trivy-table .severity-badge.severity-critical {
+#security-table .severity-badge.severity-critical {
     background: #dc3545;
     color: white;
 }
-#trivy-table .severity-badge.severity-high {
+#security-table .severity-badge.severity-high {
     background: #fd7e14;
     color: white;
 }
-#trivy-table .severity-badge.severity-medium {
+#security-table .severity-badge.severity-medium {
     background: #ffc107;
     color: black;
 }
-#trivy-table .severity-badge.severity-low {
+#security-table .severity-badge.severity-low {
     background: #20c997;
     color: black;
 }
-#trivy-table .severity-badge.severity-safe {
+#security-table .severity-badge.severity-safe {
     background: #198754;
     color: white;
 }
-#trivy-table .severity-badge.severity-none {
+#security-table .severity-badge.severity-none {
     background: var(--bs-secondary);
     color: white;
 }
 
-/* Trivy Table */
-.trivy-content {
+/* Security Table */
+.security-content {
     margin-top: 1rem;
 }
-#trivy-table {
+#security-table {
     margin-bottom: 0;
 }
-#trivy-table tbody tr {
+#security-table tbody tr {
     border-bottom: 1px solid var(--bs-border-color);
 }
-#trivy-table tbody tr:hover {
+#security-table tbody tr:hover {
     background-color: var(--bs-secondary);
 }
-#trivy-table td a {
+#security-table td a {
     color: var(--bs-primary);
     text-decoration: none;
 }
-#trivy-table td a:hover {
+#security-table td a:hover {
     text-decoration: underline;
 }
-#trivy-table .small-text {
+#security-table .small-text {
     font-size: 0.85rem;
 }
-#trivy-table .badge {
+#security-table .badge {
     font-size: 0.9rem;
 }
-.trivy-expand {
+.security-expand {
     font-size: 1.1rem;
 }
-.trivy-download-db {
+.security-download-db {
     font-size: 1rem;
 }
-#trivy-vulns-table {
+#security-vulns-table {
     margin-bottom: 0;
 }
-#trivy-vulns-table tbody tr {
+#security-vulns-table tbody tr {
     border-bottom: 1px solid var(--bs-border-color);
 }
-#trivy-vulns-table tbody tr:hover {
+#security-vulns-table tbody tr:hover {
     background-color: var(--bs-secondary);
 }
-#trivy-vulns-table tbody tr.group-start {
+#security-vulns-table tbody tr.group-start {
     border-bottom-color: transparent;
 }
-#trivy-table tfoot {
+#security-table tfoot {
     display: table-row-group !important;
 }
-#trivy-table tfoot td {
+#security-table tfoot td {
     display: table-cell !important;
 }
-#trivyModal .modal-body {
+#securityModal .modal-body {
     max-height: 70vh;
     overflow-x: auto;
 }

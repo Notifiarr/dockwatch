@@ -762,7 +762,13 @@ function containerShell(container, close = true, sendCommand = '')
                         return;
                     }
                     if (data.type === 'stdout' || data.type === 'stderr') {
-                        terminal.write(atob(data.data));
+                        const binaryString = atob(data.data);
+                        const bytes = new Uint8Array(binaryString.length);
+                        for (let i = 0; i < binaryString.length; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        const decoder = new TextDecoder('utf-8');
+                        terminal.write(decoder.decode(bytes));
                     }
                     if (data.type === 'exit') {
                         terminal.writeln(`\r\nContainer shell exited with code ${data.code}\r\n`);

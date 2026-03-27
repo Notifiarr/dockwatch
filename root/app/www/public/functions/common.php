@@ -43,6 +43,26 @@ function isDockwatchContainer($container)
     return false;
 }
 
+function getDockwatchContainerName()
+{
+    global $shell;
+
+    if (memcacheGet('dockwatchContainerName')) {
+        return memcacheGet('dockwatchContainerName');
+    }
+
+    $hostname = trim(file_get_contents('/etc/hostname'));
+    $cmd      = sprintf(
+        "/usr/bin/docker inspect --format='{{.Name}}' %s 2>&1",
+        $shell->prepare($hostname)
+    );
+
+    $containerName = trim($shell->exec($cmd . ' 2>&1'));
+    memcacheSet('dockwatchContainerName', $containerName, 300);
+
+    return $containerName;
+}
+
 function isComposeContainer($container)
 {
     $path = COMPOSE_PATH . preg_replace('/[^ \w]+/', '', $container);

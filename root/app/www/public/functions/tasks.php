@@ -34,7 +34,7 @@ function executeTask($task)
         case 'stats':
         case 'sse':
         case 'commands':
-        case 'trivy':
+        case 'security':
             memcacheSet('runTask-' . $task, true, 60);
             $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'crons/' . $task . '.php';
 

@@ -44,9 +44,9 @@ function canCronRun($cron, $settingsTable)
             $log   = CRON_COMMANDS_LOG;
             $field = 'taskCommandsDisabled';
             break;
-        case 'trivy':
-            $log   = CRON_TRIVY_LOG;
-            $field = 'trivyEnabled';
+        case 'security':
+            $log   = CRON_SECURITY_LOG;
+            $field = 'securityEnabled';
             break;
     }
 
@@ -65,7 +65,7 @@ function canCronRun($cron, $settingsTable)
         }
     }
 
-    if ((in_array($cron, ['sse', 'trivy']) && !$settingsTable[$field]) || (!in_array($cron, ['sse', 'trivy']) && $settingsTable[$field])) {
+    if ((in_array($cron, ['sse', 'security']) && !$settingsTable[$field]) || (!in_array($cron, ['sse', 'security']) && $settingsTable[$field])) {
         logger($log, 'Cron cancelled: disabled in tasks menu or settings', 'warn');
         logger($log, 'run <-');
         echo date('c') . ' Cron: ' . $cron . ' cancelled, disabled in tasks menu or settings' . "\n";
@@ -93,8 +93,8 @@ function canCronRun($cron, $settingsTable)
                 return false;
             }
             break;
-        case 'trivy':
-            $frequencyHour = $settingsTable['trivyScanHour'] ?: '12';
+        case 'security':
+            $frequencyHour = $settingsTable['securityScanHour'] ?: '12';
 
             if ($frequencyHour != date('G')) {
                 logger($log, 'Cron: skipped, frequency setting will run at hour ' . $frequencyHour, 'warn');

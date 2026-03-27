@@ -96,7 +96,12 @@ $currentPage              = $settingsTable['currentPage'] && in_array($settingsT
         </div>
 
         <header class="header bg-body" id="header">
-            <div class="header_toggle"><i class="fas fa-bars" id="header-toggle"></i></div>
+            <div class="header_toggle" style="flex-grow: 1;"><i class="fas fa-bars" id="header-toggle"></i></div>
+            <div class="header_shell" style="padding: 0 12px;">
+                <a class="nav-link d-flex align-items-center text-secondary" href="#" aria-expanded="false" aria-label="Open Dockwatch shell" onclick="containerShell('<?= getDockwatchContainerName() ?>')">
+                    <i class="fas fa-terminal"></i>
+                </a>
+            </div>
             <div class="header_img">
                 <a class="nav-link dropdown-toggle d-flex align-items-center text-secondary" href="#" id="theme-menu" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme">
                     <i class="fas fa-cloud-sun"></i>
@@ -117,7 +122,7 @@ $currentPage              = $settingsTable['currentPage'] && in_array($settingsT
         </header>
         <div class="l-navbar d-flex flex-column justify-content-between p-0 pt-2" id="nav-bar">
             <nav class="nav h-100 d-flex flex-column gap-1">
-                <div class="d-flex flex-column align-items-start flex-grow-1">
+                <div class="d-flex flex-column align-items-start grow">
                     <a href="#" class="nav_logo mx-auto">
                         <img src="images/logo.png" height="48">
                         <span class="nav_logo-name d-none d-xl-inline show-text">
@@ -125,7 +130,7 @@ $currentPage              = $settingsTable['currentPage'] && in_array($settingsT
                             <sup><i class="fas fa-circle fa-xs <?= $accessModeClass ?>" title="<?= $accessModeHover ?>"></i></sup>
                         </span>
                     </a>
-                    <div class="nav_list d-flex flex-column gap-1 align-items-start flex-grow-1">
+                    <div class="nav_list d-flex flex-column gap-1 align-items-start grow">
                         <a href="#" onclick="serverListToggle()" class="nav_servers_link access-rwx">
                             <i class="fas fa-server fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Servers</span>
@@ -170,10 +175,10 @@ $currentPage              = $settingsTable['currentPage'] && in_array($settingsT
                             <i class="fas fa-file-code fa-fw nav_icon"></i>
                             <span class="nav_name d-none d-xl-inline show-text">Logs</span>
                         </a>
-                        <?php if ($settingsTable['trivyEnabled']) { ?>
-                            <a href="#" onclick="initPage('trivy')" class="nav_link">
+                        <?php if ($settingsTable['securityEnabled']) { ?>
+                            <a href="#" onclick="initPage('security')" class="nav_link">
                                 <i class="fas fa-bug fa-fw nav_icon"></i>
-                                <span class="nav_name d-none d-xl-inline show-text">Trivy</span>
+                                <span class="nav_name d-none d-xl-inline show-text">Security</span>
                             </a>
                         <?php } ?>
                     </div>

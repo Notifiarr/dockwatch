@@ -29,8 +29,8 @@ $notifications = $notifications ?? new Notifications();
 //-- INITIALIZE THE MAINTENANCE CLASS
 $maintenance = $maintenance ?? new Maintenance();
 
-//-- INITIALIZE TRIVY
-$trivy = $trivy ?? new Trivy();
+//-- INITIALIZE SECURITY
+$security = $security ?? new Security();
 
 logger(STARTUP_LOG, 'Container init (Start/Restart) ->');
 

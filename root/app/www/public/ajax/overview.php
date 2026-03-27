@@ -134,8 +134,8 @@ if ($_POST['m'] == 'init') {
                     </div>
                 </div>
             </div>
-            <?php if ($settingsTable['trivyEnabled']) { ?>
-                <div class="bg-secondary p-2 w-100 rounded-end" style="cursor:pointer;" onclick="initPage('trivy')">
+            <?php if ($settingsTable['securityEnabled']) { ?>
+                <div class="bg-secondary p-2 w-100 rounded-end" style="cursor:pointer;" onclick="initPage('security')">
                     <div class="d-flex flex-row">
                         <span class="h5"><i class="fas fa-bug"></i> Vulnerabilities</span>
                     </div>

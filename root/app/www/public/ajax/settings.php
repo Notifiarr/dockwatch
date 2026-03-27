@@ -96,7 +96,7 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary">
                             <select class="form-select" id="globalSetting-defaultPage">
                                 <?php
-                                $defaultPages = ['overview', 'containers', 'networks', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs', 'trivy'];
+                                $defaultPages = ['overview', 'containers', 'networks', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs', 'security'];
 
                                 foreach ($defaultPages as $defaultPage) {
                                     ?>
@@ -249,7 +249,7 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="text-info">Vulnerability Scanner (Trivy)</h4>
+        <h4 class="text-info">Security</h4>
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -263,29 +263,71 @@ if ($_POST['m'] == 'init') {
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Enabled<sup>3</sup></td>
                         <td class="bg-secondary">
-                            <input class="form-check-input" type="checkbox" id="globalSetting-trivyEnabled" <?= $settingsTable['trivyEnabled'] ? 'checked' : '' ?>>
+                            <input class="form-check-input" type="checkbox" id="globalSetting-securityEnabled" <?= $settingsTable['securityEnabled'] ? 'checked' : '' ?>>
                         </td>
                         <td class="bg-secondary">Automatically scan for vulnerabilities in container images</td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Scanner app</td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-securityScanner">
+                                <?php
+                                $scanners = [
+                                    'trivy' => SecurityScanner::TRIVY_ID,
+                                    'grype' => SecurityScanner::GRYPE_ID,
+                                    'snyk'  => SecurityScanner::SNYK_ID
+                                ];
+
+                                foreach ($scanners as $scanner => $id) {
+                                    ?>
+                                    <option <?= $settingsTable['securityScanner'] == $id ? 'selected' : '' ?> value="<?= $id ?>"><?= ucfirst($scanner) ?></option><?php
+                                }
+                                ?>
+                                <script>
+                                    $('#globalSetting-securityScanner').on('change', function () {
+                                        if (this.value == '<?= SecurityScanner::SNYK_ID ?>') {
+                                            $('#globalSetting-securitySnykAPIKey').attr('readonly', false);
+                                        } else {
+                                            $('#globalSetting-securitySnykAPIKey').attr('readonly', true);
+                                        }
+                                    });
+                                </script>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">
+                            Which scanner app should be used to scan containers for vulnerabilities
+                            <ul style="padding: 0 18px;">
+                                <li>Grype and Trivy are both free open-source apps</li>
+                                <li>Snyk requires a (free) <a href="https://app.snyk.io" target="_blank">account</a> API key to work</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0" id="snyk-api-key">
+                        <td class="bg-secondary" scope="row">Snyk API key</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="password" id="globalSetting-securitySnykAPIKey" value="<?= $settingsTable['securitySnykAPIKey'] ?>" <?= $settingsTable['securityScanner'] == SecurityScanner::SNYK_ID ? '' : 'readonly' ?> placeholder="Snyk API key...">
+                        </td>
+                        <td class="bg-secondary">Required API key for Snyk CLI to function. You can generate one <a href="https://app.snyk.io/account/personal-access-tokens" target="_blank">here</a>.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Hour</td>
                         <td class="bg-secondary">
-                            <select class="form-select" id="globalSetting-trivyScanHour">
+                            <select class="form-select" id="globalSetting-securityScanHour">
                                 <?php
                                 $option = '';
                                 for ($x = 0; $x <= 23; $x++) {
-                                    $option .= '<option ' . ($x == intval($settingsTable['trivyScanHour']) || !$settingsTable['trivyScanHour'] && $x == 12 ? 'selected' : '') . ' value="' . $x . '">' . $x . '</option>';
+                                    $option .= '<option ' . ($x == intval($settingsTable['securityScanHour']) || !$settingsTable['securityScanHour'] && $x == 12 ? 'selected' : '') . ' value="' . $x . '">' . $x . '</option>';
                                 }
                                 echo $option;
                                 ?>
                             </select>
                         </td>
-                        <td class="bg-secondary">At which hour trivy should run (0-23)</td>
+                        <td class="bg-secondary">At which hour security should run (0-23)</td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Scan retention</td>
                         <td class="bg-secondary">
-                            <input class="form-control" type="number" id="globalSetting-trivyScanLength" value="<?= $settingsTable['trivyScanLength'] <= 2 ? 2 : $settingsTable['trivyScanLength'] ?>">
+                            <input class="form-control" type="number" id="globalSetting-securityScanLength" value="<?= $settingsTable['securityScanLength'] <= 2 ? 2 : $settingsTable['securityScanLength'] ?>">
                         </td>
                         <td class="bg-secondary">How long to store past scan files (min 2 days)</td>
                     </tr>
