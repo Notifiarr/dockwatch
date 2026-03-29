@@ -36,12 +36,12 @@ class Security
      * Scan image for vulnerabilities.
      *
      * @param string $image     Image (hash or full tag)
-     * @param string $scanner   Scanner type (default: SecurityScanner::GRYPE_SCAN_ID)
+     * @param string $scanner   Scanner type (default: SecurityScanner::GRYPE_ID)
      * @param string $snykApiKey Snyk API key (required for SNYK scanner)
      *
      * @return bool|string|null
      */
-    public function scanImage($image, $scanner = SecurityScanner::GRYPE_SCAN_ID, $snykApiKey)
+    public function scanImage($image, $scanner = SecurityScanner::GRYPE_ID, $snykApiKey)
     {
         //-- BUST CACHE
         $this->memcache->delete(sprintf(MEMCACHE_SECURITY_VULNS_KEY, $image));
