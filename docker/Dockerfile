@@ -14,11 +14,13 @@ ARG COMMIT_MSG=unknown
 ENV ATTACHED_DEVICES_PERMS="/var/run/docker.sock"
 
 # Add yq for YAML processing
+# renovate: datasource=github-releases lookupName=mikefarah/yq
 ARG YQ_VERSION=v4.52.4
 RUN curl -sSf -L -o /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETARCH}" \
     && chmod +x /usr/local/bin/yq
 
 # Add regctl for container digest checks
+# renovate: datasource=github-releases lookupName=regclient/regclient
 ARG REGCTL_VERSION=v0.11.2
 RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclient/releases/download/${REGCTL_VERSION}/regctl-linux-${TARGETARCH}" \
     && chmod +x /usr/local/bin/regctl
@@ -30,6 +32,7 @@ COPY --from=aquasec/trivy:0.69.3@sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c
 RUN curl -sSfL https://get.anchore.io/grype | sh -s -- -b /usr/local/bin
 
 # Add snyk for container vulnerability scanning
+# renovate: datasource=github-releases lookupName=snyk/cli
 ARG SNYK_VERSION=v1.1303.2
 RUN SNYK_BINARY=$( [ "$TARGETARCH" = "amd64" ] && echo "snyk-alpine" || echo "snyk-alpine-arm64" ) && \
     curl -sSf -L -o /usr/local/bin/snyk "https://github.com/snyk/cli/releases/download/${SNYK_VERSION}/${SNYK_BINARY}" && \

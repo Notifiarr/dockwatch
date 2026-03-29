@@ -1,27 +1,17 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "extends": [
-        "config:recommended",
-        "docker:pinDigests",
-        "group:allNonMajor",
-        "group:allDigest"
-    ],
+    "extends": ["config:recommended", "docker:pinDigests"],
+    "ignorePaths": ["**/compose.yml"],
     "customManagers": [
         {
             "customType": "regex",
-            "managerFilePatterns": [
-                "/(^|/)Dockerfile$/"
-            ],
-            "matchStrings": [
-                "# renovate: datasource=(?<datasource>.*?) lookupName=(?<packageName>.*?)(?: versioning=(?<versioning>.*?))?\\s+ARG\\s+(?<depName>.*?)_VERSION=(?<currentValue>.*)\\s"
-            ]
+            "managerFilePatterns": ["(^|/)Dockerfile$"],
+            "matchStrings": ["# renovate: datasource=(?<datasource>.*?) lookupName=(?<packageName>.*?)(?: versioning=(?<versioning>.*?))?\\s+ARG\\s+(?<depName>.*?)_VERSION=(?<currentValue>.*)\\s"]
         }
     ],
     "packageRules": [
         {
-            "matchUpdateTypes": [
-                "major"
-            ],
+            "matchUpdateTypes": ["major"],
             "minimumReleaseAge": "30 days"
         }
     ]

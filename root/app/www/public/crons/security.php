@@ -44,7 +44,9 @@ foreach ($containerList as $container) {
     $nameHash = md5($container['name']);
     $hash     = substr(preg_replace('/sha256\:/', '', $docker->getImageHash($container['image'])), 0, 4);
 
-    if (in_array($hash, $imagesScanned)) {
+    if (in_array($hash, $imagesScanned) || !str_contains($container['status'], 'running') && $settingsTable['securitySkipStopped']) {
+        logger(CRON_SECURITY_LOG, ' skipped image ' . $container['image']);
+        echo date(format: 'c') . ' skipped image ' . $container['image'] . "\n";
         continue;
     }
     $imagesScanned[] = $hash;

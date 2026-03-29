@@ -331,6 +331,13 @@ if ($_POST['m'] == 'init') {
                         </td>
                         <td class="bg-secondary">How long to store past scan files (min 2 days)</td>
                     </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Skip stopped containers</td>
+                        <td class="bg-secondary">
+                            <input class="form-check-input" type="checkbox" id="globalSetting-securitySkipStopped" <?= $settingsTable['securitySkipStopped'] ? 'checked' : '' ?>>
+                        </td>
+                        <td class="bg-secondary">Do not automatically scan containers that are currently inactive</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
