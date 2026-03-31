@@ -51,7 +51,7 @@ function getDockwatchContainerName()
         return memcacheGet('dockwatchContainerName');
     }
 
-    $hostname = trim(file_get_contents('/etc/hostname'));
+    $hostname = trim($shell->exec('grep /etc/hostname /proc/self/mountinfo | awk -F/containers/ \'{print $2}\' | cut -d/ -f1 2>&1')); //-- RETURNS VOLUME PATH THAT MATCHES CONTAINER ID
     $cmd      = sprintf(
         "/usr/bin/docker inspect --format='{{.Name}}' %s 2>&1",
         $shell->prepare($hostname)
