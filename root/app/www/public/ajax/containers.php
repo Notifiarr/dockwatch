@@ -566,8 +566,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $apiRequest = apiRequest('docker/container/pull', [], ['name' => $image]);
             logger(UI_LOG, 'docker/container/pull:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
-            $apiRequest = apiRequest('docker/container/inspect', ['name' => $image, 'useCache' => false, 'format' => true]);
-            $apiRequest = json_decode($apiRequest['result'], true);
+            $apiRequest             = apiRequest('docker/container/inspect', ['name' => $image, 'useCache' => false, 'format' => true]);
+            $apiRequest             = json_decode($apiRequest['result'], true);
             list($cr, $imageDigest) = explode('@', $apiRequest[0]['RepoDigests'][0]);
             logger(UI_LOG, 'dockerInspect:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
@@ -588,7 +588,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '6': //-- GENERATE COMPOSE
             $containerList = '';
-            $containers = explode(',', $_POST['hash']);
+            $containers    = explode(',', $_POST['hash']);
 
             foreach ($containers as $selectedContainer) {
                 $thisContainer = $docker->findContainer(['hash' => $selectedContainer, 'data' => $stateFile]);
@@ -615,14 +615,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $inspectImage = $apiResponse['result'];
 
                 if ($inspectImage) {
-                    $inspect = json_decode($inspectImage, true);
-
-                    foreach ($inspect[0]['Config']['Labels'] as $label => $val) {
-                        if (str_contains($label, 'image.version')) {
-                            $preVersion = $val;
-                            break;
-                        }
-                    }
+                    $inspect    = json_decode($inspectImage, true);
+                    $preVersion = $docker->getContainerVersion($inspect);
                 }
 
                 $apiRequest = apiRequest('docker/container/pull', [], ['name' => $image]);
@@ -649,12 +643,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     list($cr, $imageDigest) = explode('@', $inspectImage[0]['RepoDigests'][0]);
 
                     if ($inspectImage) {
-                        foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
-                            if (str_contains($label, 'image.version')) {
-                                $postVersion = $val;
-                                break;
-                            }
-                        }
+                        $postVersion = $docker->getContainerVersion($inspectImage);
                     }
 
                     $updateResult              = 'complete';
@@ -684,7 +673,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $result = 'Container ' . $container['Names'] . ' update: ' . $updateResult . ($preVersion && $postVersion && $updateResult == 'complete' ? ' from \'' . $preVersion . '\' to \'' . $postVersion . '\'' : '') . '<br>';
             break;
         case '8': //-- MOUNT COMPARE
-            $result = $container['Names'] . '<br>';
+            $result  = $container['Names'] . '<br>';
             $result .= '<div class="ms-4">' . implode('<br>', $container['inspect'][0]['HostConfig']['Binds']) . '</div><br>';
             break;
         case '9': //-- REMOVE
@@ -704,7 +693,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             logger(UI_LOG, 'dockerAPI/container/create:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
             $apiRequest = json_decode($apiRequest['result'], true);
 
-            $result = $container['Names'] . '<br>';
+            $result  = $container['Names'] . '<br>';
             $result .= 'Endpoint: <code>' . $apiRequest['endpoint'] . '</code><br>';
             $result .= '<pre>' . json_encode($apiRequest['payload'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . '</pre>';
             break;
@@ -713,12 +702,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             logger(UI_LOG, 'docker/container/inspect: ' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
             $inspectImage = json_decode($apiResponse['result'], true);
 
-            foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
-                if (str_contains($label, 'image.version')) {
-                    $version = $val;
-                    break;
-                }
-            }
+            $version = $docker->getContainerVersion($inspectImage);
 
             logger(UI_LOG, 'Getting registry digest: ' . $image);
             $regctlDigest = trim(regctlCheck($image));

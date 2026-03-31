@@ -191,4 +191,32 @@ trait Container
 
         return $this->output;
     }
+
+    public function getContainerVersion($inspect, $ui = true)
+    {
+        $return = '';
+
+        //-- CHECK: Config.Labels -> org.opencontainers.image.version
+        foreach ($inspect[0]['Config']['Labels'] as $label => $val) {
+            if (str_contains($label, 'image.version')) {
+                $return = $val;
+                break;
+            }
+        }
+        //-- CHECK: Config.Env -> VERSION
+        foreach ($inspect[0]['Config']['Env'] as $env => $val) {
+            if (str_starts_with(strtoupper($val), 'VERSION=')) {
+                $return = explode('=', $val)[1];
+                break;
+            }
+        }
+        //-- ADD LINKS IF POSSIBLE
+        $rev    = substr($inspect[0]['Config']['Labels']['org.opencontainers.image.revision'] ?? '', 0, 7);
+        $source = $inspect[0]['Config']['Labels']['org.opencontainers.image.source'] ?? '';
+        if (!empty($rev) && !empty($source)) {
+            $link    = $source . '/commit/' . $rev;
+            $return .= $ui ? ' <a href="' . $link . '" target="_blank">' . $rev . '</a>' : '[' . $rev . '](' . $link . ')';
+        }
+        return $return;
+    }
 }

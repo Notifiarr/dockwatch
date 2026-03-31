@@ -101,12 +101,7 @@ if ($containersTable) {
                 $inspectImage = json_decode($inspectImage, true);
 
                 if ($inspectImage) {
-                    foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
-                        if (str_contains($label, 'image.version')) {
-                            $preVersion = $val;
-                            break;
-                        }
-                    }
+                    $preVersion = $docker->getContainerVersion($inspectImage, false);
                 }
 
                 $msg = 'Pre image version: ' . $preVersion;
@@ -271,12 +266,7 @@ if ($containersTable) {
                                     $inspectImage = json_decode($inspectImage, true);
 
                                     if ($inspectImage) {
-                                        foreach ($inspectImage[0]['Config']['Labels'] as $label => $val) {
-                                            if (str_contains($label, 'image.version')) {
-                                                $postVersion = $val;
-                                                break;
-                                            }
-                                        }
+                                        $postVersion = $docker->getContainerVersion($inspectImage, false);
                                     }
 
                                     $msg = 'Post image version: ' . $postVersion;
