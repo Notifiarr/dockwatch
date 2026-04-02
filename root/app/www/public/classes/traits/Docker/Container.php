@@ -215,7 +215,7 @@ trait Container
         $source = $inspect[0]['Config']['Labels']['org.opencontainers.image.source'] ?? '';
         if (!empty($rev) && !empty($source)) {
             $link    = $source . '/commit/' . $rev;
-            $return .= $ui ? ' <a href="' . $link . '" target="_blank">' . $rev . '</a>' : '[' . $rev . '](' . $link . ')';
+            $return .= $ui ? ' <a href="' . $link . '" target="_blank">' . $rev . '</a>' : ' ' . $rev;
         }
         return $return;
     }
