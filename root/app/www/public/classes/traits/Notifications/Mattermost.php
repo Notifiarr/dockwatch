@@ -9,14 +9,14 @@
 
 trait Mattermost
 {
-    public function mattermost($logfile, $url, $payload, $test = false)
+    public function mattermost($logfile, $url, $payload, $test = false, $webhookUsername = null)
     {
         if (!$url) {
             return ['code' => 400, 'error' => 'Missing webhook url'];
         }
 
         $message = $this->buildMattermostMessage($payload, $test);
-        $payload = ['text' => $message, 'username' => 'Notifiarr'];
+        $payload = ['text' => $message, 'username' => trim($webhookUsername)];
         $curl    = curl($url, [], 'POST', json_encode($payload));
 
         logger($logfile, 'notification response:' . json_encode($curl), ($curl['code'] != 200 ? 'error' : ''));
@@ -250,6 +250,18 @@ trait Mattermost
                     }
                     $message .= "\n";
                 }
+                break;
+            case 'security':
+                $message .= '##### ' . APP_NAME . ': Security' . "\n";
+                $message .= 'Server: _' . $payload['server']['name'] . '_' . "\n";
+                $message .= 'Containers: ' . $payload['containers'] . "\n\n";
+                $message .= '*Vulnerabilities*:' . "\n";
+                $message .= '- Critical: ' . $payload['critical'] . "\n";
+                $message .= '- High: ' . $payload['high'] . "\n";
+                $message .= '- Medium: ' . $payload['medium'] . "\n";
+                $message .= '- Low: ' . $payload['low'] . "\n";
+                $message .= '- Unknown: ' . $payload['unknown'] . "\n";
+                $message .= "\n";
                 break;
         }
 

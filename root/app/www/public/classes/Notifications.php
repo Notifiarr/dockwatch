@@ -138,7 +138,7 @@ class Notifications
                 case NotificationPlatforms::TELEGRAM:
                     return $this->telegram($logfile, $platformParameters['botToken'], $platformParameters['chatId'], $payload, $test);
                 case NotificationPlatforms::MATTERMOST:
-                    return $this->mattermost($logfile, $platformParameters['url'], $payload, $test);
+                    return $this->mattermost($logfile, $platformParameters['url'], $payload, $test, $platformParameters['username']);
             }
         }
     }
