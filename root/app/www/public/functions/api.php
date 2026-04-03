@@ -39,7 +39,7 @@ function apiGetActiveServer()
         'id'     => $_SESSION['activeServerId'],
         'name'   => $_SESSION['activeServerName'],
         'url'    => $_SESSION['activeServerUrl'],
-        'apikey' => $_SESSION['activeServerApikey']
+        'apikey' => $_SESSION['activeServerApikey'],
     ];
 }
 
@@ -147,6 +147,7 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
     }
 
     apiResponse(400, ['error' => 'Invalid route']);
+    return [];
 }
 
 function apiRequestServerPings()

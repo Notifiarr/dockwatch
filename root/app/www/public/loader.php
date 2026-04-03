@@ -117,6 +117,7 @@ if (!IS_SSE) {
 
     //-- INITIALIZE MEMCACHE
     logger(SYSTEM_LOG, 'Init class: Memcache()');
+    /** @disregard */
     $memcache = new Memcached();
     $memcache->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
 
@@ -161,6 +162,7 @@ if (!IS_SSE) {
     logger(SYSTEM_LOG, 'Init class: Notifications()');
 
     //-- INITIALIZE PHIKI
+    /** @disregard */
     $phiki = new Phiki();
     logger(SYSTEM_LOG, 'Init class: Phiki()');
 
@@ -225,7 +227,7 @@ if (!IS_SSE) {
 
     $loadTimes[]            = trackTime('getExpandedProcessList ->');
     $getExpandedProcessList = getExpandedProcessList($fetchProc, $fetchStats, $fetchInspect);
-    $processList            = $getExpandedProcessList['processList'];
+    $processList            = $getExpandedProcessList['processList'] ?? [];
 
     foreach ($getExpandedProcessList['loadTimes'] as $loadTime) {
         $loadTimes[] = $loadTime;

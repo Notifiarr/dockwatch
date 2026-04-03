@@ -16,7 +16,7 @@ trait Mattermost
         }
 
         $message = $this->buildMattermostMessage($payload, $test);
-        $payload = ['text' => $message];
+        $payload = ['text' => $message, 'username' => 'Notifiarr'];
         $curl    = curl($url, [], 'POST', json_encode($payload));
 
         logger($logfile, 'notification response:' . json_encode($curl), ($curl['code'] != 200 ? 'error' : ''));
@@ -57,7 +57,7 @@ trait Mattermost
                 $message .= '##### ' . APP_NAME . ': Pruned' . "\n";
                 $message .= 'Server: _' . $payload['server']['name'] . '_' . "\n\n";
 
-                $table = [];
+                $table   = [];
                 $table[] = '| Type | Pruned |';
                 $table[] = '| ----- | ----- |';
 
@@ -132,7 +132,7 @@ trait Mattermost
                 $message .= '##### ' . APP_NAME . ': Container state change' . "\n";
                 $message .= 'Server: _' . $payload['server']['name'] . '_' . "\n\n";
 
-                $table = [];
+                $table   = [];
                 $table[] = '| Type | Container |';
                 $table[] = '| ----- | ----- |';
 
@@ -191,7 +191,7 @@ trait Mattermost
                 $message .= '##### ' . APP_NAME . ': Updates' . "\n";
                 $message .= 'Server: _' . $payload['server']['name'] . '_' . "\n\n";
 
-                $table = [];
+                $table   = [];
                 $table[] = '| Type | Container |';
                 $table[] = '| ----- | ----- |';
 

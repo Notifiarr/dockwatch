@@ -30,21 +30,21 @@ interface DockerSock
     public const LOGIN              = 'echo %s | /usr/bin/docker login %s -u %s --password-stdin';
     public const EXEC               = '/usr/bin/docker exec %s %s';
     //-- CONTAINER SPECIFIC
-    public const KILL_CONTAINER    = '/usr/bin/docker container kill %s';
-    public const REMOVE_CONTAINER  = '/usr/bin/docker container rm -f %s';
-    public const START_CONTAINER   = '/usr/bin/docker container start %s';
-    public const STOP_CONTAINER    = '/usr/bin/docker container stop %s%s';
-    public const ORPHAN_CONTAINERS = '/usr/bin/docker images -f dangling=true --format="{{json . }}" | jq -s --tab .';
-    public const UNUSED_CONTAINERS = '/usr/bin/docker images --format \'{{.ID}}:{{.Repository}}:{{.Tag}}\' | grep -v "$(docker ps -a --format {{.Image}})"';
-    public const CONTAINER_PORT    = '/usr/bin/docker port %s %s';
-    public const CONTAINER_PROCESS = '/usr/bin/docker ps --filter name=\'%s\' --format \'{{.Names}}\' 2>&1';
+    public const KILL_CONTAINER               = '/usr/bin/docker container kill %s';
+    public const REMOVE_CONTAINER             = '/usr/bin/docker container rm -f %s';
+    public const START_CONTAINER              = '/usr/bin/docker container start %s';
+    public const STOP_CONTAINER               = '/usr/bin/docker container stop %s%s';
+    public const ORPHAN_CONTAINERS            = '/usr/bin/docker images -f dangling=true --format="{{json . }}" | jq -s --tab .';
+    public const UNUSED_CONTAINERS            = '/usr/bin/docker images --format \'{{.ID}}:{{.Repository}}:{{.Tag}}\' | grep -v "$(docker ps -a --format {{.Image}})"';
+    public const CONTAINER_PORT               = '/usr/bin/docker port %s %s';
+    public const CONTAINER_PROCESS            = '/usr/bin/docker ps --filter name=\'%s\' --format \'{{.Names}}\' 2>&1';
+    public const DISCONNECT_CONTAINER_NETWORK = '/usr/bin/docker network disconnect -f %s %s';
     //-- IMAGE SPECIFIC
     public const REMOVE_IMAGE    = '/usr/bin/docker image rm %s';
     public const PULL_IMAGE      = '/usr/bin/docker image pull %s';
     public const PRUNE_IMAGE     = '/usr/bin/docker image prune -af';
     public const DIGEST_IMAGE_ID = '/usr/bin/docker image ls --digests --format \'{{.ID}}|{{.Digest}}\' | grep %s';
     public const IMAGE_HASH      = '/usr/bin/docker image inspect %s --format \'{{.ID}}\'';
-
     //-- VOLUME SPECIFIC
     public const ORPHAN_VOLUMES = '/usr/bin/docker volume ls -qf dangling=true --format="{{json . }}" | jq -s --tab .';
     public const PRUNE_VOLUME   = '/usr/bin/docker volume prune -af';

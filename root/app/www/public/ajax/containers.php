@@ -112,7 +112,7 @@ if ($_POST['m'] == 'init') {
                                     $groupContainers = apiRequest('database/group/container/links', ['group' => $containerGroup['id']])['result'];
                                     $groupCPU        = $groupMemory = $groupContainerCount = 0;
 
-                                    foreach ($processList as $process) {
+                                    foreach ($processList ?? [] as $process) {
                                         $nameHash = md5($process['Names']);
 
                                         foreach ($groupContainers as $groupContainer) {
@@ -151,7 +151,7 @@ if ($_POST['m'] == 'init') {
                                     <?php
 
                                     foreach ($groupContainers as $groupContainer) {
-                                        foreach ($processList as $process) {
+                                        foreach ($processList ?? [] as $process) {
                                             $nameHash = md5($process['Names']);
 
                                             if ($nameHash == $groupContainer['hash']) {
@@ -166,7 +166,7 @@ if ($_POST['m'] == 'init') {
 
                             //-- NON GROUPS
                             $groupHash = '';
-                            foreach ($processList as $process) {
+                            foreach ($processList ?? [] as $process) {
                                 $nameHash = md5($process['Names']);
 
                                 if ($groupContainerHashes) {
@@ -218,7 +218,7 @@ if ($_POST['m'] == 'init') {
 
 if ($_POST['m'] == 'containerInfo') {
     $containerSettings = apiRequest('database/container/hash', ['hash' => $_POST['hash']])['result'];
-    foreach ($processList as $thisProcess) {
+    foreach ($processList ?? [] as $thisProcess) {
         if (md5($thisProcess['Names']) == $_POST['hash']) {
             $process = $thisProcess;
             break;
@@ -505,7 +505,6 @@ if ($_POST['m'] == 'registryLogin') {
     echo $apiResult['result'];
 }
 
-
 if ($_POST['m'] == 'containerLogs') {
     $apiResult = apiRequest('docker/container/logs', ['name' => $_POST['container']]);
     logger(UI_LOG, 'dockerLogs:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
@@ -534,6 +533,10 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'docker/container/start: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 $result = 'Started ' . $container['Names'] . '<br>';
+
+                if (str_contains_all($apiRequest['result'], ['Error response', 'not found'])) {
+                    $result = 'Failed to start ' . $container['Names'] . '<br>';
+                }
             }
             break;
         case '2': //-- RESTART
@@ -547,6 +550,10 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, 'docker/container/start: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
                 $result       = 'Restarted ' . $container['Names'] . '<br>';
                 $dependencies = $dependencyFile[$container['Names']]['containers'];
+
+                if (str_contains_all($apiRequest['result'], ['Error response', 'not found'])) {
+                    $result = 'Failed to restart ' . $container['Names'] . '<br>';
+                }
             }
             break;
         case '3': //-- STOP
@@ -575,7 +582,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 'checked'      => time(),
                 'name'         => $container['Names'],
                 'regctlDigest' => $regctlDigest,
-                'imageDigest'  => $imageDigest
+                'imageDigest'  => $imageDigest,
             ];
 
             apiRequest('file/pull', [], ['contents' => $pullsFile]);
@@ -619,14 +626,17 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     $preVersion = $docker->getContainerVersion($inspect);
                 }
 
-                $apiRequest = apiRequest('docker/container/pull', [], ['name' => $image]);
-                logger(UI_LOG, 'docker/container/pull:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
-
                 $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'docker/container/stop:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
                 $apiRequest = apiRequest('docker/container/remove', [], ['name' => $container['Names']]);
                 logger(UI_LOG, 'docker/container/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+
+                $apiRequest = apiRequest('docker/image/remove', [], ['image' => $currentImageID]);
+                logger(UI_LOG, 'docker/image/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+
+                $apiRequest = apiRequest('docker/container/pull', [], ['name' => $image]);
+                logger(UI_LOG, 'docker/container/pull:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
                 $apiRequest = apiRequest('docker/container/create', [], ['inspect' => $inspectImage]);
                 logger(UI_LOG, 'docker/container/create:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
@@ -634,9 +644,8 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $updateResult = 'failed';
 
                 if (strlen($update['Id']) == 64) {
-                    // REMOVE THE IMAGE AFTER UPDATE
-                    $apiRequest = apiRequest('docker/image/remove', [], ['image' => $currentImageID]);
-                    logger(UI_LOG, 'docker/image/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                    $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
+                    logger(UI_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
 
                     $inspectImage           = apiRequest('docker/container/inspect', ['name' => $image, 'useCache' => false, 'format' => true]);
                     $inspectImage           = json_decode($inspectImage['result'], true);
@@ -651,7 +660,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                         'checked'      => time(),
                         'name'         => $container['Names'],
                         'regctlDigest' => $imageDigest,
-                        'imageDigest'  => $imageDigest
+                        'imageDigest'  => $imageDigest,
                     ];
 
                     apiRequest('file/pull', [], ['contents' => $pullsFile]);
@@ -732,7 +741,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     'checked'      => time(),
                     'name'         => $container['Names'],
                     'regctlDigest' => $regctlDigest,
-                    'imageDigest'  => $imageDigest
+                    'imageDigest'  => $imageDigest,
                 ];
 
                 apiRequest('file/pull', [], ['contents' => $pullsFile]);

@@ -27,8 +27,32 @@ trait Container
 
     public function startContainer($containerName)
     {
-        $cmd = sprintf(DockerSock::START_CONTAINER, $this->shell->prepare($containerName));
-        return $this->shell->exec($cmd . ' 2>&1');
+        $cmd      = sprintf(DockerSock::START_CONTAINER, $this->shell->prepare($containerName));
+        $response = $this->shell->exec($cmd . ' 2>&1');
+
+        //-- DISCONNECT IT AND TRY AGAIN
+        if (str_contains($response, 'failed to set up container networking: network')) {
+            logger(UI_LOG, 'startContainer() failed because of network issue, disconnecting and trying again...');
+
+            //-- MAKE SURE IT DOESN'T HAVE ANY NEW NETWORKS
+            $prune = $this->pruneNetwork();
+            logger(UI_LOG, 'pruning networks:' . $prune);
+
+            preg_match('/network (.*) not/', $response, $matches);
+            $network = trim($matches[1]);
+            logger(UI_LOG, 'broken network:' . $network);
+
+            $cmd = sprintf(DockerSock::DISCONNECT_CONTAINER_NETWORK, $this->shell->prepare($network), $this->shell->prepare($containerName));
+            logger(UI_LOG, 'disconnecting network:' . $cmd);
+
+            $response = $this->shell->exec($cmd . ' 2>&1');
+            logger(UI_LOG, 'disconnect response:' . trim($response));
+
+            $cmd      = sprintf(DockerSock::START_CONTAINER, $this->shell->prepare($containerName));
+            $response = $this->shell->exec($cmd . ' 2>&1');
+        }
+
+        return $response;
     }
 
     public function killContainer($containerName)
