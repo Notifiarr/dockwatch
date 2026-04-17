@@ -26,7 +26,7 @@ RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclien
     && chmod +x /usr/local/bin/regctl
 
 # Add trivy for container vulnerability scanning
-COPY --from=aquasec/trivy:0.69.3@sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c /usr/local/bin/trivy /usr/local/bin/trivy
+COPY --from=aquasec/trivy:0.70.0@sha256:be1190afcb28352bfddc4ddeb71470835d16462af68d310f9f4bca710961a41e /usr/local/bin/trivy /usr/local/bin/trivy
 
 # Add grype for container vulnerability scanning
 RUN curl -sSfL https://get.anchore.io/grype | sh -s -- -b /usr/local/bin
