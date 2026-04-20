@@ -48,7 +48,10 @@ class Database
 
     public function connect($dbFile)
     {
-        $db       = new SQLite3($dbFile, SQLITE3_OPEN_CREATE | SQLITE3_OPEN_READWRITE);
+        $db = new SQLite3($dbFile, SQLITE3_OPEN_CREATE | SQLITE3_OPEN_READWRITE);
+        $db->busyTimeout(5000);
+        $db->exec('PRAGMA journal_mode = wal;');
+
         $this->db = $db;
     }
 
@@ -123,22 +126,25 @@ class Database
         }
 
         setFile(MIGRATION_FILE, ['started' => date('c')]);
+        $currentMigration = intval($this->getSetting('migration'));
 
         if (filesize(DATABASE_PATH . 'dockwatch.db') == 0) { //-- INITIAL SETUP
+            $q = []; //-- RESET THE QUERY ARRAY FOR THE INITIAL SETUP
             logger(SYSTEM_LOG, 'Creating database and applying migration 001_initial_setup');
             logger(MIGRATION_LOG, '====================|');
             logger(MIGRATION_LOG, '====================| migrations');
             logger(MIGRATION_LOG, '====================|');
             logger(MIGRATION_LOG, 'migration 001 ->');
-            $q = [];
             require MIGRATIONS_PATH . '001_initial_setup.php';
             logger(MIGRATION_LOG, 'migration 001 <-');
 
             $neededMigrations = [];
             $dir              = opendir(MIGRATIONS_PATH);
             while ($migration = readdir($dir)) {
-                if (substr($migration, 0, 3) > $this->getSetting('migration') && str_contains($migration, '.php')) {
-                    $neededMigrations[substr($migration, 0, 3)] = $migration;
+                $migrationFileNumber = intval(substr($migration, 0, 3));
+
+                if ($migrationFileNumber > $currentMigration && str_contains($migration, '.php')) {
+                    $neededMigrations[$migrationFileNumber] = $migration;
                 }
             }
             closedir($dir);
@@ -147,33 +153,38 @@ class Database
                 ksort($neededMigrations);
 
                 foreach ($neededMigrations as $migrationNumber => $neededMigration) {
+                    $q = []; //-- RESET THE QUERY ARRAY FOR EACH MIGRATION
                     logger(MIGRATION_LOG, 'migration ' . $migrationNumber . ' ->');
-                    $q = [];
                     require MIGRATIONS_PATH . $neededMigration;
                     logger(MIGRATION_LOG, 'migration ' . $migrationNumber . ' <-');
                 }
             }
-        } else { //-- GET CURRENT MIGRATION & CHECK FOR NEEDED MIGRATIONS
+        } else { //-- CHECK FOR NEEDED MIGRATIONS
             $neededMigrations = [];
             $dir              = opendir(MIGRATIONS_PATH);
             while ($migration = readdir($dir)) {
-                if (substr($migration, 0, 3) > $this->getSetting('migration') && str_contains($migration, '.php')) {
-                    $neededMigrations[substr($migration, 0, 3)] = $migration;
+                $migrationFileNumber = intval(substr($migration, 0, 3));
+
+                if ($migrationFileNumber > $currentMigration && str_contains($migration, '.php')) {
+                    $neededMigrations[$migrationFileNumber] = $migration;
                 }
             }
             closedir($dir);
 
             if ($neededMigrations) {
                 ksort($neededMigrations);
+                $neededMigrationsNumbers = implode(', ', array_keys($neededMigrations));
 
-                logger(SYSTEM_LOG, 'Applying migrations: ' . implode(', ', array_keys($neededMigrations)));
+                logger(SYSTEM_LOG, 'Applying migrations: ' . $neededMigrationsNumbers);
                 logger(MIGRATION_LOG, '====================|');
                 logger(MIGRATION_LOG, '====================| migrations');
                 logger(MIGRATION_LOG, '====================|');
+                logger(MIGRATION_LOG, 'Current migration: ' . $currentMigration);
+                logger(MIGRATION_LOG, 'Needed migrations: ' . $neededMigrationsNumbers);
 
                 foreach ($neededMigrations as $migrationNumber => $neededMigration) {
+                    $q = []; //-- RESET THE QUERY ARRAY FOR EACH MIGRATION
                     logger(MIGRATION_LOG, 'migration ' . $migrationNumber . ' ->');
-                    $q = [];
                     require MIGRATIONS_PATH . $neededMigration;
                     logger(MIGRATION_LOG, 'migration ' . $migrationNumber . ' <-');
                 }
