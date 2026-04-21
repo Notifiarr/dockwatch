@@ -126,8 +126,13 @@ if (!IS_SSE) {
     $database = new Database();
 
     if (!IS_STARTUP) {
-        //-- RUN MIGRATIONS
-        apiRequestLocal('database/migrations');
+        $highestMigration = $database->getNewestMigration();
+        $currentMigration = $settingsTable['migration'];
+
+        if ($currentMigration < $highestMigration) {
+            //-- RUN MIGRATIONS
+            apiRequestLocal('database/migrations');
+        }
     }
 
     $settingsTable = apiRequestLocal('database/settings');
