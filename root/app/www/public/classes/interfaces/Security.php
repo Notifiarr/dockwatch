@@ -11,7 +11,7 @@ interface SecurityScanner
 {
     //-- TRIVY SCANNER
     public const TRIVY_ID         = 1;
-    public const TRIVY_SCAN_IMAGE = '/usr/local/bin/trivy image -q --format json --scanners vuln --timeout 6m --module-dir %s.modules --cache-dir %s --output %s %s';
+    public const TRIVY_SCAN_IMAGE = '/usr/bin/trivy image -q --format json --scanners vuln --timeout 6m --module-dir %s.modules --cache-dir %s --output %s %s';
 
     //-- GRYPE SCANNER
     public const GRYPE_ID         = 0;
@@ -19,5 +19,5 @@ interface SecurityScanner
 
     //-- SNYK SCANNER
     public const SNYK_ID         = 2;
-    public const SNYK_SCAN_IMAGE = 'SNYK_CACHE_PATH=%s/.snyk SNYK_TOKEN=%s snyk -q container test --json --json-file-output=%s %s';
+    public const SNYK_SCAN_IMAGE = 'SNYK_CACHE_PATH=%s/.snyk SNYK_TOKEN=%s /usr/local/bin/snyk -q container test --json --json-file-output=%s %s';
 }
