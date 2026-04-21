@@ -57,6 +57,13 @@ if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'stateChan
 $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'websocket.php > /dev/null 2>&1 &';
 exec($cmd);
 
+//-- DOWNLOAD SCANNERS
+if (apiRequestLocal('database/settings')['securityEnabled']) {
+    file_put_contents(DOWNLOAD_SCANNERS_FILE, '');
+} else {
+    unlink(DOWNLOAD_SCANNERS_FILE);
+}
+
 //-- MAINTENANCE CHECK
 $maintenance->startup();
 

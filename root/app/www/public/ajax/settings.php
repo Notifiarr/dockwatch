@@ -261,7 +261,7 @@ if ($_POST['m'] == 'init') {
                 </thead>
                 <tbody>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Enabled<sup>3</sup></td>
+                        <td class="bg-secondary" scope="row">Enabled<sup>3,5</sup></td>
                         <td class="bg-secondary">
                             <input class="form-check-input" type="checkbox" id="globalSetting-securityEnabled" <?= $settingsTable['securityEnabled'] ? 'checked' : '' ?>>
                         </td>

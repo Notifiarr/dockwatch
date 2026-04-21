@@ -36,3 +36,19 @@ find /config ! -user abc -exec chown abc {} +
 echo 's6-overlay init require(/app/www/public/startup.php) ->';
 s6-setuidgid abc php -r "require '/app/www/public/startup.php';"
 echo 's6-overlay init require(/app/www/public/startup.php) <-';
+
+# download scanners
+if [ -f "/config/.download-scanners" ]; then
+    echo "**** downloading security scanners ****"
+    if [ ! -x "/usr/local/bin/grype" ]; then
+        curl -sSfL https://get.anchore.io/grype | sh -s -- -b /usr/local/bin 2>/dev/null
+    fi
+    if [ ! -x "/usr/local/bin/snyk" ]; then
+        SNYK_BINARY=$( [ "$TARGETARCH" = "amd64" ] && echo "snyk-alpine" || echo "snyk-alpine-arm64" ) && \
+            curl -sSf -L -o /usr/local/bin/snyk "https://github.com/snyk/cli/releases/download/v1.1303.2/${SNYK_BINARY}" && \
+            chmod +x /usr/local/bin/snyk
+    fi
+    if [ ! -x "/usr/bin/trivy" ]; then
+        apk add -q --repository=https://dl-cdn.alpinelinux.org/alpine/edge/testing trivy
+    fi
+fi

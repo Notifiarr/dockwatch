@@ -1,10 +1,13 @@
 # syntax=docker/dockerfile:1@sha256:4a43a54dd1fedceb30ba47e76cfcf2b47304f4161c0caeac2db1c61804ea3c91
 FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.23@sha256:1a5f561b528dde3f6bc6b20b1a8c4b10a7ac41e68ae668a119a9314df0a94df5
 ARG TARGETARCH
+ENV TARGETARCH=${TARGETARCH}
 
 # Version labels
 ARG BUILD_DATE
 ARG VERSION
+ENV BUILD_DATE=${BUILD_DATE}
+ENV VERSION=${VERSION}
 ARG COMMIT=unknown
 ARG COMMITS=0
 ARG BRANCH=unknown
@@ -25,25 +28,12 @@ ARG REGCTL_VERSION=v0.11.2
 RUN curl -sSf -L -o /usr/local/bin/regctl "https://github.com/regclient/regclient/releases/download/${REGCTL_VERSION}/regctl-linux-${TARGETARCH}" \
     && chmod +x /usr/local/bin/regctl
 
-# Add trivy for container vulnerability scanning
-COPY --from=aquasec/trivy:0.69.3@sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c /usr/local/bin/trivy /usr/local/bin/trivy
-
-# Add grype for container vulnerability scanning
-RUN curl -sSfL https://get.anchore.io/grype | sh -s -- -b /usr/local/bin
-
-# Add snyk for container vulnerability scanning
-# renovate: datasource=github-releases lookupName=snyk/cli
-ARG SNYK_VERSION=v1.1303.2
-RUN SNYK_BINARY=$( [ "$TARGETARCH" = "amd64" ] && echo "snyk-alpine" || echo "snyk-alpine-arm64" ) && \
-    curl -sSf -L -o /usr/local/bin/snyk "https://github.com/snyk/cli/releases/download/${SNYK_VERSION}/${SNYK_BINARY}" && \
-    chmod +x /usr/local/bin/snyk
-
 # Add composer for PHP package management
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install system packages
 ARG PHP_VERSION=85
-ARG INSTALL_PACKAGES="docker docker-cli-compose memcached expect php${PHP_VERSION}-sockets php${PHP_VERSION}-sqlite3 php${PHP_VERSION}-pecl-memcached php${PHP_VERSION}-tokenizer php${PHP_VERSION}-dom php${PHP_VERSION}-mbstring"
+ARG INSTALL_PACKAGES="docker-cli docker-cli-compose memcached expect php${PHP_VERSION}-sockets php${PHP_VERSION}-sqlite3 php${PHP_VERSION}-pecl-memcached php${PHP_VERSION}-tokenizer php${PHP_VERSION}-dom php${PHP_VERSION}-mbstring"
 RUN apk add --repository=https://dl-cdn.alpinelinux.org/alpine/v3.23/main --no-cache --update ${INSTALL_PACKAGES}
 
 # Add user for unraid docker
@@ -115,7 +105,10 @@ COPY root/ /
 # Copy composer files and install dependencies
 COPY composer.json composer.lock* /app/www/
 WORKDIR /app/www
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader && \
+    rm -rf /usr/local/bin/composer* && \
+    rm -rf /usr/bin/composer* && \
+    rm -rf /root/.composer
 
 RUN echo -e "\n//-- DOCKERFILE DEFINES"                        >> /app/www/public/includes/constants.php \
     && echo "define('DOCKWATCH_BUILD_DATE', '${BUILD_DATE}');" >> /app/www/public/includes/constants.php \
