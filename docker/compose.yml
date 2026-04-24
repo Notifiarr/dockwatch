@@ -12,6 +12,7 @@ services:
       - TZ=Etc/UTC
     ports:
       - 10000:80/tcp
+      - 10001:8081/tcp # phpmyadmin
     volumes:
       - ./.data/dockwatch/config:/config
       - /var/run/docker.sock:/var/run/docker.sock
