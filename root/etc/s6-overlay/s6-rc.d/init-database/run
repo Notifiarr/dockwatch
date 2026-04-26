@@ -1,0 +1,20 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+# install mysql db
+if [ ! -f "/config/.created-db" ]; then
+    echo "**** installing database ****"
+    mariadb-install-db --user=abc --datadir=/config/database/mysql &>/dev/null
+    touch /config/.created-db
+fi
+
+# run mysql db
+echo "**** running database ****"
+mkdir -p /run/mysqld && chown abc:abc /run/mysqld
+mariadbd --user=abc --datadir=/config/database/mysql >/dev/null 2>&1 &
+
+# check if it's really up before continuing
+echo "waiting for mysqld.."
+while ! mariadb-admin ping --silent; do
+    sleep 5
+done
