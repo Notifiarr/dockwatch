@@ -1,6 +1,8 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
 
+# https://github.com/linuxserver/docker-mariadb/tree/305952458ca73abad02a8cd3b3fb6a30df58d97c/root/etc/s6-overlay/s6-rc.d
+
 # remove orphan pid file
 if [[ -f /run/mysqld/mysqld.pid ]]; then
     rm -f /run/mysqld/mysqld.pid
@@ -16,4 +18,10 @@ fi
 # run mysql db
 echo "**** running database ****"
 mkdir -p /run/mysqld && chown abc:abc /run/mysqld
-mariadbd --user=abc --datadir=/config/database/mysql >/dev/null 2>&1 &
+s6-notifyoncheck -d -n 300 -w 1000 -c "nc -z localhost 3306" \
+    s6-setuidgid abc \
+    /usr/bin/mariadbd-safe \
+    --datadir=/config/database/mysql \
+    --pid-file=/run/mysqld/mysqld.pid \
+    --skip-networking=OFF \
+    --user=abc
