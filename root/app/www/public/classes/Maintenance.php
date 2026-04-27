@@ -21,6 +21,7 @@ class Maintenance
     use Maint;
 
     public    $docker;
+    public    $shell;
     protected $maintenanceContainerName = 'dockwatch-maintenance';
     protected $maintenancePort;
     protected $maintenanceIP;
@@ -31,12 +32,13 @@ class Maintenance
 
     public function __construct()
     {
-        global $docker, $settingsTable;
+        global $docker, $settingsTable, $shell;
 
         logger(MAINTENANCE_LOG, '$maintenance->__construct() ->');
 
         $this->docker           = $docker;
         $this->settingsTable    = $settingsTable;
+        $this->shell            = $shell;
         $this->maintenancePort  = $settingsTable['maintenancePort'];
         $this->maintenanceIP    = $settingsTable['maintenanceIP'];
         $getExpandedProcessList = getExpandedProcessList(true, true, true, true);
@@ -73,20 +75,22 @@ class Maintenance
     {
         logger(MAINTENANCE_LOG, '$maintenance->startup() ->');
 
-        if (file_exists(APP_DATA_PATH . 'restart.txt')) { //-- dockwatch-maintenance CHECKING ON dockwatch RESTART
+        if (file_exists(TMP_PATH . 'restart.txt')) { //-- dockwatch-maintenance CHECKING ON dockwatch RESTART
             logger(MAINTENANCE_LOG, 'restart requested for \'' . $this->hostContainer['Names'] . '\'');
 
-            unlink(APP_DATA_PATH . 'restart.txt');
-            logger(MAINTENANCE_LOG, 'removed ' . APP_DATA_PATH . 'restart.txt');
+            unlink(TMP_PATH . 'restart.txt');
+            logger(MAINTENANCE_LOG, 'removed ' . TMP_PATH . 'restart.txt');
 
+            $this->shell->exec("s6-rc -d change init-database && mariadb-admin shutdown");
             $this->stopHost();
             $this->startHost();
-        } elseif (file_exists(APP_DATA_PATH . 'update.txt')) { //-- dockwatch-maintenance CHECKING ON dockwatch UPDATE
+        } elseif (file_exists(TMP_PATH . 'update.txt')) { //-- dockwatch-maintenance CHECKING ON dockwatch UPDATE
             logger(MAINTENANCE_LOG, 'update requested for \'' . $this->hostContainer['Names'] . '\'');
 
-            unlink(APP_DATA_PATH . 'update.txt');
-            logger(MAINTENANCE_LOG, 'removed ' . APP_DATA_PATH . 'update.txt');
+            unlink(TMP_PATH . 'update.txt');
+            logger(MAINTENANCE_LOG, 'removed ' . TMP_PATH . 'update.txt');
 
+            $this->shell->exec("s6-rc -d change init-database && mariadb-admin shutdown");
             $this->stopHost();
             $this->removeHost();
             $this->pullHost();
@@ -101,7 +105,7 @@ class Maintenance
 
     function apply($action)
     {
-        file_put_contents(APP_DATA_PATH . $action . '.txt', $action);
+        file_put_contents(TMP_PATH . $action . '.txt', $action);
         $this->createMaintenance();
     }
 }
