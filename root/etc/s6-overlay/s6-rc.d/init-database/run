@@ -16,12 +16,14 @@ if [ ! -f "/config/.created-db" ]; then
 fi
 
 # run mysql db
-# echo "**** running database ****"
-# mkdir -p /run/mysqld && chown abc:abc /run/mysqld
-# s6-notifyoncheck -d -n 300 -w 1000 -c "nc -z localhost 3306" \
-#     s6-setuidgid abc \
-#     /usr/bin/mariadbd-safe \
-#     --datadir=/config/database/mysql \
-#     --pid-file=/run/mysqld/mysqld.pid \
-#     --skip-networking=OFF \
-#     --user=abc
+if [ ! -f "/tmp/update.txt" ] || [ ! -f "/tmp/restart.txt" ]; then
+    echo "**** running database ****"
+    mkdir -p /run/mysqld && chown abc:abc /run/mysqld
+    s6-notifyoncheck -d -n 300 -w 1000 -c "nc -z localhost 3306" \
+        s6-setuidgid abc \
+        /usr/bin/mariadbd-safe \
+        --datadir=/config/database/mysql \
+        --pid-file=/run/mysqld/mysqld.pid \
+        --skip-networking=OFF \
+        --user=abc
+fi
