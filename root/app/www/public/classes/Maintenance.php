@@ -81,7 +81,6 @@ class Maintenance
             unlink(TMP_PATH . 'restart.txt');
             logger(MAINTENANCE_LOG, 'removed ' . TMP_PATH . 'restart.txt');
 
-            $this->shell->exec("s6-rc -d change init-database && mariadb-admin shutdown");
             $this->stopHost();
             $this->startHost();
         } elseif (file_exists(TMP_PATH . 'update.txt')) { //-- dockwatch-maintenance CHECKING ON dockwatch UPDATE
@@ -90,7 +89,6 @@ class Maintenance
             unlink(TMP_PATH . 'update.txt');
             logger(MAINTENANCE_LOG, 'removed ' . TMP_PATH . 'update.txt');
 
-            $this->shell->exec("s6-rc -d change init-database && mariadb-admin shutdown");
             $this->stopHost();
             $this->removeHost();
             $this->pullHost();
