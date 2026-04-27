@@ -274,7 +274,7 @@ function viewSecurityScanByFile(hash, image, file) {
                         html += '<tr>';
 
                         if (idx === 0) {
-                            html += '<td class="bg-secondary" rowspan="' + rowspan + '">' + pkgName.slice(0, 32) + "..." + '</td>';
+                            html += '<td class="bg-secondary" rowspan="' + rowspan + '">' + (pkgName.length > 14 ? pkgName.slice(0, 14) + "..." : pkgName) + '</td>';
                         }
 
                         html += `
