@@ -34,7 +34,7 @@ $security = $security ?? new Security();
 
 logger(STARTUP_LOG, 'Container init (Start/Restart) ->');
 
-$name = file_exists(TMP_PATH . 'restart.txt') || file_exists(TMP_PATH . 'update.txt') ? 'dockwatch-maintenance' : 'dockwatch';
+$name = file_exists(APP_DATA_PATH . 'restart.txt') || file_exists(APP_DATA_PATH . 'update.txt') ? 'dockwatch-maintenance' : 'dockwatch';
 
 //-- STARTUP TELEMETRY CHECK
 if ($name == 'dockwatch') {

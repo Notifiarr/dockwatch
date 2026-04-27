@@ -73,19 +73,19 @@ class Maintenance
     {
         logger(MAINTENANCE_LOG, '$maintenance->startup() ->');
 
-        if (file_exists(TMP_PATH . 'restart.txt')) { //-- dockwatch-maintenance CHECKING ON dockwatch RESTART
+        if (file_exists(APP_DATA_PATH . 'restart.txt')) { //-- dockwatch-maintenance CHECKING ON dockwatch RESTART
             logger(MAINTENANCE_LOG, 'restart requested for \'' . $this->hostContainer['Names'] . '\'');
 
-            unlink(TMP_PATH . 'restart.txt');
-            logger(MAINTENANCE_LOG, 'removed ' . TMP_PATH . 'restart.txt');
+            unlink(APP_DATA_PATH . 'restart.txt');
+            logger(MAINTENANCE_LOG, 'removed ' . APP_DATA_PATH . 'restart.txt');
 
             $this->stopHost();
             $this->startHost();
-        } elseif (file_exists(TMP_PATH . 'update.txt')) { //-- dockwatch-maintenance CHECKING ON dockwatch UPDATE
+        } elseif (file_exists(APP_DATA_PATH . 'update.txt')) { //-- dockwatch-maintenance CHECKING ON dockwatch UPDATE
             logger(MAINTENANCE_LOG, 'update requested for \'' . $this->hostContainer['Names'] . '\'');
 
-            unlink(TMP_PATH . 'update.txt');
-            logger(MAINTENANCE_LOG, 'removed ' . TMP_PATH . 'update.txt');
+            unlink(APP_DATA_PATH . 'update.txt');
+            logger(MAINTENANCE_LOG, 'removed ' . APP_DATA_PATH . 'update.txt');
 
             $this->stopHost();
             $this->removeHost();
@@ -101,7 +101,7 @@ class Maintenance
 
     function apply($action)
     {
-        file_put_contents(TMP_PATH . $action . '.txt', $action);
+        file_put_contents(APP_DATA_PATH . $action . '.txt', $action);
         $this->createMaintenance();
     }
 }

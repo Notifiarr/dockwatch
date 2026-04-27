@@ -16,7 +16,7 @@ if [ ! -f "/config/.created-db" ]; then
 fi
 
 # run mysql db
-if [ ! -f "/tmp/update.txt" ] || [ ! -f "/tmp/restart.txt" ]; then
+if [ ! -f "/config/update.txt" ] || [ ! -f "/config/restart.txt" ]; then
     echo "**** running database ****"
     mkdir -p /run/mysqld && chown abc:abc /run/mysqld
     s6-notifyoncheck -d -n 300 -w 1000 -c "nc -z localhost 3306" \
