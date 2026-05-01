@@ -16,7 +16,9 @@ function apiSetActiveServer($serverId, $serversTable = [])
 {
     global $database;
 
-    $serversTable                   = $serversTable ?: $database->getServers();
+    if (!$serversTable) {
+        $serversTable = IS_MAINTENANCE ? ($GLOBALS['serversTable'] ?? []) : $database->getServers();
+    }
     $_SESSION['activeServerId']     = $serversTable[$serverId]['id'];
     $_SESSION['activeServerName']   = $serversTable[$serverId]['name'];
     $_SESSION['activeServerUrl']    = rtrim($serversTable[$serverId]['url'], '/');
@@ -28,7 +30,7 @@ function apiGetActiveServer()
     global $database;
 
     if ($_SESSION['activeServerId'] && !$_SESSION['activeServerApikey']) {
-        $serversTable                   = $database->getServers();
+        $serversTable                   = IS_MAINTENANCE ? ($GLOBALS['serversTable'] ?? []) : $database->getServers();
         $_SESSION['activeServerId']     = $serversTable[$_SESSION['activeServerId']]['id'];
         $_SESSION['activeServerName']   = $serversTable[$_SESSION['activeServerId']]['name'];
         $_SESSION['activeServerUrl']    = rtrim($serversTable[$_SESSION['activeServerId']]['url'], '/');
@@ -140,6 +142,10 @@ function apiRequestLocal($endpoint, $parameters = [], $payload = [])
 
     //-- ...api/$route/$path/$action/$method/$field
     list($route, $path, $action, $method, $field) = explode('/', $endpoint);
+
+    if (IS_MAINTENANCE && $route == 'database') {
+        apiResponse(503, ['error' => 'Maintenance container: the database is not available']);
+    }
 
     if (file_exists(ABSOLUTE_PATH . 'api/' . $route . '/endpoints.php')) {
         require ABSOLUTE_PATH . 'api/' . $route . '/endpoints.php';

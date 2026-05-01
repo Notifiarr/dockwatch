@@ -63,9 +63,17 @@ trait Container
 
     public function stopContainer($containerName)
     {
-        $nameHash  = md5($containerName);
-        $container = $this->database->getContainerFromHash($nameHash);
-        $delay     = intval($container['shutdownDelaySeconds']) >= 5 ? ' -t ' . $container['shutdownDelaySeconds'] : ' -t 120';
+        if (IS_MAINTENANCE) {
+            $container = [
+                'shutdownDelay'        => false,
+                'shutdownDelaySeconds' => 120,
+            ];
+        } else {
+            $nameHash  = md5($containerName);
+            $container = $this->database->getContainerFromHash($nameHash);
+        }
+
+        $delay = intval($container['shutdownDelaySeconds']) >= 5 ? ' -t ' . $container['shutdownDelaySeconds'] : ' -t 120';
 
         if ($container['shutdownDelay']) {
             logger(SYSTEM_LOG, 'stopContainer() delaying stop command for container ' . $containerName . ' with ' . $delay, 'warn');

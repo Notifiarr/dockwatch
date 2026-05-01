@@ -14,6 +14,7 @@ define('APP_SERVER_ID', 1);
 define('APP_SERVER_URL', 'http://localhost');
 define('APP_MAINTENANCE_IMAGE', 'ghcr.io/notifiarr/dockwatch:develop');
 define('APP_MAINTENANCE_PORT', 9998);
+
 define('APP_WEBSOCKET_PORT', 9910);
 define('APP_BACKUPS', 7); //-- DAYS
 define('APP_X', 0);
@@ -28,7 +29,12 @@ define('DEFAULT_REMOTE_SERVER_TIMEOUT', 20);
 define('TELEMETRY_URL', 'https://notifiarr.com/api/v1/system/dockwatch-telemetry/dockwatc-htel-emet-ryen-dpoint-2024-'); //-- THIS APIKEY HAS BEEN HARDCODED TO ONLY WORK ON THIS ENDPOINT
 
 //-- DATABASE
+// TODO: WAIT A FEW MONTHS FOR EXISTING USERS TO MIGRATE, REMOVE "DATABASE_NAME" REFERENCE
 define('DATABASE_NAME', 'dockwatch.db');
+define('DB_NAME', 'dockwatch');
+define('DB_USER', 'abc');
+define('DB_PASSWORD', 'abc');
+define('DB_HOST', 'localhost');
 define('SETTINGS_TABLE', 'settings');
 define('SERVERS_TABLE', 'servers');
 define('CONTAINER_SETTINGS_TABLE', 'container_settings');
@@ -53,7 +59,6 @@ define('DATABASE_PATH', APP_DATA_PATH . 'database/');
 define('MIGRATIONS_PATH', ABSOLUTE_PATH . 'migrations/');
 define('SECURITY_PATH', APP_DATA_PATH . 'security/');
 
-
 //-- DATA FILES
 define('SERVERS_FILE', APP_DATA_PATH . 'servers.json');
 define('LOGIN_FILE', APP_DATA_PATH . 'logins');
@@ -71,7 +76,7 @@ define('SSE_FILE', APP_DATA_PATH . 'sse.json');
 define('METRICS_FILE', APP_DATA_PATH . 'metrics.json');
 define('COMMANDS_FILE', APP_DATA_PATH . 'commands.json');
 define('BASE_URL_FILE', APP_DATA_PATH . 'base-url.txt');
-define('MIGRATION_FILE', APP_DATA_PATH . 'migration-in-progress.txt');
+define('MIGRATION_FILE', APP_DATA_PATH . '.migration-running');
 define('DOWNLOAD_SCANNERS_FILE', APP_DATA_PATH . '.download-scanners');
 define('IS_MIGRATION_RUNNING', file_exists(MIGRATION_FILE));
 

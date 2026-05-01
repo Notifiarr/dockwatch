@@ -54,7 +54,7 @@ class Notifications
                 break;
             }
         }
-        $notificationPlatform = $notificationPlatformTable[$notificationLinkData['platform_id']];
+        $notificationPlatform = $notificationPlatformTable[$notificationLinkData['platform']];
 
         $logfile = $this->logpath . $notificationPlatform['platform'] . '.log';
         logger($logfile, 'test notification request to ' . $notificationPlatform['platform']);
@@ -98,7 +98,7 @@ class Notifications
             }
 
             $notificationLink     = $notificationLinkTable[$linkId];
-            $notificationPlatform = $notificationPlatformTable[$notificationLink['platform_id']];
+            $notificationPlatform = $notificationPlatformTable[$notificationLink['platform']];
         } else {
             foreach ($notificationTriggersTable as $notificationTrigger) {
                 if ($notificationTrigger['name'] == $trigger) {
@@ -117,7 +117,7 @@ class Notifications
         }
 
         foreach ($linkIds as $linkId) {
-            $platformId         = $linkId['platform_id'];
+            $platformId         = $linkId['platform'];
             $platformParameters = json_decode($linkId['platform_parameters'], true);
             $platformName       = '';
 

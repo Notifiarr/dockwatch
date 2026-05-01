@@ -19,8 +19,8 @@ trait NotificationLink
 
         $q = "SELECT *
               FROM " . NOTIFICATION_LINK_TABLE;
-        $r = $this->query($q);
-        while ($row = $this->fetchAssoc($r)) {
+        $r = $this->mysqli_query($q);
+        while ($row = $this->mysqli_fetchAssoc($r)) {
             $notificationLinkTable[$row['id']] = $row;
         }
 
@@ -33,7 +33,7 @@ trait NotificationLink
         $q = "UPDATE " . NOTIFICATION_LINK_TABLE . "
               SET name = '" . $this->prepare($senderName) . "', platform_parameters = '" . json_encode($platformParameters) . "', trigger_ids = '" . json_encode($triggerIds) . "'
               WHERE id = '" . intval($linkId) . "'";
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->notificationLinkTable = '';
         return $this->getNotificationLinks();
@@ -42,10 +42,10 @@ trait NotificationLink
     public function addNotificationLink($platformId, $triggerIds, $platformParameters, $senderName)
     {
         $q = "INSERT INTO " . NOTIFICATION_LINK_TABLE . "
-              (`name`, `platform_id`, `platform_parameters`, `trigger_ids`)
+              (`name`, `platform`, `platform_parameters`, `trigger_ids`)
               VALUES
               ('" . $this->prepare($senderName) . "', '" . intval($platformId) . "', '" . json_encode($platformParameters) . "', '" . json_encode($triggerIds) . "')";
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->notificationLinkTable = '';
         return $this->getNotificationLinks();
@@ -55,7 +55,7 @@ trait NotificationLink
     {
         $q = "DELETE FROM " . NOTIFICATION_LINK_TABLE . "
               WHERE id = " . intval($linkId);
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->notificationLinkTable = '';
         return $this->getNotificationLinks();
@@ -72,7 +72,7 @@ trait NotificationLink
 
                 foreach ($triggers as $trigger) {
                     if ($trigger == $notificationTrigger['id']) {
-                        return $notificationLink['platform_id'];
+                        return $notificationLink['platform'];
                     }
                 }
             }

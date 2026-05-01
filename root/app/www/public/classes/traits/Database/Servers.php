@@ -33,7 +33,7 @@ trait Servers
                         WHERE id = " . $serverId;
                     break;
             }
-            $this->query($q);
+            $this->mysqli_query($q);
         }
 
         return $this->getServers();
@@ -45,8 +45,8 @@ trait Servers
 
         $q = "SELECT *
               FROM " . SERVERS_TABLE;
-        $r = $this->query($q);
-        while ($row = $this->fetchAssoc($r)) {
+        $r = $this->mysqli_query($q);
+        while ($row = $this->mysqli_fetchAssoc($r)) {
             $serversTable[$row['id']] = $row;
         }
 

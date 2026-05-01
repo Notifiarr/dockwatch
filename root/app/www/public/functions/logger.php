@@ -86,6 +86,14 @@ function logger($logfile, $msg, $type = 'info')
         return;
     }
 
+    //-- OUTPUT THE LINE TO THE SHELL
+    if ($type == 'shell') {
+        if (IS_STARTUP) {
+            echo $msg . "\n";
+        }
+        $type = '';
+    }
+
     $backtrace  = debug_backtrace();
     $line       = $backtrace[0]['line'];
     $file       = $backtrace[0]['file'];

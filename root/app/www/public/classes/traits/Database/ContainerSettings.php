@@ -17,8 +17,8 @@ trait ContainerSettings
 
         $q = "SELECT *
               FROM " . CONTAINER_SETTINGS_TABLE;
-        $r = $this->query($q);
-        while ($row = $this->fetchAssoc($r)) {
+        $r = $this->mysqli_query($q);
+        while ($row = $this->mysqli_fetchAssoc($r)) {
             $containers[$row['id']] = $row;
         }
 
@@ -46,9 +46,9 @@ trait ContainerSettings
         $q = "SELECT *
               FROM " . CONTAINER_SETTINGS_TABLE . "
               WHERE hash = '" . $hash . "'";
-        $r = $this->query($q);
+        $r = $this->mysqli_query($q);
 
-        return $this->fetchAssoc($r);
+        return $this->mysqli_fetchAssoc($r);
     }
 
     public function addContainer($fields = [])
@@ -89,7 +89,7 @@ trait ContainerSettings
               (" . implode(', ', $fieldList) . ")
               VALUES
               (" . implode(', ', $valList) . ")";
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->containersTable = '';
     }
@@ -100,7 +100,7 @@ trait ContainerSettings
 
         $q = "DELETE FROM " . CONTAINER_SETTINGS_TABLE . "
               WHERE hash = '" . $hash . "'";
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->containersTable = '';
     }
@@ -115,9 +115,9 @@ trait ContainerSettings
         $q = "UPDATE " . CONTAINER_SETTINGS_TABLE . "
               SET " . implode(', ', $updateList) . "
               WHERE hash = '" . $hash . "'";
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->containersTable = '';
-        return $this->error();
+        return $this->mysqli_error();
     }
 }

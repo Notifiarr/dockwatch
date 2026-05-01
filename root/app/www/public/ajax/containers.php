@@ -993,7 +993,7 @@ if ($_POST['m'] == 'saveContainerGroup') {
                 $groupId = apiRequest('database/container/group/add', [], ['name' => $groupName])['result'];
 
                 if (!$groupId) {
-                    $error = 'Error creating the new \'' . $groupName . '\' group: ' . $database->error();
+                    $error = 'Error creating the new \'' . $groupName . '\' group: ' . $database->mysqli_error();
                 }
             }
         } else {

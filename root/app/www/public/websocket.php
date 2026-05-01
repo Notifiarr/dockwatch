@@ -11,6 +11,10 @@ if (!defined('ABSOLUTE_PATH')) {
 }
 require_once ABSOLUTE_PATH . 'loader.php';
 
+if (IS_MAINTENANCE) {
+    exit(0);
+}
+
 require __DIR__ . '/../vendor/autoload.php';
 
 use Ratchet\Server\IoServer;
@@ -24,6 +28,7 @@ use React\EventLoop\Loop;
 set_time_limit(0);
 ob_implicit_flush();
 
+/** @disregard */
 class WebSocket implements MessageComponentInterface
 {
     protected $clients;
@@ -35,7 +40,8 @@ class WebSocket implements MessageComponentInterface
         logger(WEBSOCKET_LOG, 'websocket ->');
         $this->clients            = new \SplObjectStorage;
         $this->container_sessions = [];
-        $this->memcached          = new Memcached();
+        /** @disregard */
+        $this->memcached = new Memcached();
         $this->memcached->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
     }
 
@@ -46,19 +52,17 @@ class WebSocket implements MessageComponentInterface
             $port = APP_WEBSOCKET_PORT;
         }
 
-        $server = IoServer::factory(
-            new HttpServer(
-                new WsServer(
-                    $this
-                )
-            ),
-            $port,
-            '0.0.0.0'
-        );
+        /** @disregard */
+        $wsInner = new WsServer($this);
+        /** @disregard */
+        $httpInner = new HttpServer($wsInner);
+        /** @disregard */
+        $server = IoServer::factory($httpInner, $port, '0.0.0.0');
         logger(WEBSOCKET_LOG, 'WebSocket Server started on 0.0.0.0:' . $port);
         $server->run();
     }
 
+    /** @disregard */
     public function onOpen(ConnectionInterface $conn)
     {
         $queryString = $conn->httpRequest->getUri()->getQuery();
@@ -85,6 +89,7 @@ class WebSocket implements MessageComponentInterface
         logger(WEBSOCKET_LOG, 'New connection authorized (' . $conn->resourceId . ')');
     }
 
+    /** @disregard */
     public function onMessage(ConnectionInterface $from, $msg)
     {
         $data = json_decode($msg, true);
@@ -116,6 +121,7 @@ class WebSocket implements MessageComponentInterface
         }
     }
 
+    /** @disregard */
     public function onClose(ConnectionInterface $conn)
     {
         $this->closeContainerSession($conn);
@@ -123,6 +129,7 @@ class WebSocket implements MessageComponentInterface
         logger(WEBSOCKET_LOG, 'Connection ' . $conn->resourceId . ' has disconnected');
     }
 
+    /** @disregard */
     public function onError(ConnectionInterface $conn, \Exception $e)
     {
         logger(WEBSOCKET_LOG, 'Connection error occurred ' . $e->getMessage(), 'error');
@@ -131,6 +138,7 @@ class WebSocket implements MessageComponentInterface
     }
 
     //-- START CONTAINER SESSION WITH EXPECT
+    /** @disregard */
     protected function startContainerSession(ConnectionInterface $client, $containerId)
     {
         //-- CHECK IF CONTAINER IS RUNNING
@@ -167,7 +175,7 @@ class WebSocket implements MessageComponentInterface
             "expect -c 'set timeout -1; log_user 0; spawn -noecho docker exec -it %s %s; send \"export TERM=xterm\"; interact;'",
             escapeshellarg($containerId),
             escapeshellarg($shell),
-            escapeshellarg($containerId)
+            escapeshellarg($containerId),
         );
         logger(WEBSOCKET_LOG, "Executing expect command: $expectScript");
 
@@ -195,12 +203,13 @@ class WebSocket implements MessageComponentInterface
             'pipes'       => $pipes,
             'containerId' => $containerId,
             'buffer'      => '',
-            'ready'       => false
+            'ready'       => false,
         ];
 
         $client->send(json_encode(['success' => true, 'message' => "Connected to container $containerId"]));
 
         //-- DELAY TO ENSURE SHELL IS READY
+        /** @disregard */
         $loop = Loop::get();
         $loop->addTimer(0.5, function () use ($client, $containerId) {
             if (isset($this->container_sessions[$client->resourceId])) {
@@ -217,6 +226,7 @@ class WebSocket implements MessageComponentInterface
     }
 
     //-- SEND COMMAND
+    /** @disregard */
     protected function sendCommand(ConnectionInterface $client, $command)
     {
         $session = &$this->container_sessions[$client->resourceId];
@@ -229,7 +239,7 @@ class WebSocket implements MessageComponentInterface
         $command = str_replace(
             ["\x7f", "\r", "\t", "\x03", "\x04"],
             ["\x08", "\n", "\t", "\x03", "\x04"],
-            $command
+            $command,
         );
 
         $status = proc_get_status($session['process']);
@@ -244,10 +254,12 @@ class WebSocket implements MessageComponentInterface
     }
 
     //-- OUTPUT LOOP
+    /** @disregard */
     protected function startOutputLoop(ConnectionInterface $client)
     {
         $session = &$this->container_sessions[$client->resourceId];
-        $loop    = Loop::get();
+        /** @disregard */
+        $loop = Loop::get();
 
         $loop->addPeriodicTimer(0.005, function () use ($client, &$session) { //-- FASTER POLLING
             if (!isset($this->container_sessions[$client->resourceId])) {
@@ -282,7 +294,7 @@ class WebSocket implements MessageComponentInterface
                 $session['buffer'] .= $output;
                 $client->send(json_encode([
                     'type' => 'stdout',
-                    'data' => base64_encode($session['buffer'])
+                    'data' => base64_encode($session['buffer']),
                 ]));
                 $session['buffer'] = '';
             }
@@ -290,13 +302,14 @@ class WebSocket implements MessageComponentInterface
             if ($error !== '' && $session['ready']) {
                 $client->send(json_encode([
                     'type' => 'stderr',
-                    'data' => base64_encode($error)
+                    'data' => base64_encode($error),
                 ]));
             }
         });
     }
 
     //-- RESIZE TERMINAL
+    /** @disregard */
     protected function resizeTerminal(ConnectionInterface $client, $cols, $rows)
     {
         $session = &$this->container_sessions[$client->resourceId] ?? null;
@@ -312,6 +325,7 @@ class WebSocket implements MessageComponentInterface
     }
 
     //-- CLOSE SESSION
+    /** @disregard */
     protected function closeContainerSession(ConnectionInterface $client)
     {
         if (!isset($this->container_sessions[$client->resourceId])) {

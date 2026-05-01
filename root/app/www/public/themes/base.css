@@ -347,10 +347,21 @@ button.dropdown-item:hover {
     background-color: var(--primary-500) !important;
 } */
 
+.btn.btn-success,
 button.btn-success {
-    background-color: var(--primary-500) !important;
-    color: white !important;
-    border: none !important;
+    --bs-btn-color: #fff !important;
+    --bs-btn-bg: #198754 !important;
+    --bs-btn-border-color: #198754 !important;
+    --bs-btn-hover-bg: #157347 !important;
+    --bs-btn-hover-border-color: #146c43 !important;
+    --bs-btn-active-bg: #146c43 !important;
+    --bs-btn-active-border-color: #13653f !important;
+    --bs-btn-disabled-bg: #198754 !important;
+    --bs-btn-disabled-border-color: #198754 !important;
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: #fff !important;
+    background-image: none !important;
 }
 
 /* Tables */

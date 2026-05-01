@@ -17,8 +17,8 @@ trait ContainerGroupLink
 
         $q = "SELECT *
               FROM " . CONTAINER_GROUPS_LINK_TABLE;
-        $r = $this->query($q);
-        while ($row = $this->fetchAssoc($r)) {
+        $r = $this->mysqli_query($q);
+        while ($row = $this->mysqli_fetchAssoc($r)) {
             $containerLinks[] = $row;
         }
 
@@ -44,7 +44,7 @@ trait ContainerGroupLink
               (`group_id`, `container_id`)
               VALUES
               ('" . intval($groupId) . "', '" . intval($containerId) . "')";
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->containerGroupLinksTable = '';
     }
@@ -54,7 +54,7 @@ trait ContainerGroupLink
         $q = "DELETE FROM " . CONTAINER_GROUPS_LINK_TABLE . "
               WHERE group_id = '" . intval($groupId) . "'
               AND container_id = '" . intval($containerId) . "'";
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->containerGroupLinksTable = '';
     }
@@ -63,7 +63,7 @@ trait ContainerGroupLink
     {
         $q = "DELETE FROM " . CONTAINER_GROUPS_LINK_TABLE . "
               WHERE group_id = " . $groupId;
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->containerGroupLinksTable = '';
     }

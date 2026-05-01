@@ -15,11 +15,20 @@ if ($_POST['m'] == 'init') {
         $cpus = '0 (Could not get cpu count from /proc/cpuinfo)';
     }
 
-    $migrations = '<option value="000">000_fresh_start</option>';
-    $dir        = opendir(MIGRATIONS_PATH);
+    $dir = opendir(MIGRATIONS_PATH);
     while ($migration = readdir($dir)) {
         if (str_contains($migration, '.php')) {
-            $migrations .= '<option ' . ($settingsTable['migration'] == substr($migration, 0, 3) ? 'selected ' : '') . 'value="' . substr($migration, 0, 3) . '">' . str_replace('.php', '', $migration) . '</option>';
+            $migrationId = substr($migration, 0, 3);
+            $migrationNo = intval($migrationId);
+
+            $migrationLabel = str_replace('.php', '', $migration);
+            if ($migrationNo >= 1 && $migrationNo <= 22) {
+                $migrationLabel .= ' [Legacy SQLite3]';
+            }
+
+            $selected    = $settingsTable['migration'] == $migrationId;
+            $disabled    = $migrationNo >= 1 && $migrationNo <= 22;
+            $migrations .= '<option ' . ($selected ? 'selected ' : '') . ($disabled ? 'disabled ' : '') . 'value="' . $migrationId . '">' . $migrationLabel . '</option>';
         }
     }
     closedir($dir);
@@ -275,7 +284,7 @@ if ($_POST['m'] == 'init') {
                                 $scanners = [
                                     'trivy' => SecurityScanner::TRIVY_ID,
                                     'grype' => SecurityScanner::GRYPE_ID,
-                                    'snyk'  => SecurityScanner::SNYK_ID
+                                    'snyk'  => SecurityScanner::SNYK_ID,
                                 ];
 
                                 foreach ($scanners as $scanner => $id) {
@@ -502,13 +511,23 @@ if ($_POST['m'] == 'init') {
                 <tbody>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Migration</td>
-                        <td class="bg-secondary"><select class="form-select" id="globalSetting-migration"><?= $migrations ?></select></td>
+                        <td class="bg-secondary">
+                            <div class="d-flex gap-2 align-items-center">
+                                <select class="form-select" id="globalSetting-migration"><?= $migrations ?></select>
+                                <button type="button" class="btn btn-outline-warning btn-sm text-nowrap" onclick="freshStartMigration()">Fresh Start <sup>5</sup></button>
+                            </div>
+                        </td>
                         <td class="bg-secondary">The database migration this server is on, changing this will re-apply all subsequent migrations and reset any settings they alter.</td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Database</td>
-                        <td class="bg-secondary"><button class="btn btn-sm btn-info" onclick="initPage('database')">Browse</button></td>
-                        <td class="bg-secondary">Browse the <?= APP_NAME ?> database</td>
+                        <td class="bg-secondary">
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" class="btn btn-sm btn-info" onclick="initPage('database')">Browse</button>
+                                <button type="button" class="btn btn-sm btn-success" onclick="backupDatabase()">Backup</button>
+                            </div>
+                        </td>
+                        <td class="bg-secondary">Browse/backup the <?= APP_NAME ?> database. Backup runs a compressed mariadb-dump into <code><?= BACKUP_PATH ?></code>.</td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Containers clean up</td>
@@ -643,8 +662,13 @@ if ($_POST['m'] == 'saveGlobalSettings') {
 
         if ($_POST['debugZipDatabase']) {
             $zip->addEmptyDir(str_replace(APP_DATA_PATH, '', DATABASE_PATH));
-            if (file_exists(DATABASE_PATH . DATABASE_NAME)) {
-                $zip->addFile(DATABASE_PATH . DATABASE_NAME, str_replace(APP_DATA_PATH, '', DATABASE_PATH) . DATABASE_NAME);
+            $databaseBackupToday     = file_exists(DATABASE_PATH . date('Ymd') . '/' . DB_NAME . '.sql'); //-- CHECK FOR TODAY'S BACKUP
+            $databaseBackupYesterday = file_exists(DATABASE_PATH . date('Ymd', strtotime('-1 day')) . '/' . DB_NAME . '.sql'); //-- CHECK FOR YESTERDAY'S BACKUP
+
+            if ($databaseBackupToday) {
+                $zip->addFile(DATABASE_PATH . date('Ymd') . '/' . DB_NAME . '.sql', str_replace(APP_DATA_PATH, '', DATABASE_PATH) . date('Ymd') . '/' . DB_NAME . '.sql');
+            } elseif ($databaseBackupYesterday) {
+                $zip->addFile(DATABASE_PATH . date('Ymd', strtotime('-1 day')) . '/' . DB_NAME . '.sql', str_replace(APP_DATA_PATH, '', DATABASE_PATH) . date('Ymd', strtotime('-1 day')) . '/' . DB_NAME . '.sql');
             }
         }
 

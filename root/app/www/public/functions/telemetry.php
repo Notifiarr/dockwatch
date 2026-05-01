@@ -71,13 +71,13 @@ function telemetry($send = false)
 
         if ($notificationTable) {
             foreach ($notificationTable as $notificationLink) {
-                if ($notificationLink['platform_id'] == NotificationPlatforms::NOTIFIARR) {
+                if ($notificationLink['platform'] == NotificationPlatforms::NOTIFIARR) {
                     $telemetry['telemetry']['notifications']['notifiarr']++;
                 }
-                if ($notificationLink['platform_id'] == NotificationPlatforms::TELEGRAM) {
+                if ($notificationLink['platform'] == NotificationPlatforms::TELEGRAM) {
                     $telemetry['telemetry']['notifications']['telegram']++;
                 }
-                if ($notificationLink['platform_id'] == NotificationPlatforms::MATTERMOST) {
+                if ($notificationLink['platform'] == NotificationPlatforms::MATTERMOST) {
                     $telemetry['telemetry']['notifications']['mattermost']++;
                 }
             }

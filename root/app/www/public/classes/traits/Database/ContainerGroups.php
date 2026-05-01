@@ -18,8 +18,8 @@ trait ContainerGroups
         $containerGroups = [];
         $q               = "SELECT *
               FROM " . CONTAINER_GROUPS_TABLE;
-        $r               = $this->query($q);
-        while ($row = $this->fetchAssoc($r)) {
+        $r               = $this->mysqli_query($q);
+        while ($row = $this->mysqli_fetchAssoc($r)) {
             $containerGroups[] = $row;
         }
 
@@ -53,7 +53,7 @@ trait ContainerGroups
         $q = "UPDATE " . CONTAINER_GROUPS_TABLE . "
               SET " . implode(', ', $updateList) . "
               WHERE id = '" . $groupId . "'";
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->containerGroupsTable = '';
     }
@@ -64,17 +64,17 @@ trait ContainerGroups
               (`hash`, `name`)
               VALUES
               ('" . md5($groupName) . "', '" . $this->prepare($groupName) . "')";
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->containerGroupsTable = '';
-        return $this->insertId();
+        return $this->mysqli_insertId();
     }
 
     public function deleteContainerGroup($groupId)
     {
         $q = "DELETE FROM " . CONTAINER_GROUPS_TABLE . "
               WHERE id = " . $groupId;
-        $this->query($q);
+        $this->mysqli_query($q);
 
         $this->containerGroupsTable = '';
         $this->deleteGroupLinks($groupId);

@@ -35,10 +35,14 @@
     "cSpell.words": [
         "apikey",
         "Autoloads",
+        "cloudflared",
+        "cloudflareddns",
+        "cpus",
         "depenency",
         "dockwatch",
         "Dockwatch",
         "GERNERATE",
+        "Inno",
         "logfile",
         "logpath",
         "minage",
@@ -57,6 +61,7 @@
         "regctl",
         "unraid",
         "vulns",
-        "Vulns"
+        "Vulns",
+        "ZIPARCHIVE"
     ]
 }

@@ -3,7 +3,18 @@
 
 # https://github.com/linuxserver/docker-mariadb/tree/305952458ca73abad02a8cd3b3fb6a30df58d97c/root/etc/s6-overlay/s6-rc.d
 
-if [[ -f "/config/tmp/update.txt" || -f "/config/tmp/restart.txt" ]]; then
+INIT_DB_LOG=/config/logs/system/init-database.log
+mkdir -p "$(dirname "$INIT_DB_LOG")"
+if [[ -w /proc/1/fd/1 ]]; then
+    exec >/proc/1/fd/1 2>&1
+fi
+
+log_init_db() {
+    printf '%s\n' "$1" | tee -a "$INIT_DB_LOG"
+}
+
+if [[ "${DOCKWATCH_MAINTENANCE:-0}" == "1" ]]; then
+    log_init_db "**** skipping database init for maintenance container ****"
     exit 0
 fi
 
@@ -14,13 +25,13 @@ fi
 
 # install mysql db
 if [ ! -f "/config/.created-db" ]; then
-    echo "**** installing database ****"
+    log_init_db "**** installing database, this might take a minute or two ****"
     mariadb-install-db --user=abc --datadir=/config/database/mysql &>/dev/null
     touch /config/.created-db
 fi
 
 # run mysql db
-echo "**** running database ****"
+log_init_db "**** running database ****"
 mkdir -p /run/mysqld && chown abc:abc /run/mysqld
 s6-setuidgid abc \
     /usr/bin/mariadbd-safe \
@@ -29,7 +40,7 @@ s6-setuidgid abc \
     --skip-networking=OFF \
     --user=abc >/dev/null 2>&1 &
 
-echo "waiting for mysqld.."
+log_init_db "waiting for mysqld, this takes a few seconds.."
 while ! mariadb-admin ping --silent; do
     sleep 5
 done

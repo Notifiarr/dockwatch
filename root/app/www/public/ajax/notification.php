@@ -57,7 +57,7 @@ if ($_POST['m'] == 'init') {
                             <div class="bg-secondary rounded text-center p-2">
                                 <h4 class="mt-3">
                                     <?= $notificationLink['name'] ?>
-                                    <i class="fas fa-tools text-light ms-3" style="cursor: pointer;" title="Update this sender triggers" onclick="openNotificationTriggers(<?= $notificationLink['platform_id'] ?>, <?= $notificationLink['id'] ?>)"></i>
+                                    <i class="fas fa-tools text-light ms-3" style="cursor: pointer;" title="Update this sender triggers" onclick="openNotificationTriggers(<?= $notificationLink['platform'] ?>, <?= $notificationLink['id'] ?>)"></i>
                                     <i class="far fa-bell text-light ms-1" style="cursor: pointer;" title="Send test notification" onclick="testNotify(<?= $notificationLink['id'] ?>, 'test')"></i>
                                 </h4>
                                 <div class="row text-left">

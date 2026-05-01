@@ -19,8 +19,8 @@ trait NotificationTrigger
 
         $q = "SELECT *
               FROM " . NOTIFICATION_TRIGGER_TABLE;
-        $r = $this->query($q);
-        while ($row = $this->fetchAssoc($r)) {
+        $r = $this->mysqli_query($q);
+        while ($row = $this->mysqli_fetchAssoc($r)) {
             $notificationTriggersTable[$row['id']] = $row;
         }
 

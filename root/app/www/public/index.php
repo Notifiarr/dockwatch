@@ -8,6 +8,9 @@
 */
 
 require 'loader.php';
+
+maintenanceGate(503, 'Maintenance container: the UI is not available');
+
 require 'includes/header.php';
 
 //-- CHECK API VERSION

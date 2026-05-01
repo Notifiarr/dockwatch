@@ -305,6 +305,22 @@ function reload()
     window.location.href = './';
 }
 // ---------------------------------------------------------------------------------------------
+function removeMigrationFile()
+{
+    pageLoadingStart();
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/shared.php',
+        data: { m: 'removeMigrationFile' },
+        success: function () {
+            reload();
+        },
+        error: function () {
+            pageLoadingStop();
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
 function toast(title, message, type)
 {
     const uniqueId = Date.now() + Math.floor(Math.random() * 1000);
