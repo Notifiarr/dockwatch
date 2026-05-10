@@ -22,6 +22,7 @@ class Maintenance
 
     public    $docker;
     public    $shell;
+    protected $database;
     protected $maintenanceContainerName = 'dockwatch-maintenance';
     protected $maintenancePort;
     protected $maintenanceIP;
@@ -32,11 +33,12 @@ class Maintenance
 
     public function __construct()
     {
-        global $docker, $settingsTable, $shell;
+        global $docker, $settingsTable, $shell, $database;
 
-        logger(MAINTENANCE_LOG, '$maintenance->__construct() ->');
+        logger(MAINTENANCE_LOG, '$maintenance->__construct() ->', 'shell');
 
         $this->docker           = $docker;
+        $this->database         = $database;
         $this->settingsTable    = $settingsTable;
         $this->shell            = $shell;
         $this->maintenancePort  = $settingsTable['maintenancePort'];
@@ -63,7 +65,7 @@ class Maintenance
             }
         }
 
-        logger(MAINTENANCE_LOG, '$maintenance->__construct() <-');
+        logger(MAINTENANCE_LOG, '$maintenance->__construct() <-', 'shell');
     }
 
     public function __toString()

@@ -54,7 +54,7 @@ trait Maint
         //-- CHECK FOR VALID PORT
         $port = intval($this->maintenancePort);
         if ($port < 1 || str_equals_any($port, [80, 443])) {
-            $port = APP_MAINTENANCE_PORT ?: APP_MAINTENANCE_PORT;
+            $port = APP_MAINTENANCE_PORT;
         }
         $ip = $this->maintenanceIP;
 
@@ -93,6 +93,15 @@ trait Maint
                 }
             }
         }
+
+        if (empty($inspectImage[0]['Config']['Env']) || !is_array($inspectImage[0]['Config']['Env'])) {
+            $inspectImage[0]['Config']['Env'] = [];
+        }
+
+        //-- NEEDED FOR THE RESTART/UPDATE ROUTINE TO WORK WITH NO DATABASE ACCESS
+        $serversForKey                      = $this->database->getServers();
+        $inspectImage[0]['Config']['Env'][] = 'DOCKWATCH_APIKEY=' . $serversForKey[APP_SERVER_ID]['apikey'];
+        $inspectImage[0]['Config']['Env'][] = 'DOCKWATCH_MAINTENANCE=1';
 
         $this->removeMaintenance();
 
