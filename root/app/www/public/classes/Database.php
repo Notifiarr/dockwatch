@@ -217,12 +217,13 @@ class Database
             return;
         }
 
-        setFile(MIGRATION_FILE, ['started' => date('c')]);
         $database = $this; //-- USED IN THE MIGRATIONS FILES
         $db       = $this->db; //--- USED FOR SQLITE DATABASE
         $q        = []; //-- RESET THE QUERY ARRAY FOR THE INITIAL SETUP
 
         if (MYSQL_SETUP) {
+            setFile(MIGRATION_FILE, ['started' => date('c')]);
+
             logger(SYSTEM_LOG, 'Creating database and applying migration ' . $this->migrationStart . '_mysql_conversion', 'shell');
             logger(SYSTEM_LOG, 'Review the migration log for specific migration query details: ' . MIGRATION_LOG, 'shell');
             logger(MIGRATION_LOG, 'migration ' . $this->migrationStart . ' ->', 'shell');
@@ -258,6 +259,8 @@ class Database
         closedir($dir);
 
         if (!empty($neededMigrations)) {
+            setFile(MIGRATION_FILE, ['started' => date('c')]);
+
             ksort($neededMigrations);
             $neededMigrationsNumbers = implode(', ', array_keys($neededMigrations));
 
@@ -277,6 +280,7 @@ class Database
                 logger(SYSTEM_LOG, 'No migrations needed', 'shell');
             }
         }
+
         deleteFile(MIGRATION_FILE);
     }
 }

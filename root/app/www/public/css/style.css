@@ -693,14 +693,25 @@ tr.container-group-row .container-group-label {
 #security-table td a:hover {
     text-decoration: underline;
 }
-#security-table .small-text {
-    font-size: 0.85rem;
+#security-table .small-text,
+#security-table .security-history-toggle {
+    font-size: 11px !important;
+    font-weight: normal !important;
 }
 #security-table .badge {
     font-size: 0.9rem;
 }
-.security-expand {
-    font-size: 1.1rem;
+#security-table .security-history-toggle {
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 0.15rem;
+}
+#security-table .security-history-toggle.text-info {
+    color: var(--primary-500) !important;
+}
+#security-table .security-history-toggle:hover,
+#security-table .security-history-toggle.security-history-open {
+    text-decoration: underline;
 }
 .security-download-db {
     font-size: 1rem;

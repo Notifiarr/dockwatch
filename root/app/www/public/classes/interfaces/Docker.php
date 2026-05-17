@@ -56,5 +56,12 @@ interface DockerSock
     public const REMOVE_NETWORK  = '/usr/bin/docker network rm %s';
     public const GET_NETWORKS    = '/usr/bin/docker network %s';
     //-- DOCKER COMPOSE
-    public const COMPOSE = '/usr/bin/docker compose %s %s';
+    public const COMPOSE      = '/usr/bin/docker compose %s %s';
+    public const COMPOSE_PULL    = 'cd %s && docker compose pull';
+    public const COMPOSE_UP      = 'cd %s && docker compose up -d';
+    public const COMPOSE_STOP    = 'cd %s && docker compose stop';
+    public const COMPOSE_DOWN    = 'cd %s && docker compose down --remove-orphans';
+    public const COMPOSE_RESTART = 'cd %s && docker compose restart';
+    public const COMPOSE_PS      = 'cd %s && docker compose ps %s --format json';
+    public const COMPOSE_LOGS    = 'cd %s && docker compose logs --tail=100';
 }

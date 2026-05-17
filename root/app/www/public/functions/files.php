@@ -44,6 +44,10 @@ function setFile($file, $contents)
 
 function deleteFile($file)
 {
+    if (!file_exists($file)) {
+        return;
+    }
+
     logger(SYSTEM_LOG, 'deleteFile() ' . $file);
 
     unlink($file);

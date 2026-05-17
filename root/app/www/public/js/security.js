@@ -1,4 +1,3 @@
-let securityTableDrawn = false;
 let securitySortBy = 'date';
 const severityOrder = {
     'CRITICAL': 0,
@@ -7,51 +6,6 @@ const severityOrder = {
     'LOW': 3,
     'UNKNOWN': 4
 };
-// ---------------------------------------------------------------------------------------------
-function initSecurityTable() {
-    const table = $('#security-table');
-    if (!table.length) {
-        securityTableDrawn = false;
-        return;
-    }
-
-    if ($.fn.DataTable.isDataTable('#security-table')) {
-        return;
-    }
-
-    securityTableDrawn = false;
-
-    $('#security-table').dataTable({
-        dom: 'lfBrtip',
-        stateSave: false,
-        paging: false,
-        ordering: true,
-        order: [[2, 'asc']],
-        columnDefs: [
-            { targets: [0, 1, 3, 8, 9], orderable: false }
-        ],
-        buttons: [
-            'colvis'
-        ],
-        initComplete: function () {
-            $('#security-table_filter label').addClass('text-secondary');
-            $('#security-table_filter input').attr('placeholder', 'Search').removeClass('form-control').addClass('text-muted form-control-sm');
-
-            $('.buttons-colvis').on('click', function () {
-                $('.dt-button-collection').addClass('bg-secondary');
-            });
-
-            $('.dt-buttons').prepend($('#check-all-security-btn')).append($('#security-scan-btn'));
-
-            $('.dataTables_filter').addClass('dt-buttons');
-
-            $('.sorting_disabled').removeClass('sorting_asc');
-        }
-    });
-
-    securityTableDrawn = true;
-    setScreenSizeVars();
-}
 // ---------------------------------------------------------------------------------------------
 function toggleSecurityCheckAll() {
     const checkboxes = $('.security-check');
@@ -66,7 +20,7 @@ function toggleAllSecurity() {
 // ---------------------------------------------------------------------------------------------
 function toggleSecurityScans(hash) {
     const row = $('#security-row-' + hash);
-    const icon = row.find('.security-expand');
+    const historyToggle = row.find('.security-history-toggle');
     const imageName = row.data('image');
     const containerName = row.data('name');
     const existingRows = $('.security-expanded-row[data-parent="' + hash + '"]');
@@ -75,10 +29,10 @@ function toggleSecurityScans(hash) {
         const firstRow = existingRows.first();
         if (firstRow.hasClass('d-none')) {
             existingRows.removeClass('d-none');
-            icon.removeClass('fa-plus-square text-info').addClass('fa-minus-square text-muted');
+            historyToggle.addClass('security-history-open');
         } else {
             existingRows.addClass('d-none');
-            icon.removeClass('fa-minus-square text-muted').addClass('fa-plus-square text-info');
+            historyToggle.removeClass('security-history-open');
         }
         return;
     }
@@ -97,7 +51,6 @@ function toggleSecurityScans(hash) {
                 '<td class="bg-primary"></td>' +
                 '<td class="bg-primary"></td>' +
                 '<td class="bg-primary small-text">' + containerName + '<br>Previous scan</td>' +
-                '<td class="bg-primary"></td>' +
                 '<td class="bg-primary text-center">' + (scan.counts.critical > 0 ? '<span class="badge bg-danger">' + scan.counts.critical + '</span>' : '<span class="text-muted">0</span>') + '</td>' +
                 '<td class="bg-primary text-center">' + (scan.counts.high > 0 ? '<span class="badge bg-warning text-dark">' + scan.counts.high + '</span>' : '<span class="text-muted">0</span>') + '</td>' +
                 '<td class="bg-primary text-center">' + (scan.counts.medium > 0 ? '<span class="badge bg-info text-dark">' + scan.counts.medium + '</span>' : '<span class="text-muted">0</span>') + '</td>' +
@@ -108,7 +61,7 @@ function toggleSecurityScans(hash) {
             row.after(tr);
         });
 
-        icon.removeClass('fa-plus-square text-info').addClass('fa-minus-square text-muted');
+        historyToggle.addClass('security-history-open');
     }, 'json');
 }
 // ---------------------------------------------------------------------------------------------

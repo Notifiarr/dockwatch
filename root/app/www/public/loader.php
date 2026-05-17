@@ -21,7 +21,7 @@ define('ACCESS_MODE', 0);
 //-- COMPOSER AUTOLOADER
 require __DIR__ . '/../vendor/autoload.php';
 
-//-- COMPOSER DEPENDENCIES
+//-- COMPOSER: CODE HIGHLIGHTER
 use Phiki\Phiki;
 
 //-- NOT STARTUP

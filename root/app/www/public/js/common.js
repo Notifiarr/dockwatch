@@ -178,7 +178,61 @@ function initPage(page)
             }
 
             if (page == 'security') {
-                initSecurityTable();
+                $('#security-table').dataTable({
+                    dom: 'lfBrtip',
+                    stateSave: false,
+                    paging: false,
+                    ordering: true,
+                    order: [[2, 'asc']],
+                    columnDefs: [{ 
+                        targets: [0, 1, 8], 
+                        orderable: false 
+                    }],
+                    buttons: [],
+                    initComplete: function () {
+                        $('#security-table_filter label').addClass('text-secondary');
+                        $('#security-table_filter input').attr('placeholder', 'Search').removeClass('form-control').addClass('text-muted form-control-sm');
+
+                        let $btnGroup = $('.dt-buttons');
+                        if (!$btnGroup.length) {
+                            $btnGroup = $('<div class="dt-buttons btn-group flex-wrap"></div>');
+                            $('#security-table_wrapper .dataTables_filter').before($btnGroup);
+                        }
+
+                        $btnGroup.prepend($('#check-all-security-btn')).append($('#security-scan-btn'));
+                        $('.dataTables_filter').addClass('dt-buttons');
+                        $('.sorting_disabled').removeClass('sorting_asc');
+                    }
+                });
+            }
+
+            if (page == 'compose') {
+                $('#compose-table').dataTable({
+                    dom: 'lfBrtip',
+                    stateSave: false,
+                    paging: false,
+                    ordering: true,
+                    order: [[0, 'asc']],
+                    columnDefs: [{
+                        targets: 'no-sort',
+                        orderable: false
+                    }],
+                    buttons: [],
+                    initComplete: function () {
+                        $('#compose-table_filter label').addClass('text-secondary');
+                        $('#compose-table_filter input').attr('placeholder', 'Search').removeClass('form-control').addClass('text-muted form-control-sm');
+
+                        let $btnGroup = $('.dt-buttons');
+                        if (!$btnGroup.length) {
+                            $btnGroup = $('<div class="dt-buttons btn-group flex-wrap"></div>');
+                            $('#compose-table_wrapper .dataTables_filter').before($btnGroup);
+                        }
+
+                        $btnGroup.append($('#compose-add-btn'));
+                        $('.dataTables_filter').addClass('dt-buttons');
+                        $('.sorting_disabled').removeClass('sorting_asc');
+                    }
+                });
             }
 
             if (page == 'containers') {
