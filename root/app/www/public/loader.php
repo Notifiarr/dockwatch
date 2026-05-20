@@ -102,6 +102,10 @@ foreach ($autoloadFiles as $autoloadFile) {
     require $autoloadFile;
 }
 
+if (!defined('APP_SERVER_URL')) {
+    define('APP_SERVER_URL', appServerUrl());
+}
+
 //-- SET URL BASE FROM FILE IF IT EXISTS AND IS NOT EMPTY
 if (file_exists(BASE_URL_FILE)) {
     $baseUrl = trim(file_get_contents(BASE_URL_FILE));

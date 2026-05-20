@@ -11,7 +11,6 @@ define('APP_NAME', 'Dockwatch');
 define('APP_IMAGE', 'ghcr.io/notifiarr/dockwatch:main');
 define('APP_PORT', 9999);
 define('APP_SERVER_ID', 1);
-define('APP_SERVER_URL', 'http://localhost');
 define('APP_MAINTENANCE_IMAGE', 'ghcr.io/notifiarr/dockwatch:develop');
 define('APP_MAINTENANCE_PORT', 9998);
 

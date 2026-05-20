@@ -54,7 +54,7 @@ function getDockwatchContainerName()
     $hostname = trim($shell->exec('grep /etc/hostname /proc/self/mountinfo | awk -F/containers/ \'{print $2}\' | cut -d/ -f1 2>&1')); //-- RETURNS VOLUME PATH THAT MATCHES CONTAINER ID
     $cmd      = sprintf(
         "/usr/bin/docker inspect --format='{{.Name}}' %s 2>&1",
-        $shell->prepare($hostname)
+        $shell->prepare($hostname),
     );
 
     $containerName = trim($shell->exec($cmd . ' 2>&1'));
@@ -268,10 +268,35 @@ function cleanTTYOutput($input)
             "\n",
             "\n",
             "\n",
-            '\\'
+            '\\',
         ],
-        $input
+        $input,
     );
 
     return $input;
+}
+
+function appServerUrl()
+{
+    $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+
+    if ($host == '') {
+        return 'http://localhost';
+    }
+
+    if (str_contains($host, ':')) {
+        $parsed = parse_url('http://' . $host);
+        $host   = $parsed['host'] ?? explode(':', $host, 2)[0];
+    }
+
+    $scheme = 'http';
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+        $scheme = 'https';
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
+        $scheme = strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https' ? 'https' : 'http';
+    } elseif (!empty($_SERVER['REQUEST_SCHEME'])) {
+        $scheme = $_SERVER['REQUEST_SCHEME'];
+    }
+
+    return $scheme . '://' . $host;
 }

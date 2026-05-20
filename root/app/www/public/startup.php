@@ -62,7 +62,11 @@ if (!IS_MAINTENANCE) {
 
 //-- WEBSOCKET SERVER
 if (!IS_MAINTENANCE) {
+    logger(WEBSOCKET_LOG, 'Starting websocket server');
     $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'websocket.php > /dev/null 2>&1 &';
+
+    logger(WEBSOCKET_LOG, 'Websocket command: ' . $cmd);
+    logger(WEBSOCKET_LOG, 'Websocket response:'); //-- websocket.php WILL LOG TO THE FILE FROM HERE
     exec($cmd);
 }
 

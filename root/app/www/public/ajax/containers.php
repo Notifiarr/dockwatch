@@ -461,7 +461,7 @@ if ($_POST['m'] == 'containerShell') {
     $container    = $_POST['container'] ?: '';
     $key          = sprintf(MEMCACHE_SHELL_TOKEN_KEY, $container);
     $apiResult    = apiRequest('system/memcache/get', ['key' => $key])['result'];
-    $activeServer = apiGetActiveServer();
+    $activeServer = apiGetActiveServer(false);
     $token        = $apiResult ?: md5(bin2hex(random_bytes(16)));
 
     if (!empty($container)) {

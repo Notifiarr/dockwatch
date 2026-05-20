@@ -25,11 +25,11 @@ function apiSetActiveServer($serverId, $serversTable = [])
     $_SESSION['activeServerApikey'] = $serversTable[$serverId]['apikey'];
 }
 
-function apiGetActiveServer()
+function apiGetActiveServer($useSession = true)
 {
     global $database;
 
-    if ($_SESSION['activeServerId'] && !$_SESSION['activeServerApikey']) {
+    if (!$useSession || $_SESSION['activeServerId'] && !$_SESSION['activeServerApikey']) {
         $serversTable                   = IS_MAINTENANCE ? ($GLOBALS['serversTable'] ?? []) : $database->getServers();
         $_SESSION['activeServerId']     = $serversTable[$_SESSION['activeServerId']]['id'];
         $_SESSION['activeServerName']   = $serversTable[$_SESSION['activeServerId']]['name'];
