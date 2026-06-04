@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
-FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.23@sha256:1dfb1e075fdc7e4ddf0a2b70f1c6efa2c4f96054b22ecf02c30e9112d8b7fbea
+FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.23@sha256:e26dae7e0c918cced5ba13efcebbf5db027e6064a0f84b10f2e73916827d023d
 ARG TARGETARCH
 ENV TARGETARCH=${TARGETARCH}
 
