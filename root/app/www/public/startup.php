@@ -72,9 +72,9 @@ if (!IS_MAINTENANCE) {
 
 //-- DOWNLOAD SCANNERS
 if (!IS_MAINTENANCE && apiRequestLocal('database/settings')['securityEnabled'] && $name == 'dockwatch') {
-    file_put_contents(DOWNLOAD_SCANNERS_FILE, '');
+    setFile(DOWNLOAD_SCANNERS_FILE, ['downloaded' => date('c')]);
 } elseif (is_file(DOWNLOAD_SCANNERS_FILE)) {
-    unlink(DOWNLOAD_SCANNERS_FILE);
+    deleteFile(DOWNLOAD_SCANNERS_FILE);
 }
 
 //-- MAINTENANCE CHECK
