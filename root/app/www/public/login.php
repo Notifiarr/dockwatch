@@ -31,9 +31,8 @@ if (file_exists(LOGIN_FAILURE_FILE)) {
     <div class="bg-secondary rounded h-100 p-4">
         <div class="row justify-content-center">
             <?php
-            if ($loginTimeout) {
-                ?>Logins have been disabled from to many failed login attempts. Please review the login_failures file
-                for more details about this.<?php
+            if ($loginTimeout || $apiVersionError || $apiPermissionsError) {
+                ?>Logins are disabled because of Docker API errors or too many failed login attempts. Please review the login_failures file.<?php
             } else {
                 ?>
                 <div class="col-lg-3">

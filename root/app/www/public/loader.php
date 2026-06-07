@@ -203,6 +203,11 @@ if (!IS_SSE) {
     $docker = new Docker();
 
     $isDockerApiAvailable = $docker->apiIsAvailable();
+    $apiVersionError      = $docker->apiVersionError();
+    if ($apiVersionError) {
+        preg_match_all('/[0-9].[0-9]+/', $apiVersionError, $apiVersions);
+    }
+    $apiPermissionsError = $docker->apiPermissionsError();
 
     if (!IS_MAINTENANCE) {
         $notifications = new Notifications();
