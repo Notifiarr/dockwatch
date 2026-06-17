@@ -229,7 +229,7 @@ if ($containersTable) {
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo date('c') . ' ' . $msg . "\n";
                                 $update = dockerCreateContainer(json_decode($inspect, true));
-                                logger(CRON_PULLS_LOG, 'dockerCreateContainer: ' . trim(json_encode($update, JSON_UNESCAPED_SLASHES)));
+                                logger(CRON_PULLS_LOG, 'dockerCreateContainer: ' . trim(json_encode($update, JSON_UNESCAPED_SLASHES)), 'debug');
 
                                 if (strlen($update['Id']) == 64) {
                                     // REMOVE THE IMAGE AFTER UPDATE
@@ -237,7 +237,7 @@ if ($containersTable) {
                                     logger(CRON_PULLS_LOG, $msg);
                                     echo date('c') . ' ' . $msg . "\n";
                                     $removeImage = $docker->removeImage($currentImageID);
-                                    logger(CRON_PULLS_LOG, '$docker->removeImage: ' . trim(json_encode($removeImage, JSON_UNESCAPED_SLASHES)));
+                                    logger(CRON_PULLS_LOG, '$docker->removeImage: ' . trim(json_encode($removeImage, JSON_UNESCAPED_SLASHES)), 'debug');
 
                                     $msg = 'Updating pull data: ' . $containerState['Names'];
                                     logger(CRON_PULLS_LOG, $msg);
@@ -288,26 +288,26 @@ if ($containersTable) {
                                             logger(CRON_PULLS_LOG, $msg);
                                             echo date('c') . ' ' . $msg . "\n";
                                             $apiResponse = apiRequest('docker/container/inspect', ['name' => $dependencyContainer, 'useCache' => false, 'format' => true]);
-                                            logger(CRON_PULLS_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                                            logger(CRON_PULLS_LOG, 'dockerInspect:' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES), 'debug');
                                             $inspectImage = $apiResponse['result'];
 
                                             $msg = '[dependency] docker/container/stop: ' . $dependencyContainer;
                                             logger(CRON_PULLS_LOG, $msg);
                                             echo date('c') . ' ' . $msg . "\n";
                                             $apiRequest = apiRequest('docker/container/stop', [], ['name' => $dependencyContainer]);
-                                            logger(CRON_PULLS_LOG, 'dockerStopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                                            logger(CRON_PULLS_LOG, 'dockerStopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
 
                                             $msg = '[dependency] docker/container/remove: ' . $dependencyContainer;
                                             logger(CRON_PULLS_LOG, $msg);
                                             echo date('c') . ' ' . $msg . "\n";
                                             $apiRequest = apiRequest('docker/container/remove', [], ['name' => $dependencyContainer]);
-                                            logger(CRON_PULLS_LOG, 'docker/container/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                                            logger(CRON_PULLS_LOG, 'docker/container/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
 
                                             $msg = '[dependency] docker/container/create: ' . $dependencyContainer;
                                             logger(CRON_PULLS_LOG, $msg);
                                             echo date('c') . ' ' . $msg . "\n";
                                             $apiRequest = apiRequest('docker/container/create', [], ['inspect' => $inspectImage]);
-                                            logger(CRON_PULLS_LOG, 'docker/container/create:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                                            logger(CRON_PULLS_LOG, 'docker/container/create:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                                             $update       = $apiRequest['result'];
                                             $createResult = 'failed';
 
@@ -320,7 +320,7 @@ if ($containersTable) {
                                                     logger(CRON_PULLS_LOG, $msg);
                                                     echo date('c') . ' ' . $msg . "\n";
                                                     $apiRequest = apiRequest('docker/container/start', [], ['name' => $dependencyContainer]);
-                                                    logger(CRON_PULLS_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                                                    logger(CRON_PULLS_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                                                 } else {
                                                     logger(CRON_PULLS_LOG, 'container was not running, not starting it', 'warn');
                                                 }

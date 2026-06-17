@@ -30,8 +30,8 @@ if ($currentStates) {
     logger(CRON_STATE_LOG, 'STATE_FILE update skipped, $currentStates empty', 'warn');
 }
 
-logger(CRON_STATE_LOG, 'previousStates: ' . json_encode($previousStates, JSON_UNESCAPED_SLASHES));
-logger(CRON_STATE_LOG, 'currentStates: ' . json_encode($currentStates, JSON_UNESCAPED_SLASHES));
+logger(CRON_STATE_LOG, 'previousStates: ' . json_encode($previousStates, JSON_UNESCAPED_SLASHES), 'debug');
+logger(CRON_STATE_LOG, 'currentStates: ' . json_encode($currentStates, JSON_UNESCAPED_SLASHES), 'debug');
 
 foreach ($previousStates as $previousState) {
     $previousContainers[] = $previousState['Names'];
@@ -41,8 +41,8 @@ foreach ($currentStates as $currentState) {
     $currentContainers[] = $currentState['Names'];
 }
 
-logger(CRON_STATE_LOG, 'previousContainers: ' . json_encode($previousContainers, JSON_UNESCAPED_SLASHES));
-logger(CRON_STATE_LOG, 'currentContainers: ' . json_encode($currentContainers, JSON_UNESCAPED_SLASHES));
+logger(CRON_STATE_LOG, 'previousContainers: ' . json_encode($previousContainers, JSON_UNESCAPED_SLASHES), 'debug');
+logger(CRON_STATE_LOG, 'currentContainers: ' . json_encode($currentContainers, JSON_UNESCAPED_SLASHES), 'debug');
 
 //-- CHECK FOR ADDED CONTAINERS
 $containersTable = apiRequest('database/containers')['result'];

@@ -82,7 +82,13 @@ function purgeLogs($group)
 
 function logger($logfile, $msg, $type = 'info')
 {
+    global $settingsTable;
+
     if (!$logfile) {
+        return;
+    }
+
+    if ($type == 'debug' && $settingsTable['logLevel'] != LOG_LEVEL_DEBUG) {
         return;
     }
 
@@ -99,16 +105,32 @@ function logger($logfile, $msg, $type = 'info')
     $file       = $backtrace[0]['file'];
     $fileParts  = explode('/', $file);
     $fileName   = $fileParts[count($fileParts) - 1];
-    $fileFolder = $fileParts[count($fileParts) - 2];
+    $fileFolder = $fileParts[count($fileParts) - 2] ?? '';
     $file       = ($fileFolder != 'www' && $fileFolder != 'public' ? $fileFolder . '/' : '') . $fileName;
     $log        = date('Y-m-d g:i:s') . ' ' . ($type ? '[' . strtoupper($type) . '] ' : '') . $file . ' LN: ' . $line . ' :: ' . (is_array($msg) || is_object($msg) ? loggerLoopArray($msg, 0) : $msg) . "\n";
 
-    file_put_contents($logfile, $log, FILE_APPEND);
+    $logDir = dirname($logfile);
+    createDirectoryTree($logDir);
+
+    $fp = fopen($logfile, 'ab');
+    if (!$fp) {
+        return;
+    }
+
+    flock($fp, LOCK_EX);
+    fwrite($fp, $log);
+    fflush($fp);
 
     $rotateSize = LOG_ROTATE_SIZE * pow(1024, 2);
     if (filesize($logfile) >= $rotateSize) {
+        flock($fp, LOCK_UN);
+        fclose($fp);
+
         $rotated = str_replace('.log', '-' . time() . '.log', $logfile);
         rename($logfile, $rotated);
+    } else {
+        flock($fp, LOCK_UN);
+        fclose($fp);
     }
 }
 

@@ -97,6 +97,8 @@ define('CRON_HEALTH_LOG', LOGS_PATH . 'crons/health.log');
 define('CRON_SSE_LOG', LOGS_PATH . 'crons/sse.log');
 define('CRON_SECURITY_LOG', LOGS_PATH . 'crons/security.log');
 define('LOG_ROTATE_SIZE', 2); //-- MB UNTIL ROTATE
+define('LOG_LEVEL_INFO', 0);
+define('LOG_LEVEL_DEBUG', 1);
 
 //-- MEMCACHE
 define('MEMCACHE_HOST', '127.0.0.1');

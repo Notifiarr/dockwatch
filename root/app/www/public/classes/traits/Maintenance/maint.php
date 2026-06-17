@@ -65,7 +65,7 @@ trait Maint
         $this->pullMaintenance();
 
         $apiRequest = apiRequest('docker/container/inspect', ['name' => $this->hostContainer['Names'], 'useCache' => false, 'format' => true]);
-        logger(MAINTENANCE_LOG, 'docker/container/inspect: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+        logger(MAINTENANCE_LOG, 'docker/container/inspect: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
         $inspectImage = $apiRequest['result'];
         $inspectImage = json_decode($inspectImage, true);
 
@@ -107,7 +107,7 @@ trait Maint
 
         logger(MAINTENANCE_LOG, 'dockerCreateContainer() ->');
         $docker = dockerCreateContainer($inspectImage);
-        logger(MAINTENANCE_LOG, 'dockerCreateContainer() ' . json_encode($docker, JSON_UNESCAPED_SLASHES));
+        logger(MAINTENANCE_LOG, 'dockerCreateContainer() ' . json_encode($docker, JSON_UNESCAPED_SLASHES), 'debug');
         logger(MAINTENANCE_LOG, 'dockerCreateContainer() <-');
 
         if (strlen($docker['Id']) == 64) {

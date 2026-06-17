@@ -56,7 +56,7 @@ foreach ($containerList as $container) {
 
     $scan = $security->scanImage($container['image'], intval($settingsTable['securityScanner']), $settingsTable['securitySnykAPIKey']);
     if (!empty($scan)) {
-        logger(CRON_SECURITY_LOG, $scan);
+        logger(CRON_SECURITY_LOG, $scan, 'debug');
         echo date('c') . "\n" . $scan;
     }
 

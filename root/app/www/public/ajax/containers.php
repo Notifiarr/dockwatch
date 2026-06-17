@@ -501,13 +501,13 @@ if ($_POST['m'] == 'registryLogin') {
     $registryPassword = $_POST['password'];
 
     $apiResult = apiRequest('docker/login', [], ['registry' => $registryUrl, 'username' => $registryUsername, 'password' => $registryPassword]);
-    logger(UI_LOG, 'dockerLogin:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+    logger(UI_LOG, 'dockerLogin:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES), 'debug');
     echo $apiResult['result'];
 }
 
 if ($_POST['m'] == 'containerLogs') {
     $apiResult = apiRequest('docker/container/logs', ['name' => $_POST['container']]);
-    logger(UI_LOG, 'dockerLogs:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+    logger(UI_LOG, 'dockerLogs:' . json_encode($apiResult, JSON_UNESCAPED_SLASHES), 'debug');
     echo $apiResult['result'];
 }
 
@@ -520,7 +520,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
     $currentImageID = $container['inspect'][0]['Image'];
 
     logger(UI_LOG, 'trigger:' . $_POST['trigger']);
-    logger(UI_LOG, 'findContainerFromHash:' . json_encode($container, JSON_UNESCAPED_SLASHES));
+    logger(UI_LOG, 'findContainerFromHash:' . json_encode($container, JSON_UNESCAPED_SLASHES), 'debug');
     logger(UI_LOG, 'image:' . $image);
 
     $dependencies = [];
@@ -531,7 +531,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker/container/start: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/start: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                 $result = 'Started ' . $container['Names'] . '<br>';
 
                 if (str_contains_all($apiRequest['result'], ['Error response', 'not found'])) {
@@ -545,9 +545,9 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker/container/stop: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/stop: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                 $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker/container/start: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/start: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                 $result       = 'Restarted ' . $container['Names'] . '<br>';
                 $dependencies = $dependencyFile[$container['Names']]['containers'];
 
@@ -562,7 +562,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker/container/stop: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/stop: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                 $result       = 'Stopped ' . $container['Names'] . '<br>';
                 $dependencies = $dependencyFile[$container['Names']]['containers'];
             }
@@ -571,12 +571,12 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             $regctlDigest = trim(regctlCheck($image));
 
             $apiRequest = apiRequest('docker/container/pull', [], ['name' => $image]);
-            logger(UI_LOG, 'docker/container/pull:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            logger(UI_LOG, 'docker/container/pull:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
 
             $apiRequest             = apiRequest('docker/container/inspect', ['name' => $image, 'useCache' => false, 'format' => true]);
             $apiRequest             = json_decode($apiRequest['result'], true);
             list($cr, $imageDigest) = explode('@', $apiRequest[0]['RepoDigests'][0]);
-            logger(UI_LOG, 'dockerInspect:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            logger(UI_LOG, 'dockerInspect:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
 
             $pullsFile[md5($container['Names'])] = [
                 'checked'      => time(),
@@ -590,7 +590,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '5': //-- GERNERATE RUN
             $apiRequest = apiRequest('docker/create/run', ['name' => $container['Names']]);
-            logger(UI_LOG, 'docker/create/run: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            logger(UI_LOG, 'docker/create/run: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
             $result = '<pre class="bg-dark primary p-3 rounded" style="color: white; max-height: 500px; overflow: auto;">' . $apiRequest['result'] . '</pre>';
             break;
         case '6': //-- GENERATE COMPOSE
@@ -606,7 +606,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             }
 
             $apiRequest = apiRequest('docker/create/compose', ['name' => trim($containerList)]);
-            logger(UI_LOG, 'docker/create/compose: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            logger(UI_LOG, 'docker/create/compose: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
             $result = '<pre class="bg-dark primary p-3 rounded" style="color: white; max-height: 500px; overflow: auto;">' . $apiRequest['result'] . '</pre>';
             break;
         case '7': //-- CHECK FOR UPDATES AND APPLY THEM
@@ -618,7 +618,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, 'image:' . $image);
 
                 $apiResponse = apiRequest('docker/container/inspect', ['name' => $container['Names'], 'useCache' => false, 'format' => true]);
-                logger(UI_LOG, 'docker/container/inspect: ' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/inspect: ' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES), 'debug');
                 $inspectImage = $apiResponse['result'];
 
                 if ($inspectImage) {
@@ -627,25 +627,25 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 }
 
                 $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker/container/stop:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/stop:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
 
                 $apiRequest = apiRequest('docker/container/remove', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker/container/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
 
                 $apiRequest = apiRequest('docker/image/remove', [], ['image' => $currentImageID]);
-                logger(UI_LOG, 'docker/image/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/image/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
 
                 $apiRequest = apiRequest('docker/container/pull', [], ['name' => $image]);
-                logger(UI_LOG, 'docker/container/pull:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/pull:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
 
                 $apiRequest = apiRequest('docker/container/create', [], ['inspect' => $inspectImage]);
-                logger(UI_LOG, 'docker/container/create:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/create:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                 $update       = $apiRequest['result'];
                 $updateResult = 'failed';
 
                 if (strlen($update['Id']) == 64) {
                     $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
-                    logger(UI_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                    logger(UI_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
 
                     $inspectImage           = apiRequest('docker/container/inspect', ['name' => $image, 'useCache' => false, 'format' => true]);
                     $inspectImage           = json_decode($inspectImage['result'], true);
@@ -667,7 +667,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
 
                     if (str_contains($container['State'], 'running')) {
                         $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
-                        logger(UI_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                        logger(UI_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                     } else {
                         logger(UI_LOG, 'container was not running, not starting it', 'warn');
                     }
@@ -691,15 +691,15 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'dockerStopContainer:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                 $apiRequest = apiRequest('docker/container/remove', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker/container/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/remove:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                 $result = 'Removed ' . $container['Names'] . '<br>';
             }
             break;
         case '10': //-- GENERATE API CREATE
             $apiRequest = apiRequest('dockerAPI/container/create', ['name' => $container['Names']]);
-            logger(UI_LOG, 'dockerAPI/container/create:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+            logger(UI_LOG, 'dockerAPI/container/create:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
             $apiRequest = json_decode($apiRequest['result'], true);
 
             $result  = $container['Names'] . '<br>';
@@ -708,7 +708,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
             break;
         case '11': //-- CHECK FOR UPDATES
             $apiResponse = apiRequest('docker/container/inspect', ['name' => $image, 'useCache' => false]);
-            logger(UI_LOG, 'docker/container/inspect: ' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES));
+            logger(UI_LOG, 'docker/container/inspect: ' . json_encode($apiResponse, JSON_UNESCAPED_SLASHES), 'debug');
             $inspectImage = json_decode($apiResponse['result'], true);
 
             $version = $docker->getContainerVersion($inspectImage);
@@ -756,17 +756,17 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 logger(UI_LOG, 'image:' . $image);
 
                 $apiRequest = apiRequest('docker/container/inspect', ['name' => $container['Names'], 'useCache' => false, 'format' => true]);
-                logger(UI_LOG, 'docker/container/inspect: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/inspect: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                 $inspectImage = $apiRequest['result'];
 
                 $apiRequest = apiRequest('docker/container/stop', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker/container/stop: ' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/stop: ' . json_encode($apiResult, JSON_UNESCAPED_SLASHES), 'debug');
 
                 $apiResult = apiRequest('docker/container/remove', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker/container/remove: ' . json_encode($apiResult, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/remove: ' . json_encode($apiResult, JSON_UNESCAPED_SLASHES), 'debug');
 
                 $apiRequest = apiRequest('docker/container/create', [], ['inspect' => $inspectImage]);
-                logger(UI_LOG, 'docker/container/create: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/create: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                 $update       = $apiRequest['result'];
                 $createResult = 'failed';
 
@@ -774,7 +774,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                     $createResult = 'complete';
 
                     $apiRequest = apiRequest('docker/container/start', [], ['name' => $container['Names']]);
-                    logger(UI_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                    logger(UI_LOG, 'docker/container/start:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                     $dependencies = $dependencyFile[$container['Names']]['containers'];
 
                     if ($dependencies) {
@@ -791,7 +791,7 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
                 $result = 'Skipped ' . $container['Names'] . '<br>';
             } else {
                 $apiRequest = apiRequest('docker/container/kill', [], ['name' => $container['Names']]);
-                logger(UI_LOG, 'docker/container/kill:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES));
+                logger(UI_LOG, 'docker/container/kill:' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
                 $result       = 'Killed ' . $container['Names'] . '<br>';
                 $dependencies = $dependencyFile[$container['Names']]['containers'];
             }

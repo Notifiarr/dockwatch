@@ -144,7 +144,7 @@ if ($_POST['m'] == 'runScan') {
     $result = $security->scanImage($_POST['image'], intval($settingsTable['securityScanner']), $settingsTable['securitySnykAPIKey']);
 
     if (!empty($result)) {
-        logger(UI_LOG, $result);
+        logger(UI_LOG, $result, 'debug');
     }
 
     logger(UI_LOG, 'scanning image ' . $_POST['image'] . ' <-');

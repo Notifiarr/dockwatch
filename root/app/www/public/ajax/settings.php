@@ -468,6 +468,16 @@ if ($_POST['m'] == 'init') {
                 </thead>
                 <tbody>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Log level</td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-logLevel">
+                                <option value="<?= LOG_LEVEL_INFO ?>" <?= !$settingsTable['logLevel'] || $settingsTable['logLevel'] == LOG_LEVEL_INFO ? 'selected' : '' ?>>Info</option>
+                                <option value="<?= LOG_LEVEL_DEBUG ?>" <?= $settingsTable['logLevel'] == LOG_LEVEL_DEBUG ? 'selected' : '' ?>>Debug</option>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">Debug includes full JSON payloads (Docker inspects, state snapshots, etc.)</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Crons</td>
                         <td class="bg-secondary">
                             <input class="form-control" type="number" id="globalSetting-cronLogLength" value="<?= $settingsTable['cronLogLength'] <= 1 ? 1 : $settingsTable['cronLogLength'] ?>">
