@@ -126,8 +126,15 @@ function logger($logfile, $msg, $type = 'info')
         flock($fp, LOCK_UN);
         fclose($fp);
 
-        $rotated = str_replace('.log', '-' . time() . '.log', $logfile);
-        rename($logfile, $rotated);
+        $suffix        = (microtime(true) * 1000000) . '-' . getmypid();
+        $rotateAttempt = 0;
+        while (file_exists($logfile)) {
+            $rotated = preg_replace('/\.log$/', '-' . $suffix . ($rotateAttempt ? '-' . $rotateAttempt : '') . '.log', $logfile);
+            if (!file_exists($rotated) && rename($logfile, $rotated)) {
+                break;
+            }
+            $rotateAttempt++;
+        }
     } else {
         flock($fp, LOCK_UN);
         fclose($fp);
