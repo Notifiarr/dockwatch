@@ -83,8 +83,8 @@ RUN \
     # Update php-fpm log paths to /config/logs
     sed -i 's|error_log = /config/log/php/error.log|error_log = /config/logs/php/error.log|g' "${PHP_FPM_CONF}" && \
     # Update logrotate paths to /config/logs
-    sed -i 's|/config/log/php/\*.log|/config/logs/php/*.log|' /etc/logrotate.d/nginx && \
-    sed -i 's|/config/log/nginx/\*.log|/config/logs/nginx/*.log|' /etc/logrotate.d/php-fpm && \
+    sed -i 's|/config/log/php/\*.log|/config/logs/php/*.log|' /etc/logrotate.d/php-fpm && \
+    sed -i 's|/config/log/nginx/\*.log|/config/logs/nginx/*.log|' /etc/logrotate.d/nginx && \
     sed -i 's|/config/log/logrotate.status|/config/logs/logrotate.status|g' /etc/periodic/daily/logrotate
 
 # Pass docker env vars to php-fpm
