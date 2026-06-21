@@ -126,7 +126,7 @@ function logger($logfile, $msg, $type = 'info')
         flock($fp, LOCK_UN);
         fclose($fp);
 
-        $suffix        = (microtime(true) * 1000000) . '-' . getmypid();
+        $suffix        = time() . '-' . getmypid();
         $rotateAttempt = 0;
         while (file_exists($logfile)) {
             $rotated = preg_replace('/\.log$/', '-' . $suffix . ($rotateAttempt ? '-' . $rotateAttempt : '') . '.log', $logfile);
