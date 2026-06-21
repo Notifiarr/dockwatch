@@ -17,13 +17,14 @@ function viewLog(name, hash)
             if (resultData.error) {
                 $('#logHeader').html('');
                 $('#logViewer').html(resultData.error);
+                $('#logViewer').scrollTop(999999);
             } else {
                 $('#logHeader').html(resultData.header);
                 $('#logViewer').html(resultData.log);
+                $('#logViewer').scrollTop(999999);
             }
         }
     });
-
 }
 // ---------------------------------------------------------------------------------------------
 function downloadLog(name, hash)

@@ -87,8 +87,8 @@ if ($payload['containers'] < 1) {
 if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'security'])['result'] && !$skipNotification) {
     $notifications->notify(0, 'security', $payload);
 
-    logger(CRON_SECURITY_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES));
-    echo date('c') . ' Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES) . "\n";
+    logger(CRON_SECURITY_LOG, 'Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE));
+    echo date('c') . ' Notification payload: ' . json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE) . "\n";
 } else {
     logger(CRON_SECURITY_LOG, 'skipping notification, no notification senders with the security event enabled', 'warn');
 }

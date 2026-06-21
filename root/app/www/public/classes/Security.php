@@ -311,12 +311,12 @@ class Security
                         $vulns[] = [
                             'id'        => $vuln['VulnerabilityID'],
                             'source'    => "https://nvd.nist.gov/vuln/detail/" . $vuln['VulnerabilityID'],
-                            'pkg'       => $pkgName,
+                            'pkg'       => $this->sanitize($pkgName),
                             'installed' => $vuln['InstalledVersion'],
                             'fixed'     => $vuln['FixedVersion'],
                             'status'    => $vuln['Status'],
                             'severity'  => $vuln['Severity'],
-                            'title'     => $vuln['Title'] ?: $pkgName,
+                            'title'     => $this->sanitize($vuln['Title'] ?: $pkgName),
                             'published' => $vuln['PublishedDate'] ?? ''
                         ];
                     }
@@ -334,12 +334,12 @@ class Security
                     $vulns[]  = [
                         'id'        => $vuln['id'],
                         'source'    => $vuln['dataSource'],
-                        'pkg'       => $pkgName,
+                        'pkg'       => $this->sanitize($pkgName),
                         'installed' => $artifact['version'] ?? 'unknown',
                         'fixed'     => $vuln['fix']['versions'][0] ?? null,
                         'status'    => $vuln['fix']['state'] ?? 'unknown',
                         'severity'  => $vuln['severity'],
-                        'title'     => truncateEnd($vuln['description'], 80) ?: $pkgName,
+                        'title'     => $this->sanitize(truncateEnd($vuln['description'], 80) ?: $pkgName),
                         'published' => $vuln['epss'][0]['date'] ?? ''
                     ];
                 }
@@ -353,12 +353,12 @@ class Security
                 $vulns[] = [
                     'id'        => $vuln['id'],
                     'source'    => str_starts_with($vuln['id'], 'snyk:lic:') ? 'https://snyk.io/security' : 'https://snyk.io/vuln/' . $vuln['id'],
-                    'pkg'       => $pkgName,
+                    'pkg'       => $this->sanitize($pkgName),
                     'installed' => $vuln['version'] ?? 'unknown',
                     'fixed'     => $vuln['fixedIn'][0] ?? null,
                     'status'    => !empty($vuln['fixedIn']) ? 'fixed' : 'unknown',
                     'severity'  => ucfirst($vuln['severity'] ?? 'unknown'),
-                    'title'     => $vuln['title'] ?: $pkgName,
+                    'title'     => $this->sanitize($vuln['title'] ?: $pkgName),
                     'published' => $vuln['publicationTime'] ?? ''
                 ];
             }
@@ -373,12 +373,12 @@ class Security
                         $vulns[] = [
                             'id'        => $vuln['id'],
                             'source'    => str_starts_with($vuln['id'], 'snyk:lic:') ? 'https://snyk.io/security' : 'https://snyk.io/vuln/' . $vuln['id'],
-                            'pkg'       => $pkgName,
+                            'pkg'       => $this->sanitize($pkgName),
                             'installed' => $vuln['version'] ?? 'unknown',
                             'fixed'     => $vuln['fixedIn'][0] ?? null,
                             'status'    => !empty($vuln['fixedIn']) ? 'fixed' : 'unknown',
                             'severity'  => ucfirst($vuln['severity'] ?? 'unknown'),
-                            'title'     => $vuln['title'] ?: $pkgName,
+                            'title'     => $this->sanitize($vuln['title'] ?: $pkgName),
                             'published' => $vuln['publicationTime'] ?? ''
                         ];
                     }
@@ -454,6 +454,29 @@ class Security
 
         $this->memcache->set(sprintf(MEMCACHE_SECURITY_NEW_VULNS_KEY, $image), $newVulns, MEMCACHE_SECURITY_NEW_VULNS_TIME);
         return $newVulns;
+    }
+
+    /**
+     * Sanitize strings
+     *
+     * @param string
+     *
+     * @return string
+     */
+    private function sanitize($string)
+    {
+        if (!is_string($string)) {
+            return $string;
+        }
+
+        $encoding = mb_detect_encoding($string, ['UTF-8', 'ISO-8859-1', 'Windows-1252'], true);
+        if ($encoding && $encoding !== 'UTF-8') {
+            $string = mb_convert_encoding($string, 'UTF-8', $encoding);
+        }
+        $string = iconv('UTF-8', 'UTF-8//IGNORE', $string);
+        $string = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $string);
+
+        return $string;
     }
 
     /**
