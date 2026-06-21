@@ -165,12 +165,6 @@ if ($_POST['m'] == 'init') {
                                         </tr>
                                         <?php
                                     }
-                                } else {
-                                    ?>
-                                    <tr>
-                                        <td class="container-table-row bg-secondary text-center text-muted" colspan="7">No compose projects yet. Click Add Compose to create one.</td>
-                                    </tr>
-                                    <?php
                                 }
                                 ?>
                             </tbody>
