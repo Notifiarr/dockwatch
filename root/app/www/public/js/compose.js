@@ -124,11 +124,11 @@ function compose(path, action)
 // ---------------------------------------------------------------------------------------------
 function composeOutputDialog(command, path, output, isHtml)
 {
-    const output = isHtml
+    const outputHTML = isHtml
         ? '<div class="mt-2" style="max-height: 70vh; overflow: auto;">' + (output || '<p class="text-muted mb-0">(no output)</p>') + '</div>'
         : '<pre class="small-text text-muted mb-0 mt-2" style="white-space: pre-wrap; max-height: 70vh; overflow: auto;">' + $('<div>').text(output || '(no output)').html() + '</pre>';
 
-    const body = '<code class="small-text text-muted">' + $('<div>').text(path).html() + '</code>' + output;
+    const body = '<code class="small-text text-muted">' + $('<div>').text(path).html() + '</code>' + outputHTML;
 
     dialogOpen({
         id: 'compose' + command,
