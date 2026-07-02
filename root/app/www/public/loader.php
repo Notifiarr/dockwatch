@@ -249,6 +249,7 @@ if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER
     if (!$_SESSION['authenticated']) {
         if (!str_contains($_SERVER['PHP_SELF'], 'login.php')) {
             header('Location: login.php');
+            exit;
         }
     } else {
         logger(SYSTEM_LOG, 'Starting');

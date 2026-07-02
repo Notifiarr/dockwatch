@@ -246,12 +246,12 @@ if ($_POST['m'] == 'composeAdd') {
 
 if ($_POST['m'] == 'composeDelete') {
     if (substr($_POST['composePath'], 0, strlen(COMPOSE_PATH)) == COMPOSE_PATH) {
-        $shell->exec('rm -rf ' . $_POST['composePath']);
+        $shell->exec('rm -rf ' . escapeshellarg($_POST['composePath']));
     }
 }
 
 if ($_POST['m'] == 'composePull') {
-    $cmd  = sprintf(DockerSock::COMPOSE_PULL, $_POST['composePath']);
+    $cmd  = sprintf(DockerSock::COMPOSE_PULL, escapeshellarg($_POST['composePath']));
     $pull = $shell->exec($cmd . ' 2>&1');
 
     if (str_contains_all($pull, ['Pulling', 'Pulled'])) {
@@ -262,7 +262,7 @@ if ($_POST['m'] == 'composePull') {
 }
 
 if ($_POST['m'] == 'composeUp') {
-    $cmd = sprintf(DockerSock::COMPOSE_UP, $_POST['composePath']);
+    $cmd = sprintf(DockerSock::COMPOSE_UP, escapeshellarg($_POST['composePath']));
     $up  = $shell->exec($cmd . ' 2>&1');
 
     if (str_contains_all($up, ['Container', 'Started']) || str_contains_all($up, ['Container', 'Running'])) {
@@ -273,7 +273,7 @@ if ($_POST['m'] == 'composeUp') {
 }
 
 if ($_POST['m'] == 'composeStop') {
-    $cmd  = sprintf(DockerSock::COMPOSE_STOP, $_POST['composePath']);
+    $cmd  = sprintf(DockerSock::COMPOSE_STOP, escapeshellarg($_POST['composePath']));
     $stop = $shell->exec($cmd . ' 2>&1');
 
     if (str_contains($stop, 'Stopped') || str_contains($stop, 'done')) {
@@ -284,7 +284,7 @@ if ($_POST['m'] == 'composeStop') {
 }
 
 if ($_POST['m'] == 'composeDown') {
-    $cmd  = sprintf(DockerSock::COMPOSE_DOWN, $_POST['composePath']);
+    $cmd  = sprintf(DockerSock::COMPOSE_DOWN, escapeshellarg($_POST['composePath']));
     $down = $shell->exec($cmd . ' 2>&1');
 
     if (str_contains_all($down, ['Container', 'Stopped'])) {
@@ -295,7 +295,7 @@ if ($_POST['m'] == 'composeDown') {
 }
 
 if ($_POST['m'] == 'composeRestart') {
-    $cmd     = sprintf(DockerSock::COMPOSE_RESTART, $_POST['composePath']);
+    $cmd     = sprintf(DockerSock::COMPOSE_RESTART, escapeshellarg($_POST['composePath']));
     $restart = $shell->exec($cmd . ' 2>&1');
 
     if (str_contains($restart, 'Started') || str_contains($restart, 'Restart')) {
@@ -306,7 +306,7 @@ if ($_POST['m'] == 'composeRestart') {
 }
 
 if ($_POST['m'] == 'composePs') {
-    $cmd    = sprintf(DockerSock::COMPOSE_PS, $_POST['composePath'], '-a');
+    $cmd    = sprintf(DockerSock::COMPOSE_PS, escapeshellarg($_POST['composePath']), '-a');
     $output = $shell->exec($cmd . ' 2>&1');
 
     if (str_contains($output, 'Error') || str_contains($output, 'error')) {
@@ -368,6 +368,6 @@ if ($_POST['m'] == 'composePs') {
 }
 
 if ($_POST['m'] == 'composeLogs') {
-    $cmd = sprintf(DockerSock::COMPOSE_LOGS, $_POST['composePath']);
+    $cmd = sprintf(DockerSock::COMPOSE_LOGS, escapeshellarg($_POST['composePath']));
     echo $shell->exec($cmd . ' 2>&1');
 }
