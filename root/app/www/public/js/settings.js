@@ -1,5 +1,39 @@
+function countActiveUsers()
+{
+    let count = 0;
+
+    $('[id^=globalSetting-userList-active-]').not('#globalSetting-userList-active-new').each(function () {
+        if ($(this).prop('checked')) {
+            count++;
+        }
+    });
+
+    if ($('#globalSetting-userList-username-new').val() && $('#globalSetting-userList-active-new').prop('checked')) {
+        count++;
+    }
+
+    return count;
+}
+// ---------------------------------------------------------------------------------------------
+function confirmUserAuthChange(activeUsers)
+{
+    if (activeUsers > 0) {
+        return true;
+    }
+
+    if ($('#settings-hasLoginFile').val() == 1) {
+        return confirm('No active database users will remain. Login will still be required via /config/logins. Continue?');
+    }
+
+    return confirm('This will disable login authentication. Continue?');
+}
+// ---------------------------------------------------------------------------------------------
 function saveGlobalSettings()
 {
+    if (!confirmUserAuthChange(countActiveUsers())) {
+        return;
+    }
+
     pageLoadingStart();
 
     let params = '';
@@ -20,17 +54,69 @@ function saveGlobalSettings()
         data: '&m=saveGlobalSettings' + params,
         dataType: 'json',
         success: function (resultData) {
-            if (resultData.error) {
-                toast('Settings', resultData.error, 'error');
-            } else  {
-                toast('Settings', 'Global settings saved on server ' + resultData.server, 'success');
-                initPage('settings');
+            if (resultData.requireLogin) {
+                window.location.href = 'login.php';
+                return;
             }
 
+            if (resultData.authDisabled) {
+                reload();
+                return;
+            }
+
+            if (resultData.error) {
+                toast('Settings', resultData.error, 'error');
+                pageLoadingStop();
+                return;
+            }
+
+            toast('Settings', 'Global settings saved on server ' + resultData.server, 'success');
+            initPage('settings');
             pageLoadingStop();
         }
     });
 
+}
+// ---------------------------------------------------------------------------------------------
+function removeUser(userId)
+{
+    let rowActive   = $('#globalSetting-userList-active-' + userId).prop('checked');
+    let activeAfter = countActiveUsers() - (rowActive ? 1 : 0);
+
+    if (activeAfter > 0) {
+        if (!confirm('Are you sure you want to remove this user from the database?')) {
+            return;
+        }
+    } else if (!confirmUserAuthChange(activeAfter)) {
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/settings.php',
+        data: '&m=removeUser&id=' + userId,
+        dataType: 'json',
+        success: function (resultData) {
+            if (resultData.requireLogin) {
+                window.location.href = 'login.php';
+                return;
+            }
+
+            if (resultData.authDisabled) {
+                reload();
+                return;
+            }
+
+            if (resultData.error) {
+                toast('Users', resultData.error, 'error');
+                return;
+            }
+
+            $('#userRow-' + userId).remove();
+            toast('Users', 'The user has been removed', 'success');
+            initPage('settings');
+        }
+    });
 }
 // ---------------------------------------------------------------------------------------------
 function unlinkRemoteServer(serverId)

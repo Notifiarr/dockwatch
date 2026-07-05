@@ -17,8 +17,10 @@ require ABSOLUTE_PATH . 'loader.php';
 session_unset();
 session_destroy();
 
-$apikey = $_SERVER['HTTP_X_API_KEY'] ? $_SERVER['HTTP_X_API_KEY'] : $_GET['apikey'];
-if ($apikey != $serversTable[APP_SERVER_ID]['apikey']) {
+$storedKey = $serversTable[APP_SERVER_ID]['apikey'] ?? '';
+$apikey    = $_SERVER['HTTP_X_API_KEY'] ?? $_GET['apikey'] ?? '';
+
+if ($storedKey === '' || $apikey === '' || !hash_equals($storedKey, $apikey)) {
     apiResponse(401, ['error' => 'Invalid apikey']);
 }
 

@@ -20,6 +20,7 @@ class Database
     use NotificationTrigger;
     use Servers;
     use Settings;
+    use Users;
 
     public $db;
     public $settingsTable;

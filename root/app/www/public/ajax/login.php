@@ -17,73 +17,71 @@ if ($_POST['m'] == 'resetSession') {
 if ($_POST['m'] == 'login') {
     logger(SYSTEM_LOG, 'login ->');
 
-    $_SESSION['authenticated'] = false;
-    $error                     = '';
-    $timeout                   = false;
+    $_SESSION['authenticated']  = false;
+    $_SESSION['user_id']        = null;
+    $_SESSION['recovery_login'] = false;
+    $error                      = '';
+    $timeout                    = false;
+    $recovery                   = false;
 
-    if (!file_exists(LOGIN_FILE)) {
-        $error = 'Could not find login file \'' . LOGIN_FILE . '\'';
+    if (!USE_AUTH) {
+        $error = 'Login is not enabled (no active users and no login file entries)';
         logger(SYSTEM_LOG, $error, 'error');
     } else {
-        $loginsFile = file(LOGIN_FILE);
-
-        logger(SYSTEM_LOG, '$loginsFile=' . json_encode($loginsFile));
-
-        if (empty($loginsFile)) {
-            $error = 'Could not read login file data or it is empty';
-            logger(SYSTEM_LOG, $error, 'error');
+        $failureData = [];
+        if (file_exists(LOGIN_FAILURE_FILE)) {
+            $failureData = json_decode(file_get_contents(LOGIN_FAILURE_FILE), true);
         }
 
-        if (!$error) {
-            $failureData = [];
-            if (file_exists(LOGIN_FAILURE_FILE)) {
-                $failureData = json_decode(file_get_contents(LOGIN_FAILURE_FILE), true);
-            }
-
-            if (!empty($failureData['failures']) && count($failureData['failures']) > LOGIN_FAILURE_LIMIT) {
+        if (!empty($failureData['failures']) && count($failureData['failures']) > LOGIN_FAILURE_LIMIT) {
+            if ($failureData['lastFailure'] + (60 * LOGIN_FAILURE_TIMEOUT) > time()) {
                 $timeout = true;
             } else {
-                foreach ($loginsFile as $login) {
-                    logger(SYSTEM_LOG, 'credentials check');
-                    list($user, $pass) = explode(':', $login);
+                rename(LOGIN_FAILURE_FILE, LOGIN_FAILURE_FILE . '_' . time());
+            }
+        }
 
-                    //-- STRIP OUT THE SPACES AND LINE BREAKS USERS ACCIDENTALLY PROVIDE
-                    $user          = trim($user);
-                    $pass          = trim($pass);
-                    $_POST['user'] = trim($_POST['user']);
-                    $_POST['pass'] = trim($_POST['pass']);
+        if (!$timeout) {
+            $_POST['user'] = trim($_POST['user']);
+            $_POST['pass'] = trim($_POST['pass']);
 
-                    if (str_compare($user, $_POST['user']) && str_compare($pass, $_POST['pass'], true)) {
-                        if ($_POST['user'] == 'admin' && ($_POST['pass'] == 'pass' || $_POST['pass'] == 'password')) {
-                            $error = 'Please use something other than admin:pass and admin:password';
-                            logger(SYSTEM_LOG, $error, 'error');
-                        } else {
-                            logger(SYSTEM_LOG, 'match found, updating session key');
-                            $_SESSION['authenticated'] = true;
-                            logger(SYSTEM_LOG, 'session key authenticated:' . $_SESSION['authenticated']);
+            $userId = $database->authenticateUser($_POST['user'], $_POST['pass']);
 
-                            if (file_exists(LOGIN_FAILURE_FILE)) {
-                                rename(LOGIN_FAILURE_FILE, LOGIN_FAILURE_FILE . '_' . time());
-                            }
-                        }
-                    }
+            if (!$userId && file_exists(LOGIN_FILE)) {
+                if (authenticateLoginFile($_POST['user'], $_POST['pass'])) {
+                    logger(SYSTEM_LOG, 'Recovery login via login file for user: ' . $_POST['user'], 'warn');
+                    $userId   = $database->getUserIdByUsername($_POST['user']) ?: true;
+                    $recovery = true;
+                }
+            }
+
+            if ($userId) {
+                session_regenerate_id(true);
+                $_SESSION['authenticated']  = true;
+                $_SESSION['auth_optional']  = false;
+                $_SESSION['user_id']        = is_int($userId) ? $userId : null;
+                $_SESSION['recovery_login'] = $recovery;
+
+                if (file_exists(LOGIN_FAILURE_FILE)) {
+                    rename(LOGIN_FAILURE_FILE, LOGIN_FAILURE_FILE . '_' . time());
                 }
 
-                if (!$error && !$_SESSION['authenticated']) {
-                    $error = 'Did not find a matching user:pass in the login file with what was provided, login failure recorded.';
-                    logger(SYSTEM_LOG, $error, 'error');
+                initCsrfToken(true);
+            } elseif (!$error) {
+                $error = 'Did not find a matching username and password, login failure recorded.';
+                logger(SYSTEM_LOG, $error, 'error');
 
-                    $loginFailures['lastFailure'] = time();
-                    $loginFailures['failures'][]  = ['time' => date('c'), 'user' => $_POST['user'], 'pass' => $_POST['pass']];
-                    file_put_contents(LOGIN_FAILURE_FILE, json_encode($loginFailures));
-                }
+                $loginFailures                = $failureData ?: [];
+                $loginFailures['lastFailure'] = time();
+                $loginFailures['failures'][]  = ['time' => date('c'), 'user' => $_POST['user']];
+                file_put_contents(LOGIN_FAILURE_FILE, json_encode($loginFailures));
             }
         }
     }
 
     logger(SYSTEM_LOG, 'session key authenticated:' . $_SESSION['authenticated']);
     logger(SYSTEM_LOG, 'login <-');
-    echo json_encode(['error' => $error, 'timeout' => $timeout]);
+    echo json_encode(['error' => $error, 'timeout' => $timeout, 'recovery' => $recovery]);
 }
 
 if ($_POST['m'] == 'logout') {

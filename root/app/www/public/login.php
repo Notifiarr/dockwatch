@@ -9,7 +9,14 @@
 
 require 'loader.php';
 
+if (!USE_AUTH) {
+    header('Location: index.php');
+    exit;
+}
+
 maintenanceGate(503, 'Maintenance container: the UI is not available');
+
+$_SESSION['IN_DOCKWATCH'] = true;
 
 require 'includes/header.php';
 
@@ -28,35 +35,29 @@ if (file_exists(LOGIN_FAILURE_FILE)) {
 }
 ?>
 <div class="container-fluid pt-4 px-4">
-    <div class="bg-secondary rounded h-100 p-4">
-        <div class="row justify-content-center">
-            <?php
-            if ($loginTimeout || $apiVersionError || $apiPermissionsError) {
-                ?>Logins are disabled because of Docker API errors or too many failed login attempts. Please review the login_failures file.<?php
-            } else {
-                ?>
-                <div class="col-lg-3">
-                    <div class="row">
-                        <div class="col-sm-12 col-lg-4">Username</div>
-                        <div class="col-sm-12 col-lg-8">
-                            <input id="username" type="text" class="form-control">
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-sm-12 col-lg-4">Password</div>
-                        <div class="col-sm-12 col-lg-8">
-                            <input id="password" type="password" class="form-control">
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-sm-12">
-                            <button class="btn btn-outline-success" onclick="login()">Login</button>
-                        </div>
-                    </div>
-                </div>
+    <div class="row">
+        <div class="col-4 offset-4">
+            <div class="bg-secondary rounded p-4">
                 <?php
-            }
-            ?>
+                if ($loginTimeout || $apiVersionError || $apiPermissionsError) {
+                    ?>Logins are disabled because of Docker API errors or too many failed login attempts. Please review the login_failures file.<?php
+                } else {
+                    ?>
+                    <div class="mb-2">
+                        <label class="form-label" for="username">Username</label>
+                        <input id="username" type="text" class="form-control">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="password">Password</label>
+                        <input id="password" type="password" class="form-control">
+                    </div>
+                    <div class="mt-3 text-center">
+                        <button class="btn btn-outline-success" onclick="login()">Login</button>
+                    </div>
+                    <?php
+                }
+                ?>
+            </div>
         </div>
     </div>
 </div>

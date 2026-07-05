@@ -20,11 +20,26 @@ require ABSOLUTE_PATH . 'loader.php';
 
 maintenanceGate(503, 'Maintenance container: the UI is not available', false);
 
+$ajaxFile    = basename($_SERVER['PHP_SELF'] ?? '', '.php');
+$ajaxMethod  = $_POST['m'] ?? '';
+$isLoginAjax = $ajaxFile == 'login' && str_equals_any($ajaxMethod, ['login', 'logout', 'resetSession']);
+
+if (USE_AUTH && !$isLoginAjax && empty($_SESSION['authenticated'])) {
+    http_response_code(401);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => 'Unauthorized']);
+    exit;
+}
+
 if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
-    if (!$_SESSION['IN_DOCKWATCH']) {
+    if (!$isLoginAjax && !$_SESSION['IN_DOCKWATCH']) {
         http_response_code(400);
         exit('Error: You should use the UI, its much prettier.');
     }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    enforceCsrfToken();
 }
 
 if ($_POST['m'] == 'removeMigrationFile') {

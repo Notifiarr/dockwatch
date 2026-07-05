@@ -186,6 +186,21 @@ switch ($path) {
                 $apiRequestResponse = $database->setServers($payload['serverList']);
                 break;
         }
+        break;
+    case 'users': //-- .../api/database/users
+        switch (true) {
+            case $IS_GET:
+                $apiRequestResponse = $database->getUsers();
+                break;
+            case $IS_POST:
+                if (!$payload['userList']) {
+                    apiResponse(400, ['error' => 'Missing userList parameter']);
+                }
+
+                $apiRequestResponse = $database->setUsers($payload['userList']);
+                break;
+        }
+        break;
     case 'setting': //-- .../api/database/setting
         switch (true) {
             case $IS_POST:

@@ -7,8 +7,12 @@
 ----------------------------------
 */
 
-$_SESSION['IN_DOCKWATCH'] = true;
-$currentPage              = $settingsTable['currentPage'] && in_array($settingsTable['currentPage'], $pages) ? $settingsTable['currentPage'] : 'overview';
+$currentPage = $settingsTable['currentPage'] && in_array($settingsTable['currentPage'], $pages) ? $settingsTable['currentPage'] : 'overview';
+$isLoginPage = str_contains($_SERVER['PHP_SELF'] ?? '', 'login.php');
+
+if ($isLoginPage) {
+    $_SESSION['IN_DOCKWATCH'] = true;
+}
 ?>
 
 <!DOCTYPE html>
@@ -54,6 +58,8 @@ $currentPage              = $settingsTable['currentPage'] && in_array($settingsT
             const SSE_SETTING = <?= intval($settingsTable['sseEnabled']) ?>;
             const APP_SERVER_ID = <?= APP_SERVER_ID ?>;
             const ACCESS_MODE = '<?= ACCESS_MODE ?>';
+            const USE_AUTH = <?= USE_AUTH ? 'true' : 'false' ?>;
+            const CSRF_TOKEN = '<?= USE_AUTH ? ($_SESSION['csrf_token'] ?? '') : '' ?>';
 
             document.addEventListener('DOMContentLoaded', function (event) {
                 const showNavbar = (toggleId, navId, bodyId, headerId) => {
@@ -88,7 +94,7 @@ $currentPage              = $settingsTable['currentPage'] && in_array($settingsT
         </script>
     </head>
 
-    <body id="body-pd" data-bs-theme="<?= USER_THEME_MODE ?>">
+    <body id="body-pd" class="<?= $isLoginPage ? 'login-page' : '' ?>" data-bs-theme="<?= USER_THEME_MODE ?>">
         <div id="spinner" class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
             <div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status">
                 <span class="sr-only">Loading...</span>
@@ -195,6 +201,30 @@ $currentPage              = $settingsTable['currentPage'] && in_array($settingsT
                     <?php } ?>
                 </nav>
             </div>
+        <?php } elseif ($isLoginPage) { ?>
+            <header class="header header-login bg-body" id="header">
+                <div class="header-login-logo">
+                    <img src="images/logo.png" alt="Dockwatch">
+                    <span>Dockwatch</span>
+                </div>
+                <div class="header_img">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center text-secondary" href="#" id="theme-menu" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme">
+                        <i class="fas fa-cloud-sun"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" onclick="swapLightDark('light')">
+                                <i class="bi bi-sun-fill"></i><span class="ms-2">Light</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" onclick="swapLightDark('dark')">
+                                <i class="bi bi-moon-stars-fill"></i><span class="ms-2">Dark</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </header>
         <?php } ?>
         <div id="page-panel" style="margin-bottom:75px;">
             <?php if ($apiVersionError) { ?>

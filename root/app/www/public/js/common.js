@@ -18,6 +18,20 @@ let GRAPH_UTILIZATION_MEMORY_SIZE_DATA      = '';
 let GRAPH_UTILIZATION_MEMORY_SIZE_COLORS    = '';
 
 $(document).ready(function () {
+    if (USE_AUTH && CSRF_TOKEN) {
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (settings.type === 'POST') {
+                    xhr.setRequestHeader('X-CSRF-Token', CSRF_TOKEN);
+
+                    if (settings.data && typeof settings.data === 'string' && settings.data.indexOf('csrf=') === -1) {
+                        settings.data += '&csrf=' + encodeURIComponent(CSRF_TOKEN);
+                    }
+                }
+            }
+        });
+    }
+
     setScreenSizeVars();
     let keys = getLocalStorage(localStorageKeys); //-- LOAD LOCAL STORAGE
 
@@ -335,6 +349,10 @@ function login()
                 return;
             }
 
+            if (resultData.recovery) {
+                toast('Login', 'Recovery login successful. Update your password in Settings and remove the login file entry when finished.', 'warn');
+            }
+
             reload();
         }
     });
@@ -628,7 +646,10 @@ function setActiveNavLink(linkColor, DEFAULT_PAGE)
 
     linkColor.forEach(l => {
         if (l.classList.contains('active')) l.classList.remove('active');
-        if (l.onclick.toString().match(/initPage\('(.+)'\)/)[1] == DEFAULT_PAGE) l.classList.add('active');
+
+        let match = l.onclick && l.onclick.toString().match(/initPage\('(.+)'\)/);
+        if (match && match[1] == DEFAULT_PAGE) l.classList.add('active');
+
         l.addEventListener('click', colorLink);
     });
 }

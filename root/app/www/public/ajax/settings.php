@@ -34,6 +34,10 @@ if ($_POST['m'] == 'init') {
     closedir($dir);
 
     $serverTime = apiRequest('server/time')['result']['result'];
+
+    $usersTable   = $_SESSION['activeServerId'] == APP_SERVER_ID ? (apiRequest('database/users')['result'] ?: []) : [];
+    $mergedUsers  = mergeUserSources($usersTable);
+    $hasLoginFile = loginFileHasEntries();
     ?>
     <ol class="breadcrumb rounded p-1 ps-2">
         <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
@@ -128,6 +132,89 @@ if ($_POST['m'] == 'init') {
                         </td>
                         <td class="bg-secondary">Specify how long past usage metrics should be kept before being cleared.</td>
                     </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="text-info">Users</h4>
+        <p class="text-muted small mb-3">No active users and an empty/missing login file will disable login auth.</p>
+        <input type="hidden" id="settings-hasLoginFile" value="<?= $hasLoginFile ? 1 : 0 ?>">
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="25%">Username</th>
+                        <th class="bg-primary ps-3" scope="col" width="25%">Password</th>
+                        <th class="bg-primary ps-3" scope="col" width="10%">Active</th>
+                        <th class="bg-primary ps-3" scope="col" width="20%">Source</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="20%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if ($_SESSION['activeServerId'] != APP_SERVER_ID) {
+                        ?>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary" colspan="5">User management is only available on the local server.</td>
+                        </tr>
+                        <?php
+                    } else {
+                        foreach ($mergedUsers as $mergedUser) {
+                            $inDatabase  = !empty($mergedUser['database']);
+                            $inLoginFile = !empty($mergedUser['loginFile']);
+                            $dbUser      = $mergedUser['database'];
+                            $rowClass    = $inDatabase ? 'user-row' : 'login-file-user';
+                            ?>
+                            <tr class="<?= $rowClass ?> border border-dark border-top-0 border-start-0 border-end-0" <?= $inDatabase ? 'id="userRow-' . $dbUser['id'] . '"' : '' ?>>
+                                <td class="bg-secondary">
+                                    <?php if ($inDatabase) { ?>
+                                        <input class="form-control" type="text" id="globalSetting-userList-username-<?= $dbUser['id'] ?>" value="<?= htmlspecialchars($mergedUser['username'], ENT_QUOTES, 'UTF-8') ?>">
+                                    <?php } else { ?>
+                                        <input class="form-control" type="text" value="<?= htmlspecialchars($mergedUser['username'], ENT_QUOTES, 'UTF-8') ?>" disabled>
+                                    <?php } ?>
+                                </td>
+                                <td class="bg-secondary">
+                                    <?php if ($inDatabase) { ?>
+                                        <input class="form-control" type="password" id="globalSetting-userList-password-<?= $dbUser['id'] ?>" placeholder="unchanged if blank">
+                                    <?php } else { ?>
+                                        <input class="form-control" type="password" value="" placeholder="***" disabled>
+                                    <?php } ?>
+                                </td>
+                                <td class="bg-secondary text-center">
+                                    <?php if ($inDatabase) { ?>
+                                        <input class="form-check-input" type="checkbox" id="globalSetting-userList-active-<?= $dbUser['id'] ?>" <?= $dbUser['active'] ? 'checked' : '' ?>>
+                                    <?php } else { ?>
+                                        —
+                                    <?php } ?>
+                                </td>
+                                <td class="bg-secondary">
+                                    <?php if ($inDatabase) { ?><span class="badge bg-primary me-1">Database</span><?php } ?>
+                                    <?php if ($inLoginFile) { ?><span class="badge bg-secondary">File</span><?php } ?>
+                                </td>
+                                <td class="bg-secondary">
+                                    <?php if ($inDatabase) { ?>
+                                        <i class="far fa-trash-alt text-warning" style="cursor: pointer;" title="Remove database user" onclick="removeUser('<?= $dbUser['id'] ?>')"></i>
+                                    <?php } ?>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-userList-username-new" placeholder="New username"></td>
+                            <td class="bg-secondary"><input class="form-control" type="password" id="globalSetting-userList-password-new" placeholder="New password"></td>
+                            <td class="bg-secondary text-center"><input class="form-check-input" type="checkbox" id="globalSetting-userList-active-new" checked></td>
+                            <td class="bg-secondary"><span class="badge bg-primary">Database</span></td>
+                            <td class="bg-secondary"></td>
+                        </tr>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary" colspan="5">
+                                When at least one user is active or the login file has entries, the UI requires login.
+                                File-only accounts are read-only here; edit <code><?= LOGIN_FILE ?></code> on the host to add, change, or remove them.
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -606,9 +693,11 @@ if ($_POST['m'] == 'init') {
 if ($_POST['m'] == 'saveGlobalSettings') {
     $activeServer = apiGetActiveServer();
     $newSettings  = [];
+    $requireLogin = false;
+    $authDisabled = false;
 
     foreach ($_POST as $key => $val) {
-        if ($key == 'm' || str_contains($key, 'serverList')) {
+        if ($key == 'm' || str_contains($key, 'serverList') || str_contains($key, 'userList')) {
             continue;
         }
 
@@ -662,6 +751,47 @@ if ($_POST['m'] == 'saveGlobalSettings') {
         }
 
         $serversTable = apiRequest('database/servers', [], ['serverList' => $serverList])['result'];
+
+        $userList = [];
+
+        if ($_POST['userList-username-new'] && $_POST['userList-password-new']) {
+            $userList[] = [
+                'username' => $_POST['userList-username-new'],
+                'password' => $_POST['userList-password-new'],
+                'active'   => $_POST['userList-active-new'] ? 1 : 0,
+            ];
+        }
+
+        foreach ($_POST as $key => $val) {
+            if (!str_contains($key, 'userList-password')) {
+                continue;
+            }
+
+            list($name, $field, $instanceId) = explode('-', $key);
+
+            if (!is_numeric($instanceId)) {
+                continue;
+            }
+
+            if ($_POST['userList-username-' . $instanceId]) {
+                $userList[$instanceId] = [
+                    'username' => $_POST['userList-username-' . $instanceId],
+                    'active'   => $_POST['userList-active-' . $instanceId] ? 1 : 0,
+                ];
+
+                if ($_POST['userList-password-' . $instanceId]) {
+                    $userList[$instanceId]['password'] = $_POST['userList-password-' . $instanceId];
+                }
+            }
+        }
+
+        if ($userList) {
+            apiRequest('database/users', [], ['userList' => $userList]);
+
+            $authChange   = applyUserAuthChange();
+            $requireLogin = $authChange['requireLogin'];
+            $authDisabled = $authChange['authDisabled'];
+        }
     }
 
     if ($_POST['debugZipDatabase'] || $_POST['debugZipLogs'] || $_POST['debugZipJson']) {
@@ -726,7 +856,12 @@ if ($_POST['m'] == 'saveGlobalSettings') {
         $zip->close();
     }
 
-    echo json_encode(['error' => $error, 'server' => ACTIVE_SERVER_NAME]);
+    echo json_encode([
+        'error'        => $error ?? '',
+        'server'       => ACTIVE_SERVER_NAME,
+        'requireLogin' => !empty($requireLogin),
+        'authDisabled' => !empty($authDisabled),
+    ]);
 }
 
 //-- CALLED FROM THE NAV MENU SELECT
@@ -737,6 +872,27 @@ if ($_POST['m'] == 'updateActiveServer') {
 if ($_POST['m'] == 'unlinkRemoteServer') {
     $serversTable[intval($_POST['id'])]['remove'] = true;
     apiRequest('database/servers', [], ['serverList' => $serversTable]);
+}
+
+if ($_POST['m'] == 'removeUser') {
+    if ($_SESSION['activeServerId'] != APP_SERVER_ID) {
+        echo json_encode(['error' => 'User management is only available on the local server']);
+        exit;
+    }
+
+    $userId   = intval($_POST['id']);
+    $userList = [$userId => ['remove' => true]];
+
+    apiRequest('database/users', [], ['userList' => $userList]);
+
+    $authChange = applyUserAuthChange();
+
+    echo json_encode([
+        'error'        => '',
+        'requireLogin' => !empty($authChange['requireLogin']),
+        'authDisabled' => !empty($authChange['authDisabled']),
+    ]);
+    exit;
 }
 
 if ($_POST['m'] == 'updateSetting') {

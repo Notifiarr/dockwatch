@@ -102,6 +102,11 @@ foreach ($autoloadFiles as $autoloadFile) {
     require $autoloadFile;
 }
 
+if (isCronOrStartupScript($dockwatchScriptPath, $dockwatchCronParent) && php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    exit('Forbidden');
+}
+
 if (!defined('APP_SERVER_URL')) {
     define('APP_SERVER_URL', appServerUrl());
 }
@@ -130,6 +135,14 @@ switch (ACCESS_MODE) {
 }
 
 $loadTimes[] = trackTime('page ->', $start);
+
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path'     => '/',
+    'secure'   => !empty($_SERVER['HTTPS']),
+    'httponly' => true,
+    'samesite' => 'Strict',
+]);
 
 if (!$_SESSION) {
     session_start();
@@ -230,28 +243,32 @@ if (!IS_SSE) {
 if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
     //-- LOGIN, DEFINE AFTER LOADING SETTINGS
     define('LOGIN_FAILURE_LIMIT', $settingsTable['loginFailures'] ?: 10);
-    define('LOGIN_FAILURE_TIMEOUT', $settingsTable['loginFailures'] ?: 10); //-- MINUTES TO DISABLE LOGINS
+    define('LOGIN_FAILURE_TIMEOUT', $settingsTable['loginTimeout'] ?: ($settingsTable['loginFailures'] ?: 10)); //-- MINUTES TO DISABLE LOGINS
 
-    if (file_exists(LOGIN_FILE) && !str_contains($_SERVER['PHP_SELF'], '/crons/')) {
-        define('USE_AUTH', true);
-        $loginsFile = file(LOGIN_FILE);
-
-        foreach ($loginsFile as $login) {
-            if ($login == 'admin:password') {
-                exit('Default admin:password is in the login file, change it & refresh');
-            }
-        }
-    } else {
-        define('USE_AUTH', false);
-        $_SESSION['authenticated'] = true;
+    $activeUserCount = 0;
+    if (!IS_MAINTENANCE) {
+        $activeUserCount = $database->getActiveUserCount();
     }
 
-    if (!$_SESSION['authenticated']) {
-        if (!str_contains($_SERVER['PHP_SELF'], 'login.php')) {
-            header('Location: login.php');
+    define('USE_AUTH', $activeUserCount > 0 || loginFileHasEntries());
+
+    if (loginFileHasDefaultPassword()) {
+        exit('Default admin:password is in the login file, change it & refresh');
+    }
+
+    if (!USE_AUTH || isCliCronOrStartup($dockwatchScriptPath, $dockwatchCronParent)) {
+        $_SESSION['authenticated'] = true;
+        $_SESSION['auth_optional'] = true;
+    }
+
+    enforceAuthentication();
+
+    if ($_SESSION['authenticated']) {
+        $_SESSION['IN_DOCKWATCH'] = true;
+
+        if (USE_AUTH) {
+            initCsrfToken();
         }
-    } else {
-        logger(SYSTEM_LOG, 'Starting');
     }
 }
 
