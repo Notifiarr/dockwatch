@@ -21,6 +21,10 @@ $storedKey = $serversTable[APP_SERVER_ID]['apikey'] ?? '';
 $apikey    = $_SERVER['HTTP_X_API_KEY'] ?? $_GET['apikey'] ?? '';
 
 if ($storedKey === '' || $apikey === '' || !hash_equals($storedKey, $apikey)) {
+    recordIntrusion('invalid_api_key', [
+        'apikey'   => $apikey,
+        'endpoint' => $_GET['endpoint'] ?? $_GET['request'] ?? '',
+    ]);
     apiResponse(401, ['error' => 'Invalid apikey']);
 }
 

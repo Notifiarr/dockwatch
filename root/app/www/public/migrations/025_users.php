@@ -45,11 +45,6 @@ if (file_exists(LOGIN_FILE)) {
     }
 }
 
-//-- ALWAYS NEED TO BUMP THE MIGRATION ID
-$q[] = "UPDATE " . SETTINGS_TABLE . "
-        SET value = '025'
-        WHERE name = 'migration'";
-
 $error = false;
 
 foreach ($q as $query) {
@@ -69,6 +64,19 @@ foreach ($q as $query) {
     }
 }
 
-if ($error) {
+//-- ALWAYS NEED TO BUMP THE MIGRATION ID
+if (!$error) {
+    $sql = "UPDATE " . SETTINGS_TABLE . "
+            SET value = '025'
+            WHERE name = 'migration'";
+    $database->mysqli_query($sql);
+
+    if ($migrationError = $database->mysqli_error()) {
+        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $migrationError, 'error');
+        $error = true;
+    } else {
+        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> query applied!');
+    }
+} else {
     logger(MIGRATION_LOG, 'A migration error occurred, please check the migration log for details');
 }

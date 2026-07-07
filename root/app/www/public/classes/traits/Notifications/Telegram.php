@@ -159,6 +159,36 @@ trait Telegram
                     $message .= "\n";
                 }
                 break;
+            case 'intrusion':
+                $message .= APP_NAME . ': Intrusion' . "\n";
+                $message .= 'Server: _' . $payload['server']['name'] . '_' . "\n";
+                $message .= 'Type: ' . $payload['type'] . "\n";
+                $message .= 'IP: ' . $payload['ip'] . "\n";
+                $message .= 'Method: ' . $payload['method'] . "\n";
+                $message .= 'URI: ' . $payload['uri'] . "\n";
+
+                if ($payload['username']) {
+                    $message .= 'Username: ' . $payload['username'] . "\n";
+                }
+
+                if ($payload['apikey']) {
+                    $message .= 'API key: ' . $payload['apikey'] . "\n";
+                }
+
+                if ($payload['container']) {
+                    $message .= 'Container: ' . $payload['container'] . "\n";
+                }
+
+                if ($payload['token']) {
+                    $message .= 'Token: ' . $payload['token'] . "\n";
+                }
+
+                if ($payload['details']) {
+                    $message .= 'Details: ' . $payload['details'] . "\n";
+                }
+
+                $message .= "\n";
+                break;
         }
 
         $message = $test ? $message .= '`[TEST NOTIFICATION]`' : $message;

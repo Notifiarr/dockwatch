@@ -117,6 +117,11 @@ if (date('H') == 0 && date('i') <= 5) {
                     'message' => 'API log file cleanup (daily @ midnight)',
                     'length'  => ($settingsTable['apiLogLength'] <= 1 ? 1 : $settingsTable['apiLogLength']),
                 ],
+                [
+                    'type'    => 'intrusion',
+                    'message' => 'Intrusion log file cleanup (daily @ midnight)',
+                    'length'  => ($settingsTable['apiLogLength'] <= 1 ? 1 : $settingsTable['apiLogLength']),
+                ],
             ],
         ],
     ];

@@ -43,6 +43,7 @@ define('NOTIFICATION_PLATFORM_TABLE', 'notification_platform');
 define('NOTIFICATION_TRIGGER_TABLE', 'notification_trigger');
 define('NOTIFICATION_LINK_TABLE', 'notification_link');
 define('USERS_TABLE', 'users');
+define('INTRUSION_HISTORY_TABLE', 'intrusion_history');
 define('CONTAINER_CLEANUP_TIME', 14); //-- DAYS
 
 //-- CRON
@@ -84,6 +85,7 @@ define('IS_MIGRATION_RUNNING', file_exists(MIGRATION_FILE));
 define('SYSTEM_LOG', LOGS_PATH . 'system/app.log');
 define('UI_LOG', LOGS_PATH . 'system/ui.log');
 define('API_LOG', LOGS_PATH . 'system/api.log');
+define('INTRUSION_LOG', LOGS_PATH . 'system/intrusion.log');
 define('MAINTENANCE_LOG', LOGS_PATH . 'system/maintenance.log');
 define('STARTUP_LOG', LOGS_PATH . 'system/startup.log');
 define('MIGRATION_LOG', LOGS_PATH . 'system/migrations.log');

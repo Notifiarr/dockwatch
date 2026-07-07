@@ -146,12 +146,14 @@ function enforceAuthentication()
     $isAjax = str_contains($_SERVER['PHP_SELF'] ?? '', '/ajax/');
 
     if ($isAjax) {
+        recordIntrusion('unauthorized', ['path' => $_SERVER['PHP_SELF'] ?? '']);
         http_response_code(401);
         header('Content-Type: application/json');
         echo json_encode(['error' => 'Unauthorized']);
         exit;
     }
 
+    recordIntrusion('unauthorized', ['path' => $_SERVER['PHP_SELF'] ?? '']);
     header('Location: login.php');
     exit;
 }
@@ -188,6 +190,7 @@ function enforceCsrfToken()
     $token = $_POST['csrf'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
 
     if (!validateCsrfToken($token)) {
+        recordIntrusion('invalid_csrf', ['ajax' => $ajaxFile, 'method' => $method]);
         http_response_code(403);
         header('Content-Type: application/json');
         echo json_encode(['error' => 'Invalid CSRF token']);

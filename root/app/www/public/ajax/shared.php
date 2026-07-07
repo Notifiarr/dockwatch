@@ -33,6 +33,7 @@ if (USE_AUTH && !$isLoginAjax && empty($_SESSION['authenticated'])) {
 
 if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
     if (!$isLoginAjax && !$_SESSION['IN_DOCKWATCH']) {
+        recordIntrusion('direct_access', ['path' => $_SERVER['PHP_SELF'] ?? '']);
         http_response_code(400);
         exit('Error: You should use the UI, its much prettier.');
     }

@@ -71,6 +71,22 @@ trait NotificationTemplates
                     'unknown'    => '',
                     'details'    => ''
                 ];
+            case 'intrusion':
+                return [
+                    'event'     => '',
+                    'type'      => '',
+                    'time'      => '',
+                    'ip'        => '',
+                    'method'    => '',
+                    'uri'       => '',
+                    'referrer'  => '',
+                    'userAgent' => '',
+                    'username'  => '',
+                    'apikey'    => '',
+                    'container' => '',
+                    'token'     => '',
+                    'details'   => ''
+                ];
             default:
                 return [];
         }

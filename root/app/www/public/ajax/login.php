@@ -75,6 +75,19 @@ if ($_POST['m'] == 'login') {
                 $loginFailures['lastFailure'] = time();
                 $loginFailures['failures'][]  = ['time' => date('c'), 'user' => $_POST['user']];
                 file_put_contents(LOGIN_FAILURE_FILE, json_encode($loginFailures));
+
+                recordIntrusion('invalid_login', [
+                    'username'     => $_POST['user'],
+                    'failureCount' => count($loginFailures['failures']),
+                ]);
+
+                if (count($loginFailures['failures']) == LOGIN_FAILURE_LIMIT + 1) {
+                    recordIntrusion('login_lockout', [
+                        'username'       => $_POST['user'],
+                        'failureCount'   => count($loginFailures['failures']),
+                        'timeoutMinutes' => LOGIN_FAILURE_TIMEOUT,
+                    ]);
+                }
             }
         }
     }

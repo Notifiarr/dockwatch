@@ -70,6 +70,11 @@ class WebSocket implements MessageComponentInterface
 
         if (!isset($queryParams['token']) || !isset($queryParams['container'])) {
             logger(WEBSOCKET_LOG, 'Connection attempt missing params (' . $conn->resourceId . ')', 'warn');
+            $request = getWebSocketIntrusionRequest($conn, $queryParams);
+            recordIntrusion('websocket_missing_params', array_merge($request, [
+                'container' => $queryParams['container'] ?? '',
+                'token'     => $queryParams['token'] ?? '',
+            ]));
             $conn->close();
             return;
         }
@@ -80,6 +85,11 @@ class WebSocket implements MessageComponentInterface
 
         if ($queryParams['token'] !== $token) {
             logger(WEBSOCKET_LOG, 'Unauthorized connection attempt (' . $conn->resourceId . ')', 'error');
+            $request = getWebSocketIntrusionRequest($conn, $queryParams);
+            recordIntrusion('websocket_invalid_token', array_merge($request, [
+                'container' => $container,
+                'token'     => $queryParams['token'],
+            ]));
             $conn->close();
             return;
         }

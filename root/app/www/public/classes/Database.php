@@ -15,6 +15,7 @@ class Database
     use ContainerGroupLink;
     use ContainerGroups;
     use ContainerSettings;
+    use IntrusionHistory;
     use NotificationLink;
     use NotificationPlatform;
     use NotificationTrigger;

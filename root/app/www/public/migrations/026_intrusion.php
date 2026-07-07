@@ -2,16 +2,34 @@
 
 /*
 ----------------------------------
- ------  Created: 061626   ------
+ ------  Created: 070626   ------
  ------  Austin Best	   ------
 ----------------------------------
 */
 
 $q   = [];
-$q[] = "INSERT INTO " . SETTINGS_TABLE . "
-        (`name`, `value`)
+$q[] = "CREATE TABLE IF NOT EXISTS `" . INTRUSION_HISTORY_TABLE . "` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `type` varchar(50) NOT NULL,
+        `created_at` int(11) NOT NULL,
+        `ip` varchar(45) NOT NULL DEFAULT '',
+        `method` varchar(10) NOT NULL DEFAULT '',
+        `uri` text NOT NULL,
+        `referrer` text NOT NULL,
+        `user_agent` text NOT NULL,
+        `username` varchar(150) NOT NULL DEFAULT '',
+        `apikey` text NOT NULL,
+        `container` varchar(255) NOT NULL DEFAULT '',
+        `token` text NOT NULL,
+        `details` text NOT NULL,
+        PRIMARY KEY (`id`),
+        KEY `type` (`type`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;";
+
+$q[] = "INSERT INTO " . NOTIFICATION_TRIGGER_TABLE . "
+        (`name`, `label`, `description`, `event`)
         VALUES
-        ('logLevel', " . LOG_LEVEL_INFO . ")";
+        ('intrusion', 'Intrusion attempts', 'Send a notification when a suspicious access attempt is detected (failed login, invalid API key, CSRF failure, etc.)', 'intrusion')";
 
 $error = false;
 
@@ -35,7 +53,7 @@ foreach ($q as $query) {
 //-- ALWAYS NEED TO BUMP THE MIGRATION ID
 if (!$error) {
     $sql = "UPDATE " . SETTINGS_TABLE . "
-            SET value = '024'
+            SET value = '026'
             WHERE name = 'migration'";
     $database->mysqli_query($sql);
 

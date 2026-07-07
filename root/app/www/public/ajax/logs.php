@@ -15,7 +15,7 @@ if ($_POST['m'] == 'init') {
     //-- CHECK FOR LOGIN FAILURE FILES
     $dir = opendir(APP_DATA_PATH);
     while ($file = readdir($dir)) {
-        if (str_contains($file, 'login_failures')) {
+        if (str_contains($file, 'login_failures') && !str_ends_with($file, '.gz')) {
             $logFiles['login failures'][] = ['name' => $file, 'size' => filesize(APP_DATA_PATH . $file)];
         }
     }
@@ -28,7 +28,7 @@ if ($_POST['m'] == 'init') {
             if ($group[0] != '.' && is_dir($logDir . $group)) {
                 $groupDir = opendir($logDir . $group . '/');
                 while ($log = readdir($groupDir)) {
-                    if ($log[0] != '.' && !is_dir($log)) {
+                    if ($log[0] != '.' && !is_dir($log) && !str_ends_with($log, '.gz')) {
                         $logFiles[$group][] = ['name' => $log, 'size' => filesize($logDir . $group . '/' . $log)];
                     }
                 }
