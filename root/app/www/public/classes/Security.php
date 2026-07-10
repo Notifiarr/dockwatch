@@ -100,10 +100,8 @@ class Security
 
         $q = "INSERT INTO " . SECURITY_SCANS_TABLE . "
               (`image_name`, `image_hash`, `scan_file`, `created_at`)
-              VALUES ('" . $this->database->prepare($image) . "',
-                      '" . $this->database->prepare($hash) . "',
-                      '" . $this->database->prepare($scanFile) . "',
-                      '" . time() . "')";
+              VALUES 
+              ('" . $this->database->prepare($image) . "', '" . $this->database->prepare($hash) . "', '" . $this->database->prepare($scanFile) . "', '" . time() . "')";
         $this->database->mysqli_query($q);
     }
 
@@ -125,12 +123,14 @@ class Security
         $imageName = $this->database->prepare($image);
 
         if ($file) {
-            $q = "SELECT scan_file FROM " . SECURITY_SCANS_TABLE . "
+            $q = "SELECT scan_file 
+                  FROM " . SECURITY_SCANS_TABLE . "
                   WHERE image_name = '" . $imageName . "'
                   AND scan_file LIKE '%" . $this->database->prepare($file) . "%'
                   ORDER BY created_at DESC LIMIT 1";
         } else {
-            $q = "SELECT scan_file FROM " . SECURITY_SCANS_TABLE . "
+            $q = "SELECT scan_file 
+                  FROM " . SECURITY_SCANS_TABLE . "
                   WHERE image_name = '" . $imageName . "'
                   ORDER BY created_at DESC LIMIT 1";
         }
@@ -182,7 +182,8 @@ class Security
         ];
 
         $imageName = $this->database->prepare($image);
-        $q         = "SELECT scan_file, created_at FROM " . SECURITY_SCANS_TABLE . "
+        $q         = "SELECT scan_file, created_at 
+                      FROM " . SECURITY_SCANS_TABLE . "
                       WHERE image_name = '" . $imageName . "'
                       ORDER BY created_at DESC LIMIT 1";
         $r         = $this->database->mysqli_query($q);
@@ -229,7 +230,8 @@ class Security
         }
 
         $imageName = $this->database->prepare($image);
-        $q         = "SELECT COUNT(*) AS total FROM " . SECURITY_SCANS_TABLE . "
+        $q         = "SELECT COUNT(*) AS total 
+                      FROM " . SECURITY_SCANS_TABLE . "
                       WHERE image_name = '" . $imageName . "'";
         $r         = $this->database->mysqli_query($q);
         $row       = $this->database->mysqli_fetchAssoc($r);
@@ -254,7 +256,8 @@ class Security
         }
 
         $imageName = $this->database->prepare($image);
-        $q         = "SELECT scan_file, created_at FROM " . SECURITY_SCANS_TABLE . "
+        $q         = "SELECT scan_file, created_at 
+                      FROM " . SECURITY_SCANS_TABLE . "
                       WHERE image_name = '" . $imageName . "'
                       ORDER BY created_at DESC";
         $r         = $this->database->mysqli_query($q);
@@ -406,7 +409,8 @@ class Security
         }
 
         $imageName = $this->database->prepare($image);
-        $q         = "SELECT scan_file, created_at FROM " . SECURITY_SCANS_TABLE . "
+        $q         = "SELECT scan_file, created_at 
+                      FROM " . SECURITY_SCANS_TABLE . "
                       WHERE image_name = '" . $imageName . "'
                       ORDER BY created_at DESC LIMIT 2";
         $r         = $this->database->mysqli_query($q);

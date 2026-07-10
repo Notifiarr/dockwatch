@@ -2,7 +2,7 @@ function countActiveUsers()
 {
     let count = 0;
 
-    $('[id^=globalSetting-userList-active-]').not('#globalSetting-userList-active-new').each(function () {
+    $('.user-row [id^=globalSetting-userList-active-]').each(function () {
         if ($(this).prop('checked')) {
             count++;
         }
@@ -15,9 +15,31 @@ function countActiveUsers()
     return count;
 }
 // ---------------------------------------------------------------------------------------------
+function getDatabaseActiveUserCount()
+{
+    return parseInt($('#settings-databaseActiveUserCount').val(), 10) || 0;
+}
+// ---------------------------------------------------------------------------------------------
+function shouldConfirmAuthChange(nextActiveCount)
+{
+    if ($('#settings-userManagement').val() != 1) {
+        return false;
+    }
+
+    if (nextActiveCount > 0) {
+        return false;
+    }
+
+    if (getDatabaseActiveUserCount() === 0) {
+        return false;
+    }
+
+    return true;
+}
+// ---------------------------------------------------------------------------------------------
 function confirmUserAuthChange(activeUsers)
 {
-    if (activeUsers > 0) {
+    if (!shouldConfirmAuthChange(activeUsers)) {
         return true;
     }
 
@@ -87,7 +109,11 @@ function removeUser(userId)
         if (!confirm('Are you sure you want to remove this user from the database?')) {
             return;
         }
-    } else if (!confirmUserAuthChange(activeAfter)) {
+    } else if (shouldConfirmAuthChange(activeAfter)) {
+        if (!confirmUserAuthChange(activeAfter)) {
+            return;
+        }
+    } else if (!confirm('Are you sure you want to remove this user from the database?')) {
         return;
     }
 
