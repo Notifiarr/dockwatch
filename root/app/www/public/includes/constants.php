@@ -51,6 +51,7 @@ define('DEFAULT_CRON', '0 0 * * *');
 define('DEFAULT_STATE_CRON_TIME', 5);
 
 //-- FOLDERS
+define('SYSTEM_TMP', '/tmp/');
 define('APP_DATA_PATH', '/config/');
 define('BACKUP_PATH', APP_DATA_PATH . 'backups/');
 define('LOGS_PATH', APP_DATA_PATH . 'logs/');

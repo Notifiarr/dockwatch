@@ -226,5 +226,23 @@ while ($backup = readdir($dir)) {
     }
 }
 
+//-- CLEAN UP VULN SCANNER TEMP FILES (DAILY @ MIDNIGHT)
+if (date('H') == 0 && date('i') <= 5) {
+    logger(CRON_HOUSEKEEPER_LOG, 'Vuln scanner temp cleanup (daily @ midnight)');
+
+    $dir = opendir(SYSTEM_TMP);
+    while ($file = readdir($dir)) {
+        if ($file === '.' || $file === '..') {
+            continue;
+        }
+
+        if (str_contains($file, 'stereoscope') && is_dir(SYSTEM_TMP . $file)) {
+            logger(CRON_HOUSEKEEPER_LOG, 'removing \'' . SYSTEM_TMP . $file . '\'');
+            $shell->exec('rm -rf ' . escapeshellarg(SYSTEM_TMP . $file));
+        }
+    }
+    closedir($dir);
+}
+
 echo date('c') . ' Cron: housekeeper <-' . "\n";
 logger(CRON_HOUSEKEEPER_LOG, 'run <-');

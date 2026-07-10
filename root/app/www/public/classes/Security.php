@@ -457,9 +457,9 @@ class Security
     }
 
     /**
-     * Sanitize strings
+     * Sanitize and strip invalid UTF-8 chars from string
      *
-     * @param string
+     * @param string $string to sanitize
      *
      * @return string
      */
