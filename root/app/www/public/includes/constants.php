@@ -44,6 +44,7 @@ define('NOTIFICATION_TRIGGER_TABLE', 'notification_trigger');
 define('NOTIFICATION_LINK_TABLE', 'notification_link');
 define('USERS_TABLE', 'users');
 define('INTRUSION_HISTORY_TABLE', 'intrusion_history');
+define('SECURITY_SCANS_TABLE', 'security_scans');
 define('CONTAINER_CLEANUP_TIME', 14); //-- DAYS
 
 //-- CRON

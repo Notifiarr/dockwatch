@@ -157,6 +157,9 @@ if (date('H') == 0 && date('i') <= 5) {
                             if ($daysBetween > $settings['length']) {
                                 logger(CRON_HOUSEKEEPER_LOG, 'removing logfile');
                                 $shell->exec('rm -rf ' . $path);
+
+                                $relativePath = $hash . '/' . $log;
+                                $database->mysqli_query("DELETE FROM " . SECURITY_SCANS_TABLE . " WHERE scan_file = '" . $database->prepare($relativePath) . "'");
                             }
                         }
                         closedir($scanFolder);
