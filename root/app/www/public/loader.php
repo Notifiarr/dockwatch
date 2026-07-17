@@ -240,7 +240,7 @@ if (!IS_SSE) {
     }
 }
 
-if (!str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
+if (!IS_SSE && !str_contains_any($_SERVER['PHP_SELF'], ['/api/']) && !str_contains($_SERVER['PWD'], 'oneshot')) {
     //-- LOGIN, DEFINE AFTER LOADING SETTINGS
     define('LOGIN_FAILURE_LIMIT', $settingsTable['loginFailures'] ?: 10);
     define('LOGIN_FAILURE_TIMEOUT', $settingsTable['loginTimeout'] ?: ($settingsTable['loginFailures'] ?: 10)); //-- MINUTES TO DISABLE LOGINS

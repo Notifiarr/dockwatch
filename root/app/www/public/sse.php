@@ -18,6 +18,13 @@ if (IS_MAINTENANCE) {
     exit;
 }
 
+if (empty($_SESSION['authenticated'])) {
+    http_response_code(401);
+    echo 'data: ' . json_encode([]) . "\n\n";
+    flush();
+    exit;
+}
+
 $database      = new Database();
 $settingsTable = apiRequestLocal('database/settings');
 $sseFile       = getFile(SSE_FILE);
