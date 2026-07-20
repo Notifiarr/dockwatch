@@ -100,7 +100,7 @@ class Security
 
         $q = "INSERT INTO " . SECURITY_SCANS_TABLE . "
               (`image_name`, `image_hash`, `scan_file`, `created_at`)
-              VALUES 
+              VALUES
               ('" . $this->database->prepare($image) . "', '" . $this->database->prepare($hash) . "', '" . $this->database->prepare($scanFile) . "', '" . time() . "')";
         $this->database->mysqli_query($q);
     }
@@ -123,13 +123,13 @@ class Security
         $imageName = $this->database->prepare($image);
 
         if ($file) {
-            $q = "SELECT scan_file 
+            $q = "SELECT scan_file
                   FROM " . SECURITY_SCANS_TABLE . "
                   WHERE image_name = '" . $imageName . "'
                   AND scan_file LIKE '%" . $this->database->prepare($file) . "%'
                   ORDER BY created_at DESC LIMIT 1";
         } else {
-            $q = "SELECT scan_file 
+            $q = "SELECT scan_file
                   FROM " . SECURITY_SCANS_TABLE . "
                   WHERE image_name = '" . $imageName . "'
                   ORDER BY created_at DESC LIMIT 1";
@@ -182,7 +182,7 @@ class Security
         ];
 
         $imageName = $this->database->prepare($image);
-        $q         = "SELECT scan_file, created_at 
+        $q         = "SELECT scan_file, created_at
                       FROM " . SECURITY_SCANS_TABLE . "
                       WHERE image_name = '" . $imageName . "'
                       ORDER BY created_at DESC LIMIT 1";
@@ -230,7 +230,7 @@ class Security
         }
 
         $imageName = $this->database->prepare($image);
-        $q         = "SELECT COUNT(*) AS total 
+        $q         = "SELECT COUNT(*) AS total
                       FROM " . SECURITY_SCANS_TABLE . "
                       WHERE image_name = '" . $imageName . "'";
         $r         = $this->database->mysqli_query($q);
@@ -256,7 +256,7 @@ class Security
         }
 
         $imageName = $this->database->prepare($image);
-        $q         = "SELECT scan_file, created_at 
+        $q         = "SELECT scan_file, created_at
                       FROM " . SECURITY_SCANS_TABLE . "
                       WHERE image_name = '" . $imageName . "'
                       ORDER BY created_at DESC";
@@ -321,7 +321,7 @@ class Security
                             'fixed'     => $vuln['FixedVersion'],
                             'status'    => $vuln['Status'],
                             'severity'  => $vuln['Severity'],
-                            'title'     => $this->sanitize($vuln['Title'] ?: $pkgName),
+                            'title'     => $this->sanitize($vuln['Title']),
                             'published' => $vuln['PublishedDate'] ?? ''
                         ];
                     }
@@ -344,7 +344,7 @@ class Security
                         'fixed'     => $vuln['fix']['versions'][0] ?? null,
                         'status'    => $vuln['fix']['state'] ?? 'unknown',
                         'severity'  => $vuln['severity'],
-                        'title'     => $this->sanitize(truncateEnd($vuln['description'], 80) ?: $pkgName),
+                        'title'     => truncateEnd($this->sanitize($vuln['description']), 80),
                         'published' => $vuln['epss'][0]['date'] ?? ''
                     ];
                 }
@@ -363,7 +363,7 @@ class Security
                     'fixed'     => $vuln['fixedIn'][0] ?? null,
                     'status'    => !empty($vuln['fixedIn']) ? 'fixed' : 'unknown',
                     'severity'  => ucfirst($vuln['severity'] ?? 'unknown'),
-                    'title'     => $this->sanitize($vuln['title'] ?: $pkgName),
+                    'title'     => $this->sanitize($vuln['title']),
                     'published' => $vuln['publicationTime'] ?? ''
                 ];
             }
@@ -383,7 +383,7 @@ class Security
                             'fixed'     => $vuln['fixedIn'][0] ?? null,
                             'status'    => !empty($vuln['fixedIn']) ? 'fixed' : 'unknown',
                             'severity'  => ucfirst($vuln['severity'] ?? 'unknown'),
-                            'title'     => $this->sanitize($vuln['title'] ?: $pkgName),
+                            'title'     => $this->sanitize($vuln['title']),
                             'published' => $vuln['publicationTime'] ?? ''
                         ];
                     }
@@ -409,7 +409,7 @@ class Security
         }
 
         $imageName = $this->database->prepare($image);
-        $q         = "SELECT scan_file, created_at 
+        $q         = "SELECT scan_file, created_at
                       FROM " . SECURITY_SCANS_TABLE . "
                       WHERE image_name = '" . $imageName . "'
                       ORDER BY created_at DESC LIMIT 2";
@@ -479,8 +479,8 @@ class Security
         if ($encoding && $encoding !== 'UTF-8') {
             $string = mb_convert_encoding($string, 'UTF-8', $encoding);
         }
-        $string = iconv('UTF-8', 'UTF-8//IGNORE', $string);
-        $string = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $string);
+        $string = mb_scrub($string, 'UTF-8');
+        $string = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $string);
 
         return $string;
     }

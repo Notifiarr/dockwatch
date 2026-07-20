@@ -227,7 +227,7 @@ function viewSecurityScanByFile(hash, image, file) {
                         html += '<tr>';
 
                         if (idx === 0) {
-                            html += '<td class="bg-secondary" rowspan="' + rowspan + '">' + (pkgName.length > 14 ? pkgName.slice(0, 14) + "..." : pkgName) + '</td>';
+                            html += '<td class="bg-secondary" style="overflow-wrap: anywhere;" rowspan="' + rowspan + '">' + pkgName + '</td>';
                         }
 
                         html += `
@@ -236,7 +236,7 @@ function viewSecurityScanByFile(hash, image, file) {
                             <td class="bg-secondary">${vuln.status || '-'}</td>
                             <td class="bg-secondary">${vuln.installed || '-'}</td>
                             <td class="bg-secondary">${vuln.fixed || '-'}</td>
-                            <td class="bg-secondary">${vuln.title || vuln.pkg || '-'}</td>
+                            <td class="bg-secondary" style="overflow-wrap: anywhere;">${vuln.title || vuln.pkg || '-'}</td>
                         </tr>`;
                     });
                 });

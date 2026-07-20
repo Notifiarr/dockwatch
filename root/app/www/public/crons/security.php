@@ -31,6 +31,8 @@ $payload          = [
     'event'      => 'security',
     'changed'    => false,
     'containers' => 0,
+    'total'      => 0,
+    'running'    => 0,
     'critical'   => 0,
     'high'       => 0,
     'medium'     => 0,
@@ -39,20 +41,37 @@ $payload          = [
     'details'    => []
 ];
 $skipNotification = false;
+$total            = $running = [];
+
+foreach ($containerList as $container) {
+    if (!in_array($container['name'], $total)) {
+        $total[] = $container['name'];
+    }
+
+    if (str_contains($container['status'], 'running')) {
+        $running[] = $container['name'];
+    }
+}
+
+logger(CRON_SECURITY_LOG, count($total) . ' total containers found - ' . count($running) . ' containers running');
+echo date(format: 'c') . count($total) . ' total containers found - ' . count($running) . ' containers running' . "\n";
+
+$payload['total']   = count($total);
+$payload['running'] = count($running);
 
 foreach ($containerList as $container) {
     $nameHash = md5($container['name']);
     $hash     = substr(preg_replace('/sha256\:/', '', $docker->getImageHash($container['image'])), 0, 4);
 
+    logger(CRON_SECURITY_LOG, ' scanning image ' . $container['image'] . ' ->');
+    echo date(format: 'c') . ' scanning image ' . $container['image'] . ' ->' . "\n";
+
     if (in_array($hash, $imagesScanned) || !str_contains($container['status'], 'running') && $settingsTable['securitySkipStopped']) {
-        logger(CRON_SECURITY_LOG, ' skipped image ' . $container['image']);
-        echo date(format: 'c') . ' skipped image ' . $container['image'] . "\n";
+        logger(CRON_SECURITY_LOG, ' skipped image ' . $container['image'] . ' - not running or already scanned');
+        echo date(format: 'c') . ' skipped image ' . $container['image'] . ' - not running or already scanned' . "\n";
         continue;
     }
     $imagesScanned[] = $hash;
-
-    logger(CRON_SECURITY_LOG, ' scanning image ' . $container['image'] . ' ->');
-    echo date(format: 'c') . ' scanning image ' . $container['image'] . ' ->' . "\n";
 
     $scan = $security->scanImage($container['image'], intval($settingsTable['securityScanner']), $settingsTable['securitySnykAPIKey']);
     if (!empty($scan)) {
@@ -70,6 +89,9 @@ foreach ($containerList as $container) {
             $payload[strtolower($vuln['severity'])]++;
         }
         $payload['details'][$container['image']] = $vulns;
+    } else {
+        logger(CRON_SECURITY_LOG, ' skipped image ' . $container['image'] . ' - no vulnerabilities found');
+        echo date(format: 'c') . ' skipped image ' . $container['image'] . ' - no vulnerabilities found' . "\n";
     }
 
     if (count($security->getNewVulns($container['image'])) > 0) {
