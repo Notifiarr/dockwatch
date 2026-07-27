@@ -54,7 +54,7 @@ switch ($path) {
                 }
 
                 $container = $parameters['name'];
-                $command = $parameters['params'];
+                $command   = $parameters['params'];
 
                 $apiRequestResponse = json_encode($docker->exec($container, $command));
                 break;
@@ -94,10 +94,10 @@ switch ($path) {
                     apiResponse(400, ['error' => 'Missing name parameter']);
                 }
 
-                $stopContainer = $docker->stopContainer($payload['name']);
-                $return[] = 'docker/container/stop: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
+                $stopContainer  = $docker->stopContainer($payload['name']);
+                $return[]       = 'docker/container/stop: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
                 $startContainer = $docker->startContainer($payload['name']);
-                $return[] = 'docker/container/start: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
+                $return[]       = 'docker/container/start: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
 
                 if ($payload['dependencies']) {
                     $dependencyFile = getFile(DEPENDENCY_FILE);
@@ -124,7 +124,7 @@ switch ($path) {
                 }
 
                 $startContainer = $docker->startContainer($payload['name']);
-                $return[] = 'docker/container/start: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
+                $return[]       = 'docker/container/start: ' . json_encode($startContainer, JSON_UNESCAPED_SLASHES);
 
                 if ($payload['dependencies']) {
                     $dependencyFile = getFile(DEPENDENCY_FILE);
@@ -149,7 +149,7 @@ switch ($path) {
                 }
 
                 $stopContainer = $docker->stopContainer($payload['name']);
-                $return[] = 'docker/container/stop: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
+                $return[]      = 'docker/container/stop: ' . json_encode($stopContainer, JSON_UNESCAPED_SLASHES);
 
                 if ($payload['dependencies']) {
                     $dependencyFile = getFile(DEPENDENCY_FILE);
@@ -238,9 +238,10 @@ switch ($path) {
         $apiRequestResponse = $docker->getNetworks($parameters['params']);
         break;
     case 'orphans': //-- ../api/docker/orphans/$action
+        $processList = json_decode($docker->processList(), true);
         switch (true) {
             case $IS_GET && $action == 'containers':
-                $apiRequestResponse = $docker->getOrphanContainers();
+                $apiRequestResponse = $docker->getOrphanContainers($processList);
                 break;
             case $IS_GET && $action == 'networks':
                 $apiRequestResponse = $docker->getOrphanNetworks();

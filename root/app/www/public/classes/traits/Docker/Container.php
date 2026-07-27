@@ -106,10 +106,44 @@ trait Container
         return json_encode($unused);
     }
 
-    public function getOrphanContainers()
+    public function getOrphanContainers($processList)
     {
-        $cmd = DockerSock::ORPHAN_CONTAINERS;
-        return $this->shell->exec($cmd . ' 2>&1');
+        $images  = json_decode($this->shell->exec(DockerSock::ORPHAN_CONTAINERS . ' 2>&1'), true);
+        $orphans = $containers = $used = [];
+
+        if (!empty($processList)) {
+            foreach ($processList as $process) {
+                $containers[] = $this->shell->prepare($process['ID']);
+            }
+
+            if (!empty($containers)) {
+                $inspect = json_decode($this->shell->exec(sprintf(DockerSock::INSPECT_FORMAT, implode(' ', $containers)) . ' 2>&1'), true);
+
+                if (!empty($inspect)) {
+                    foreach ($inspect as $container) {
+                        if (empty($container['Image'])) {
+                            continue;
+                        }
+
+                        $image                       = str_replace('sha256:', '', $container['Image']);
+                        $used[substr($image, 0, 12)] = true;
+                    }
+                }
+            }
+        }
+
+        if (!empty($images)) {
+            foreach ($images as $orphan) {
+                $image = str_replace('sha256:', '', $orphan['ID'] ?? '');
+                if (isset($used[substr($image, 0, 12)])) {
+                    continue;
+                }
+
+                $orphans[] = $orphan;
+            }
+        }
+
+        return json_encode($orphans);
     }
 
     public function findContainer($query = [])
