@@ -58,6 +58,46 @@ if (!IS_MAINTENANCE) {
     } else {
         logger(STARTUP_LOG, 'Skipping ' . $name . ' started notification, no senders found with stateChange enabled', 'warn');
     }
+
+    $version    = gitVersion();
+    $branch     = gitBranch();
+    $image_hash = getDockwatchContainerHash();
+
+    $q   = "SELECT * FROM `" . VERSION_TABLE . "` LIMIT 1";
+    $res = $database->mysqli_query($q);
+    $row = $database->mysqli_fetchAssoc($res);
+
+    if (empty($row)) {
+        $q = "INSERT INTO " . VERSION_TABLE . "
+                      (`version`, `branch`, `image_hash`, `updated_at`)
+                      VALUES
+                      ('" . $database->prepare($version) . "', '" . $database->prepare($branch) . "', '" . $database->prepare($image_hash) . "', '" . time() . "')";
+        $database->mysqli_query($q);
+    } else {
+        if ($row['version'] !== $version || $row['branch'] !== $branch || $row['image_hash'] !== $image_hash) {
+            echo "* Updated " . $name . " from " . $row['version'] . " [" . $row['branch'] . "]" . " → " . $version . " [" . $branch . "]" . " *\n";
+
+            $q = "UPDATE " . VERSION_TABLE . "
+                          SET version = '" . $database->prepare($version) . "', branch = '" . $database->prepare($branch) . "', image_hash = '" . $database->prepare($image_hash) . "', updated_at = '" . time() . "'
+                          WHERE id = '" . $database->prepare($row['id']) . "'";
+            $database->mysqli_query($q);
+
+            if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'updated'])['result']) {
+                $payload = [
+                    'event'   => 'updates',
+                    'updated' => [
+                        [
+                            'container' => getDockwatchContainerName(),
+                            'image'     => str_replace(':main', '', APP_IMAGE),
+                            'pre'       => ['digest' => $row['image_hash'], 'version' => $row['version'] . ' [' . $row['branch'] . ']'],
+                            'post'      => ['digest' => $image_hash, 'version' => $version . ' [' . $branch . ']']
+                        ]
+                    ]
+                ];
+                $notifications->notify(0, 'updated', $payload);
+            }
+        }
+    }
 }
 
 //-- WEBSOCKET SERVER

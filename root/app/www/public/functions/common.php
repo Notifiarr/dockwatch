@@ -60,7 +60,28 @@ function getDockwatchContainerName()
     $containerName = trim($shell->exec($cmd . ' 2>&1'));
     memcacheSet('dockwatchContainerName', $containerName, 300);
 
-    return $containerName;
+    return substr($containerName, 1);
+}
+
+function getDockwatchContainerHash()
+{
+    global $shell;
+
+    if (memcacheGet('dockwatchContainerHash')) {
+        return memcacheGet('dockwatchContainerHash');
+    }
+
+    $hostname = trim($shell->exec('grep /etc/hostname /proc/self/mountinfo | awk -F/containers/ \'{print $2}\' | cut -d/ -f1 2>&1')); //-- RETURNS VOLUME PATH THAT MATCHES CONTAINER ID
+    $cmd      = sprintf(
+        "/usr/bin/docker inspect --format='{{.Image}}' %s 2>&1",
+        $shell->prepare($hostname),
+    );
+
+    $containerHash = trim($shell->exec($cmd . ' 2>&1'));
+    $containerHash = str_replace('sha256:', '', $containerHash);
+    memcacheSet('dockwatchContainerHash', $containerHash, 300);
+
+    return $containerHash;
 }
 
 function isComposeContainer($container)

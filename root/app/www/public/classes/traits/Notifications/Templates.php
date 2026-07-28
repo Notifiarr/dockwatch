@@ -64,6 +64,8 @@ trait NotificationTemplates
                     'event'      => '',
                     'changed'    => '',
                     'containers' => '',
+                    'total'      => '',
+                    'running'    => '',
                     'critical'   => '',
                     'high'       => '',
                     'medium'     => '',
