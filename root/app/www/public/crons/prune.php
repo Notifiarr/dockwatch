@@ -20,9 +20,10 @@ if (!canCronRun('prune', $settingsTable)) {
     exit();
 }
 
+$processList  = json_decode($docker->processList(), true);
 $imagePrune   = $imageList = $volumePrune = [];
 $networkPrune = [];
-$images       = json_decode($docker->getOrphanContainers(), true);
+$images       = json_decode($docker->getOrphanContainers($processList), true);
 $volumes      = json_decode($docker->getOrphanVolumes(), true);
 $networks     = json_decode($docker->getOrphanNetworks(), true);
 

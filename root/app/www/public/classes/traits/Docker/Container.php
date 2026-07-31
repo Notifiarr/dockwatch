@@ -106,7 +106,7 @@ trait Container
         return json_encode($unused);
     }
 
-    public function getOrphanContainers($processList)
+    public function getOrphanContainers($processList = [])
     {
         $images  = json_decode($this->shell->exec(DockerSock::ORPHAN_CONTAINERS . ' 2>&1'), true);
         $orphans = $containers = $used = [];
