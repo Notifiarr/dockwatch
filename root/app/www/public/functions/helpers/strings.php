@@ -59,7 +59,7 @@ function truncateEnd($str, $max, $minLength = false)
     }
 
     if (strlen($str) > $max) {
-        $str = substr($str, 0, $max - 3) . '...';
+        $str = mb_substr($str, 0, $max - 3) . '...';
     }
 
     if ($minLength && strlen($str) < $max) {

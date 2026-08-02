@@ -130,7 +130,7 @@ class Notifications
 
             $logfile = $this->logpath . $platformName . '.log';
             logger($logfile, 'notification request to ' . $platformName);
-            logger($logfile, 'notification payload: ' . json_encode($payload));
+            logger($logfile, 'notification payload: ' . json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE));
 
             switch ($platformId) {
                 case NotificationPlatforms::NOTIFIARR:

@@ -22,7 +22,7 @@ trait Telegram
         $url     = 'https://api.telegram.org/bot%s/sendMessage';
         $payload = ['chat_id' => $chatId, 'text' => $message, 'parse_mode' => 'MarkdownV2', 'disable_web_page_preview' => true];
         $url     = sprintf($url, $botToken);
-        $curl    = curl($url, [], 'POST', json_encode($payload));
+        $curl    = curl($url, [], 'POST', json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE));
 
         logger($logfile, 'notification response:' . json_encode($curl), ($curl['code'] != 200 ? 'error' : ''));
 
@@ -31,7 +31,7 @@ trait Telegram
             logger($logfile, 'sending a retry in 5s...', 'warn');
             sleep(5);
 
-            $curl = curl($url, [], 'POST', json_encode($payload));
+            $curl = curl($url, [], 'POST', json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE));
             logger($logfile, 'notification response:' . json_encode($curl), ($curl['code'] != 200 ? 'error' : ''));
 
             if ($curl['code'] != 200) {

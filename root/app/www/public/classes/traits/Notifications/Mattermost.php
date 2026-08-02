@@ -17,7 +17,7 @@ trait Mattermost
 
         $message = $this->buildMattermostMessage($payload, $test);
         $payload = ['text' => $message, 'username' => trim($webhookUsername)];
-        $curl    = curl($url, [], 'POST', json_encode($payload));
+        $curl    = curl($url, [], 'POST', json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE));
 
         logger($logfile, 'notification response:' . json_encode($curl), ($curl['code'] != 200 ? 'error' : ''));
 
@@ -26,7 +26,7 @@ trait Mattermost
             logger($logfile, 'sending a retry in 5s...', 'warn');
             sleep(5);
 
-            $curl = curl($url, [], 'POST', json_encode($payload));
+            $curl = curl($url, [], 'POST', json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE));
             logger($logfile, 'notification response:' . json_encode($curl), ($curl['code'] != 200 ? 'error' : ''));
 
             if ($curl['code'] != 200) {
