@@ -97,7 +97,8 @@ function getContainerStats($servers = [])
         $dockwatch = [];
         foreach ($pullsFile as $hash => $pull) {
             if (md5($name) == $hash) {
-                $dockwatch['pull'] = $pull['regctlDigest'] == $pull['imageDigest'] ? 'Up to date' : 'Outdated';
+                $containerSettings = apiRequest('database/container/hash', ['hash' => $hash])['result'];
+                $dockwatch['pull'] = $containerSettings['updates'] == 0 ? 'Ignored' : ($pull['regctlDigest'] == $pull['imageDigest'] ? 'Up to date' : 'Outdated');
                 $checked           = new DateTime();
                 $checked->setTimestamp($pull['checked']);
                 $dockwatch['lastPull'] = $checked->format('Y-m-d H:i:s');
@@ -159,7 +160,8 @@ function initializeStats()
         'updates' => [
             'uptodate'  => 0,
             'outdated'  => 0,
-            'unchecked' => 0
+            'unchecked' => 0,
+            'ignored'   => 0
         ],
         'vulns'   => [
             'scanned'  => 0,
@@ -212,6 +214,7 @@ function updateContainerStats(&$stats, $container, $serverKey = '')
         if (!empty($container['dockwatch'])) {
             $stats['servers'][$serverKey]['updates']['uptodate'] += ($container['dockwatch']['pull'] == 'Up to date' ? 1 : 0);
             $stats['servers'][$serverKey]['updates']['outdated'] += ($container['dockwatch']['pull'] == 'Outdated' ? 1 : 0);
+            $stats['servers'][$serverKey]['updates']['ignored']  += ($container['dockwatch']['pull'] == 'Ignored' ? 1 : 0);
         } else {
             $stats['servers'][$serverKey]['updates']['unchecked']++;
         }
@@ -219,6 +222,7 @@ function updateContainerStats(&$stats, $container, $serverKey = '')
         if (!empty($container['dockwatch'])) {
             $stats['updates']['uptodate'] += ($container['dockwatch']['pull'] == 'Up to date' ? 1 : 0);
             $stats['updates']['outdated'] += ($container['dockwatch']['pull'] == 'Outdated' ? 1 : 0);
+            $stats['updates']['ignored']  += ($container['dockwatch']['pull'] == 'Ignored' ? 1 : 0);
         } else {
             $stats['updates']['unchecked']++;
         }

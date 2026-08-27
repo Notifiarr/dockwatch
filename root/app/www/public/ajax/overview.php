@@ -35,6 +35,7 @@ if ($_POST['m'] == 'init') {
     $updated   = $overviewApiResult['updates']['uptodate'];
     $outdated  = $overviewApiResult['updates']['outdated'];
     $unchecked = $overviewApiResult['updates']['unchecked'];
+    $ignored   = $overviewApiResult['updates']['ignored'];
 
     //-- VULNERABILITIES
     $criticalVuln      = $overviewApiResult['vulns']['critical'];
@@ -131,6 +132,10 @@ if ($_POST['m'] == 'init') {
                     <div class="p-2 flex-fill bd-highlight">
                         Unchecked<br>
                         <?= $unchecked ?>
+                    </div>
+                    <div class="p-2 flex-fill bd-highlight">
+                        <span class="text-light">Ignored</span><br>
+                        <?= $ignored ?>
                     </div>
                 </div>
             </div>
