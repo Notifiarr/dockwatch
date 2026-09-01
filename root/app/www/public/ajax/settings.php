@@ -414,6 +414,12 @@ if ($_POST['m'] == 'init') {
                             <ul style="padding: 0 18px;">
                                 <li>Grype and Trivy are both free open-source apps</li>
                                 <li>Snyk requires a (free) <a href="https://app.snyk.io" target="_blank">account</a> API key to work</li>
+                                <li>
+                                    <span class="text-warning">
+                                        <i class="fas fa-exclamation-triangle dw-tooltip-icon" style="font-size: 12px !important; transform: translateY(-2px); color: yellow !important;"></i>
+                                        Highly recommended to allocate atleast 4GB ram to Dockwatch to prevent the scanner from running out of memory (<a href="https://github.com/Notifiarr/dockwatch/issues/145" target="_blank">GH#145</a>)
+                                    </span>
+                                </li>
                             </ul>
                         </td>
                     </tr>
