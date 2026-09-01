@@ -36,7 +36,7 @@ if (file_exists(LOGIN_FAILURE_FILE)) {
 ?>
 <div class="container-fluid pt-4 px-4">
     <div class="row">
-        <div class="col-4 offset-4">
+        <div class="col-4 offset-lg-4" style="min-width: 330px;">
             <div class="bg-secondary rounded p-4">
                 <?php
                 if ($loginTimeout || $apiVersionError || $apiPermissionsError) {
