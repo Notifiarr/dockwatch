@@ -7,6 +7,9 @@
 ----------------------------------
 */
 
+//-- COMPOSER: IP VALIDATOR
+use Chialab\Ip;
+
 function loadClassExtras($class)
 {
     $extras = ['interfaces', 'traits'];
@@ -320,4 +323,19 @@ function appServerUrl()
     }
 
     return $scheme . '://' . $host;
+}
+
+function ipMatchesSubnet(string $ip, string $ipmask)
+{
+    try {
+        $address = Ip\Address::parse($ip);
+
+        if (str_contains($ipmask, '/')) {
+            return Ip\Subnet::parse($ipmask)->contains($address);
+        }
+
+        return $address->equals(Ip\Address::parse($ipmask));
+    } catch (\InvalidArgumentException $e) {
+        return false;
+    }
 }

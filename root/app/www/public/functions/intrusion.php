@@ -133,6 +133,20 @@ function notifyIntrusion($entry)
         return;
     }
 
+    $settingsTable = $database->getSettings() ?: [];
+    if (!empty($settingsTable['loginWhitelist'])) {
+        $ipandmask = explode(',', $settingsTable['loginWhitelist']) ?: [];
+        if (count($ipandmask) > 0) {
+            foreach ($ipandmask as $ipmask) {
+                $ipmask = trim($ipmask);
+
+                if (ipMatchesSubnet($entry['ip'], $ipmask)) {
+                    return;
+                }
+            }
+        }
+    }
+
     $notifications ??= new Notifications();
 
     $payload = [

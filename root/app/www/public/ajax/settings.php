@@ -9,6 +9,9 @@
 
 require 'shared.php';
 
+//-- COMPOSER: IP VALIDATOR
+use Chialab\Ip;
+
 if ($_POST['m'] == 'init') {
     $cpus = cpuTotal();
     if ($cpus == 0) {
@@ -46,657 +49,664 @@ if ($_POST['m'] == 'init') {
         }
     }
     ?>
-            <ol class="breadcrumb rounded p-1 ps-2">
-                <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
-                <li class="breadcrumb-item active" aria-current="page">Settings</li>
-            </ol>
-            <div class="bg-secondary rounded p-4">
-                <h4 class="text-info">Instance</h4>
-                <div class="table-responsive">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                                <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Server timezone</td>
-                                <td class="bg-secondary">
-                                    <?= $serverTime['timezone'] ?>
-                                </td>
-                                <td class="bg-secondary">The current timezone being used for this instance. Datetime: <?= $serverTime['time'] ?></td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Server name</td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="text" id="globalSetting-serverName" value="<?= $settingsTable['serverName'] ?>">
-                                </td>
-                                <td class="bg-secondary">The name of this server, also passed in the notification payload</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Maintenance IP</td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="text" id="globalSetting-maintenanceIP" value="<?= $settingsTable['maintenanceIP'] ?>">
-                                </td>
-                                <td class="bg-secondary">This IP is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this IP and after it has updated/restarted Dockwatch it will be removed. This is only required if you do static IP assignment for your containers.</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">WebSocket URL<sup>5</sup></td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="text" id="globalSetting-websocketUrl" value="<?= $settingsTable['websocketUrl'] ?: '' ?>" placeholder="<?= 'ws://' . $_SERVER['HTTP_HOST'] . '/ws' ?>">
-                                </td>
-                                <td class="bg-secondary">Best to leave empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Example (https): <code class="mx-1">wss://my.cool.domain/ws</code></td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Base URL<sup>5</sup></td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="text" id="globalSetting-baseUrl" value="<?= $_SERVER['BASE_URL'] ?: '' ?>" placeholder="<?= $_SERVER['BASE_URL'] ?: '/' ?>">
-                                </td>
-                                <td class="bg-secondary">Default is empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Must start with a <code>/</code>. Nested paths are not allowed.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h4 class="text-info">UI</h4>
-                <div class="table-responsive">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                                <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Default page</td>
-                                <td class="bg-secondary">
-                                    <select class="form-select" id="globalSetting-defaultPage">
-                                        <?php
-                                        $defaultPages = ['overview', 'containers', 'networks', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs', 'security'];
+    <ol class="breadcrumb rounded p-1 ps-2">
+        <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
+        <li class="breadcrumb-item active" aria-current="page">Settings</li>
+    </ol>
+    <div class="bg-secondary rounded p-4">
+        <h4 class="text-info">Instance</h4>
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Server timezone</td>
+                        <td class="bg-secondary">
+                            <?= $serverTime['timezone'] ?>
+                        </td>
+                        <td class="bg-secondary">The current timezone being used for this instance. Datetime: <?= $serverTime['time'] ?></td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Server name</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-serverName" value="<?= $settingsTable['serverName'] ?>">
+                        </td>
+                        <td class="bg-secondary">The name of this server, also passed in the notification payload</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Maintenance IP</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-maintenanceIP" value="<?= $settingsTable['maintenanceIP'] ?>">
+                        </td>
+                        <td class="bg-secondary">This IP is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this IP and after it has updated/restarted Dockwatch it will be removed. This is only required if you do static IP assignment for your containers.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">WebSocket URL<sup>5</sup></td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-websocketUrl" value="<?= $settingsTable['websocketUrl'] ?: '' ?>" placeholder="<?= 'ws://' . $_SERVER['HTTP_HOST'] . '/ws' ?>">
+                        </td>
+                        <td class="bg-secondary">Best to leave empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Example (https): <code class="mx-1">wss://my.cool.domain/ws</code></td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Base URL<sup>5</sup></td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-baseUrl" value="<?= $_SERVER['BASE_URL'] ?: '' ?>" placeholder="<?= $_SERVER['BASE_URL'] ?: '/' ?>">
+                        </td>
+                        <td class="bg-secondary">Default is empty. You only need to change this if you're hosting Dockwatch behind a reverse proxy.<br>Must start with a <code>/</code>. Nested paths are not allowed.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="text-info">UI</h4>
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Default page</td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-defaultPage">
+                                <?php
+                                $defaultPages = ['overview', 'containers', 'networks', 'compose', 'orphans', 'notification', 'settings', 'tasks', 'commands', 'logs', 'security'];
 
-                                        foreach ($defaultPages as $defaultPage) {
-                                            ?>
-                                                    <option <?= $settingsTable['defaultPage'] == $defaultPage ? 'selected' : '' ?> value="<?= $defaultPage ?>"><?= ucfirst($defaultPage) ?></option><?php
-                                        }
-                                        ?>
-                                    </select>
-                                </td>
-                                <td class="bg-secondary">Which page should be loaded when <?= APP_NAME ?> first opens</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Usage metrics retention<sup>4</sup></td>
-                                <td class="bg-secondary">
-                                    <select class="form-select" id="globalSetting-usageMetricsRetention">
-                                        <option <?= $settingsTable['usageMetricsRetention'] == 0 ? 'selected' : '' ?> value="0">Off</option>
-                                        <option <?= $settingsTable['usageMetricsRetention'] == 1 ? 'selected' : '' ?> value="1">Daily</option>
-                                        <option <?= $settingsTable['usageMetricsRetention'] == 2 ? 'selected' : '' ?> value="2">Weekly</option>
-                                        <option <?= $settingsTable['usageMetricsRetention'] == 3 ? 'selected' : '' ?> value="3">Monthly</option>
-                                    </select>
-                                </td>
-                                <td class="bg-secondary">Specify how long past usage metrics should be kept before being cleared.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h4 class="text-info">Users</h4>
-                <p class="text-muted small mb-3">No active users and an empty/missing login file will disable login auth.</p>
-                <input type="hidden" id="settings-hasLoginFile" value="<?= $hasLoginFile ? 1 : 0 ?>">
-                <input type="hidden" id="settings-databaseActiveUserCount" value="<?= $databaseActiveUserCount ?>">
-                <input type="hidden" id="settings-userManagement" value="<?= $_SESSION['activeServerId'] == APP_SERVER_ID ? 1 : 0 ?>">
-                <div class="table-responsive">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="25%">Username</th>
-                                <th class="bg-primary ps-3" scope="col" width="25%">Password</th>
-                                <th class="bg-primary ps-3" scope="col" width="10%">Active</th>
-                                <th class="bg-primary ps-3" scope="col" width="20%">Source</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="20%">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            if ($_SESSION['activeServerId'] != APP_SERVER_ID) {
-                                ?>
-                                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                            <td class="bg-secondary" colspan="5">User management is only available on the local server.</td>
-                                        </tr>
-                                        <?php
-                            } else {
-                                foreach ($mergedUsers as $mergedUser) {
-                                    $inDatabase  = !empty($mergedUser['database']);
-                                    $inLoginFile = !empty($mergedUser['loginFile']);
-                                    $dbUser      = $mergedUser['database'];
-                                    $rowClass    = $inDatabase ? 'user-row' : 'login-file-user';
+                                foreach ($defaultPages as $defaultPage) {
                                     ?>
-                                                    <tr class="<?= $rowClass ?> border border-dark border-top-0 border-start-0 border-end-0" <?= $inDatabase ? 'id="userRow-' . $dbUser['id'] . '"' : '' ?>>
-                                                        <td class="bg-secondary">
-                                                            <?php if ($inDatabase) { ?>
-                                                                        <input class="form-control" type="text" id="globalSetting-userList-username-<?= $dbUser['id'] ?>" value="<?= htmlspecialchars($mergedUser['username'], ENT_QUOTES, 'UTF-8') ?>">
-                                                            <?php } else { ?>
-                                                                        <input class="form-control" type="text" value="<?= htmlspecialchars($mergedUser['username'], ENT_QUOTES, 'UTF-8') ?>" disabled>
-                                                            <?php } ?>
-                                                        </td>
-                                                        <td class="bg-secondary">
-                                                            <?php if ($inDatabase) { ?>
-                                                                        <input class="form-control" type="password" id="globalSetting-userList-password-<?= $dbUser['id'] ?>" placeholder="unchanged if blank">
-                                                            <?php } else { ?>
-                                                                        <input class="form-control" type="password" value="" placeholder="***" disabled>
-                                                            <?php } ?>
-                                                        </td>
-                                                        <td class="bg-secondary text-center">
-                                                            <?php if ($inDatabase) { ?>
-                                                                        <input class="form-check-input" type="checkbox" id="globalSetting-userList-active-<?= $dbUser['id'] ?>" <?= $dbUser['active'] ? 'checked' : '' ?>>
-                                                            <?php } else { ?>
-                                                                        —
-                                                            <?php } ?>
-                                                        </td>
-                                                        <td class="bg-secondary">
-                                                            <?php if ($inDatabase) { ?><span class="badge bg-primary me-1">Database</span><?php } ?>
-                                                            <?php if ($inLoginFile) { ?><span class="badge bg-secondary">File</span><?php } ?>
-                                                        </td>
-                                                        <td class="bg-secondary">
-                                                            <?php if ($inDatabase) { ?>
-                                                                        <i class="far fa-trash-alt text-warning" style="cursor: pointer;" title="Remove database user" onclick="removeUser('<?= $dbUser['id'] ?>')"></i>
-                                                            <?php } ?>
-                                                        </td>
-                                                    </tr>
-                                                    <?php
+                                    <option <?= $settingsTable['defaultPage'] == $defaultPage ? 'selected' : '' ?> value="<?= $defaultPage ?>"><?= ucfirst($defaultPage) ?></option><?php
                                 }
                                 ?>
-                                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-userList-username-new" placeholder="New username"></td>
-                                            <td class="bg-secondary"><input class="form-control" type="password" id="globalSetting-userList-password-new" placeholder="New password"></td>
-                                            <td class="bg-secondary text-center"><input class="form-check-input" type="checkbox" id="globalSetting-userList-active-new" checked></td>
-                                            <td class="bg-secondary"><span class="badge bg-primary">Database</span></td>
-                                            <td class="bg-secondary"></td>
-                                        </tr>
-                                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                            <td class="bg-secondary" colspan="5">
-                                                When at least one user is active or the login file has entries, the UI requires login.
-                                                File-only accounts are read-only here; edit <code><?= LOGIN_FILE ?></code> on the host to add, change, or remove them.
-                                            </td>
-                                        </tr>
-                                        <?php
-                            }
+                            </select>
+                        </td>
+                        <td class="bg-secondary">Which page should be loaded when <?= APP_NAME ?> first opens</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Usage metrics retention<sup>4</sup></td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-usageMetricsRetention">
+                                <option <?= $settingsTable['usageMetricsRetention'] == 0 ? 'selected' : '' ?> value="0">Off</option>
+                                <option <?= $settingsTable['usageMetricsRetention'] == 1 ? 'selected' : '' ?> value="1">Daily</option>
+                                <option <?= $settingsTable['usageMetricsRetention'] == 2 ? 'selected' : '' ?> value="2">Weekly</option>
+                                <option <?= $settingsTable['usageMetricsRetention'] == 3 ? 'selected' : '' ?> value="3">Monthly</option>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">Specify how long past usage metrics should be kept before being cleared.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="text-info">Users</h4>
+        <p class="text-muted small mb-3">No active users and an empty/missing login file will disable login auth.</p>
+        <input type="hidden" id="settings-hasLoginFile" value="<?= $hasLoginFile ? 1 : 0 ?>">
+        <input type="hidden" id="settings-databaseActiveUserCount" value="<?= $databaseActiveUserCount ?>">
+        <input type="hidden" id="settings-userManagement" value="<?= $_SESSION['activeServerId'] == APP_SERVER_ID ? 1 : 0 ?>">
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="25%">Username</th>
+                        <th class="bg-primary ps-3" scope="col" width="25%">Password</th>
+                        <th class="bg-primary ps-3" scope="col" width="10%">Active</th>
+                        <th class="bg-primary ps-3" scope="col" width="20%">Source</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="20%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if ($_SESSION['activeServerId'] != APP_SERVER_ID) {
+                        ?>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary" colspan="5">User management is only available on the local server.</td>
+                        </tr>
+                        <?php
+                    } else {
+                        foreach ($mergedUsers as $mergedUser) {
+                            $inDatabase  = !empty($mergedUser['database']);
+                            $inLoginFile = !empty($mergedUser['loginFile']);
+                            $dbUser      = $mergedUser['database'];
+                            $rowClass    = $inDatabase ? 'user-row' : 'login-file-user';
                             ?>
-                        </tbody>
-                    </table>
-                </div>
-                <h4 class="text-info">Login failures</h4>
-                <div class="table-responsive">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                                <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Allowed failures</td>
+                            <tr class="<?= $rowClass ?> border border-dark border-top-0 border-start-0 border-end-0" <?= $inDatabase ? 'id="userRow-' . $dbUser['id'] . '"' : '' ?>>
                                 <td class="bg-secondary">
-                                    <input class="form-control" type="text" id="globalSetting-loginFailures" value="<?= LOGIN_FAILURE_LIMIT ?>">
+                                    <?php if ($inDatabase) { ?>
+                                        <input class="form-control" type="text" id="globalSetting-userList-username-<?= $dbUser['id'] ?>" value="<?= htmlspecialchars($mergedUser['username'], ENT_QUOTES, 'UTF-8') ?>">
+                                    <?php } else { ?>
+                                        <input class="form-control" type="text" value="<?= htmlspecialchars($mergedUser['username'], ENT_QUOTES, 'UTF-8') ?>" disabled>
+                                    <?php } ?>
                                 </td>
-                                <td class="bg-secondary">How many failures before blocking logins</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Timeout length</t>
                                 <td class="bg-secondary">
-                                    <input class="form-control" type="number" id="globalSetting-loginTimeout" value="<?= LOGIN_FAILURE_TIMEOUT ?>">
-                                </td class="bg-secondary">
-                                <td class="bg-secondary">How long to block logins after the limit is reached (minutes)</td>
+                                    <?php if ($inDatabase) { ?>
+                                        <input class="form-control" type="password" id="globalSetting-userList-password-<?= $dbUser['id'] ?>" placeholder="unchanged if blank">
+                                    <?php } else { ?>
+                                        <input class="form-control" type="password" value="" placeholder="***" disabled>
+                                    <?php } ?>
+                                </td>
+                                <td class="bg-secondary text-center">
+                                    <?php if ($inDatabase) { ?>
+                                        <input class="form-check-input" type="checkbox" id="globalSetting-userList-active-<?= $dbUser['id'] ?>" <?= $dbUser['active'] ? 'checked' : '' ?>>
+                                    <?php } else { ?>
+                                        —
+                                    <?php } ?>
+                                </td>
+                                <td class="bg-secondary">
+                                    <?php if ($inDatabase) { ?><span class="badge bg-primary me-1">Database</span><?php } ?>
+                                    <?php if ($inLoginFile) { ?><span class="badge bg-secondary">File</span><?php } ?>
+                                </td>
+                                <td class="bg-secondary">
+                                    <?php if ($inDatabase) { ?>
+                                        <i class="far fa-trash-alt text-warning" style="cursor: pointer;" title="Remove database user" onclick="removeUser('<?= $dbUser['id'] ?>')"></i>
+                                    <?php } ?>
+                                </td>
                             </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h4 class="text-info"><?= APP_NAME ?> servers</h4>
-                <div class="table-responsive">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                                <th class="bg-primary ps-3" scope="col" width="30%">URL</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">API Key</th>
-                            </tr>
-                        </thead>
-                        <tbody>
                             <?php
-                            if ($_SESSION['activeServerId'] != APP_SERVER_ID) {
+                        }
+                        ?>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-userList-username-new" placeholder="New username"></td>
+                            <td class="bg-secondary"><input class="form-control" type="password" id="globalSetting-userList-password-new" placeholder="New password"></td>
+                            <td class="bg-secondary text-center"><input class="form-check-input" type="checkbox" id="globalSetting-userList-active-new" checked></td>
+                            <td class="bg-secondary"><span class="badge bg-primary">Database</span></td>
+                            <td class="bg-secondary"></td>
+                        </tr>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary" colspan="5">
+                                When at least one user is active or the login file has entries, the UI requires login.
+                                File-only accounts are read-only here; edit <code><?= LOGIN_FILE ?></code> on the host to add, change, or remove them.
+                            </td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="text-info">Login auth</h4>
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Allowed failures</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-loginFailures" value="<?= LOGIN_FAILURE_LIMIT ?>">
+                        </td>
+                        <td class="bg-secondary">How many failures before blocking logins</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Timeout length</t>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-loginTimeout" value="<?= LOGIN_FAILURE_TIMEOUT ?>">
+                        </td class="bg-secondary">
+                        <td class="bg-secondary">How long to block logins after the limit is reached (minutes)</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Whitelist</t>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-loginWhitelist" placeholder="192.168.178.0/24,172.28.0.0/16" value="<?= $settingsTable['loginWhitelist'] ?>">
+                        </td class="bg-secondary">
+                        <td class="bg-secondary">Comma-separated list of allowed IP subnets to ignore in intrusion notifications.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="text-info"><?= APP_NAME ?> servers</h4>
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">URL</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">API Key</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if ($_SESSION['activeServerId'] != APP_SERVER_ID) {
+                        ?>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary" colspan="3">Sorry, remote management of the server list is not allowed. Go to the <code><?= ACTIVE_SERVER_NAME ?></code> server to make those changes.</td>
+                        </tr>
+                        <?php
+                    } else {
+                        ?>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary" scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['name'] ?>"></td>
+                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['url'] ?>"></td>
+                            <td class="bg-secondary"><?= $serversTable[APP_SERVER_ID]['apikey'] ?><input type="hidden" id="globalSetting-serverList-apikey-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['apikey'] ?>"></td>
+                        </tr>
+                        <?php
+                        if (count($serversTable) > 1) {
+                            foreach ($serversTable as $serverSettings) {
+                                if ($serverSettings['id'] == APP_SERVER_ID) {
+                                    continue;
+                                }
                                 ?>
-                                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                            <td class="bg-secondary" colspan="3">Sorry, remote management of the server list is not allowed. Go to the <code><?= ACTIVE_SERVER_NAME ?></code> server to make those changes.</td>
-                                        </tr>
-                                        <?php
-                            } else {
-                                ?>
-                                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                            <td class="bg-secondary" scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['name'] ?>"></td>
-                                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['url'] ?>"></td>
-                                            <td class="bg-secondary"><?= $serversTable[APP_SERVER_ID]['apikey'] ?><input type="hidden" id="globalSetting-serverList-apikey-<?= APP_SERVER_ID ?>" value="<?= $serversTable[APP_SERVER_ID]['apikey'] ?>"></td>
-                                        </tr>
-                                        <?php
-                                        if (count($serversTable) > 1) {
-                                            foreach ($serversTable as $serverSettings) {
-                                                if ($serverSettings['id'] == APP_SERVER_ID) {
-                                                    continue;
-                                                }
-                                                ?>
-                                                                <tr id="remoteServer-<?= $serverSettings['id'] ?>">
-                                                                    <td class="bg-secondary" scope="row">
-                                                                        <i class="far fa-trash-alt text-warning d-inline-block" style="cursor: pointer;" title="Unlink remote server" onclick="unlinkRemoteServer('<?= $serverSettings['id'] ?>')"></i>
-                                                                        <input class="form-control d-inline-block" style="width: 90%;" type="text" id="globalSetting-serverList-name-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['name'] ?>">
-                                                                    </td>
-                                                                    <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['url'] ?>"></td>
-                                                                    <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-apikey-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['apikey'] ?>"></td>
-                                                                </tr>
-                                                                <?php
-                                            }
-                                        }
-                                        ?>
-                                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                            <td class="bg-secondary" scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-new" value="" placeholder="New server name"></t>
-                                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-new" value="" placeholder="New server url"></td>
-                                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-apikey-new" value="" placeholder="New server apikey"></td>
-                                        </tr>
-                                        <?php
+                                <tr id="remoteServer-<?= $serverSettings['id'] ?>">
+                                    <td class="bg-secondary" scope="row">
+                                        <i class="far fa-trash-alt text-warning d-inline-block" style="cursor: pointer;" title="Unlink remote server" onclick="unlinkRemoteServer('<?= $serverSettings['id'] ?>')"></i>
+                                        <input class="form-control d-inline-block" style="width: 90%;" type="text" id="globalSetting-serverList-name-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['name'] ?>">
+                                    </td>
+                                    <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['url'] ?>"></td>
+                                    <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-apikey-<?= $serverSettings['id'] ?>" value="<?= $serverSettings['apikey'] ?>"></td>
+                                </tr>
+                                <?php
                             }
-                            ?>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Timeout length</td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="number" id="globalSetting-remoteServerTimeout" value="<?= $settingsTable['remoteServerTimeout'] ?: DEFAULT_REMOTE_SERVER_TIMEOUT ?>">
-                                </td>
-                                <td class="bg-secondary">How long to wait for a remote server to respond, keep in mind 60-90 seconds will throw apache/nginx/cloudflare timeouts</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h4 class="text-info">Containers</h4>
-                <div class="table-responsive">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                                <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Updates<sup>1</sup></td>
-                                <td class="bg-secondary">
-                                    <select class="form-select d-inline-block w-50" id="globalSetting-updates">
-                                        <option <?= $settingsTable['updates'] == 0 ? 'selected' : '' ?> value="0">Ignore</option>
-                                        <option <?= $settingsTable['updates'] == 1 ? 'selected' : '' ?> value="1">Auto update</option>
-                                        <option <?= $settingsTable['updates'] == 2 ? 'selected' : '' ?> value="2">Check for updates</option>
-                                    </select>
-                                    <input type="text" class="form-control d-inline-block w-25" id="globalSetting-updatesFrequency" onclick="frequencyCronEditor(this.value, 'global', 'global')" value="<?= $settingsTable['updatesFrequency'] ?>"> <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
-                                </td>
-                                <td class="bg-secondary">What settings to use for new containers that are added</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Default GUI</td>
-                                <td class="bg-secondary">
-                                    <select class="form-select d-inline-block" id="globalSetting-containerGui">
-                                        <option <?= $settingsTable['containerGui'] == 1 ? 'selected' : '' ?> value="1"><?= LOCAL_GUI ?> (Ex: http://10.1.0.1:9999)</option>
-                                        <option <?= $settingsTable['containerGui'] == 2 ? 'selected' : '' ?> value="2"><?= RP_SUB_GUI ?> (Ex: https://dockwatch.your-domain.com)</option>
-                                        <option <?= $settingsTable['containerGui'] == 3 ? 'selected' : '' ?> value="3"><?= RP_DIR_GUI ?> (Ex: https://your-domain.com/dockwatch)</option>
-                                    </select>
-                                </td>
-                                <td class="bg-secondary">How to build the GUI link for containers. By default it will use the current URL and add the tcp port to the end <?= LOCAL_GUI ?>, example: <code><?= $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] ?>:9999</code>. An alternative would be <?= RP_DIR_GUI ?> or <?= RP_SUB_GUI ?> ({container} is the containers hostname), example: <code>https://dockwatch.mysite.com</code>. If you need to adjust a specific container you can do so in its settings.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h4 class="text-info">Security</h4>
-                <div class="table-responsive">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                                <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Enabled<sup>3,5</sup></td>
-                                <td class="bg-secondary">
-                                    <input class="form-check-input" type="checkbox" id="globalSetting-securityEnabled" <?= $settingsTable['securityEnabled'] ? 'checked' : '' ?>>
-                                </td>
-                                <td class="bg-secondary">Automatically scan for vulnerabilities in container images</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Scanner app</td>
-                                <td class="bg-secondary">
-                                    <select class="form-select" id="globalSetting-securityScanner">
-                                        <?php
-                                        $scanners = [
-                                            'trivy' => SecurityScanner::TRIVY_ID,
-                                            'grype' => SecurityScanner::GRYPE_ID,
-                                            'snyk'  => SecurityScanner::SNYK_ID,
-                                        ];
+                        }
+                        ?>
+                        <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                            <td class="bg-secondary" scope="row"><input class="form-control" type="text" id="globalSetting-serverList-name-new" value="" placeholder="New server name"></t>
+                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-url-new" value="" placeholder="New server url"></td>
+                            <td class="bg-secondary"><input class="form-control" type="text" id="globalSetting-serverList-apikey-new" value="" placeholder="New server apikey"></td>
+                        </tr>
+                        <?php
+                    }
+                    ?>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Timeout length</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-remoteServerTimeout" value="<?= $settingsTable['remoteServerTimeout'] ?: DEFAULT_REMOTE_SERVER_TIMEOUT ?>">
+                        </td>
+                        <td class="bg-secondary">How long to wait for a remote server to respond, keep in mind 60-90 seconds will throw apache/nginx/cloudflare timeouts</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="text-info">Containers</h4>
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Updates<sup>1</sup></td>
+                        <td class="bg-secondary">
+                            <select class="form-select d-inline-block w-50" id="globalSetting-updates">
+                                <option <?= $settingsTable['updates'] == 0 ? 'selected' : '' ?> value="0">Ignore</option>
+                                <option <?= $settingsTable['updates'] == 1 ? 'selected' : '' ?> value="1">Auto update</option>
+                                <option <?= $settingsTable['updates'] == 2 ? 'selected' : '' ?> value="2">Check for updates</option>
+                            </select>
+                            <input type="text" class="form-control d-inline-block w-25" id="globalSetting-updatesFrequency" onclick="frequencyCronEditor(this.value, 'global', 'global')" value="<?= $settingsTable['updatesFrequency'] ?>"> <i class="far fa-question-circle" style="cursor: pointer;" title="HELP!" onclick="containerFrequencyHelp()"></i>
+                        </td>
+                        <td class="bg-secondary">What settings to use for new containers that are added</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Default GUI</td>
+                        <td class="bg-secondary">
+                            <select class="form-select d-inline-block" id="globalSetting-containerGui">
+                                <option <?= $settingsTable['containerGui'] == 1 ? 'selected' : '' ?> value="1"><?= LOCAL_GUI ?> (Ex: http://10.1.0.1:9999)</option>
+                                <option <?= $settingsTable['containerGui'] == 2 ? 'selected' : '' ?> value="2"><?= RP_SUB_GUI ?> (Ex: https://dockwatch.your-domain.com)</option>
+                                <option <?= $settingsTable['containerGui'] == 3 ? 'selected' : '' ?> value="3"><?= RP_DIR_GUI ?> (Ex: https://your-domain.com/dockwatch)</option>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">How to build the GUI link for containers. By default it will use the current URL and add the tcp port to the end <?= LOCAL_GUI ?>, example: <code><?= $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] ?>:9999</code>. An alternative would be <?= RP_DIR_GUI ?> or <?= RP_SUB_GUI ?> ({container} is the containers hostname), example: <code>https://dockwatch.mysite.com</code>. If you need to adjust a specific container you can do so in its settings.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="text-info">Security</h4>
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Enabled<sup>3,5</sup></td>
+                        <td class="bg-secondary">
+                            <input class="form-check-input" type="checkbox" id="globalSetting-securityEnabled" <?= $settingsTable['securityEnabled'] ? 'checked' : '' ?>>
+                        </td>
+                        <td class="bg-secondary">Automatically scan for vulnerabilities in container images</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Scanner app</td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-securityScanner">
+                                <?php
+                                $scanners = [
+                                    'trivy' => SecurityScanner::TRIVY_ID,
+                                    'grype' => SecurityScanner::GRYPE_ID,
+                                    'snyk'  => SecurityScanner::SNYK_ID,
+                                ];
 
-                                        foreach ($scanners as $scanner => $id) {
-                                            ?>
-                                                    <option <?= $settingsTable['securityScanner'] == $id ? 'selected' : '' ?> value="<?= $id ?>"><?= ucfirst($scanner) ?></option><?php
+                                foreach ($scanners as $scanner => $id) {
+                                    ?>
+                                    <option <?= $settingsTable['securityScanner'] == $id ? 'selected' : '' ?> value="<?= $id ?>"><?= ucfirst($scanner) ?></option><?php
+                                }
+                                ?>
+                                <script>
+                                    $('#globalSetting-securityScanner').on('change', function () {
+                                        if (this.value == '<?= SecurityScanner::SNYK_ID ?>') {
+                                            $('#globalSetting-securitySnykAPIKey').attr('readonly', false);
+                                        } else {
+                                            $('#globalSetting-securitySnykAPIKey').attr('readonly', true);
                                         }
-                                        ?>
-                                        <script>
-                                            $('#globalSetting-securityScanner').on('change', function () {
-                                                if (this.value == '<?= SecurityScanner::SNYK_ID ?>') {
-                                                    $('#globalSetting-securitySnykAPIKey').attr('readonly', false);
-                                                } else {
-                                                    $('#globalSetting-securitySnykAPIKey').attr('readonly', true);
-                                                }
-                                            });
-                                        </script>
-                                    </select>
-                                </td>
-                                <td class="bg-secondary">
-                                    Which scanner app should be used to scan containers for vulnerabilities
-                                    <ul style="padding: 0 18px;">
-                                        <li>Grype and Trivy are both free open-source apps</li>
-                                        <li>Snyk requires a (free) <a href="https://app.snyk.io" target="_blank">account</a> API key to work</li>
-                                    </ul>
-                                </td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0" id="snyk-api-key">
-                                <td class="bg-secondary" scope="row">Snyk API key</td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="password" id="globalSetting-securitySnykAPIKey" value="<?= $settingsTable['securitySnykAPIKey'] ?>" <?= $settingsTable['securityScanner'] == SecurityScanner::SNYK_ID ? '' : 'readonly' ?> placeholder="Snyk API key...">
-                                </td>
-                                <td class="bg-secondary">Required API key for Snyk CLI to function. You can generate one <a href="https://app.snyk.io/account/personal-access-tokens" target="_blank">here</a>.</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Hour</td>
-                                <td class="bg-secondary">
-                                    <select class="form-select" id="globalSetting-securityScanHour">
-                                        <?php
-                                        $option = '';
-                                        for ($x = 0; $x <= 23; $x++) {
-                                            $option .= '<option ' . ($x == intval($settingsTable['securityScanHour']) || !$settingsTable['securityScanHour'] && $x == 12 ? 'selected' : '') . ' value="' . $x . '">' . $x . '</option>';
-                                        }
-                                        echo $option;
-                                        ?>
-                                    </select>
-                                </td>
-                                <td class="bg-secondary">At which hour security should run (0-23)</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Scan retention</td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="number" id="globalSetting-securityScanLength" value="<?= $settingsTable['securityScanLength'] <= 2 ? 2 : $settingsTable['securityScanLength'] ?>">
-                                </td>
-                                <td class="bg-secondary">How long to store past scan files (min 2 days)</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Skip stopped containers</td>
-                                <td class="bg-secondary">
-                                    <input class="form-check-input" type="checkbox" id="globalSetting-securitySkipStopped" <?= $settingsTable['securitySkipStopped'] ? 'checked' : '' ?>>
-                                </td>
-                                <td class="bg-secondary">Do not automatically scan containers that are currently inactive</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h4 class="text-info">Auto prune</h4>
-                <div class="table-responsive">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                                <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Orphan images</td>
-                                <td class="bg-secondary">
-                                    <input class="form-check-input" type="checkbox" id="globalSetting-autoPruneImages" <?= $settingsTable['autoPruneImages'] ? 'checked' : '' ?>>
-                                </td>
-                                <td class="bg-secondary">Automatically try to prune all orphan images daily</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Orphan volumes</t>
-                                <td class="bg-secondary">
-                                    <input class="form-check-input" type="checkbox" id="globalSetting-autoPruneVolumes" <?= $settingsTable['autoPruneVolumes'] ? 'checked' : '' ?>>
-                                </td>
-                                <td class="bg-secondary">Automatically try to prune all orphan volumes daily</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Orphan networks</td>
-                                <td class="bg-secondary">
-                                    <input class="form-check-input" type="checkbox" id="globalSetting-autoPruneNetworks" <?= $settingsTable['autoPruneNetworks'] ? 'checked' : '' ?>>
-                                </td>
-                                <td class="bg-secondary">Automatically try to prune all orphan networks daily</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Hour</td>
-                                <td class="bg-secondary">
-                                    <select class="form-select" id="globalSetting-autoPruneHour">
-                                        <?php
-                                        $option = '';
-                                        for ($x = 0; $x <= 23; $x++) {
-                                            $option .= '<option ' . ($x == intval($settingsTable['autoPruneHour']) || !$settingsTable['autoPruneHour'] && $x == 12 ? 'selected' : '') . ' value="' . $x . '">' . $x . '</option>';
-                                        }
-                                        echo $option;
-                                        ?>
-                                    </select>
-                                </td>
-                                <td class="bg-secondary">At which hour the auto prune should run (0-23)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h4 class="mt-3 text-info">Thresholds</h4>
-                <div class="table-responsive">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                                <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">CPU<sup>1</sup></t>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="number" id="globalSetting-cpuThreshold" value="<?= $settingsTable['cpuThreshold'] ?>">
-                                </td>
-                                <td class="bg-secondary">If a container usage is above this number, send a notification (if notification is enabled)</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">CPUs</td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="number" id="globalSetting-cpuAmount" value="<?= $settingsTable['cpuAmount'] ?>">
-                                </td>
-                                <td class="bg-secondary">Detected count: <?= $cpus ?></td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Memory<sup>1</sup></td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="number" id="globalSetting-memThreshold" value="<?= $settingsTable['memThreshold'] ?>">
-                                </td>
-                                <td class="bg-secondary">If a container usage is above this number, send a notification (if notification is enabled)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h4 class="mt-3 text-info">SSE</h4>
-                <div class="table-responsive mt-2">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                                <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Enabled<sup>2,3</sup></td>
-                                <td class="bg-secondary">
-                                    <input class="form-check-input" type="checkbox" id="globalSetting-sseEnabled" <?= $settingsTable['sseEnabled'] ? 'checked' : '' ?>>
-                                </td>
-                                <td class="bg-secondary">SSE will update the container list UI every minute with current status of Updates, State, Health, CPU and Memory</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h4 class="mt-3 text-info">Logging</h4>
-                <div class="table-responsive">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                                <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Log level</td>
-                                <td class="bg-secondary">
-                                    <select class="form-select" id="globalSetting-logLevel">
-                                        <option value="<?= LOG_LEVEL_INFO ?>" <?= !$settingsTable['logLevel'] || $settingsTable['logLevel'] == LOG_LEVEL_INFO ? 'selected' : '' ?>>Info</option>
-                                        <option value="<?= LOG_LEVEL_DEBUG ?>" <?= $settingsTable['logLevel'] == LOG_LEVEL_DEBUG ? 'selected' : '' ?>>Debug</option>
-                                    </select>
-                                </td>
-                                <td class="bg-secondary">Debug includes full JSON payloads (Docker inspects, state snapshots, etc.)</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Crons</td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="number" id="globalSetting-cronLogLength" value="<?= $settingsTable['cronLogLength'] <= 1 ? 1 : $settingsTable['cronLogLength'] ?>">
-                                </td>
-                                <td class="bg-secondary">How long to store cron run log files (min 1 day)</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Notifications</td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="number" id="globalSetting-notificationLogLength" value="<?= $settingsTable['notificationLogLength'] <= 1 ? 1 : $settingsTable['notificationLogLength'] ?>">
-                                </td>
-                                <td class="bg-secondary">How long to store logs generated when notifications are sent (min 1 day)</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">UI</td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="number" id="globalSetting-uiLogLength" value="<?= $settingsTable['uiLogLength'] <= 1 ? 1 : $settingsTable['uiLogLength'] ?>">
-                                </td>
-                                <td class="bg-secondary">How long to store logs generated from using the UI (min 1 day)</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">API</td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="number" id="globalSetting-apiLogLength" value="<?= $settingsTable['apiLogLength'] <= 1 ? 1 : $settingsTable['apiLogLength'] ?>">
-                                </td>
-                                <td class="bg-secondary">How long to store logs generated when api requests are made (min 1 day)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <h4 class="mt-3"><i class="far fa-plus-square text-light development-settings" onclick="$('.development-settings').toggle()"></i> <i class="far fa-minus-square text-light development-settings" onclick="$('.development-settings').toggle()" style="display: none;"></i> <span class="text-info">Development</span></h4>
-                <div class="table-responsive development-settings" style="display: none;">
-                    <table class="table table-sm table-no-squish">
-                        <thead>
-                            <tr>
-                                <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                                <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                                <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Migration</td>
-                                <td class="bg-secondary">
-                                    <div class="d-flex gap-2 align-items-center">
-                                        <select class="form-select" id="globalSetting-migration"><?= $migrations ?></select>
-                                        <button type="button" class="btn btn-outline-warning btn-sm text-nowrap" onclick="freshStartMigration()">Fresh Start <sup>5</sup></button>
-                                    </div>
-                                </td>
-                                <td class="bg-secondary">The database migration this server is on, changing this will re-apply all subsequent migrations and reset any settings they alter.</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Database</td>
-                                <td class="bg-secondary">
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <button type="button" class="btn btn-sm btn-info" onclick="initPage('database')">Browse</button>
-                                        <button type="button" class="btn btn-sm btn-success" onclick="backupDatabase()">Backup</button>
-                                    </div>
-                                </td>
-                                <td class="bg-secondary">Browse/backup the <?= APP_NAME ?> database. Backup runs a compressed mariadb-dump into <code><?= BACKUP_PATH ?></code>.</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Containers clean up</td>
-                                <td class="bg-secondary"><button class="btn btn-sm btn-warning" onclick="cleanupContainers()">Clean</button></td>
-                                <td class="bg-secondary">Remove all containers from the database that no longer exist in Docker. Use with caution.</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">State cron time</td>
-                                <td class="bg-secondary">
-                                    <select class="form-select" id="globalSetting-stateCronTime">
-                                        <option <?= $settingsTable['stateCronTime'] == 1 ? 'selected' : '' ?> value="1">1m</option>
-                                        <option <?= $settingsTable['stateCronTime'] == 2 ? 'selected' : '' ?> value="2">2m</option>
-                                        <option <?= $settingsTable['stateCronTime'] == 3 ? 'selected' : '' ?> value="3">3m</option>
-                                        <option <?= $settingsTable['stateCronTime'] == 4 ? 'selected' : '' ?> value="4">4m</option>
-                                        <option <?= $settingsTable['stateCronTime'] == 5 ? 'selected' : '' ?> value="5">5m</option>
-                                    </select>
-                                </td>
-                                <td class="bg-secondary">This can impact performance on your server so keep that in mind!</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Override blacklist</td>
-                                <td class="bg-secondary"><input class="form-check-input" type="checkbox" id="globalSetting-overrideBlacklist" <?= $settingsTable['overrideBlacklist'] ? 'checked' : '' ?>></td>
-                                <td class="bg-secondary">Allow manual updates of network containers (nginx, caddy, cloudflared, etc.) that are typically skipped. It's generally not recommended to enable this override.</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Debug zip</td>
-                                <td class="bg-secondary">
-                                    <input class="form-check-input" type="checkbox" id="globalSetting-debugZipDatabase"> <label for="globalSetting-debugZipDatabase">Database</label>
-                                    <input class="form-check-input" type="checkbox" id="globalSetting-debugZipLogs"> <label for="globalSetting-debugZipLogs">Logs</label>
-                                    <input class="form-check-input" type="checkbox" id="globalSetting-debugZipJson"> <label for="globalSetting-debugZipJson">json</label>
-                                </td>
-                                <td class="bg-secondary">This does not save but triggers a zip file to be created (<code><?= APP_DATA_PATH . 'dockwatch.zip' ?></code>) when clicking save. Should only be needed when asked for by developers and includes (based on selection) database/*, logs/crons/*, logs/api/*, logs/system/*, settings, state, pull, health, stats & dependency json files</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Telemetry</td>
-                                <td class="bg-secondary"><input class="form-check-input" type="checkbox" id="globalSetting-telemetry" <?= $settingsTable['telemetry'] ? 'checked' : '' ?>></td>
-                                <td class="bg-secondary">Allow telemetry information to be collected. There is nothing personal or identifiable and what is sent can be seen in the Tasks menu or <a href="https://github.com/Notifiarr/dockwatch/blob/develop/root/app/www/public/functions/telemetry.php" target="_blank">here on github</a></td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">Maintenance port</td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="text" id="globalSetting-maintenancePort" value="<?= $settingsTable['maintenancePort'] ?: APP_MAINTENANCE_PORT ?>">
-                                </td>
-                                <td class="bg-secondary">This port is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this port and after it has updated/restarted Dockwatch it will be removed.</td>
-                            </tr>
-                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                                <td class="bg-secondary" scope="row">WebSocket port<sup>5</sup></td>
-                                <td class="bg-secondary">
-                                    <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT ?>">
-                                </td>
-                                <td class="bg-secondary">Best to leave default at <code>9910</code>. You only need to change this if you wish to route this through a different RP. <br>By changing the port, the internal RP will be disabled.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div align="center"><button type="button" class="btn btn-success m-2" onclick="saveGlobalSettings()">Save Changes</button></div>
-                <sup>1</sup> Checked every 5 minutes<br>
-                <sup>2</sup> Updates every minute<br>
-                <sup>3</sup> Requires a page reload<br>
-                <sup>4</sup> Only for Network IO and Disk Usage<br>
-                <sup>5</sup> Requires a container restart
-            </div>
-            <?php
+                                    });
+                                </script>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">
+                            Which scanner app should be used to scan containers for vulnerabilities
+                            <ul style="padding: 0 18px;">
+                                <li>Grype and Trivy are both free open-source apps</li>
+                                <li>Snyk requires a (free) <a href="https://app.snyk.io" target="_blank">account</a> API key to work</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0" id="snyk-api-key">
+                        <td class="bg-secondary" scope="row">Snyk API key</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="password" id="globalSetting-securitySnykAPIKey" value="<?= $settingsTable['securitySnykAPIKey'] ?>" <?= $settingsTable['securityScanner'] == SecurityScanner::SNYK_ID ? '' : 'readonly' ?> placeholder="Snyk API key...">
+                        </td>
+                        <td class="bg-secondary">Required API key for Snyk CLI to function. You can generate one <a href="https://app.snyk.io/account/personal-access-tokens" target="_blank">here</a>.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Hour</td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-securityScanHour">
+                                <?php
+                                $option = '';
+                                for ($x = 0; $x <= 23; $x++) {
+                                    $option .= '<option ' . ($x == intval($settingsTable['securityScanHour']) || !$settingsTable['securityScanHour'] && $x == 12 ? 'selected' : '') . ' value="' . $x . '">' . $x . '</option>';
+                                }
+                                echo $option;
+                                ?>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">At which hour security should run (0-23)</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Scan retention</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-securityScanLength" value="<?= $settingsTable['securityScanLength'] <= 2 ? 2 : $settingsTable['securityScanLength'] ?>">
+                        </td>
+                        <td class="bg-secondary">How long to store past scan files (min 2 days)</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Skip stopped containers</td>
+                        <td class="bg-secondary">
+                            <input class="form-check-input" type="checkbox" id="globalSetting-securitySkipStopped" <?= $settingsTable['securitySkipStopped'] ? 'checked' : '' ?>>
+                        </td>
+                        <td class="bg-secondary">Do not automatically scan containers that are currently inactive</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="text-info">Auto prune</h4>
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Orphan images</td>
+                        <td class="bg-secondary">
+                            <input class="form-check-input" type="checkbox" id="globalSetting-autoPruneImages" <?= $settingsTable['autoPruneImages'] ? 'checked' : '' ?>>
+                        </td>
+                        <td class="bg-secondary">Automatically try to prune all orphan images daily</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Orphan volumes</t>
+                        <td class="bg-secondary">
+                            <input class="form-check-input" type="checkbox" id="globalSetting-autoPruneVolumes" <?= $settingsTable['autoPruneVolumes'] ? 'checked' : '' ?>>
+                        </td>
+                        <td class="bg-secondary">Automatically try to prune all orphan volumes daily</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Orphan networks</td>
+                        <td class="bg-secondary">
+                            <input class="form-check-input" type="checkbox" id="globalSetting-autoPruneNetworks" <?= $settingsTable['autoPruneNetworks'] ? 'checked' : '' ?>>
+                        </td>
+                        <td class="bg-secondary">Automatically try to prune all orphan networks daily</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Hour</td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-autoPruneHour">
+                                <?php
+                                $option = '';
+                                for ($x = 0; $x <= 23; $x++) {
+                                    $option .= '<option ' . ($x == intval($settingsTable['autoPruneHour']) || !$settingsTable['autoPruneHour'] && $x == 12 ? 'selected' : '') . ' value="' . $x . '">' . $x . '</option>';
+                                }
+                                echo $option;
+                                ?>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">At which hour the auto prune should run (0-23)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="mt-3 text-info">Thresholds</h4>
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">CPU<sup>1</sup></t>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-cpuThreshold" value="<?= $settingsTable['cpuThreshold'] ?>">
+                        </td>
+                        <td class="bg-secondary">If a container usage is above this number, send a notification (if notification is enabled)</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">CPUs</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-cpuAmount" value="<?= $settingsTable['cpuAmount'] ?>">
+                        </td>
+                        <td class="bg-secondary">Detected count: <?= $cpus ?></td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Memory<sup>1</sup></td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-memThreshold" value="<?= $settingsTable['memThreshold'] ?>">
+                        </td>
+                        <td class="bg-secondary">If a container usage is above this number, send a notification (if notification is enabled)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="mt-3 text-info">SSE</h4>
+        <div class="table-responsive mt-2">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Enabled<sup>2,3</sup></td>
+                        <td class="bg-secondary">
+                            <input class="form-check-input" type="checkbox" id="globalSetting-sseEnabled" <?= $settingsTable['sseEnabled'] ? 'checked' : '' ?>>
+                        </td>
+                        <td class="bg-secondary">SSE will update the container list UI every minute with current status of Updates, State, Health, CPU and Memory</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="mt-3 text-info">Logging</h4>
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Log level</td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-logLevel">
+                                <option value="<?= LOG_LEVEL_INFO ?>" <?= !$settingsTable['logLevel'] || $settingsTable['logLevel'] == LOG_LEVEL_INFO ? 'selected' : '' ?>>Info</option>
+                                <option value="<?= LOG_LEVEL_DEBUG ?>" <?= $settingsTable['logLevel'] == LOG_LEVEL_DEBUG ? 'selected' : '' ?>>Debug</option>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">Debug includes full JSON payloads (Docker inspects, state snapshots, etc.)</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Crons</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-cronLogLength" value="<?= $settingsTable['cronLogLength'] <= 1 ? 1 : $settingsTable['cronLogLength'] ?>">
+                        </td>
+                        <td class="bg-secondary">How long to store cron run log files (min 1 day)</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Notifications</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-notificationLogLength" value="<?= $settingsTable['notificationLogLength'] <= 1 ? 1 : $settingsTable['notificationLogLength'] ?>">
+                        </td>
+                        <td class="bg-secondary">How long to store logs generated when notifications are sent (min 1 day)</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">UI</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-uiLogLength" value="<?= $settingsTable['uiLogLength'] <= 1 ? 1 : $settingsTable['uiLogLength'] ?>">
+                        </td>
+                        <td class="bg-secondary">How long to store logs generated from using the UI (min 1 day)</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">API</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-apiLogLength" value="<?= $settingsTable['apiLogLength'] <= 1 ? 1 : $settingsTable['apiLogLength'] ?>">
+                        </td>
+                        <td class="bg-secondary">How long to store logs generated when api requests are made (min 1 day)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <h4 class="mt-3"><i class="far fa-plus-square text-light development-settings" onclick="$('.development-settings').toggle()"></i> <i class="far fa-minus-square text-light development-settings" onclick="$('.development-settings').toggle()" style="display: none;"></i> <span class="text-info">Development</span></h4>
+        <div class="table-responsive development-settings" style="display: none;">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Migration</td>
+                        <td class="bg-secondary">
+                            <div class="d-flex gap-2 align-items-center">
+                                <select class="form-select" id="globalSetting-migration"><?= $migrations ?></select>
+                                <button type="button" class="btn btn-outline-warning btn-sm text-nowrap" onclick="freshStartMigration()">Fresh Start <sup>5</sup></button>
+                            </div>
+                        </td>
+                        <td class="bg-secondary">The database migration this server is on, changing this will re-apply all subsequent migrations and reset any settings they alter.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Database</td>
+                        <td class="bg-secondary">
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" class="btn btn-sm btn-info" onclick="initPage('database')">Browse</button>
+                                <button type="button" class="btn btn-sm btn-success" onclick="backupDatabase()">Backup</button>
+                            </div>
+                        </td>
+                        <td class="bg-secondary">Browse/backup the <?= APP_NAME ?> database. Backup runs a compressed mariadb-dump into <code><?= BACKUP_PATH ?></code>.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Containers clean up</td>
+                        <td class="bg-secondary"><button class="btn btn-sm btn-warning" onclick="cleanupContainers()">Clean</button></td>
+                        <td class="bg-secondary">Remove all containers from the database that no longer exist in Docker. Use with caution.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">State cron time</td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-stateCronTime">
+                                <option <?= $settingsTable['stateCronTime'] == 1 ? 'selected' : '' ?> value="1">1m</option>
+                                <option <?= $settingsTable['stateCronTime'] == 2 ? 'selected' : '' ?> value="2">2m</option>
+                                <option <?= $settingsTable['stateCronTime'] == 3 ? 'selected' : '' ?> value="3">3m</option>
+                                <option <?= $settingsTable['stateCronTime'] == 4 ? 'selected' : '' ?> value="4">4m</option>
+                                <option <?= $settingsTable['stateCronTime'] == 5 ? 'selected' : '' ?> value="5">5m</option>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">This can impact performance on your server so keep that in mind!</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Override blacklist</td>
+                        <td class="bg-secondary"><input class="form-check-input" type="checkbox" id="globalSetting-overrideBlacklist" <?= $settingsTable['overrideBlacklist'] ? 'checked' : '' ?>></td>
+                        <td class="bg-secondary">Allow manual updates of network containers (nginx, caddy, cloudflared, etc.) that are typically skipped. It's generally not recommended to enable this override.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Debug zip</td>
+                        <td class="bg-secondary">
+                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipDatabase"> <label for="globalSetting-debugZipDatabase">Database</label>
+                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipLogs"> <label for="globalSetting-debugZipLogs">Logs</label>
+                            <input class="form-check-input" type="checkbox" id="globalSetting-debugZipJson"> <label for="globalSetting-debugZipJson">json</label>
+                        </td>
+                        <td class="bg-secondary">This does not save but triggers a zip file to be created (<code><?= APP_DATA_PATH . 'dockwatch.zip' ?></code>) when clicking save. Should only be needed when asked for by developers and includes (based on selection) database/*, logs/crons/*, logs/api/*, logs/system/*, settings, state, pull, health, stats & dependency json files</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Telemetry</td>
+                        <td class="bg-secondary"><input class="form-check-input" type="checkbox" id="globalSetting-telemetry" <?= $settingsTable['telemetry'] ? 'checked' : '' ?>></td>
+                        <td class="bg-secondary">Allow telemetry information to be collected. There is nothing personal or identifiable and what is sent can be seen in the Tasks menu or <a href="https://github.com/Notifiarr/dockwatch/blob/develop/root/app/www/public/functions/telemetry.php" target="_blank">here on github</a></td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Maintenance port</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-maintenancePort" value="<?= $settingsTable['maintenancePort'] ?: APP_MAINTENANCE_PORT ?>">
+                        </td>
+                        <td class="bg-secondary">This port is used to do updates/restarts for Dockwatch. It will create another container <code>dockwatch-maintenance</code> with this port and after it has updated/restarted Dockwatch it will be removed.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">WebSocket port<sup>5</sup></td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-websocketPort" value="<?= $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT ?>">
+                        </td>
+                        <td class="bg-secondary">Best to leave default at <code>9910</code>. You only need to change this if you wish to route this through a different RP. <br>By changing the port, the internal RP will be disabled.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div align="center"><button type="button" class="btn btn-success m-2" onclick="saveGlobalSettings()">Save Changes</button></div>
+        <sup>1</sup> Checked every 5 minutes<br>
+        <sup>2</sup> Updates every minute<br>
+        <sup>3</sup> Requires a page reload<br>
+        <sup>4</sup> Only for Network IO and Disk Usage<br>
+        <sup>5</sup> Requires a container restart
+    </div>
+    <?php
 }
 
 if ($_POST['m'] == 'saveGlobalSettings') {
@@ -728,6 +738,26 @@ if ($_POST['m'] == 'saveGlobalSettings') {
     } else {
         if (preg_match('#^/[\w-]*$#', $baseUrl) && $baseUrl !== '/') {
             file_put_contents(BASE_URL_FILE, $baseUrl);
+        }
+    }
+
+    //-- SUBNET VALIDATION
+    if (!empty($_POST['loginWhitelist'])) {
+        $ipandmask = explode(',', $_POST['loginWhitelist']) ?: [];
+        if (count($ipandmask) > 0) {
+            foreach ($ipandmask as $ipmask) {
+                $ipmask = trim($ipmask);
+                try {
+                    if (str_contains($ipmask, '/')) {
+                        Ip\Subnet::parse($ipmask);
+                    } else {
+                        Ip\Address::parse($ipmask);
+                    }
+                } catch (\InvalidArgumentException $e) {
+                    echo json_encode(['error' => $ipmask . ' is not a valid ip or subnet']);
+                    exit;
+                }
+            }
         }
     }
 

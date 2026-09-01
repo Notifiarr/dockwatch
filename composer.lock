@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3740db2d0ad987ad3ef48706ed4ac073",
+    "content-hash": "920b5f32e9f88628db7d01d3168b325c",
     "packages": [
         {
             "name": "cboden/ratchet",
@@ -68,6 +68,54 @@
                 "source": "https://github.com/ratchetphp/Ratchet/tree/v0.4.4"
             },
             "time": "2021-12-14T00:20:41+00:00"
+        },
+        {
+            "name": "chialab/ip",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/chialab/php-ip.git",
+                "reference": "0cc9d037b4eca2a6bb0f32529e2df64cf9bcc31c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/chialab/php-ip/zipball/0cc9d037b4eca2a6bb0f32529e2df64cf9bcc31c",
+                "reference": "0cc9d037b4eca2a6bb0f32529e2df64cf9bcc31c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">= 7.4"
+            },
+            "require-dev": {
+                "cakephp/cakephp-codesniffer": "^4.5",
+                "phpstan/extension-installer": "^1.1",
+                "phpstan/phpstan": "^1.7",
+                "phpstan/phpstan-phpunit": "^1.1",
+                "phpstan/phpstan-webmozart-assert": "^1.2",
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Chialab\\Ip\\": "./src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Chialab srl",
+                    "email": "dev@chialab.io"
+                }
+            ],
+            "description": "Minimal library to manage IP addresses, subnets, netmasks, etc.",
+            "support": {
+                "issues": "https://github.com/chialab/php-ip/issues",
+                "source": "https://github.com/chialab/php-ip/tree/v1.0.0"
+            },
+            "time": "2022-11-21T13:15:32+00:00"
         },
         {
             "name": "evenement/evenement",
