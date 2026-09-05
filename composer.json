@@ -6,7 +6,7 @@
     "require": {
         "php": "^8.4",
         "cboden/ratchet": "^0.4.4",
-        "symfony/yaml": "^7.0",
+        "symfony/yaml": "^8.0",
         "chialab/ip": "^1.0"
     }
 }
