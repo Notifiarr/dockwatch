@@ -1,53 +1,62 @@
 # Project Overview
 
-This project, Dockwatch, is a PHP-based web application that provides a user interface for managing Docker containers. It allows users to monitor container status, manage updates, and receive notifications. The application runs in a Docker container and is designed to be self-hosted.
+Dockwatch is a self-hosted, PHP-based web application for managing Docker containers: monitor status, manage updates, run actions, open shells, and manage Docker Compose stacks. It ships as the `ghcr.io/notifiarr/dockwatch` image (MIT) and runs inside an Alpine/Nginx container, talking to the Docker engine over the engine API.
 
 ## Architecture
 
-The application follows a traditional web server architecture:
+- **Web Server:** Nginx + PHP-FPM (php ^8.4, built on `linuxserver/baseimage-alpine-nginx:3.23`) serves the UI from `root/app/www/public`.
 
-- **Web Server:** Nginx is used as the web server to serve the PHP application.
-- **Application Logic:** The core application logic is written in PHP. It uses the `cboden/ratchet` library for WebSocket communication.
-- **Backend Services:** The application relies on several backend services and tools:
-    - **Docker:** The application interacts with the Docker daemon to manage containers.
-    - **`regctl`:** This tool is used for container digest checks.
-    - **`yq`:** This tool is used for YAML processing.
-    - **Memcached:** This is used for caching.
-- **Cron Jobs:** A series of cron jobs are used to automate tasks such as pulling images, checking container health, and collecting stats.
+- **WebSocket daemon:** `websocket.php` boots a long-running Ratchet server (`classes/WebSocket.php` + traits in `classes/traits/WebSocket/`) on port 9910 (overridable in settings). Connections are fanned out into **channels** selected by `?type=` (currently `shell` and `compose`), each authorized with one-time memcached-backed tokens and the `dockwatch-ws` sub-protocol. Traits:
+  - `Server.php` — handshake, channel creation, message lifecycle
+  - `Auth.php` — memcached token issue/verify/revoke
+  - `Messages.php` — action routing (`resize`, `compose`)
+  - `Process.php` — streams external commands, retains full output via `buffer` + `onComplete` hook
+  - `Shell.php` — `docker exec` TTY streams (xterm.js UI)
+  - `Compose.php` — streams compose commands; generates compose with `docker-autocompose`
+  - `DockerSocket.php` — raw HTTP request/response to the Docker engine API (incl. exec)
+
+- **Docker access:** HTTP against the engine API via `DOCKER_HOST` (defaults to the unix socket). The dev stack runs `tecnativa/docker-socket-proxy` and sets `DOCKER_HOST=tcp://socket-proxy:2375`. Streaming `docker exec` TTYs through the proxy requires the client to send `Upgrade: tcp` on `POST /exec/{id}/start` or stdin writes are dropped.
+
+- **Compose management:** stacks live under `/config/compose/{name}/docker-compose.yml`. Add/modify/save in an Ace editor; validation is Symfony `Yaml::parse` (fast syntax) then `docker compose -f <tmp> config` (exit-code based, authoritative), committed via atomic rename. Generate a compose from running containers (mass-trigger modal) with `ghcr.io/red5d/docker-autocompose` streamed over the compose channel.
+
+- **Command execution:** in transition to WebSockets. Container actions (start/stop/restart/pull/remove/...), compose logs/ps, and most UI commands still run through ajax; compose `up/down/pull/stop/restart` and compose generation already stream over the compose websocket channel, and a `docker exec` TTY streams over the shell channel. The remaining ajax commands are planned to be migrated to websocket channels in the UI.
+
+- **Backend services/tools:** Docker engine, `regctl` (digest checks), Memcached (cache + websocket tokens), MariaDB, security scanners grype/snyk/trivy (downloaded on demand), notification platforms.
+
+- **Cron jobs:** defined in `root/etc/crontabs/abc` — `sse`, `stats`, `commands`, `state`, `pulls`, `housekeeper`, `health`, `prune`, `security` — started via s6-overlay.
+
+- **Database:** MariaDB (bundled `mariadb` package, runs in-container) via `mysqli`, host `localhost`. Migrations under `root/app/www/public/migrations/` are applied by the app (`023_mysql_conversion.php` moved the project off SQLite). Logs under `/config/logs/`, settings/state JSON under `/config`.
 
 ## Building and Running
 
-The project is designed to be built and run using Docker.
-
-### Building the Image
-
-To build the Docker image, run the following command from the project root:
-
-```bash
-sh docker/build.sh
-```
-
-This will build the image and tag it as `ghcr.io/notifiarr/dockwatch:local`.
-
-### Running the Application
-
-To run the application, you can use the provided `docker-compose.yml` file:
-
-```bash
-docker-compose -f docker/compose.yml up -d
-```
-
-This will start the Dockwatch application on port 10000.
+- **Build:** `sh docker/build.sh` (tags `ghcr.io/notifiarr/dockwatch:local`; `-t <tag>` for a custom tag, `-v vX.Y.Z` generates a changelog).
+- **Run (dev):** `docker compose -f docker/compose.yml up -d` on port 10000. The dev stack hot-mounts `root/app/www/public` and `.data/dockwatch/config`, and connects to Docker through the socket-proxy service.
 
 ## Development Conventions
 
-- **Dependency Management:** PHP dependencies are managed with Composer.
-- **Docker:** The application is containerized using Docker. The `Dockerfile` is located in the `docker` directory.
-- **Development Environment:** The `docker-compose.yml` file in the `docker` directory is configured for development, with the local application code mounted into the container.
-- **Cron Jobs:** Scheduled tasks are managed with cron jobs, defined in `root/etc/crontabs/abc`.
-- **Database:** The application uses a SQLite database, and migrations are handled by the application itself.
+- **Dependencies (Composer):** `cboden/ratchet`, `symfony/yaml ^7.0`, `chialab/ip`; PHP ^8.4.
+- **Compose validation:** Symfony `Yaml::parse` (fast syntax gate) + `docker compose -f <tmp> config` (exit-code based, authoritative), committed via atomic rename (`composeValidateAndWrite` in `ajax/compose.php`).
+- **Path safety:** compose dirs are always normalized via `basename()`/strict regex; websocket stack names must match `^[A-Za-z0-9_\-.]+$`.
+- **Config/state:** MariaDB + migrations, JSON files under `/config`, memcached-backed one-time tokens for websocket channels.
 
 ## Code Style and Linting
 
-- **PHP:** Use [DEVSENSE](https://www.devsense.com) for linting and formatting. The PSR-12 coding style is enforced.
-- **JavaScript:** Use [ESLint](https://eslint.org) for linting and formatting.
+- **PHP:** [DEVSENSE](https://www.devsense.com), PSR-12, PHP ^8.4.
+- **PHP (anti-patterns):** never use the `@` error-suppression operator before functions (`@file_put_contents`, `@unlink`, `@mkdir`, ...). Handle failures explicitly: check the return value and return/propagate an error message. Avoid PHP code smells generally — no dead/unreachable code, no redundant or duplicated branches, no implicit type juggling, and never silently swallow exceptions.
+- **JavaScript:** ESLint — `npm run lint` (`eslint root/app/www/public/js/`), `npm run lint:fix`.
+- **File headers:** every new file must begin with the standard header block used across the codebase — containing the author's handle/name and a 6-digit `mmddyy` creation date:
+
+    ```php
+    <?php
+
+    /*
+    ----------------------------------
+     ------  Created: <mmddyy>   ------
+     ------  <Author>            ------
+    ----------------------------------
+    */
+    ```
+
+  (PHP files add the `<?php` line above the block.)
+- **Separators:** separate functions/sections with the same "spacer" divider already used in the codebase — `// ---------------------------------------------------------------------------------------------` (93 dashes) between functions in JS files, and the same style for section markers in PHP.
+- **Comments:** inline comments begin with `//-- ` and are written in ALL CAPS — short but comprehensive (e.g. `//-- ROW VALUES`, `//-- WEBSOCKET STREAM SUPPORTED ACTIONS`). Use the same style in both PHP and JS.

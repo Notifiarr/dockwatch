@@ -18,7 +18,6 @@ require_once ABSOLUTE_PATH . 'loader.php';
 
 if (!IS_MAINTENANCE) {
     //-- INITIALIZE MEMCACHE
-    /** @disregard */
     $memcache ??= new Memcached();
     $memcache->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
 
@@ -102,12 +101,22 @@ if (!IS_MAINTENANCE) {
 
 //-- WEBSOCKET SERVER
 if (!IS_MAINTENANCE) {
-    logger(WEBSOCKET_LOG, 'Starting websocket server');
-    $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'websocket.php > /dev/null 2>&1 &';
+    $websocketPidFile = '/run/dockwatch/websocket.pid';
+    $websocketRunning = false;
 
-    logger(WEBSOCKET_LOG, 'Websocket command: ' . $cmd);
-    logger(WEBSOCKET_LOG, 'Websocket response:'); //-- websocket.php WILL LOG TO THE FILE FROM HERE
-    exec($cmd);
+    if (file_exists($websocketPidFile)) {
+        $websocketPid = (int) file_get_contents($websocketPidFile);
+        if ($websocketPid >= 2 && file_exists('/proc/' . $websocketPid)) {
+            $websocketRunning = true;
+        } else {
+            unlink($websocketPidFile);
+        }
+    }
+
+    if (!$websocketRunning) {
+        logger(WEBSOCKET_LOG, 'Starting websocket server');
+        exec('/usr/bin/php ' . ABSOLUTE_PATH . 'websocket.php >/dev/null 2>&1 &');
+    }
 }
 
 //-- DOWNLOAD SCANNERS

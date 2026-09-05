@@ -458,41 +458,15 @@ if ($_POST['m'] == 'containerInfo') {
 }
 
 if ($_POST['m'] == 'containerShell') {
-    $container    = $_POST['container'] ?: '';
-    $key          = sprintf(MEMCACHE_SHELL_TOKEN_KEY, $container);
-    $apiResult    = apiRequest('system/memcache/get', ['key' => $key])['result'];
-    $activeServer = apiGetActiveServer(false);
-    $token        = $apiResult ?: md5(bin2hex(random_bytes(16)));
+    $container = trim($_POST['container'] ?? '');
 
-    if (!empty($container)) {
-        //-- STORE TOKEN TEMPORARILY
-        $apiResult = apiRequest('system/memcache/get', ['key' => $key])['result'];
-        if (!$apiResult) {
-            apiRequest('system/memcache/set', [], ['key' => $key, 'value' => $token, 'seconds' => MEMCACHE_SHELL_TOKEN_TIME]);
-        }
-
-        //-- BUILD WEBSOCKET CONNECT URL
-        $wsUrl      = $settingsTable['websocketUrl'] ?: '';
-        $wsPort     = $settingsTable['websocketPort'] ?: APP_WEBSOCKET_PORT;
-        $basePath   = '/ws';
-        $parameters = '?token=' . $token . '&container=' . $container;
-
-        if (empty($wsUrl)) {
-            $port = $wsPort !== APP_WEBSOCKET_PORT ? ':' . $wsPort : '';
-            if ($activeServer['id'] !== APP_SERVER_ID) {
-                $host = parse_url($activeServer['url'], PHP_URL_HOST) ?: $activeServer['url'];
-                $port = ':' . parse_url($activeServer['url'])['port'] ?: '';
-            }
-            $baseUrl = (!empty($_SERVER['HTTPS']) ? 'wss:' : 'ws:') . '//' . $host . $port;
-
-            $wsUrl = (!empty($host) ? $baseUrl : '') . $basePath;
-        }
-
-        $wsUrl .= $parameters;
-
-        //-- RETURN WEBSOCKET CONNECT URL
-        echo json_encode(['url' => $wsUrl]);
+    if (empty($container)) {
+        echo json_encode(['url' => '', 'token' => '', 'error' => 'No container specified']);
+        exit;
     }
+
+    //-- ISSUE A SINGLE-USE SHELL CHANNEL TOKEN
+    echo json_encode(createWebSocketSession(MEMCACHE_SHELL_TOKEN_KEY, $container, '?type=shell&container=' . urlencode($container)));
 }
 
 if ($_POST['m'] == 'registryLogin') {
@@ -591,22 +565,6 @@ if ($_POST['m'] == 'massApplyContainerTrigger') {
         case '5': //-- GERNERATE RUN
             $apiRequest = apiRequest('docker/create/run', ['name' => $container['Names']]);
             logger(UI_LOG, 'docker/create/run: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
-            $result = '<pre class="bg-dark primary p-3 rounded" style="color: white; max-height: 500px; overflow: auto;">' . $apiRequest['result'] . '</pre>';
-            break;
-        case '6': //-- GENERATE COMPOSE
-            $containerList = '';
-            $containers    = explode(',', $_POST['hash']);
-
-            foreach ($containers as $selectedContainer) {
-                $thisContainer = $docker->findContainer(['hash' => $selectedContainer, 'data' => $stateFile]);
-
-                if ($thisContainer['Names']) {
-                    $containerList .= $thisContainer['Names'] . ' ';
-                }
-            }
-
-            $apiRequest = apiRequest('docker/create/compose', ['name' => trim($containerList)]);
-            logger(UI_LOG, 'docker/create/compose: ' . json_encode($apiRequest, JSON_UNESCAPED_SLASHES), 'debug');
             $result = '<pre class="bg-dark primary p-3 rounded" style="color: white; max-height: 500px; overflow: auto;">' . $apiRequest['result'] . '</pre>';
             break;
         case '7': //-- CHECK FOR UPDATES AND APPLY THEM

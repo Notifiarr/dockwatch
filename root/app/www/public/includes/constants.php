@@ -110,8 +110,9 @@ define('LOG_LEVEL_DEBUG', 1);
 define('MEMCACHE_HOST', '127.0.0.1');
 define('MEMCACHE_PORT', 11211);
 define('MEMCACHE_PREFIX', 'dockwatch-');
+define('MEMCACHE_WS_TOKEN_TIME', 300);
 define('MEMCACHE_SHELL_TOKEN_KEY', (MEMCACHE_PREFIX . 'shell-%s'));
-define('MEMCACHE_SHELL_TOKEN_TIME', 300);
+define('MEMCACHE_COMPOSE_TOKEN_KEY', (MEMCACHE_PREFIX . 'compose-%s'));
 define('MEMCACHE_SECURITY_VULNS_KEY', (MEMCACHE_PREFIX . 'security-vulns-%s'));
 define('MEMCACHE_SECURITY_VULNS_TIME', 300);
 define('MEMCACHE_SECURITY_VULNS_COUNT_KEY', (MEMCACHE_PREFIX . 'security-vulns-count-%s'));
@@ -122,6 +123,8 @@ define('MEMCACHE_SECURITY_SCAN_HISTORY_KEY', (MEMCACHE_PREFIX . 'security-histor
 define('MEMCACHE_SECURITY_SCAN_HISTORY_TIME', 300);
 define('MEMCACHE_SECURITY_NEW_VULNS_KEY', (MEMCACHE_PREFIX . 'security-new-vulns-%s'));
 define('MEMCACHE_SECURITY_NEW_VULNS_TIME', 300);
+define('MEMCACHE_SHELL_PATH_KEY', (MEMCACHE_PREFIX . 'shell-path-%s'));
+define('MEMCACHE_SHELL_PATH_TIME', 600);
 
 //-- REGCTL
 define('REGCTL_PATH', '/usr/local/bin/');

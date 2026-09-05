@@ -172,13 +172,6 @@ switch ($path) {
         break;
     case 'create': //-- .../api/docker/create/$action
         switch (true) {
-            case $IS_GET && $action == 'compose':
-                if (!$parameters['name']) {
-                    apiResponse(400, ['error' => 'Missing name parameter']);
-                }
-
-                $apiRequestResponse = dockerAutoCompose($parameters['name']);
-                break;
             case $IS_GET && $action == 'run':
                 if (!$parameters['name']) {
                     apiResponse(400, ['error' => 'Missing name parameter']);

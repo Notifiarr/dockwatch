@@ -292,6 +292,11 @@
 <script src="libraries/chart/chartjs.plugin.datalabels.min.js"></script>
 <script src="libraries/xterm/xterm.min.js"></script>
 <script src="libraries/xterm/xterm-addon-fit.min.js"></script>
+<script src="libraries/ace/ace.js"></script>
+<script src="libraries/ace/mode-yaml.js"></script>
+<script src="libraries/ace/ext-language_tools.js"></script>
+<script src="libraries/ace/theme-github.js"></script>
+<script src="libraries/ace/theme-github_dark.js"></script>
 
 <!-- Javascript -->
 <?= loadJS() ?>

@@ -12,6 +12,58 @@ require 'shared.php';
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
+function composeResolvePath($input)
+{
+    //-- BASENAME STRIPS ANY PATH TRAVERSAL, GUARANTEEING A SINGLE DIR INSIDE THE COMPOSE STORE
+    $name = basename(trim((string) $input));
+
+    if ($name === '' || $name === '.' || $name === '..') {
+        return '';
+    }
+
+    return COMPOSE_PATH . $name;
+}
+
+function composeValidateAndWrite($dir, $yaml)
+{
+    if (!is_dir($dir)) {
+        return 'Failed to save file.<br>The compose directory does not exist.';
+    }
+
+    $tmpFile   = $dir . '/.docker-compose.validate.yml';
+    $finalFile = $dir . '/docker-compose.yml';
+
+    if (file_put_contents($tmpFile, $yaml) === false) {
+        return 'Failed to save file.<br>Unable to write the temporary file, nothing was changed.';
+    }
+
+    //-- PARSE INPUT YAML
+    try {
+        Yaml::parse($yaml);
+    } catch (ParseException $e) {
+        unlink($tmpFile);
+        return 'Failed to save file.<br>YAML syntax error: ' . htmlspecialchars($e->getMessage());
+    }
+
+    //-- DOCKER COMPOSE VALIDATION
+    $dcOutput = shell_exec('docker compose -f ' . escapeshellarg($tmpFile) . ' config 2>&1; echo __DC_EXIT__$?');
+    preg_match('/__DC_EXIT__(\d+)\s*$/', rtrim((string) $dcOutput), $dcMatches);
+
+    if (!isset($dcMatches[1]) || (int) $dcMatches[1] !== 0) {
+        unlink($tmpFile);
+        $dcError = trim(preg_replace('/__DC_EXIT__\d+\s*$/', '', (string) $dcOutput));
+        return 'Failed to save file.<br>docker compose validation failed: ' . htmlspecialchars($dcError ?: 'unknown error, the file was not changed.');
+    }
+
+    //-- IF BOTH PASSED = WRITE FINAL FILE
+    if (!rename($tmpFile, $finalFile)) {
+        unlink($tmpFile);
+        return 'Failed to save file.<br>Unable to write the final file, nothing was changed.';
+    }
+
+    return 'Saved';
+}
+
 $composeExample = 'services:
   dockwatch:
     image: "ghcr.io/notifiarr/dockwatch:main"
@@ -183,40 +235,32 @@ if ($_POST['m'] == 'init') {
 }
 
 if ($_POST['m'] == 'composeSave') {
-    if (substr($_POST['composePath'], 0, strlen(COMPOSE_PATH)) == COMPOSE_PATH) {
-        $path = $_POST['composePath'] . '/docker-compose.yml';
+    $dir = composeResolvePath($_POST['composePath'] ?? '');
 
-        file_put_contents($path, rawurldecode($_POST['compose']));
-
-        $yqOutput     = $shell->exec('yq eval "." ' . escapeshellarg($path) . ' 2>&1');
-        $yqResult     = str_contains($yqOutput, 'Error') ? $yqOutput : '0';
-        $dockerOutput = $shell->exec('docker compose -f ' . escapeshellarg($path) . ' config 2>&1');
-        $dockerResult = !str_contains($dockerOutput, 'name') ? $dockerOutput : '0';
-
-        if ($yqResult === '0' && $dockerResult === '0') {
-            $compose = file_get_contents($path);
-            /** @disregard */
-            $syntaxHighlighted = $phiki->codeToHtml($compose, Phiki\Grammar\Grammar::Yaml, Phiki\Theme\Theme::GithubDark);
-
-            echo $syntaxHighlighted;
-        } else {
-            echo 'Failed to save file.<br>Error: ' . htmlspecialchars($yqResult !== '0' ? preg_replace('/^Error:\s*/', '', $yqResult) : $dockerResult);
-        }
+    if ($dir === '' || !is_dir($dir)) {
+        echo 'Failed to save file.<br>Invalid compose path.';
+    } else {
+        echo composeValidateAndWrite($dir, rawurldecode($_POST['compose'] ?? ''));
     }
 }
 
 if ($_POST['m'] == 'composeModify') {
-    $path    = $_POST['composePath'] . '/docker-compose.yml';
-    $compose = file_get_contents($path);
-    /** @disregard */
-    $syntaxHighlighted = $phiki->codeToHtml($compose, Phiki\Grammar\Grammar::Yaml, Phiki\Theme\Theme::GithubDark);
+    $dir = composeResolvePath($_POST['composePath'] ?? '');
 
-    ?>
-    <code><?= $_POST['composePath'] ?>/docker-compose.yml</code><br>
-    <div id="compose-data-preview" onclick="$('#compose-data').show(); $(this).hide();"><?= $syntaxHighlighted ?></div>
-    <textarea id="compose-data" class="form-control" rows="15" style='display: none;'><?= $compose ?></textarea><br>
-    <center><input type="button" class="btn btn-outline-success" value="Save file" onclick="composeSave('<?= $_POST['composePath'] ?>', $('#compose-data').val())"></center>
-    <?php
+    if ($dir === '' || !is_dir($dir)) {
+        echo 'Failed to load compose.<br>Invalid compose path.';
+    } else {
+        $compose = file_get_contents($dir . '/docker-compose.yml');
+
+        ?>
+        <code class="small-text text-muted"><?= htmlspecialchars($dir) ?>/docker-compose.yml</code><br>
+        <textarea id="compose-data" style="display:none;"><?= htmlspecialchars($compose) ?></textarea>
+        <div id="compose-data-editor" style="height: 400px; margin-top: 8px;"></div>
+        <div class="text-center mt-3">
+            <button class="btn btn-outline-success" onclick="composeSave('<?= htmlspecialchars($dir) ?>')">Save file</button>
+        </div>
+        <?php
+    }
 }
 
 if ($_POST['m'] == 'composeAddForm') {
@@ -229,79 +273,45 @@ if ($_POST['m'] == 'composeAddForm') {
         </div>
         <div class="col-12 mb-3">
             <label class="form-label">Compose</label>
-            <textarea id="new-compose-data" class="form-control" rows="10" placeholder="<?= htmlspecialchars($composeExample) ?>"></textarea>
+            <textarea id="compose-add-data" style="display:none;"><?= htmlspecialchars($composeExample) ?></textarea>
+            <div id="compose-add-editor" style="height: 300px;"></div>
         </div>
         <div class="col-12 text-center">
-            <input class="btn btn-outline-success access-rw" type="button" value="Add Compose" onclick="composeAdd()">
+            <button class="btn btn-outline-success access-rw" onclick="composeAdd()">Add Compose</button>
         </div>
     </div>
     <?php
 }
 
 if ($_POST['m'] == 'composeAdd') {
-    $path = COMPOSE_PATH . preg_replace('/[^ \w]+/', '', $_POST['name']);
-    createDirectoryTree($path);
-    file_put_contents($path . '/docker-compose.yml', rawurldecode($_POST['compose']));
+    //-- STRICT NAME SANITIZATION
+    $name = preg_replace('/[^A-Za-z0-9_\-.]+/', '', (string) ($_POST['name'] ?? ''));
+
+    if ($name === '') {
+        $result = 'Failed to save file.<br>Invalid compose name.';
+    } else {
+        $dir = COMPOSE_PATH . $name;
+        if (!is_dir($dir)) {
+            createDirectoryTree($dir);
+        }
+
+        $result = composeValidateAndWrite($dir, rawurldecode($_POST['compose'] ?? ''));
+
+        //-- DON'T LEAVE AN EMPTY DIRECTORY BEHIND ON A FAILED ADD
+        if ($result !== 'Saved' && is_dir($dir)) {
+            rmdir($dir);
+        }
+    }
+
+    echo $result;
 }
 
 if ($_POST['m'] == 'composeDelete') {
-    if (substr($_POST['composePath'], 0, strlen(COMPOSE_PATH)) == COMPOSE_PATH) {
-        $shell->exec('rm -rf ' . escapeshellarg($_POST['composePath']));
-    }
-}
+    $dir = composeResolvePath($_POST['composePath'] ?? '');
 
-if ($_POST['m'] == 'composePull') {
-    $cmd  = sprintf(DockerSock::COMPOSE_PULL, escapeshellarg($_POST['composePath']));
-    $pull = $shell->exec($cmd . ' 2>&1');
-
-    if (str_contains_all($pull, ['Pulling', 'Pulled'])) {
-        echo 'pulled';
-    } else {
-        echo $pull;
-    }
-}
-
-if ($_POST['m'] == 'composeUp') {
-    $cmd = sprintf(DockerSock::COMPOSE_UP, escapeshellarg($_POST['composePath']));
-    $up  = $shell->exec($cmd . ' 2>&1');
-
-    if (str_contains_all($up, ['Container', 'Started']) || str_contains_all($up, ['Container', 'Running'])) {
-        echo 'up';
-    } else {
-        echo $up;
-    }
-}
-
-if ($_POST['m'] == 'composeStop') {
-    $cmd  = sprintf(DockerSock::COMPOSE_STOP, escapeshellarg($_POST['composePath']));
-    $stop = $shell->exec($cmd . ' 2>&1');
-
-    if (str_contains($stop, 'Stopped') || str_contains($stop, 'done')) {
-        echo 'stopped';
-    } else {
-        echo $stop;
-    }
-}
-
-if ($_POST['m'] == 'composeDown') {
-    $cmd  = sprintf(DockerSock::COMPOSE_DOWN, escapeshellarg($_POST['composePath']));
-    $down = $shell->exec($cmd . ' 2>&1');
-
-    if (str_contains_all($down, ['Container', 'Stopped'])) {
-        echo 'down';
-    } else {
-        echo $down;
-    }
-}
-
-if ($_POST['m'] == 'composeRestart') {
-    $cmd     = sprintf(DockerSock::COMPOSE_RESTART, escapeshellarg($_POST['composePath']));
-    $restart = $shell->exec($cmd . ' 2>&1');
-
-    if (str_contains($restart, 'Started') || str_contains($restart, 'Restart')) {
-        echo 'restarted';
-    } else {
-        echo $restart;
+    //-- BASENAME GUARANTEES WE ONLY DELETE INSIDE THE COMPOSE STORE
+    if ($dir !== '' && is_dir($dir)) {
+        $shell->exec('rm -rf ' . escapeshellarg($dir));
     }
 }
 
@@ -370,4 +380,8 @@ if ($_POST['m'] == 'composePs') {
 if ($_POST['m'] == 'composeLogs') {
     $cmd = sprintf(DockerSock::COMPOSE_LOGS, escapeshellarg($_POST['composePath']));
     echo $shell->exec($cmd . ' 2>&1');
+}
+
+if ($_POST['m'] == 'composeToken') {
+    echo json_encode(createWebSocketSession(MEMCACHE_COMPOSE_TOKEN_KEY, 'action', '?type=compose'));
 }

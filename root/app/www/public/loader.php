@@ -21,9 +21,6 @@ define('ACCESS_MODE', 0);
 //-- COMPOSER AUTOLOADER
 require __DIR__ . '/../vendor/autoload.php';
 
-//-- COMPOSER: CODE HIGHLIGHTER
-use Phiki\Phiki;
-
 //-- NOT STARTUP
 if (!defined('IS_STARTUP')) {
     define('IS_STARTUP', false);
@@ -184,7 +181,6 @@ if (!IS_SSE) {
         $database = new Database();
     } else {
         logger(SYSTEM_LOG, 'Init class: Memcache()');
-        /** @disregard */
         $memcache = new Memcached();
         $memcache->addServer(MEMCACHE_HOST, MEMCACHE_PORT);
 
@@ -225,10 +221,6 @@ if (!IS_SSE) {
     if (!IS_MAINTENANCE) {
         $notifications = new Notifications();
         logger(SYSTEM_LOG, 'Init class: Notifications()');
-
-        /** @disregard */
-        $phiki = new Phiki();
-        logger(SYSTEM_LOG, 'Init class: Phiki()');
 
         $security = new Security();
         logger(SYSTEM_LOG, 'Init class: Security()');

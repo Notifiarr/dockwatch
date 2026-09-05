@@ -16,12 +16,6 @@ ARG COMMIT_MSG=unknown
 # https://github.com/Notifiarr/dockwatch/pull/59 - for future reference
 ENV ATTACHED_DEVICES_PERMS="/var/run/docker.sock"
 
-# Add yq for YAML processing
-# renovate: datasource=github-releases lookupName=mikefarah/yq
-ARG YQ_VERSION=v4.52.4
-RUN curl -sSf -L -o /usr/local/bin/yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_${TARGETARCH}" \
-    && chmod +x /usr/local/bin/yq
-
 # Add regctl for container digest checks
 # renovate: datasource=github-releases lookupName=regclient/regclient
 ARG REGCTL_VERSION=v0.11.2
@@ -33,7 +27,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Install system packages
 ARG PHP_VERSION=85
-ARG INSTALL_PACKAGES="mariadb mariadb-client docker-cli docker-cli-compose memcached expect php${PHP_VERSION}-sockets php${PHP_VERSION}-sqlite3 php${PHP_VERSION}-pecl-memcached php${PHP_VERSION}-tokenizer php${PHP_VERSION}-dom php${PHP_VERSION}-mbstring php${PHP_VERSION}-mysqli"
+ARG INSTALL_PACKAGES="mariadb mariadb-client docker-cli docker-cli-compose memcached php${PHP_VERSION}-sockets php${PHP_VERSION}-sqlite3 php${PHP_VERSION}-pecl-memcached php${PHP_VERSION}-tokenizer php${PHP_VERSION}-dom php${PHP_VERSION}-mbstring php${PHP_VERSION}-mysqli"
 RUN apk add --repository=https://dl-cdn.alpinelinux.org/alpine/v3.23/main --no-cache --update ${INSTALL_PACKAGES}
 
 # Add user for unraid docker

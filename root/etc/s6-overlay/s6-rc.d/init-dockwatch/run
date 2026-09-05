@@ -32,6 +32,10 @@ echo "**** patched nginx.conf with BASE_URL=${BASE_URL:-/} ****"
 # permissions
 find /config ! -user abc -exec chown abc {} +
 
+# create runtime pid dir for dockwatch procs
+mkdir -p /run/dockwatch
+chown abc:abc /run/dockwatch
+
 # run startup script
 echo 's6-overlay init require(/app/www/public/startup.php) ->';
 s6-setuidgid abc php -r "require '/app/www/public/startup.php';"

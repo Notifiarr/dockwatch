@@ -51,7 +51,7 @@ function getDockwatchContainerName()
     global $shell;
 
     if (memcacheGet('dockwatchContainerName')) {
-        return memcacheGet('dockwatchContainerName');
+        return ltrim(memcacheGet('dockwatchContainerName'), '/');
     }
 
     $hostname = trim($shell->exec('grep /etc/hostname /proc/self/mountinfo | awk -F/containers/ \'{print $2}\' | cut -d/ -f1 2>&1')); //-- RETURNS VOLUME PATH THAT MATCHES CONTAINER ID
@@ -325,7 +325,7 @@ function appServerUrl()
     return $scheme . '://' . $host;
 }
 
-function ipMatchesSubnet(string $ip, string $ipmask)
+function ipMatchesSubnet($ip, $ipmask)
 {
     try {
         $address = Ip\Address::parse($ip);
@@ -338,4 +338,53 @@ function ipMatchesSubnet(string $ip, string $ipmask)
     } catch (\InvalidArgumentException $e) {
         return false;
     }
+}
+
+function buildWebSocketURL($url = [])
+{
+    if (empty($url)) {
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') ? 'wss' : 'ws';
+        $host   = $_SERVER['HTTP_HOST'] ?? '';
+        if ($host === '') {
+            $host = $_SERVER['SERVER_NAME'] ?? 'localhost';
+            $port = $_SERVER['SERVER_PORT'] ?? '';
+            $host = $port ? $host . ':' . $port : $host;
+        }
+
+        $basePath = rtrim($_SERVER['BASE_URL'] ?? '', '/');
+        $url      = $scheme . '://' . $host . $basePath . '/ws';
+    }
+
+    return $url;
+}
+
+//-- ISSUE A SINGLE-USE WEBSOCKET CHANNEL TOKEN AND RETURN THE CONNECT URL
+function createWebSocketSession($keyFormat, $id, $query)
+{
+    global $memcache, $settingsTable;
+
+    $response = ['url' => '', 'token' => '', 'error' => ''];
+
+    //-- GENERATE A SINGLE-USE TOKEN FOR THIS CHANNEL SESSION
+    $token = bin2hex(random_bytes(32));
+    $key   = sprintf($keyFormat, $id);
+
+    $tokens = [];
+    if ($memcache) {
+        $existing = $memcache->get($key);
+        $tokens   = is_array($existing) ? $existing : [];
+    }
+
+    $tokens[] = $token;
+    $tokens   = array_slice(array_values($tokens), -20); //-- CAP TO AVOID UNBOUNDED GROWTH
+    $stored   = $memcache ? $memcache->set($key, $tokens, MEMCACHE_WS_TOKEN_TIME) : false;
+
+    $response['url']   = buildWebSocketURL($settingsTable['websocketUrl'] ?? []) . $query;
+    $response['token'] = $token;
+
+    if (!$stored) {
+        $response['error'] = 'Unable to store token';
+    }
+
+    return $response;
 }

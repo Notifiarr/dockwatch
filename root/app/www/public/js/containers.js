@@ -227,28 +227,27 @@ function massApplyContainerTrigger(dependencyTrigger = false, action = 0, contai
 
     //-- DO COMPOSE ALL AT ONCE
     if (parseInt($('#massContainerTrigger').val()) == 6) {
-        let hashes = '';
+        let containerNames = [];
         $.each($('[id^=massTrigger-]'), function () {
             if ($(this).prop('checked')) {
-                const containerHash = $(this).attr('id').replace('massTrigger-', '');
-                hashes += (hashes ? ',' : '') + containerHash;
+                const containerName = $(this).attr('data-name');
+                if (containerName) {
+                    containerNames.push(containerName);
+                }
             }
         });
 
-        $.ajax({
-            type: 'POST',
-            url: 'ajax/containers.php',
-            data: '&m=massApplyContainerTrigger&trigger=' + $('#massContainerTrigger').val() + '&hash=' + hashes,
-            dataType: 'json',
-            async: 'global',
-            success: function (resultData) {
-                $('#massTrigger-results').prepend(resultData.result);
-                $('#massContainerTrigger').val('0');
-                $('.containers-check').prop('checked', false);
-                $('#massTrigger-close-btn').show();
-                $('#massTrigger-spinner').hide();
-            }
-        });
+        $('#massContainerTrigger').val('0');
+        $('.containers-check').prop('checked', false);
+        $('#massTrigger-close-btn').show();
+        $('#massTrigger-spinner').hide();
+        $('#massTrigger-header').html('Generating compose from ' + containerNames.length + ' container(s)...');
+
+        if (containerNames.length) {
+            composeGenerate(containerNames.join(' '));
+        } else {
+            toast('Container', 'No containers selected to generate a compose from', 'error');
+        }
     } else {
         let selectedContainers = [];
         $.each($('[id^=massTrigger-]'), function () {
@@ -647,6 +646,7 @@ function containerShell(container, close = true, sendCommand = '')
         type: 'POST',
         url: 'ajax/containers.php',
         data: '&m=containerShell&container=' + container,
+        dataType: 'json',
         success: function (resultData) {
             dialogOpen({
                 id: 'xtermShell',
@@ -675,18 +675,11 @@ function containerShell(container, close = true, sendCommand = '')
                 terminal.loadAddon(fitAddon);
             }
 
-            const writeMotd = (terminal) => {
-                terminal.writeln(`\x1B[1;34mDockwatch Shell - Container: ${container}\x1B[0m\r\n`);
-            };
-
             const terminalContainer = document.getElementById('terminalContainer');
             terminal.open(terminalContainer);
-            writeMotd(terminal);
-
             terminal.element.style.padding = '12px';
-            terminal.writeln('Connecting to container shell... This can take a few moments!\r\n');
+            terminal.writeln(`\x1B[1;34mDockwatch Shell - Container: ${container}\x1B[0m\r\n`);
 
-            //-- FIT TERMINAL FUNC (THIS TIME IT SHOULD WORK)
             const fitTerminal = () => {
                 if (fitAddon) {
                     //-- SPAM IT
@@ -699,82 +692,96 @@ function containerShell(container, close = true, sendCommand = '')
                 }
             };
 
-            const socket = new WebSocket(`${JSON.parse(resultData)['url']}`);
-            let msgCount = 0;
-            let resizeSent = false;
+            const socket = new WebSocket(resultData.url, ['dockwatch-ws', resultData.token]);
+            socket.binaryType = 'arraybuffer';
+
+            let disposed = false;
+            let sentResize = false;
+
+            const sendResize = () => {
+                if (socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify({
+                        action: 'resize',
+                        cols: terminal.cols,
+                        rows: terminal.rows
+                    }));
+                }
+            };
+
+            const sendInput = (data) => {
+                if (socket.readyState !== WebSocket.OPEN) {
+                    return;
+                }
+                const bytes = new TextEncoder().encode(data);
+                if (bytes.length > 0) {
+                    socket.send(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+                }
+            };
+
+            const writeRaw = (arrayBuffer) => {
+                const bytes = new Uint8Array(arrayBuffer);
+                terminal.write(bytes);
+            };
 
             socket.onopen = () => {
-                terminal.writeln('WebSocket connection established');
+                terminal.writeln('WebSocket connection established\r\n');
+                terminal.focus();
                 setTimeout(() => {
-                    if (socket.readyState === WebSocket.OPEN && !resizeSent) {
-                        resizeSent = true;
-                        terminal.focus();
+                    if (!sentResize) {
+                        sentResize = true;
                         fitTerminal();
-                        socket.send(JSON.stringify({
-                            action: 'resize',
-                            cols: terminal.cols,
-                            rows: terminal.rows
-                        }));
+                        sendResize();
                     }
-                }, 500);
+                }, 300);
+            };
+
+            socket.onerror = () => {
+                terminal.writeln('\r\nWebSocket connection error.\r\n');
             };
 
             socket.onclose = () => {
-                terminal.writeln('\r\nWebSocket connection closed.');
-                if (msgCount === 0) {
-                    terminal.writeln('Possible reasons:\n- WebSocket Port (default :9910) not reachable\n- Connect URL is incorrect\n- Socket token is invalid');
+                if (!disposed) {
+                    terminal.writeln('\r\nWebSocket connection closed.\r\n');
+                    if (!sentResize) {
+                        terminal.writeln('Possible reasons:\n- The websocket server is not reachable through the /ws route\n- Auth token is invalid or expired\n- Socket proxy is missing permissions (EXEC=1)');
+                    }
+                    dispose();
                 }
             };
 
             socket.onmessage = (event) => {
-                msgCount++;
+                if (disposed) {
+                    return;
+                }
+
+                //-- RAW BINARY TTY OUTPUT
+                if (event.data instanceof ArrayBuffer) {
+                    writeRaw(event.data);
+                    return;
+                }
+
                 try {
                     const data = JSON.parse(event.data);
-                    if (data.error) {
-                        terminal.writeln(`\r\nError: ${data.error}\r\n`);
-                        return;
-                    }
-                    if (data.success) {
-                        terminal.writeln(`${data.message}, waiting for shell resize command..`);
+                    if (data.type === 'error') {
+                        terminal.writeln(`\r\nError: ${data.message || 'Unknown error'}\r\n`);
                         return;
                     }
                     if (data.type === 'ready') {
                         fitTerminal();
-
-                        if (!resizeSent) {
-                            resizeSent = true;
-                            socket.send(JSON.stringify({
-                                action: 'resize',
-                                cols: terminal.cols,
-                                rows: terminal.rows
-                            }));
-                        }
-
+                        //-- SERVER NOW HAS THE EXEC ID, SO ALWAYS REFRESH THE TTYSIZE
+                        sentResize = true;
+                        sendResize();
                         if (sendCommand && sendCommand.length > 0) {
-                            socket.send(JSON.stringify({
-                                action: 'command',
-                                command: sendCommand + '\n'
-                            }));
+                            sendInput(sendCommand + '\n');
                         }
-                    }
-                    if (data.type === 'pwd') {
-                        currentWorkingDir = data.path;
                         return;
                     }
-                    if (data.type === 'stdout' || data.type === 'stderr') {
-                        const binaryString = atob(data.data);
-                        const bytes = new Uint8Array(binaryString.length);
-                        for (let i = 0; i < binaryString.length; i++) {
-                            bytes[i] = binaryString.charCodeAt(i);
-                        }
-                        const decoder = new TextDecoder('utf-8');
-                        terminal.write(decoder.decode(bytes));
-                    }
                     if (data.type === 'exit') {
-                        terminal.writeln(`\r\nContainer shell exited with code ${data.code}\r\n`);
+                        terminal.writeln(`\r\nContainer shell exited with code ${data.code ?? '?'}\r\n`);
                         if (data.message) {
                             terminal.writeln(data.message);
                         }
+                        dispose();
                         dialogClose('xtermShell');
                     }
                 } catch (e) {
@@ -787,16 +794,36 @@ function containerShell(container, close = true, sendCommand = '')
                 if (data === '\x1b[>0;126;24c' || data.match(/^\x1b\[[0-9;]+R$/)) {
                     return;
                 }
-                if (socket.readyState === WebSocket.OPEN) {
-                    socket.send(JSON.stringify({
-                        action: 'command',
-                        command: data
-                    }));
-                }
-                if (data === '0') {
-                    terminal.write('0');
-                }
+                sendInput(data);
             });
+
+            const resizeHandler = terminal.onResize(size => {
+                sendResize();
+                fitTerminal();
+            });
+
+            const windowResizeHandler = () => {
+                fitTerminal();
+            };
+            window.addEventListener('resize', windowResizeHandler);
+
+            const dispose = () => {
+                if (disposed) {
+                    return;
+                }
+                disposed = true;
+                if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+                    socket.close();
+                }
+                dataHandler.dispose();
+                resizeHandler.dispose();
+                window.removeEventListener('resize', windowResizeHandler);
+                $('#xtermShell').off('hidden.bs.modal');
+                $('#xtermShell').off('shown.bs.modal');
+                if (terminal) {
+                    terminal.dispose();
+                }
+            };
 
             terminal.attachCustomKeyEventHandler((e) => {
                 if (e.ctrlKey && e.shiftKey && e.key === 'C') {
@@ -808,56 +835,23 @@ function containerShell(container, close = true, sendCommand = '')
                 }
                 if (e.ctrlKey && e.shiftKey && e.key === 'V') {
                     navigator.clipboard.readText().then(text => {
-                        if (socket.readyState === WebSocket.OPEN) {
-                            socket.send(JSON.stringify({
-                                action: 'command',
-                                command: text
-                            }));
-                        }
+                        sendInput(text);
                     });
                     return false;
                 }
                 return true;
             });
 
-            const resizeHandler = terminal.onResize(size => {
-                if (socket.readyState === WebSocket.OPEN) {
-                    socket.send(JSON.stringify({
-                        action: 'resize',
-                        cols: size.cols,
-                        rows: size.rows
-                    }));
-                }
-                fitTerminal();
-            });
-
-            window.addEventListener('resize', () => {
-                fitTerminal();
-            });
-
-            //-- TRY TO FIT WHEN MODAL IS SHOWN
             $('#xtermShell').on('shown.bs.modal', function () {
                 fitTerminal();
             });
 
-            window.activeTerminalHandlers = {
-                dataHandler: dataHandler,
-                resizeHandler: resizeHandler
-            };
-
             $('#xtermShell').on('hidden.bs.modal', function () {
-                if (socket.readyState === WebSocket.OPEN) {
-                    socket.close();
-                }
-                if (window.activeTerminalHandlers.dataHandler) {
-                    window.activeTerminalHandlers.dataHandler.dispose();
-                }
-                if (window.activeTerminalHandlers.resizeHandler) {
-                    window.activeTerminalHandlers.resizeHandler.dispose();
-                }
-                window.activeTerminalHandlers = {};
-                terminal.dispose();
+                dispose();
             });
+        },
+        error: function () {
+            toast('Container Shell', 'Failed to create a container shell session', 'error');
         }
     });
 }
