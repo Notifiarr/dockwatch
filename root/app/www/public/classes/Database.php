@@ -52,6 +52,8 @@ class Database
     {
         logger(SYSTEM_LOG, 'MYSQL: Connecting to \'' . DB_NAME . ' -> ' . DB_USER . '@' . DB_HOST . '\'...', 'shell');
 
+        $mysqlSetup = false;
+
         try {
             $this->mysql = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
         } catch (Exception $e) {
@@ -64,7 +66,7 @@ class Database
                 //-- CONNECT TO THE MYSQL SERVER WITH NO DATABASE
                 try {
                     $this->mysql = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD);
-                    define('MYSQL_SETUP', true);
+                    $mysqlSetup  = true;
                 } catch (Exception $e) {
                     logger(SYSTEM_LOG, 'MYSQL: Failed to connect to \'' . DB_USER . '@' . DB_HOST . '\': ' . $e, 'shell');
                 }
@@ -74,7 +76,7 @@ class Database
                 //-- CONNECT TO THE MYSQL SERVER WITH NO DATABASE
                 try {
                     $this->mysql = mysqli_connect('127.0.0.1', DB_USER, DB_PASSWORD);
-                    define('MYSQL_SETUP', true);
+                    $mysqlSetup  = true;
                 } catch (Exception $e) {
                     logger(SYSTEM_LOG, 'MYSQL: Failed to connect to \'' . DB_USER . '@127.0.0.1: ' . $e, 'shell');
                 }
@@ -83,9 +85,13 @@ class Database
             }
         }
 
-        if (!defined('MYSQL_SETUP')) {
-            define('MYSQL_SETUP', false);
+        //-- EMPTY/PARTIAL DB (EXISTS BUT MISSING BASE TABLES) STILL NEEDS SCHEMA
+        if (!$mysqlSetup && $this->mysql && !$this->mysqliBaseTablesExist()) {
+            logger(SYSTEM_LOG, 'MYSQL: Database exists but base tables are missing, running setup', 'shell');
+            $mysqlSetup = true;
         }
+
+        define('MYSQL_SETUP', $mysqlSetup);
 
         // TODO: WAIT A FEW MONTHS FOR EXISTING USERS TO MIGRATE, REMOVE ALL OF THIS RELATED TO SQLITE3
         if (MYSQL_SETUP && file_exists($dbFile)) {
@@ -114,6 +120,46 @@ class Database
 
             $this->migrations();
         }
+    }
+
+    public function mysqliTableExists($table)
+    {
+        if (!$this->mysql || $table == '') {
+            return false;
+        }
+
+        try {
+            $sql = "SHOW TABLES LIKE '" . $this->prepare($table) . "'";
+            $res = $this->mysqli_query($sql);
+            return $res && $this->mysqli_fetchAssoc($res) ? true : false;
+        } catch (Exception $e) {
+            logger(SYSTEM_LOG, 'MYSQL: Table check failed for \'' . $table . '\': ' . $e, 'shell');
+            return false;
+        }
+    }
+
+    public function mysqliBaseTablesExist()
+    {
+        //-- CORE TABLES CREATED BY 023_MYSQL_CONVERSION; LATER TABLES COME FROM INCREMENTAL MIGRATIONS
+        $requiredTables = [
+            SETTINGS_TABLE,
+            SERVERS_TABLE,
+            CONTAINER_SETTINGS_TABLE,
+            CONTAINER_GROUPS_TABLE,
+            CONTAINER_GROUPS_LINK_TABLE,
+            NOTIFICATION_PLATFORM_TABLE,
+            NOTIFICATION_TRIGGER_TABLE,
+            NOTIFICATION_LINK_TABLE,
+        ];
+
+        foreach ($requiredTables as $table) {
+            if (!$this->mysqliTableExists($table)) {
+                logger(SYSTEM_LOG, 'MYSQL: Required table missing: ' . $table, 'shell');
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // TODO: WAIT A FEW MONTHS FOR EXISTING USERS TO MIGRATE, CONSOLIDATE mysqli_* FUNCTIONS INTO THE THE NON mysqli_* FUNCTIONS
