@@ -231,7 +231,12 @@ class Database
 
     public function error()
     {
-        return $this->db->lastErrorMsg();
+        if ($this->db) {
+            return $this->db->lastErrorMsg();
+        }
+
+        $error = $this->mysql ? $this->mysqli_error() : '';
+        return $error ?: 'not an error';
     }
 
     public function backup()

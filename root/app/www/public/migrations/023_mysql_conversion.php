@@ -304,7 +304,7 @@ if (SQLITE_MIGRATION) { //-- EXISTING INSTALL
         'taskHousekeepingDisabled' => 0,
         'taskHealthDisabled'       => 0,
         'taskPruneDisabled'        => 0,
-        'remoteServerTimeout'      => REMOTE_SERVER_TIMEOUT, //-- ADDED IN MIGRATION 002
+        'remoteServerTimeout'      => DEFAULT_REMOTE_SERVER_TIMEOUT, //-- ADDED IN MIGRATION 002
         'stateCronTime'            => DEFAULT_STATE_CRON_TIME, //-- ADDED IN MIGRATION 003
         'currentPage'              => 'overview', //-- ADDED IN MIGRATION 004
         'telemetry'                => 1, //-- ADDED IN MIGRATION 006
