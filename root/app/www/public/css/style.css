@@ -767,3 +767,17 @@ tr.container-group-row .container-group-label {
     max-height: 70vh;
     overflow-x: auto;
 }
+.compose-placeholder {
+    position: absolute;
+    top: 6px;
+    left: 50px;
+    right: 12px;
+    z-index: 5;
+    overflow: hidden;
+    pointer-events: none;
+    white-space: pre-wrap;
+    color: #868e96;
+    font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+}

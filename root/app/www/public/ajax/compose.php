@@ -273,8 +273,8 @@ if ($_POST['m'] == 'composeAddForm') {
         </div>
         <div class="col-12 mb-3">
             <label class="form-label">Compose</label>
-            <textarea id="compose-add-data" style="display:none;"><?= htmlspecialchars($composeExample) ?></textarea>
-            <div id="compose-add-editor" style="height: 300px;"></div>
+            <textarea id="compose-add-data" style="display:none;"></textarea>
+            <div id="compose-add-editor" style="height: 300px;" data-placeholder="<?= htmlspecialchars($composeExample, ENT_QUOTES) ?>"></div>
         </div>
         <div class="col-12 text-center">
             <button class="btn btn-outline-success access-rw" onclick="composeAdd()">Add Compose</button>

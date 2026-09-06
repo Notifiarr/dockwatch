@@ -41,6 +41,40 @@ function initComposeEditor(id, content, readOnly = false)
     composeEditor = editor;
 }
 // ---------------------------------------------------------------------------------------------
+function composeEditorPlaceholder(containerId, placeholder)
+{
+    if (!placeholder) {
+        return;
+    }
+
+    const container = document.getElementById(containerId);
+    const overlay   = document.createElement('div');
+
+    overlay.className   = 'compose-placeholder';
+    overlay.textContent = placeholder;
+    container.appendChild(overlay);
+
+    const position = () => {
+        if (!composeEditor || !composeEditor.renderer) {
+            return;
+        }
+        const pos  = composeEditor.renderer.textToScreenCoordinates(0, 0);
+        const rect = container.getBoundingClientRect();
+        overlay.style.left = (pos.pageX - rect.left) + 'px';
+        overlay.style.top  = (pos.pageY - rect.top) + 'px';
+    };
+
+    const update = () => {
+        overlay.style.display = composeEditor && composeEditor.getValue() === '' ? 'block' : 'none';
+    };
+
+    composeEditor.on('change', update);
+    composeEditor.renderer.on('changeGutterWidth', position);
+    composeEditor.renderer.on('resize', position);
+    window.setTimeout(position, 0);
+    update();
+}
+// ---------------------------------------------------------------------------------------------
 function openComposeAdd()
 {
     $.ajax({
@@ -54,7 +88,8 @@ function openComposeAdd()
                 size: 'lg',
                 body: resultData,
                 onOpen: function () {
-                    initComposeEditor('compose-add-editor', $('#compose-add-data').val());
+                    initComposeEditor('compose-add-editor', '');
+                    composeEditorPlaceholder('compose-add-editor', $('#compose-add-editor').data('placeholder'));
                 },
                 onClose: function () {
                     if (composeEditor) {
@@ -214,9 +249,9 @@ function composeStream(path, action)
                         socket.close();
                         if (data.code === 0) {
                             toast('Compose', label + ' was completed', 'success');
-                            $('#compose-stream-output').text($('#compose-stream-output').text() + '\n[complete]');
+                            $('#compose-stream-output').text($('#compose-stream-output').text() + '\n[complete]\r\nAuto closing in 10s..');
 
-                            setTimeout(() => dialogClose('composeStream'), 300);
+                            setTimeout(() => dialogClose('composeStream'), 10e3);
                         } else {
                             toast('Compose', label + ' failed<br>' + (data.message || 'unknown error'), 'error');
                             $('#compose-stream-output').text($('#compose-stream-output').text() + '\n[failed]');
