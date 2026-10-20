@@ -211,7 +211,35 @@ if ($containersTable) {
                                 $msg = 'Pulling image: ' . $image;
                                 logger(CRON_PULLS_LOG, $msg);
                                 echo date('c') . ' ' . $msg . "\n";
-                                $docker->pullImage($image);
+                                $pull = $docker->pullImage($image);
+
+                                //-- MAKE SURE THE PULL GAVE US A DIFFERENT IMAGE, OTHERWISE THE CONTAINER IS RECREATED FROM THE SAME OLD ONE
+                                $runningImageID = json_decode($inspect, true)[0]['Image'] ?? '';
+                                $pulledInspect  = $docker->inspect($image, false);
+                                $pulledImageID  = json_decode($pulledInspect, true)[0]['Id'] ?? '';
+                                $skipReason     = '';
+
+                                if (!$runningImageID || !$pulledImageID) {
+                                    $skipReason = 'unable to compare the container image with the local image after the pull';
+                                } elseif ($pulledImageID == $runningImageID) {
+                                    $skipReason = 'pull did not produce a new image, local image is still \'' . $pulledImageID . '\'';
+                                }
+
+                                if ($skipReason) {
+                                    $msg = 'Skipping container update: ' . $containerState['Names'] . ' (' . $skipReason . ')';
+                                    logger(CRON_PULLS_LOG, $msg, 'error');
+                                    logger(CRON_PULLS_LOG, '$docker->pullImage: ' . trim($pull));
+
+                                    if (!$pulledImageID) {
+                                        logger(CRON_PULLS_LOG, '$docker->inspect: ' . trim($pulledInspect));
+                                    }
+                                    echo date('c') . ' ' . $msg . "\n";
+
+                                    if (apiRequest('database/notification/trigger/enabled', ['trigger' => 'updated'])['result'] && !$containerSettings['disableNotifications']) {
+                                        $notify['failed'][] = ['container' => $containerState['Names']];
+                                    }
+                                    break;
+                                }
 
                                 $msg = 'Stopping container: ' . $containerState['Names'];
                                 logger(CRON_PULLS_LOG, $msg);
