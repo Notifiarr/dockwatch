@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
-FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.23@sha256:8e10c9fe9a4bcbb81a50237b3e96456069b57900ca3fdc6a79f681302d1cca66
+FROM ghcr.io/linuxserver/baseimage-alpine-nginx:3.24@sha256:771a90c26e89a96fb9cdd801a282ae683a8467e26a6aebb17bdc4638c6cd94d8
 ARG TARGETARCH
 ENV TARGETARCH=${TARGETARCH}
 
@@ -54,7 +54,7 @@ RUN \
     rm -r /etc/s6-overlay/s6-rc.d/init-version-checks && \
     rm /etc/s6-overlay/s6-rc.d/user/contents.d/init-version-checks && \
     rm /etc/s6-overlay/s6-rc.d/init-nginx-end/dependencies.d/init-version-checks && \
-    # Overwritten by root/etc/php**/conf.d/99-dockwatch.ini
+    # Overwritten by root/etc/php**/conf.d/dockwatch.ini
     rm -r /etc/s6-overlay/s6-rc.d/init-php && \
     rm /etc/s6-overlay/s6-rc.d/user/contents.d/init-php && \
     # We are running on port 80 only
