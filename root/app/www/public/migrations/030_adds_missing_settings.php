@@ -7,7 +7,6 @@
 ----------------------------------
 */
 
-//-- INSERT ONLY WHEN THE NAME IS MISSING SO EXISTING INSTALLS KEEP THEIR VALUES
 $missingSettings = [
     'securityEnabled'    => '0',
     'securityScanHour'   => '12',
@@ -15,29 +14,34 @@ $missingSettings = [
     'migration'          => '030',
 ];
 
-$q = [];
-
-foreach ($missingSettings as $name => $value) {
-    $q[] = "INSERT INTO " . SETTINGS_TABLE . "
-            (`name`, `value`)
-            VALUES
-            ('" . $name . "', '" . $value . "')";
-}
-
 $error = false;
 
-foreach ($q as $query) {
+foreach ($missingSettings as $name => $value) {
+    //-- INSERT ONLY WHEN THE NAME IS MISSING SO EXISTING INSTALLS KEEP THEIR VALUES
+    $query = "INSERT INTO " . SETTINGS_TABLE . "
+            (`name`, `value`)
+            SELECT '" . $name . "', '" . $value . "'
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM " . SETTINGS_TABLE . "
+                WHERE `name` = '" . $name . "'
+            )";
+
     logger(MIGRATION_LOG, '<span class="text-success">[Q]</span> ' . preg_replace('!\s+!', ' ', $query));
 
-    $database->mysqli_query($query);
+    try {
+        $database->mysqli_query($query);
+    } catch (Exception $e) {
+        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $e->getMessage(), 'error');
+        $error = true;
+        continue;
+    }
 
     if ($migrationError = $database->mysqli_error()) {
-        if (str_contains($migrationError, 'Duplicate entry')) {
-            logger(MIGRATION_LOG, '<span class="text-info">[R]</span> already exists', 'warn');
-        } else {
-            logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $migrationError, 'error');
-            $error = true;
-        }
+        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $migrationError, 'error');
+        $error = true;
+    } elseif ($database->mysqli_affectedRows() === 0) {
+        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> already exists', 'warn');
     } else {
         logger(MIGRATION_LOG, '<span class="text-info">[R]</span> query applied!');
     }
@@ -48,14 +52,22 @@ if (!$error) {
     $sql = "UPDATE " . SETTINGS_TABLE . "
             SET value = '030'
             WHERE name = 'migration'";
-    $database->mysqli_query($sql);
 
-    if ($migrationError = $database->mysqli_error()) {
+    try {
+        $database->mysqli_query($sql);
+    } catch (Exception $e) {
+        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $e->getMessage(), 'error');
+        $error = true;
+    }
+
+    if (!$error && ($migrationError = $database->mysqli_error())) {
         logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $migrationError, 'error');
         $error = true;
-    } else {
+    } elseif (!$error) {
         logger(MIGRATION_LOG, '<span class="text-info">[R]</span> query applied!');
     }
-} else {
+}
+
+if ($error) {
     logger(MIGRATION_LOG, 'A migration error occurred, please check the migration log for details');
 }
