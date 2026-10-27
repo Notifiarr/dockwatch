@@ -19,13 +19,24 @@ if ($_POST['m'] == 'init') {
     $unusedContainers = apiRequest('docker/unused/containers');
     $unusedContainers = json_decode($unusedContainers['result'], true);
     ?>
-    <ol class="breadcrumb rounded p-1 ps-2">
-        <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
-        <li class="breadcrumb-item active" aria-current="page">Orphans</li>
-    </ol>
+    <div class="orphans-page">
+    <div class="col-sm-12 access-rw" id="orphan-button-row">
+        <div id="orphan-control-buttons" class="text-center">
+            <div class="container-control-buttons-bg">
+                <div class="bg-primary w-100" style="height: 100%; border-radius: 8px;"></div>
+            </div>
+            <span class="me-2">With selected:</span>
+            <select id="massOrphanTrigger" class="form-select d-inline-block w-auto">
+                <option value="0">-- Select option --</option>
+                <option value="1">Remove</option>
+            </select>
+            <button type="button" class="btn btn-success btn-sm ms-2" onclick="removeOrphans()">Apply</button>
+        </div>
+    </div>
     <div class="bg-secondary rounded h-100 p-4">
-        <h4 class="mt-3 mb-0">Images</h4>
-        <span class="text-muted"><code><?= DockerSock::ORPHAN_CONTAINERS ?></code></span>
+        <h5 class="text-info mb-2">Images</h5>
+        <div class="border border-secondary rounded p-3 mb-4">
+        <span class="text-muted d-block mb-2"><code><?= DockerSock::ORPHAN_CONTAINERS ?></code></span>
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -59,8 +70,10 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="mt-3 mb-0">Unused containers</h4>
-        <span class="text-muted"><code><?= DockerSock::UNUSED_CONTAINERS ?></code></span>
+        </div>
+        <h5 class="text-info mb-2">Unused containers</h5>
+        <div class="border border-secondary rounded p-3 mb-4">
+        <span class="text-muted d-block mb-2"><code><?= DockerSock::UNUSED_CONTAINERS ?></code></span>
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -92,8 +105,10 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="mt-3 mb-0">Volumes</h4>
-        <span class="text-muted"><code><?= DockerSock::ORPHAN_VOLUMES ?></code></span>
+        </div>
+        <h5 class="text-info mb-2">Volumes</h5>
+        <div class="border border-secondary rounded p-3 mb-4">
+        <span class="text-muted d-block mb-2"><code><?= DockerSock::ORPHAN_VOLUMES ?></code></span>
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -123,8 +138,10 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="mt-3 mb-0">Networks</h4>
-        <span class="text-muted"><code><?= DockerSock::ORPHAN_NETWORKS ?></code></span>
+        </div>
+        <h5 class="text-info mb-2">Networks</h5>
+        <div class="border border-secondary rounded p-3">
+        <span class="text-muted d-block mb-2"><code><?= DockerSock::ORPHAN_NETWORKS ?></code></span>
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -154,20 +171,10 @@ if ($_POST['m'] == 'init') {
                     }
                     ?>
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <td class="rounded-bottom-left-1 rounded-bottom-right-1 bg-primary ps-3" colspan="4">
-                            With selected:
-                            <select id="massOrphanTrigger" class="form-select d-inline-block w-50">
-                                <option value="0">-- Select option --</option>
-                                <option value="1">Remove</option>
-                            </select>
-                            <button type="button" class="btn btn-secondary" onclick="removeOrphans()">Apply</button>
-                        </td>
-                    </tr>
-                </tfoot>
             </table>
         </div>
+        </div>
+    </div>
     </div>
     <?php
 }

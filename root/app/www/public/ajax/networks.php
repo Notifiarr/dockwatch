@@ -14,10 +14,6 @@ if ($_POST['m'] == 'init') {
     $neworks   = explode("\n", $apiResult);
 
     ?>
-    <ol class="breadcrumb rounded p-1 ps-2">
-        <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
-        <li class="breadcrumb-item active" aria-current="page">Networks</li>
-    </ol>
     <div class="bg-secondary rounded p-4">
         <div class="table-responsive bg-secondary">
             <table class="table table-no-squish">

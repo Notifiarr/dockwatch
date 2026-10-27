@@ -28,7 +28,7 @@ if ($_POST['m'] == 'init') {
             if ($group[0] != '.' && is_dir($logDir . $group)) {
                 $groupDir = opendir($logDir . $group . '/');
                 while ($log = readdir($groupDir)) {
-                    if ($log[0] != '.' && !is_dir($log) && !str_ends_with($log, '.gz')) {
+                    if ($log[0] != '.' && !is_dir($log) && !str_ends_with($log, '.gz') && !str_ends_with($log, '.lock')) {
                         $logFiles[$group][] = ['name' => $log, 'size' => filesize($logDir . $group . '/' . $log)];
                     }
                 }
@@ -46,10 +46,6 @@ if ($_POST['m'] == 'init') {
         echo 'No log files have been generated yet.';
     } else {
         ?>
-        <ol class="breadcrumb rounded p-1 ps-2">
-            <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
-            <li class="breadcrumb-item active" aria-current="page">Logs</li>
-        </ol>
         <div class="bg-secondary rounded p-4">
             <div class="row">
                 <div class="col-sm-3">

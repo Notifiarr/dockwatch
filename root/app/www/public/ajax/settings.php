@@ -54,13 +54,25 @@ if ($_POST['m'] == 'init') {
             $databaseActiveUserCount++;
         }
     }
+
+    $databaseToolsLocal = $_SESSION['activeServerId'] == APP_SERVER_ID;
+    $backupTime         = normalizeBackupTime($settingsTable['backupTime'] ?? '03:00');
+    $browseSummary      = $databaseToolsLocal ? $database->browseTablesSummary() : [];
     ?>
-    <ol class="breadcrumb rounded p-1 ps-2">
-        <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
-        <li class="breadcrumb-item active" aria-current="page">Settings</li>
-    </ol>
     <div class="bg-secondary rounded p-4">
-        <h4 class="text-info">Instance</h4>
+        <ul class="nav nav-tabs settings-tabs mb-3 flex-nowrap overflow-auto" role="tablist">
+            <li class="nav-item" role="presentation"><button class="nav-link active" id="settings-instance-tab" data-bs-toggle="tab" data-bs-target="#settings-instance" type="button" role="tab">Instance</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="settings-ui-tab" data-bs-toggle="tab" data-bs-target="#settings-ui" type="button" role="tab">UI</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="settings-logins-tab" data-bs-toggle="tab" data-bs-target="#settings-logins" type="button" role="tab">Logins</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="settings-servers-tab" data-bs-toggle="tab" data-bs-target="#settings-servers" type="button" role="tab">Servers</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="settings-containers-tab" data-bs-toggle="tab" data-bs-target="#settings-containers" type="button" role="tab">Containers</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="settings-thresholds-tab" data-bs-toggle="tab" data-bs-target="#settings-thresholds" type="button" role="tab">Thresholds</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="settings-logging-tab" data-bs-toggle="tab" data-bs-target="#settings-logging" type="button" role="tab">Logging</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="settings-database-tab" data-bs-toggle="tab" data-bs-target="#settings-database" type="button" role="tab">Database</button></li>
+            <li class="nav-item" role="presentation"><button class="nav-link" id="settings-development-tab" data-bs-toggle="tab" data-bs-target="#settings-development" type="button" role="tab">Development</button></li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="settings-instance" role="tabpanel">
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -109,7 +121,10 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="text-info">UI</h4>
+            </div>
+            <div class="tab-pane fade" id="settings-ui" role="tabpanel">
+        <h5 class="text-info mb-2">Interface</h5>
+        <div class="border border-secondary rounded p-3 mb-4">
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -151,7 +166,71 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="text-info">Users</h4>
+        </div>
+        <h5 class="text-info mb-2">SSE</h5>
+        <div class="border border-secondary rounded p-3">
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Enabled<sup>2,3</sup></td>
+                        <td class="bg-secondary">
+                            <input class="form-check-input" type="checkbox" id="globalSetting-sseEnabled" <?= $settingsTable['sseEnabled'] ? 'checked' : '' ?>>
+                        </td>
+                        <td class="bg-secondary">SSE will update the container list UI every minute with current status of Updates, State, Health, CPU and Memory</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        </div>
+            </div>
+            <div class="tab-pane fade" id="settings-logins" role="tabpanel">
+        <h5 class="text-info mb-2">Failures</h5>
+        <div class="border border-secondary rounded p-3 mb-4">
+        <div class="table-responsive">
+            <table class="table table-sm table-no-squish">
+                <thead>
+                    <tr>
+                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
+                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
+                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Allowed failures</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-loginFailures" value="<?= LOGIN_FAILURE_LIMIT ?>">
+                        </td>
+                        <td class="bg-secondary">How many failures before blocking logins</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Timeout length</t>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" id="globalSetting-loginTimeout" value="<?= LOGIN_FAILURE_TIMEOUT ?>">
+                        </td class="bg-secondary">
+                        <td class="bg-secondary">How long to block logins after the limit is reached (minutes)</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Whitelist</t>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="text" id="globalSetting-loginWhitelist" placeholder="192.168.178.0/24,172.28.0.0/16" value="<?= $settingsTable['loginWhitelist'] ?>">
+                        </td class="bg-secondary">
+                        <td class="bg-secondary">Comma-separated list of allowed IP subnets to ignore in intrusion notifications.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        </div>
+        <h5 class="text-info mb-2">Users</h5>
+        <div class="border border-secondary rounded p-3">
         <p class="text-muted small mb-3">No active users and an empty/missing login file will disable login auth.</p>
         <input type="hidden" id="settings-hasLoginFile" value="<?= $hasLoginFile ? 1 : 0 ?>">
         <input type="hidden" id="settings-databaseActiveUserCount" value="<?= $databaseActiveUserCount ?>">
@@ -236,42 +315,9 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="text-info">Login auth</h4>
-        <div class="table-responsive">
-            <table class="table table-sm table-no-squish">
-                <thead>
-                    <tr>
-                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Allowed failures</td>
-                        <td class="bg-secondary">
-                            <input class="form-control" type="text" id="globalSetting-loginFailures" value="<?= LOGIN_FAILURE_LIMIT ?>">
-                        </td>
-                        <td class="bg-secondary">How many failures before blocking logins</td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Timeout length</t>
-                        <td class="bg-secondary">
-                            <input class="form-control" type="number" id="globalSetting-loginTimeout" value="<?= LOGIN_FAILURE_TIMEOUT ?>">
-                        </td class="bg-secondary">
-                        <td class="bg-secondary">How long to block logins after the limit is reached (minutes)</td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Whitelist</t>
-                        <td class="bg-secondary">
-                            <input class="form-control" type="text" id="globalSetting-loginWhitelist" placeholder="192.168.178.0/24,172.28.0.0/16" value="<?= $settingsTable['loginWhitelist'] ?>">
-                        </td class="bg-secondary">
-                        <td class="bg-secondary">Comma-separated list of allowed IP subnets to ignore in intrusion notifications.</td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
-        <h4 class="text-info"><?= APP_NAME ?> servers</h4>
+            </div>
+            <div class="tab-pane fade" id="settings-servers" role="tabpanel">
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -333,7 +379,10 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="text-info">Containers</h4>
+            </div>
+            <div class="tab-pane fade" id="settings-containers" role="tabpanel">
+        <h5 class="text-info mb-2">Containers</h5>
+        <div class="border border-secondary rounded p-3 mb-4">
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -370,7 +419,9 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="text-info">Security</h4>
+        </div>
+        <h5 class="text-info mb-2">Security</h5>
+        <div class="border border-secondary rounded p-3 mb-4">
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -468,7 +519,9 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="text-info">Auto prune</h4>
+        </div>
+        <h5 class="text-info mb-2">Auto prune</h5>
+        <div class="border border-secondary rounded p-3">
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -518,7 +571,9 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="mt-3 text-info">Thresholds</h4>
+        </div>
+            </div>
+            <div class="tab-pane fade" id="settings-thresholds" role="tabpanel">
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -553,28 +608,8 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="mt-3 text-info">SSE</h4>
-        <div class="table-responsive mt-2">
-            <table class="table table-sm table-no-squish">
-                <thead>
-                    <tr>
-                        <th class="rounded-top-left-1 bg-primary ps-3" scope="col" width="15%">Name</th>
-                        <th class="bg-primary ps-3" scope="col" width="30%">Setting</th>
-                        <th class="rounded-top-right-1 bg-primary ps-3" scope="col" width="55%">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Enabled<sup>2,3</sup></td>
-                        <td class="bg-secondary">
-                            <input class="form-check-input" type="checkbox" id="globalSetting-sseEnabled" <?= $settingsTable['sseEnabled'] ? 'checked' : '' ?>>
-                        </td>
-                        <td class="bg-secondary">SSE will update the container list UI every minute with current status of Updates, State, Health, CPU and Memory</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <h4 class="mt-3 text-info">Logging</h4>
+            </div>
+            <div class="tab-pane fade" id="settings-logging" role="tabpanel">
         <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
@@ -626,8 +661,65 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
-        <h4 class="mt-3"><i class="far fa-plus-square text-light development-settings" onclick="$('.development-settings').toggle()"></i> <i class="far fa-minus-square text-light development-settings" onclick="$('.development-settings').toggle()" style="display: none;"></i> <span class="text-info">Development</span></h4>
-        <div class="table-responsive development-settings" style="display: none;">
+            </div>
+            <div class="tab-pane fade" id="settings-database" role="tabpanel">
+                <h5 class="text-info mb-2">Migration</h5>
+                <div class="border border-secondary rounded p-3 mb-4">
+                    <div class="d-flex gap-2 align-items-center mb-2">
+                        <select class="form-select" id="globalSetting-migration"><?= $migrations ?></select>
+                        <button type="button" class="btn btn-outline-warning btn-sm text-nowrap" onclick="freshStartMigration()">Fresh Start <sup>5</sup></button>
+                    </div>
+                    <div class="small">The database migration this server is on. Changing it re-applies every later migration and resets settings those migrations alter. Save Changes stores it.</div>
+                </div>
+                <?php if ($databaseToolsLocal) { ?>
+                    <h5 class="text-info mb-2">Backups</h5>
+                    <div class="border border-secondary rounded p-3 mb-4">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="globalSetting-backupTime" class="form-label">Backup time</label>
+                                <select class="form-select" id="globalSetting-backupTime">
+                                    <?php foreach (range(0, 23) as $hour) { ?>
+                                        <?php foreach ([0, 10, 20, 30, 40, 50] as $minute) {
+                                            $option = sprintf('%02d:%02d', $hour, $minute);
+                                            $label  = date('g:i A', mktime($hour, $minute, 0));
+                                            ?>
+                                            <option value="<?= htmlspecialchars($option, ENT_QUOTES, 'UTF-8') ?>" <?= $option == $backupTime ? 'selected' : '' ?>><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></option>
+                                        <?php } ?>
+                                    <?php } ?>
+                                </select>
+                                <div class="form-text">The dispatcher runs one automatic backup a day at this time.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="globalSetting-backupKeep" class="form-label">Days to keep</label>
+                                <input class="form-control" type="number" min="1" id="globalSetting-backupKeep" value="<?= max(1, intval($settingsTable['backupKeep'] ?? APP_BACKUPS)) ?>">
+                                <div class="form-text">Housekeeper removes backup folders older than this many days.</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success" onclick="backupDatabase()">Run backup</button>
+                        <div class="small mt-2">Each run dumps every table to its own <code>.sql</code> file under <code><?= BACKUP_PATH ?></code> and copies config JSON plus compose stacks into that folder. Backup time and retention are stored with Save Changes.</div>
+                        <div id="backupList" class="mt-3"><?= backupListHtml() ?></div>
+                    </div>
+                    <h5 class="text-info mb-2">Browse</h5>
+                    <div class="border border-secondary rounded p-3 mb-4">
+                        <div id="browseDatabaseList">
+                            <?php
+                            $browseView = 'list';
+                            require ABSOLUTE_PATH . 'includes/settings/browseDatabase.php';
+                            ?>
+                        </div>
+                    </div>
+                    <h5 class="text-info mb-2">Query</h5>
+                    <div class="border border-secondary rounded p-3">
+                        <textarea class="form-control font-monospace" id="browseDatabaseQuery" rows="5" placeholder="One SQL statement"></textarea>
+                        <button type="button" class="btn btn-primary mt-2" onclick="runDatabaseQuery();">Run</button>
+                        <div id="browseDatabaseQueryResult" class="mt-3"></div>
+                    </div>
+                <?php } else { ?>
+                    <p class="mb-0">Browse, backup, restore, and query run on this Dockwatch instance only.</p>
+                <?php } ?>
+            </div>
+            <div class="tab-pane fade" id="settings-development" role="tabpanel">
+        <div class="table-responsive">
             <table class="table table-sm table-no-squish">
                 <thead>
                     <tr>
@@ -637,56 +729,6 @@ if ($_POST['m'] == 'init') {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Migration</td>
-                        <td class="bg-secondary">
-                            <div class="d-flex gap-2 align-items-center">
-                                <select class="form-select" id="globalSetting-migration"><?= $migrations ?></select>
-                                <button type="button" class="btn btn-outline-warning btn-sm text-nowrap" onclick="freshStartMigration()">Fresh Start <sup>5</sup></button>
-                            </div>
-                        </td>
-                        <td class="bg-secondary">The database migration this server is on, changing this will re-apply all subsequent migrations and reset any settings they alter.</td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Backup time</td>
-                        <td class="bg-secondary">
-                            <select class="form-select" id="globalSetting-backupTime">
-                                <?php
-                                $backupTime = normalizeBackupTime($settingsTable['backupTime']);
-                                foreach (range(0, 23) as $hour) {
-                                    foreach ([0, 10, 20, 30, 40, 50] as $minute) {
-                                        $option = sprintf('%02d:%02d', $hour, $minute);
-                                        $label  = date('g:i A', mktime($hour, $minute, 0));
-                                        ?>
-                                        <option value="<?= htmlspecialchars($option, ENT_QUOTES, 'UTF-8') ?>" <?= $option == $backupTime ? 'selected' : '' ?>><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></option>
-                                        <?php
-                                    }
-                                }
-                                ?>
-                            </select>
-                        </td>
-                        <td class="bg-secondary">Daily automatic backup time. The dispatcher checks this every 10 minutes and runs once per day.</td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Backup retention</td>
-                        <td class="bg-secondary">
-                            <input class="form-control" type="number" min="1" id="globalSetting-backupKeep" value="<?= $settingsTable['backupKeep'] ?>">
-                        </td>
-                        <td class="bg-secondary">Housekeeper removes backup folders older than this many days.</td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary" scope="row">Database</td>
-                        <td class="bg-secondary">
-                            <div class="d-flex flex-wrap gap-2">
-                                <button type="button" class="btn btn-sm btn-info" onclick="initPage('database')">Browse</button>
-                                <button type="button" class="btn btn-sm btn-success" onclick="backupDatabase()">Backup</button>
-                            </div>
-                        </td>
-                        <td class="bg-secondary">Browse the <?= APP_NAME ?> database, or run a backup now. Each run dumps every table to its own <code>.sql</code> file under <code><?= BACKUP_PATH ?></code> and copies config JSON plus compose stacks into that folder.</td>
-                    </tr>
-                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
-                        <td class="bg-secondary p-3" colspan="3" id="backupList"><?= backupListHtml() ?></td>
-                    </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Containers clean up</td>
                         <td class="bg-secondary"><button class="btn btn-sm btn-warning" onclick="cleanupContainers()">Clean</button></td>
@@ -741,6 +783,10 @@ if ($_POST['m'] == 'init') {
                 </tbody>
             </table>
         </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-secondary rounded p-4 mt-3">
         <div align="center"><button type="button" class="btn btn-success m-2" onclick="saveGlobalSettings()">Save Changes</button></div>
         <sup>1</sup> Checked every 5 minutes<br>
         <sup>2</sup> Updates every minute<br>

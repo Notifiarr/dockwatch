@@ -110,10 +110,6 @@ if ($_POST['m'] == 'init') {
         echo 'Remote compose management is not supported. Please do that on the Dockwatch instance directly.';
     } else {
         ?>
-        <ol class="breadcrumb rounded p-1 ps-2">
-            <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
-            <li class="breadcrumb-item active" aria-current="page">Compose</li>
-        </ol>
         <div class="bg-secondary rounded p-4">
             <div class="row">
                 <div class="col-sm-12">

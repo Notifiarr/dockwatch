@@ -15,19 +15,16 @@ if ($_POST['m'] == 'init') {
     $notificationLinkTable     = apiRequest('database/notification/links')['result'];
 
     ?>
-    <ol class="breadcrumb rounded p-1 ps-2">
-        <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
-        <li class="breadcrumb-item active" aria-current="page">Notifications</li>
-    </ol>
-    <div class="bg-secondary rounded mb-3 p-4">
-        <span class="h6">Platforms</span>
-        <div class="row mt-3">
+    <div class="bg-secondary rounded p-4">
+        <h5 class="text-info mb-2">Platforms</h5>
+        <div class="rounded p-3 mb-4">
+        <div class="row">
             <?php
             foreach ($notificationPlatformTable as $notificationPlatform) {
                 $add = $notificationPlatform['parameters'] ? '<i class="fas fa-plus-circle text-light ms-3" style="cursor: pointer;" onclick="openNotificationTriggers(' . $notificationPlatform['id'] . ')"></i>' : '<span class="small-text fst-italic ms-3">Coming soon!</span>';
 
                 ?>
-                <div class="col-sm-3 rounded border border-light me-3">
+                <div class="col-sm-3 rounded me-3">
                     <div class="container">
                         <div class="bg-secondary rounded text-center p-1">
                             <h4 class="mt-3"><?= $notificationPlatform['platform'] . $add ?></h4>
@@ -38,10 +35,10 @@ if ($_POST['m'] == 'init') {
             }
             ?>
         </div>
-    </div>
-    <div class="bg-secondary rounded mb-3 p-4">
-        <span class="h6">Configured senders</span>
-        <div class="row mt-3">
+        </div>
+        <h5 class="text-info mb-2">Configured senders</h5>
+        <div class="rounded p-3">
+        <div class="row">
             <?php if (!$notificationLinkTable) { ?>
                 <div class="container">
                     <div class="bg-secondary rounded p-4">
@@ -52,7 +49,7 @@ if ($_POST['m'] == 'init') {
                 <?php
                 foreach ($notificationLinkTable as $notificationLink) {
                     ?>
-                    <div class="col-sm-4 rounded border border-light me-3">
+                    <div class="col-sm-4 rounded me-3">
                         <div class="container">
                             <div class="bg-secondary rounded text-center p-2">
                                 <h4 class="mt-3">
@@ -83,6 +80,7 @@ if ($_POST['m'] == 'init') {
                 }
                 ?>
             <?php } ?>
+        </div>
         </div>
     </div>
     <?php

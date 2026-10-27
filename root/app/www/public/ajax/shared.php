@@ -18,7 +18,7 @@ if (file_exists('../../loader.php')) {
 }
 require ABSOLUTE_PATH . 'loader.php';
 
-maintenanceGate(503, 'Maintenance container: the UI is not available', false);
+maintenanceGate(503, 'Maintenance container: the UI is not available');
 
 $ajaxFile    = basename($_SERVER['PHP_SELF'] ?? '', '.php');
 $ajaxMethod  = $_POST['m'] ?? '';
@@ -26,7 +26,6 @@ $isLoginAjax = $ajaxFile == 'login' && str_equals_any($ajaxMethod, ['login', 'lo
 
 if (USE_AUTH && !$isLoginAjax && empty($_SESSION['authenticated'])) {
     http_response_code(401);
-    header('Content-Type: application/json');
     echo json_encode(['error' => 'Unauthorized']);
     exit;
 }

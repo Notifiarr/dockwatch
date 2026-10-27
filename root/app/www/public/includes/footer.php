@@ -11,7 +11,7 @@
 </div>
 <?php if ($_SESSION['authenticated']) { ?>
     <footer id="footer" class="footer fixed-bottom bg-body">
-        <div class="container border border-bottom-0 border-start-0 border-end-0 border-secondary" style="height: 100%;">
+        <div class="container" style="height: 100%;">
             <div id="footer-content" class="row">
                 <div id="footer-branch" class="col-sm-12 col-lg-4 text-center">
                     Branch: <?= gitBranch() ?>, Hash: <a href="https://github.com/Notifiarr/dockwatch/commit/<?= gitHash() ?>" target="_blank" class="text-info"><?= substr(gitHash(), 0, 7) ?></a><br>
@@ -50,22 +50,12 @@
 <!-- Toast container -->
 <div class="toast-container bottom-0 end-0 p-3" style="z-index: 10001 !important; position: fixed;"></div>
 
-<!-- Loading modal -->
-<div class="modal fade" id="loading-modal" style="z-index: 10000 !important;" data-bs-backdrop="static">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content bg-dark" style="border: grey solid 1px;">
-            <div class="modal-header" style="border: grey solid 1px;">
-                <h5 class="modal-title text-info">Loading</h5>
-                <button type="button" class="btn btn-outline-primary btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" style="border: grey solid 1px;">
-                <p>
-                <div class="spinner-border text-info" style="margin-right: 1em;"></div>
-                <span class="text-white">I'm gathering everything needed to complete the request, give me just a
-                    moment...</span>
-                </p>
-            </div>
-            <div class="modal-footer">&nbsp;</div>
+<!-- Loading overlay -->
+<div class="modal fade overlay-modal overlay-loading" id="loading-modal" style="z-index: 10001 !important;" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="overlay-loading-text"><span class="spinner-border spinner-border-sm text-info" role="status"></span> Loading</div>
         </div>
     </div>
 </div>

@@ -32,16 +32,11 @@ if ($_POST['m'] == 'init') {
         }
     }
     ?>
-    <ol class="breadcrumb rounded p-1 ps-2">
-        <li class="breadcrumb-item"><a href="#" onclick="initPage('overview')"><?= $_SESSION['activeServerName'] ?></a><span class="ms-2">↦</span></li>
-        <li class="breadcrumb-item active" aria-current="page">Containers</li>
-    </ol>
-    <div class="bg-secondary rounded p-4">
-        <div class="row">
-            <div class="col-sm-12 access-rw" id="container-button-row">
-                <div id="container-control-buttons" class="text-center">
+    <div class="containers-page">
+        <div class="col-sm-12 access-rw" id="container-button-row">
+            <div id="container-control-buttons" class="text-center">
                     <div class="container-control-buttons-bg">
-                        <div class="bg-primary w-100" style="height: 100%; backdrop-filter: blur(6px); opacity: 0.6; border-radius: 8px; display: flex; align-items: center; justify-content: center;"></div>
+                        <div class="bg-primary w-100" style="height: 100%; border-radius: 8px;"></div>
                     </div>
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-outline-light bg-secondary btn-sm" onclick="massApplyContainerTrigger(false, 4)"><i class="fas fa-cloud-download-alt fa-xs me-1"></i><span class="container-control-button-label text-light hide-mobile"> Pull</span></button>
@@ -65,9 +60,11 @@ if ($_POST['m'] == 'init') {
                         </ul>
                     </div>
                 </div>
-            </div>
+        </div>
+    <div class="bg-secondary rounded p-4">
+        <div class="row">
             <?php if ($pullsNotice) { ?>
-                <div class="col-sm-12" style="margin-top: 3em !important;">
+                <div class="col-sm-12">
                     <div class="rounded m-2 p-2 bg-gray">
                         There is no pull data available yet to determine update status.<br>
                         To pull data, set Update Options to "Check for updates" or "Auto update" per Container and click Save.
@@ -76,7 +73,7 @@ if ($_POST['m'] == 'init') {
                     </div>
                 </div>
             <?php } ?>
-            <div class="col-sm-12 hide-mobile" style="margin-top: 3em !important;">
+            <div class="col-sm-12 hide-mobile">
                 <div class="text-end mb-2">
                     <span class="small-text text-muted">
                         Real time updates: <span class="small-text text-muted" title="<?= $sseTitle ?>"><?= $sseLabel ?></span>
@@ -213,6 +210,7 @@ if ($_POST['m'] == 'init') {
         <option value="6">Generate docker-compose</option>
         <option value="5">Generate docker run</option>
     </select>
+    </div>
     <?php
 }
 

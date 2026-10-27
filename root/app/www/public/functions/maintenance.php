@@ -7,14 +7,10 @@
 ----------------------------------
 */
 
-function maintenanceGate($code, $message, $plainUtf8 = true)
+function maintenanceGate($code, $message)
 {
     if (!IS_MAINTENANCE) {
         return;
-    }
-
-    if ($plainUtf8) {
-        header('Content-Type: text/plain; charset=UTF-8');
     }
 
     http_response_code($code);

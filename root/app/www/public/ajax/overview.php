@@ -73,9 +73,6 @@ if ($_POST['m'] == 'init') {
     }
 
     ?>
-    <ol class="breadcrumb rounded p-1 ps-2">
-        <li class="breadcrumb-item active" aria-current="page"><?= $_SESSION['activeServerName'] ?></li>
-    </ol>
     <div class="row">
         <div class="d-flex flex-wrap flex-lg-nowrap" style="justify-content:center;">
             <div class="bg-secondary p-2 w-100 rounded-start" style="cursor:pointer;" onclick="initPage('containers')">

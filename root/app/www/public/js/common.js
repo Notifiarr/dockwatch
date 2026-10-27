@@ -452,7 +452,7 @@ function dialogOpen(p)
     const id        = p.id;
     const title     = p.title ? p.title : '&nbsp;';
     const body      = p.body ? p.body : '&nbsp;';
-    const footer    = p.footer ? p.footer : '&nbsp;';
+    const footer    = p.footer === false ? '' : (p.footer ? p.footer : '&nbsp;');
     const close     = typeof p.close === 'undefined' ? true : p.close;
     const size      = p.size ? p.size : ''; //-- sm, lg, xl
     const escape    = typeof p.escape === 'undefined' ? false : p.escape;
@@ -483,6 +483,9 @@ function dialogOpen(p)
     $('#' + id + ' .modal-title').html(title);
     $('#' + id + ' .modal-body').html(body);
     $('#' + id + ' .modal-footer').html(footer);
+    if (p.footer === false) {
+        $('#' + id + ' .modal-footer').hide();
+    }
 
     if (!close) {
         $('#' + id + ' .btn-close').hide();
@@ -603,10 +606,9 @@ function pageLoadingStart()
     $('#loading-modal .btn-close').hide();
     $('#loading-modal').modal('show');
 
-    $('#loading-modal .modal-header').dblclick(function () {
+    $('#loading-modal').off('dblclick.loadingModal').on('dblclick.loadingModal', function () {
         $('#loading-modal .btn-close').show();
     });
-
 }
 // -------------------------------------------------------------------------------------------
 function pageLoadingStop()

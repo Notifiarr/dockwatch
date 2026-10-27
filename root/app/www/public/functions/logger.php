@@ -65,7 +65,7 @@ function purgeLogs($group)
         $logDir = LOGS_PATH . $group . '/';
         $dir    = opendir($logDir);
         while ($log = readdir($dir)) {
-            if ($log[0] == '.' || is_dir($logDir . $log)) {
+            if ($log[0] == '.' || is_dir($logDir . $log) || str_ends_with($log, '.lock')) {
                 continue;
             }
             logger(UI_LOG, 'removing \'' . $logDir . $log . '\'');
