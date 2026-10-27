@@ -185,10 +185,9 @@ function freshStartMigration()
     $.ajax({
         type: 'POST',
         url: 'ajax/settings.php',
-        data: '&m=updateSetting&setting=migration&value=022',
+        data: '&m=updateSetting&setting=migration&value=-1',
         success: function () {
-            $('#globalSetting-migration').val('022');
-            toast('Settings', 'Migration set to 022, restart the container to apply the migration', 'success');
+            toast('Settings', 'Migration set to -1. Restart the container to drop and rebuild the database', 'success');
             initPage('settings');
         }
     });

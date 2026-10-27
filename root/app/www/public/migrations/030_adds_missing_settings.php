@@ -29,19 +29,15 @@ foreach ($missingSettings as $name => $value) {
 
     logger(MIGRATION_LOG, '<span class="text-success">[Q]</span> ' . preg_replace('!\s+!', ' ', $query));
 
-    try {
-        $database->mysqli_query($query);
-    } catch (Exception $e) {
-        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $e->getMessage(), 'error');
-        $error = true;
-        continue;
-    }
+    $database->mysqli_query($query);
 
     if ($migrationError = $database->mysqli_error()) {
-        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $migrationError, 'error');
-        $error = true;
-    } elseif ($database->mysqli_affectedRows() === 0) {
-        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> already exists', 'warn');
+        if (str_contains_any($migrationError, ['Duplicate entry', 'UNIQUE constraint failed'])) {
+            logger(MIGRATION_LOG, '<span class="text-warning">[W]</span> ' . $migrationError, 'warn');
+        } else {
+            logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $migrationError, 'error');
+            $error = true;
+        }
     } else {
         logger(MIGRATION_LOG, '<span class="text-info">[R]</span> query applied!');
     }
@@ -52,22 +48,14 @@ if (!$error) {
     $sql = "UPDATE " . SETTINGS_TABLE . "
             SET value = '030'
             WHERE name = 'migration'";
+    $database->mysqli_query($sql);
 
-    try {
-        $database->mysqli_query($sql);
-    } catch (Exception $e) {
-        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $e->getMessage(), 'error');
-        $error = true;
-    }
-
-    if (!$error && ($migrationError = $database->mysqli_error())) {
+    if ($migrationError = $database->mysqli_error()) {
         logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $migrationError, 'error');
         $error = true;
-    } elseif (!$error) {
+    } else {
         logger(MIGRATION_LOG, '<span class="text-info">[R]</span> query applied!');
     }
-}
-
-if ($error) {
+} else {
     logger(MIGRATION_LOG, 'A migration error occurred, please check the migration log for details');
 }

@@ -7,7 +7,8 @@
 ----------------------------------
 */
 
-if (!MYSQL_SETUP) {
+//-- FRESH START SETS MIGRATION TO -1 SO AN EXISTING DATABASE STILL RUNS THE DROP AND REBUILD
+if (!MYSQL_SETUP && intval($currentMigration) != -1) {
     // TODO: DELETE THIS CONDITION AFTER AN UPDATE OR TWO (LEAVE THE return; ON LN 28 ONLY), IT IS JUST A FALLBACK FOR SOME BUGS DURING THE MIGRATION PROCESS
     if (!$currentMigration) {
         //-- CONNECT TO THE MYSQL DATABASE
@@ -336,20 +337,15 @@ $error = false;
 foreach ($q as $sql) {
     logger(MIGRATION_LOG, '<span class="text-success">[Q]</span> ' . preg_replace('!\s+!', ' ', $sql));
 
-    try {
-        $database->mysqli_query($sql);
-    } catch (Exception $e) {
-        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $e, 'error');
+    $database->mysqli_query($sql);
 
-        //-- IGNORE OLD DATABASE UNIQUE CONSTRAINT ISSUS
-        if (!str_contains_any($e, ['Duplicate entry', 'UNIQUE constraint failed'])) {
+    if ($migrationError = $database->mysqli_error()) {
+        if (str_contains_any($migrationError, ['Duplicate entry', 'UNIQUE constraint failed'])) {
+            logger(MIGRATION_LOG, '<span class="text-warning">[W]</span> ' . $migrationError, 'warn');
+        } else {
+            logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $migrationError, 'error');
             $error = true;
         }
-    }
-
-    if ($database->error() != 'not an error') {
-        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $database->error(), 'error');
-        $error = true;
     } else {
         logger(MIGRATION_LOG, '<span class="text-info">[R]</span> query applied!');
     }
@@ -362,8 +358,8 @@ if (!$error) {
             WHERE name = 'migration'";
     $database->mysqli_query($sql);
 
-    if ($database->error() != 'not an error') {
-        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $database->error(), 'error');
+    if ($migrationError = $database->mysqli_error()) {
+        logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $migrationError, 'error');
         $error = true;
     } else {
         logger(MIGRATION_LOG, '<span class="text-info">[R]</span> query applied!');

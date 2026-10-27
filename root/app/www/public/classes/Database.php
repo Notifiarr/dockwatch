@@ -35,6 +35,7 @@ class Database
     public $migrationStart            = '023';
     public $mysql;
     public $shell;
+    private $mysqliError = '';
     public function __construct()
     {
         global $shell;
@@ -165,11 +166,24 @@ class Database
     // TODO: WAIT A FEW MONTHS FOR EXISTING USERS TO MIGRATE, CONSOLIDATE mysqli_* FUNCTIONS INTO THE THE NON mysqli_* FUNCTIONS
     public function mysqli_query($query)
     {
-        return mysqli_query($this->mysql, $query);
+        //-- PHP 8 THROWS ON FAILURE; RETURN FALSE AND KEEP THE ERROR FOR THE CALLER
+        $this->mysqliError = '';
+
+        try {
+            return mysqli_query($this->mysql, $query);
+        } catch (Exception $e) {
+            $this->mysqliError = $e->getMessage();
+
+            return false;
+        }
     }
 
     public function mysqli_error()
     {
+        if ($this->mysqliError) {
+            return $this->mysqliError;
+        }
+
         return mysqli_error($this->mysql);
     }
 
@@ -291,10 +305,16 @@ class Database
             $res = $this->mysqli_query($sql);
             $row = $this->mysqli_fetchAssoc($res);
 
-            $currentMigration = $row['value'];
+            $currentMigration = $row['value'] ?? 0;
         }
 
         $currentMigration = intval($currentMigration);
+
+        //-- A MISSING MIGRATION ROW READS AS 0; THOSE INSTALLS ARE ALREADY THROUGH 29
+        if ($currentMigration == 0) {
+            logger(MIGRATION_LOG, 'Migration id 0 is a missing field, treating it as 29', 'shell');
+            $currentMigration = 29;
+        }
         $neededMigrations = [];
         $dir              = opendir(MIGRATIONS_PATH);
         while ($migration = readdir($dir)) {

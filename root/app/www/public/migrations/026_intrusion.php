@@ -39,7 +39,7 @@ foreach ($q as $query) {
     $database->mysqli_query($query);
 
     if ($migrationError = $database->mysqli_error()) {
-        if (str_contains($migrationError, 'Duplicate entry')) {
+        if (str_contains_any($migrationError, ['Duplicate entry', 'UNIQUE constraint failed'])) {
             logger(MIGRATION_LOG, '<span class="text-warning">[W]</span> ' . $migrationError, 'warn');
         } else {
             logger(MIGRATION_LOG, '<span class="text-info">[R]</span> ' . $migrationError, 'error');

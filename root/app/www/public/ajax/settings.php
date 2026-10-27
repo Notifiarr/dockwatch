@@ -18,6 +18,12 @@ if ($_POST['m'] == 'init') {
         $cpus = '0 (Could not get cpu count from /proc/cpuinfo)';
     }
 
+    $migrations = '';
+
+    if (intval($settingsTable['migration']) == -1) {
+        $migrations .= '<option selected value="-1">Fresh Start</option>';
+    }
+
     $dir = opendir(MIGRATIONS_PATH);
     while ($migration = readdir($dir)) {
         if (str_contains($migration, '.php')) {
