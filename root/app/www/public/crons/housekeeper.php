@@ -18,6 +18,8 @@ if (!canCronRun('housekeeper', $settingsTable)) {
     exit();
 }
 
+cronLock('housekeeper', CRON_HOUSEKEEPER_LOG);
+
 //-- CONTAINER TABLE CLEANUP (DAILY @ MIDNIGHT)
 if (date('H') == 0 && date('i') <= 5) {
     logger(CRON_HOUSEKEEPER_LOG, 'Container Table Cleanup (daily @ midnight) ->');
@@ -178,7 +180,7 @@ if (date('H') == 0 && date('i') <= 5) {
                 } else {
                     //-- LOG FILES
                     while ($log = readdir($folder)) {
-                        if ($log[0] != '.' && !is_dir($thisDir . $log)) {
+                        if ($log[0] != '.' && !is_dir($thisDir . $log) && !str_ends_with($log, '.lock')) {
                             $daysBetween = daysBetweenDates(date('Ymd', filemtime($thisDir . $log)), date('Ymd'));
                             logger(CRON_HOUSEKEEPER_LOG, 'logfile: ' . $thisDir . $log . ', days: ' . $daysBetween);
 
@@ -196,41 +198,26 @@ if (date('H') == 0 && date('i') <= 5) {
     }
 }
 
-//-- BACKUPS
-if (!is_dir(BACKUP_PATH . date('Ymd'))) {
-    createDirectoryTree(BACKUP_PATH . date('Ymd'));
-    $defines = get_defined_constants();
+//-- BACKUP RETENTION
+if (is_dir(BACKUP_PATH)) {
+    $keep = $settingsTable['backupKeep'];
+    $dir  = opendir(BACKUP_PATH);
+    if ($dir) {
+        while ($backup = readdir($dir)) {
+            $path = BACKUP_PATH . $backup;
+            if (!is_dir($path)) {
+                logger(CRON_HOUSEKEEPER_LOG, 'removing backup: ' . $path);
+                $shell->exec('rm -rf ' . escapeshellarg($path));
+            } else if ($backup[0] != '.' && preg_match('/^\d{8}$/', $backup)) {
+                $daysBetween = daysBetweenDates($backup, date('Ymd'));
 
-    foreach ($defines as $define => $defineValue) {
-        if (str_contains($define, '_FILE') && str_contains_all($defineValue, ['config/', '.json'])) {
-            $backupFiles[] = $defineValue;
-        }
-    }
-
-    foreach ($backupFiles as $backupFile) {
-        $file = explode('/', $backupFile);
-        $file = end($file);
-
-        logger(CRON_HOUSEKEEPER_LOG, 'backup file \'' . APP_DATA_PATH . $file . '\' to \'' . BACKUP_PATH . $file . '\'');
-        copy(APP_DATA_PATH . $file, BACKUP_PATH . date('Ymd') . '/' . $file);
-        $database->mysqli_backup();
-    }
-}
-
-$dir = opendir(BACKUP_PATH);
-while ($backup = readdir($dir)) {
-    if (!is_dir(BACKUP_PATH . $backup)) {
-        logger(CRON_HOUSEKEEPER_LOG, 'removing backup: ' . BACKUP_PATH . $backup);
-        $shell->exec('rm -rf ' . BACKUP_PATH . $backup);
-    } else {
-        if ($backup[0] != '.') {
-            $daysBetween = daysBetweenDates($backup, date('Ymd'));
-
-            if ($daysBetween >= APP_BACKUPS) {
-                logger(CRON_HOUSEKEEPER_LOG, 'removing backup: ' . BACKUP_PATH . $backup);
-                $shell->exec('rm -rf ' . BACKUP_PATH . $backup);
+                if ($daysBetween >= $keep) {
+                    logger(CRON_HOUSEKEEPER_LOG, 'removing backup: ' . $path);
+                    $shell->exec('rm -rf ' . escapeshellarg($path));
+                }
             }
         }
+        closedir($dir);
     }
 }
 

@@ -57,6 +57,7 @@ define('SYSTEM_TMP', '/tmp/');
 define('APP_DATA_PATH', '/config/');
 define('BACKUP_PATH', APP_DATA_PATH . 'backups/');
 define('LOGS_PATH', APP_DATA_PATH . 'logs/');
+define('CRON_LOGS_PATH', LOGS_PATH . 'crons/');
 define('TMP_PATH', APP_DATA_PATH . 'tmp/');
 define('COMPOSE_PATH', APP_DATA_PATH . 'compose/');
 define('DATABASE_PATH', APP_DATA_PATH . 'database/');
@@ -102,6 +103,8 @@ define('CRON_COMMANDS_LOG', LOGS_PATH . 'crons/commands.log');
 define('CRON_HEALTH_LOG', LOGS_PATH . 'crons/health.log');
 define('CRON_SSE_LOG', LOGS_PATH . 'crons/sse.log');
 define('CRON_SECURITY_LOG', LOGS_PATH . 'crons/security.log');
+define('CRON_DISPATCHER_LOG', LOGS_PATH . 'crons/dispatcher.log');
+define('CRON_BACKUP_LOG', LOGS_PATH . 'crons/backup.log');
 define('LOG_ROTATE_SIZE', 2); //-- MB UNTIL ROTATE
 define('LOG_LEVEL_INFO', 0);
 define('LOG_LEVEL_DEBUG', 1);

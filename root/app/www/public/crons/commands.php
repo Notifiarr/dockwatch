@@ -18,6 +18,8 @@ if (!canCronRun('commands', $settingsTable)) {
     exit();
 }
 
+cronLock('commands', CRON_COMMANDS_LOG);
+
 //-- RUN COMMANDS
 $startStamp   = new DateTime();
 $commandsFile = apiRequest('file/commands')['result'] ?: [];

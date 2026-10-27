@@ -222,6 +222,9 @@ if (!IS_SSE) {
         $notifications = new Notifications();
         logger(SYSTEM_LOG, 'Init class: Notifications()');
 
+        $cron = new Cron();
+        logger(SYSTEM_LOG, 'Init class: Cron()');
+
         $security = new Security();
         logger(SYSTEM_LOG, 'Init class: Security()');
 

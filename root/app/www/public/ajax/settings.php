@@ -648,6 +648,33 @@ if ($_POST['m'] == 'init') {
                         <td class="bg-secondary">The database migration this server is on, changing this will re-apply all subsequent migrations and reset any settings they alter.</td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Backup time</td>
+                        <td class="bg-secondary">
+                            <select class="form-select" id="globalSetting-backupTime">
+                                <?php
+                                $backupTime = normalizeBackupTime($settingsTable['backupTime']);
+                                foreach (range(0, 23) as $hour) {
+                                    foreach ([0, 10, 20, 30, 40, 50] as $minute) {
+                                        $option = sprintf('%02d:%02d', $hour, $minute);
+                                        $label  = date('g:i A', mktime($hour, $minute, 0));
+                                        ?>
+                                        <option value="<?= htmlspecialchars($option, ENT_QUOTES, 'UTF-8') ?>" <?= $option == $backupTime ? 'selected' : '' ?>><?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?></option>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </td>
+                        <td class="bg-secondary">Daily automatic backup time. The dispatcher checks this every 10 minutes and runs once per day.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary" scope="row">Backup retention</td>
+                        <td class="bg-secondary">
+                            <input class="form-control" type="number" min="1" id="globalSetting-backupKeep" value="<?= $settingsTable['backupKeep'] ?>">
+                        </td>
+                        <td class="bg-secondary">Housekeeper removes backup folders older than this many days.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Database</td>
                         <td class="bg-secondary">
                             <div class="d-flex flex-wrap gap-2">
@@ -655,7 +682,10 @@ if ($_POST['m'] == 'init') {
                                 <button type="button" class="btn btn-sm btn-success" onclick="backupDatabase()">Backup</button>
                             </div>
                         </td>
-                        <td class="bg-secondary">Browse/backup the <?= APP_NAME ?> database. Backup runs a compressed mariadb-dump into <code><?= BACKUP_PATH ?></code>.</td>
+                        <td class="bg-secondary">Browse the <?= APP_NAME ?> database, or run a backup now. Each run dumps every table to its own <code>.sql</code> file under <code><?= BACKUP_PATH ?></code> and copies config JSON plus compose stacks into that folder.</td>
+                    </tr>
+                    <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                        <td class="bg-secondary p-3" colspan="3" id="backupList"><?= backupListHtml() ?></td>
                     </tr>
                     <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                         <td class="bg-secondary" scope="row">Containers clean up</td>
@@ -738,6 +768,14 @@ if ($_POST['m'] == 'saveGlobalSettings') {
             } catch (Exception $e) {
                 $val = DEFAULT_CRON;
             }
+        }
+
+        if ($key == 'backupTime') {
+            $val = normalizeBackupTime($val);
+        }
+
+        if ($key == 'backupKeep') {
+            $val = max(1, $val);
         }
 
         $newSettings[$key] = trim($val);

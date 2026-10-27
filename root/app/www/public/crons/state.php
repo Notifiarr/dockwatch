@@ -18,6 +18,8 @@ if (!canCronRun('state', $settingsTable)) {
     exit();
 }
 
+cronLock('state', CRON_STATE_LOG);
+
 $notify = $added = $removed = $previousStates = $currentStates = $previousContainers = $currentContainers = [];
 
 $stateFile      = apiRequest('file/state')['result'];

@@ -32,56 +32,62 @@ if ($_POST['m'] == 'init') {
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskCommandsDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskCommandsDisabled'] ? 'checked' : '' ?>></td>
                                 <td class="bg-secondary">Commands</td>
-                                <td class="bg-secondary">1m</td>
+                                <td class="bg-secondary"><?= $cron->taskLabel('commands', $settingsTable) ?></td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('commands')"></i></td>
                             </tr>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskStatsDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskStatsDisabled'] ? 'checked' : '' ?>></td>
                                 <td class="bg-secondary">Stats changes</td>
-                                <td class="bg-secondary">1m</td>
+                                <td class="bg-secondary"><?= $cron->taskLabel('stats', $settingsTable) ?></td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('stats')"></i></td>
                             </tr>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('sseEnabled', ($(this).prop('checked') ? 1 : 0))" <?= !$settingsTable['sseEnabled'] ? 'checked' : '' ?>></td>
                                 <td class="bg-secondary">SSE</td>
-                                <td class="bg-secondary">1m</td>
+                                <td class="bg-secondary"><?= $cron->taskLabel('sse', $settingsTable) ?></td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('sse')"></i></td>
                             </tr>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskStateDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskStateDisabled'] ? 'checked' : '' ?>></td>
                                 <td class="bg-secondary">State changes</td>
-                                <td class="bg-secondary">5m</td>
+                                <td class="bg-secondary"><?= $cron->taskLabel('state', $settingsTable) ?></td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('state')"></i></td>
                             </tr>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskPullsDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskPullsDisabled'] ? 'checked' : '' ?>></td>
                                 <td class="bg-secondary">Pulls</td>
-                                <td class="bg-secondary">5m</td>
+                                <td class="bg-secondary"><?= $cron->taskLabel('pulls', $settingsTable) ?></td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('pulls')"></i></td>
                             </tr>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskHousekeepingDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskHousekeepingDisabled'] ? 'checked' : '' ?>></td>
                                 <td class="bg-secondary">Housekeeping</td>
-                                <td class="bg-secondary">10m</td>
+                                <td class="bg-secondary"><?= $cron->taskLabel('housekeeper', $settingsTable) ?></td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('housekeeper')"></i></td>
                             </tr>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskHealthDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskHealthDisabled'] ? 'checked' : '' ?>></td>
                                 <td class="bg-secondary">Health</td>
-                                <td class="bg-secondary">15m</td>
+                                <td class="bg-secondary"><?= $cron->taskLabel('health', $settingsTable) ?></td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('health')"></i></td>
                             </tr>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"><input type="checkbox" class="form-check-input" onclick="updateTaskDisabled('taskPruneDisabled', ($(this).prop('checked') ? 1 : 0))" <?= $settingsTable['taskPruneDisabled'] ? 'checked' : '' ?>></td>
                                 <td class="bg-secondary">Prune</td>
-                                <td class="bg-secondary">24h</td>
+                                <td class="bg-secondary"><?= $cron->taskLabel('prune', $settingsTable) ?></td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('prune')"></i></td>
                             </tr>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"></td>
                                 <td class="bg-secondary">Security</td>
-                                <td class="bg-secondary">24h</td>
+                                <td class="bg-secondary"><?= $cron->taskLabel('security', $settingsTable) ?></td>
                                 <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('security')"></i></td>
+                            </tr>
+                            <tr class="border border-dark border-top-0 border-start-0 border-end-0">
+                                <td class="bg-secondary ps-3"></td>
+                                <td class="bg-secondary">Backup</td>
+                                <td class="bg-secondary"><?= $cron->taskLabel('backup', $settingsTable) ?></td>
+                                <td class="bg-secondary text-center"><i class="far fa-play-circle text-info" style="cursor: pointer;" onclick="runTask('backup')"></i></td>
                             </tr>
                             <tr class="border border-dark border-top-0 border-start-0 border-end-0">
                                 <td class="bg-secondary ps-3"></td>

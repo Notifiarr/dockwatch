@@ -41,8 +41,17 @@ function executeTask($task)
             $return  = $task . ' -><br>';
             $return .= 'Setting runTask-' . $task . ' cache key for 60 seconds...<br>';
             $return .= 'Sending task to background process...<br>';
-            $return .= $shell->background($cmd . ' 2>&1') . '<br>';
+            $return .= 'Background pid: ' . ($shell->background($cmd) ?: '0') . '<br>';
             $return .= $task . ' <-';
+
+            return $return;
+        case 'backup':
+            $cmd = '/usr/bin/php ' . ABSOLUTE_PATH . 'crons/backup.php manual';
+
+            $return  = 'backup -><br>';
+            $return .= 'Sending task to background process...<br>';
+            $return .= 'Background pid: ' . ($shell->background($cmd) ?: '0') . '<br>';
+            $return .= 'backup <-';
 
             return $return;
         case 'server':

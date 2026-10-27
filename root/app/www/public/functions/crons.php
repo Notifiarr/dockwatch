@@ -125,3 +125,29 @@ function canCronRun($cron, $settingsTable)
 
     return true;
 }
+
+function cronLock($name, $log)
+{
+    global $cron;
+
+    if (!$cron) {
+        logger($log, 'Cron cancelled: dispatcher is not loaded', 'error');
+        logger($log, 'run <-');
+        echo date('c') . ' Cron: ' . $name . ' cancelled, dispatcher is not loaded' . "\n";
+        echo date('c') . ' Cron: ' . $name . ' <-' . "\n";
+        exit();
+    }
+
+    $lock = $cron->setLockFile($name);
+    if (!$lock) {
+        logger($log, 'already running', 'warn');
+        logger($log, 'run <-');
+        echo date('c') . ' Cron: ' . $name . ' already running' . "\n";
+        echo date('c') . ' Cron: ' . $name . ' <-' . "\n";
+        exit();
+    }
+
+    register_shutdown_function(function () use ($cron, $lock) {
+        $cron->removeLockFile($lock);
+    });
+}

@@ -9,7 +9,7 @@
 
 require 'shared.php';
 
-if (($_POST['m'] ?? '') === 'backup') {
+if ($_POST['m'] == 'backup') {
     header('Content-Type: application/json; charset=utf-8');
 
     if (!isset($database->mysql) || !$database->mysql) {
@@ -17,16 +17,78 @@ if (($_POST['m'] ?? '') === 'backup') {
         exit;
     }
 
-    $database->mysqli_backup();
-    $path = BACKUP_PATH . date('Ymd') . '/' . DATABASE_NAME;
-    $ok   = is_file($path) && filesize($path) > 0;
-
-    if ($ok) {
+    $path = $cron->runBackup('manual');
+    if ($path) {
         echo json_encode(['success' => true, 'path' => $path]);
     } else {
-        echo json_encode(['error' => 'Backup did not produce a file. Check system logs and that mysqldump, mbuffer, and pigz are available.']);
+        echo json_encode(['error' => 'Backup did not finish. Check ' . CRON_BACKUP_LOG]);
     }
 
+    exit;
+}
+
+if ($_POST['m'] == 'listBackups') {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['html' => backupListHtml()]);
+    exit;
+}
+
+if ($_POST['m'] == 'deleteBackup') {
+    header('Content-Type: application/json; charset=utf-8');
+
+    $path = backupRunPath($_POST['folder'], $_POST['run']);
+    if ($path == '') {
+        echo json_encode(['error' => 'Backup not found']);
+        exit;
+    }
+
+    $shell->exec('rm -rf ' . escapeshellarg($path));
+    $dateDir = dirname($path);
+    if (is_dir($dateDir)) {
+        $left = array_diff(scandir($dateDir), ['.', '..']);
+        if (!$left) {
+            rmdir($dateDir);
+        }
+    }
+
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+if ($_POST['m'] == 'restoreBackup') {
+    header('Content-Type: application/json; charset=utf-8');
+
+    $path = backupRunPath($_POST['folder'], $_POST['run']);
+    if ($path == '' || !$database->mysqli_restore($path)) {
+        echo json_encode(['error' => 'Could not restore that backup']);
+        exit;
+    }
+
+    logger(SYSTEM_LOG, 'Database restored from backup ' . $path);
+    echo json_encode(['success' => true]);
+    exit;
+}
+
+if ($_GET['m'] == 'downloadBackup') {
+    $path = backupRunPath($_GET['folder'], $_GET['run']);
+    if ($path == '') {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => 'Backup not found']);
+        exit;
+    }
+
+    $zip = sys_get_temp_dir() . '/' . basename(dirname($path)) . '_' . basename($path) . '.zip';
+    if (!zipBackupFolder($path, $zip)) {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['error' => 'Could not zip that backup']);
+        exit;
+    }
+
+    header('Content-Type: application/zip');
+    header('Content-Disposition: attachment; filename="' . basename($zip) . '"');
+    header('Content-Length: ' . filesize($zip));
+    readfile($zip);
+    unlink($zip);
     exit;
 }
 

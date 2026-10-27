@@ -208,7 +208,81 @@ function backupDatabase()
                 toast('Database backup', resultData.error, 'error');
             } else {
                 toast('Database backup', 'Backup written to ' + resultData.path, 'success');
+                loadBackupList();
             }
+        },
+        error: function () {
+            pageLoadingStop();
+            toast('Database backup', 'Request failed', 'error');
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
+function loadBackupList()
+{
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/database.php',
+        data: '&m=listBackups',
+        dataType: 'json',
+        success: function (resultData) {
+            if (resultData && resultData.html) {
+                $('#backupList').html(resultData.html);
+            }
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
+function downloadBackup(folder, run)
+{
+    window.location = 'ajax/database.php?m=downloadBackup&folder=' + encodeURIComponent(folder) + '&run=' + encodeURIComponent(run);
+}
+// ---------------------------------------------------------------------------------------------
+function deleteBackup(folder, run)
+{
+    if (!confirm('Delete this backup?')) {
+        return;
+    }
+
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/database.php',
+        data: '&m=deleteBackup&folder=' + encodeURIComponent(folder) + '&run=' + encodeURIComponent(run),
+        dataType: 'json',
+        success: function (resultData) {
+            if (resultData.error) {
+                toast('Database backup', resultData.error, 'error');
+                return;
+            }
+            toast('Database backup', 'Backup deleted', 'success');
+            loadBackupList();
+        },
+        error: function () {
+            toast('Database backup', 'Request failed', 'error');
+        }
+    });
+}
+// ---------------------------------------------------------------------------------------------
+function restoreBackup(folder, run)
+{
+    if (!confirm('Restore this backup? The database will be replaced with this dump. Config files and compose stacks in the folder are not restored automatically.')) {
+        return;
+    }
+
+    pageLoadingStart();
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/database.php',
+        data: '&m=restoreBackup&folder=' + encodeURIComponent(folder) + '&run=' + encodeURIComponent(run),
+        dataType: 'json',
+        success: function (resultData) {
+            pageLoadingStop();
+            if (resultData.error) {
+                toast('Database backup', resultData.error, 'error');
+                return;
+            }
+            toast('Database backup', 'Database restored', 'success');
+            initPage('settings');
         },
         error: function () {
             pageLoadingStop();

@@ -18,6 +18,8 @@ if (!canCronRun('security', $settingsTable)) {
     exit();
 }
 
+cronLock('security', CRON_SECURITY_LOG);
+
 $security = $security ?? new Security();
 
 $containerList = apiRequest('stats/containers')['result']['result'];

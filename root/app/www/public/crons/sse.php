@@ -18,6 +18,8 @@ if (!canCronRun('sse', $settingsTable)) {
     exit();
 }
 
+cronLock('sse', CRON_SSE_LOG);
+
 $getExpandedProcessList = getExpandedProcessList(true, true, true);
 $processList            = $getExpandedProcessList['processList'];
 $updatedProcessList     = [];

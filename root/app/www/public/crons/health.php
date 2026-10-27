@@ -18,6 +18,8 @@ if (!canCronRun('health', $settingsTable)) {
     exit();
 }
 
+cronLock('health', CRON_HEALTH_LOG);
+
 $containerList = apiRequest('stats/containers')['result']['result'];
 if (empty($containerList)) {
     logger(CRON_HEALTH_LOG, 'Cron run stopped: error fetching container list', 'error');

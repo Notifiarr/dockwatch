@@ -89,6 +89,14 @@ trait NotificationTemplates
                     'token'     => '',
                     'details'   => ''
                 ];
+            case 'backup':
+                return [
+                    'event'   => '',
+                    'type'    => '',
+                    'status'  => '',
+                    'runtime' => '',
+                    'size'    => ''
+                ];
             default:
                 return [];
         }

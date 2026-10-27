@@ -20,6 +20,8 @@ if (!canCronRun('pulls', $settingsTable)) {
     exit();
 }
 
+cronLock('pulls', CRON_PULLS_LOG);
+
 $containersTable   = apiRequest('database/containers')['result'];
 $notify            = [];
 $startStamp        = new DateTime();

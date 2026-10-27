@@ -30,8 +30,11 @@ class Shell
 
     public function background($cmd)
     {
-        shell_exec('nohup ' . $cmd . ' > /dev/null 2>&1 &');
+        $pid = trim(shell_exec('nohup ' . $cmd . ' > /dev/null 2>&1 & echo $!') ?: '');
+        if ($pid == '') {
+            $pid = trim(shell_exec($cmd . ' > /dev/null 2>&1 & echo $!') ?: '');
+        }
 
-        return 'Background process sent';
+        return $pid;
     }
 }

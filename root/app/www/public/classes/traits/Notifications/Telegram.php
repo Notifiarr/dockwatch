@@ -189,6 +189,22 @@ trait Telegram
 
                 $message .= "\n";
                 break;
+            case 'backup':
+                $message .= APP_NAME . ': Backup' . "\n";
+                $message .= 'Server: _' . $payload['server']['name'] . '_' . "\n";
+                $message .= 'Type: ' . $payload['type'] . "\n";
+                $message .= 'Status: ' . $payload['status'] . "\n";
+
+                if ($payload['runtime']) {
+                    $message .= 'Runtime: ' . $payload['runtime'] . "\n";
+                }
+
+                if ($payload['size']) {
+                    $message .= 'Size: ' . $payload['size'] . "\n";
+                }
+
+                $message .= "\n";
+                break;
         }
 
         $message = $test ? $message .= '`[TEST NOTIFICATION]`' : $message;

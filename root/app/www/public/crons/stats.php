@@ -18,6 +18,8 @@ if (!canCronRun('stats', $settingsTable)) {
     exit();
 }
 
+cronLock('stats', CRON_STATS_LOG);
+
 $dockerStats = $docker->stats(false);
 apiRequest('file/stats', [], ['contents' => $dockerStats]);
 

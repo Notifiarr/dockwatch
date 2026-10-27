@@ -202,15 +202,116 @@ class Database
         return mysqli_insert_id($this->mysql);
     }
 
-    public function mysqli_backup()
+    public function mysqli_backup($type = 'automatic')
     {
-        $dir = BACKUP_PATH . date('Ymd');
-        if (!is_dir($dir)) {
-            createDirectoryTree($dir);
+        $type = ($type == 'manual') ? 'manual' : 'automatic';
+        $dir  = BACKUP_PATH . date('Ymd') . '/' . date('His') . '_' . $type;
+        if (!is_dir($dir) && !mkdir($dir, 0755, true)) {
+            logger(CRON_BACKUP_LOG, 'path failed ' . $dir, 'error');
+            return false;
         }
 
-        $exec = 'mariadb-dump --single-transaction=true --skip-lock-tables --quick --user=' . DB_USER . ' --password=' . DB_PASSWORD . ' --host=' . DB_HOST . ' ' . DB_NAME . ' 2>/dev/null > ' . $dir . '/' . DB_NAME . '.sql';
-        $this->shell->exec($exec);
+        logger(CRON_BACKUP_LOG, 'path=' . $dir);
+
+        $res = $this->mysqli_query('SHOW TABLES');
+        if (!$res) {
+            logger(CRON_BACKUP_LOG, 'tables=failed error=' . $this->mysqli_error(), 'error');
+            return false;
+        }
+
+        $success = true;
+        $count   = 0;
+        $failed  = 0;
+        $total   = 0;
+        while ($row = $this->mysqli_fetchAssoc($res)) {
+            $table = reset($row);
+            if ($table == '') {
+                continue;
+            }
+
+            $count++;
+            $file = $dir . '/' . $table . '.sql';
+            $exec = 'mariadb-dump --single-transaction=true --skip-lock-tables --quick --user=' . escapeshellarg(DB_USER) . ' --password=' . escapeshellarg(DB_PASSWORD) . ' --host=' . escapeshellarg(DB_HOST) . ' ' . escapeshellarg(DB_NAME) . ' ' . escapeshellarg($table) . ' > ' . escapeshellarg($file) . ' 2>/dev/null';
+            $this->shell->exec($exec);
+            clearstatcache(true, $file);
+            $size   = is_file($file) ? filesize($file) : 0;
+            $status = ($size > 0) ? 'success' : 'failed';
+            if ($status == 'failed') {
+                $success = false;
+                $failed++;
+            } else {
+                $total += $size;
+            }
+            logger(CRON_BACKUP_LOG, 'table=' . $table . ' status=' . $status . ' size=' . byteConversion($size));
+        }
+
+        if (!$count) {
+            logger(CRON_BACKUP_LOG, 'tables=0', 'error');
+            return false;
+        }
+
+        logger(CRON_BACKUP_LOG, 'tables=' . $count . ' success=' . ($count - $failed) . ' failed=' . $failed . ' size=' . byteConversion($total));
+
+        return ($success && $count) ? $dir : false;
+    }
+
+    public function mysqli_restore($dir)
+    {
+        $dir = rtrim(str_replace('\\', '/', $dir), '/');
+        if ($dir == '' || !is_dir($dir)) {
+            return false;
+        }
+
+        $files  = [];
+        $handle = opendir($dir);
+        if (!$handle) {
+            return false;
+        }
+        while ($file = readdir($handle)) {
+            if ($file[0] == '.' || !str_ends_with($file, '.sql') || !is_file($dir . '/' . $file)) {
+                continue;
+            }
+            $files[] = $dir . '/' . $file;
+        }
+        closedir($handle);
+
+        if (!$files) {
+            return false;
+        }
+        sort($files);
+
+        $this->mysqli_query('SET FOREIGN_KEY_CHECKS=0');
+        $res = $this->mysqli_query('SHOW TABLES');
+        if ($res) {
+            while ($row = $this->mysqli_fetchAssoc($res)) {
+                $table = reset($row);
+                if ($table == '') {
+                    continue;
+                }
+                $this->mysqli_query('DROP TABLE IF EXISTS `' . str_replace('`', '``', $table) . '`');
+            }
+        }
+
+        foreach ($files as $file) {
+            $exec = 'mariadb --user=' . escapeshellarg(DB_USER) . ' --password=' . escapeshellarg(DB_PASSWORD) . ' --host=' . escapeshellarg(DB_HOST) . ' ' . escapeshellarg(DB_NAME) . ' < ' . escapeshellarg($file) . ' 2>/dev/null';
+            $this->shell->exec($exec);
+        }
+
+        $this->mysqli_query('SET FOREIGN_KEY_CHECKS=1');
+
+        $res = $this->mysqli_query('SHOW TABLES');
+        if (!$res) {
+            return false;
+        }
+
+        $count = 0;
+        while ($row = $this->mysqli_fetchAssoc($res)) {
+            if (reset($row) != '') {
+                $count++;
+            }
+        }
+
+        return $count > 0;
     }
 
     public function query($query)

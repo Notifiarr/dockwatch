@@ -20,6 +20,8 @@ if (!canCronRun('prune', $settingsTable)) {
     exit();
 }
 
+cronLock('prune', CRON_PRUNE_LOG);
+
 $processList  = json_decode($docker->processList(), true);
 $imagePrune   = $imageList = $volumePrune = [];
 $networkPrune = [];
