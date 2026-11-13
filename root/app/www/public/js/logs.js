@@ -1,5 +1,4 @@
 let currentLog      = null;
-let logSubscription = null;
 let logAutoRefresh  = true;
 // ---------------------------------------------------------------------------------------------
 function setRefreshButton(button, enabled)
@@ -29,11 +28,12 @@ function keepLogScroll(update)
 // ---------------------------------------------------------------------------------------------
 function subscribeLogs()
 {
+    console.log('SSE: Starting..');
     if (!USE_SSE) {
         console.log('SSE: Disabled');
         return;
     }
-    closeLogSubscription();
+    closeSubscription('logs');
 
     if (!logAutoRefresh) {
         return;
@@ -63,15 +63,9 @@ function subscribeLogs()
         };
     }
 
-    logSubscription = sseSubscribe(handlers, currentLog ? { log: currentLog.log } : {});
-}
-// ---------------------------------------------------------------------------------------------
-function closeLogSubscription()
-{
-    if (logSubscription) {
-        logSubscription.close();
-        logSubscription = null;
-    }
+    sseSubscribe('logs', handlers, currentLog ? { log: currentLog.log } : {});
+
+    console.log('SSE: Started');
 }
 // ---------------------------------------------------------------------------------------------
 function toggleLogAutoRefresh()

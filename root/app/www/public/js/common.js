@@ -136,7 +136,8 @@ function clearInitPage(page)
 // -------------------------------------------------------------------------------------------
 function initPage(page)
 {
-    closeLogSubscription();
+    closeAllSubscriptions();
+
     $('.conatiner-links').hide();
     $('#left-slider').html('');
 
@@ -195,7 +196,7 @@ function initPage(page)
             }
 
             if (page == 'containers') {
-                openContainersSubscription();
+                subscribeContainers();
             }
 
             if (page == 'security') {
@@ -436,13 +437,12 @@ function toast(title, message, type)
 function updateActiveServer(serverId)
 {
     if (serverId != APP_SERVER_ID) {
-        closeContainersSubscription();
+        closeAllSubscriptions();
         USE_SSE = false;
         console.log('SSE: Disabled (Remote management)');
     } else {
         USE_SSE = SSE_SETTING ? true : false;
-        closeContainersSubscription();
-        openContainersSubscription();
+        closeAllSubscriptions();
     }
 
     $.ajax({

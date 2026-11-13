@@ -1,12 +1,38 @@
 const sseTimer    = 57;
 const sseInterval = 3;
 let sseCountdown  = 57;
-let containersSubscription = null;
+let sseSubscriptions = {};
+// -------------------------------------------------------------------------------------------
+function hasSubscription(name)
+{
+    return Object.prototype.hasOwnProperty.call(sseSubscriptions, name);
+}
+// -------------------------------------------------------------------------------------------
+function closeSubscription(name)
+{
+    const subscription = sseSubscriptions[name];
+
+    if (!subscription) {
+        return;
+    }
+
+    subscription.close();
+    delete sseSubscriptions[name];
+}
+// -------------------------------------------------------------------------------------------
+function closeAllSubscriptions()
+{
+    console.log('SSE: Closed');
+    Object.keys(sseSubscriptions).forEach((name) => closeSubscription(name));
+}
 // -------------------------------------------------------------------------------------------
 //-- Subscribes to named events from sse.php, handlers is { eventName: function (data) {} } and params go into the url
 //-- sse.php answers once per request and the browser reconnects on its own, the subscription closes while the tab is hidden
-function sseSubscribe(handlers, params = {}, onOpen = null)
+//-- A name is a channel key, subscribing the same name again replaces the previous stream
+function sseSubscribe(name, handlers, params = {}, onOpen = null)
 {
+    closeSubscription(name);
+
     const url = 'sse.php?' + $.param(Object.assign({ events: Object.keys(handlers).join(',') }, params));
     let source = null;
 
@@ -35,7 +61,8 @@ function sseSubscribe(handlers, params = {}, onOpen = null)
     document.addEventListener('visibilitychange', reconnect);
     reconnect();
 
-    return {
+    sseSubscriptions[name] = {
+        name,
         close: function () {
             document.removeEventListener('visibilitychange', reconnect);
 
@@ -45,23 +72,26 @@ function sseSubscribe(handlers, params = {}, onOpen = null)
             }
         }
     };
+
+    return sseSubscriptions[name];
 }
 // -------------------------------------------------------------------------------------------
-function openContainersSubscription()
+//-- The sse cron updates sse.json every minute, a poll only answers when the row data changed
+function subscribeContainers()
 {
-    //-- The sse cron updates sse.json every minute, a poll only answers when the row data changed
-    if (containersSubscription || !USE_SSE) {
-        if (!USE_SSE) {
-            console.log('SSE: Disabled');
-        }
+    if (!USE_SSE) {
+        console.log('SSE: Disabled');
+        return;
+    }
 
+    if (hasSubscription('containers')) {
         return;
     }
 
     console.log('SSE: Starting...');
     $('#sse-timer').html(sseTimer);
 
-    containersSubscription = sseSubscribe({
+    sseSubscribe('containers', {
         containers: function (processList) {
             $.each(processList, function (hash, processData) {
                 updateContainerRowText(hash, processData);
@@ -79,13 +109,5 @@ function openContainersSubscription()
         }
     });
     console.log('SSE: Started');
-}
-// -------------------------------------------------------------------------------------------
-function closeContainersSubscription()
-{
-    if (containersSubscription) {
-        containersSubscription.close();
-        containersSubscription = null;
-    }
 }
 // -------------------------------------------------------------------------------------------
