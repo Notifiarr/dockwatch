@@ -1,10 +1,94 @@
+let currentLog      = null;
+let logSubscription = null;
+let logAutoRefresh  = true;
+// ---------------------------------------------------------------------------------------------
+function setRefreshButton(button, enabled)
+{
+    $(button).find('i').toggleClass('fa-sync', enabled).toggleClass('fa-pause', !enabled);
+    $(button).attr('title', enabled ? 'Pause auto-refresh' : 'Resume auto-refresh');
+}
+// ---------------------------------------------------------------------------------------------
+function highlightLog(log)
+{
+    //-- MATCH THE LOG NAME STORED IN THE SPAN'S DATA ATTRIBUTE
+    $('[id^=logList-]').removeClass('text-warning').addClass('text-secondary').filter(function () {
+        return $(this).attr('data-log') === log;
+    }).removeClass('text-secondary').addClass('text-warning');
+}
+// ---------------------------------------------------------------------------------------------
+function keepLogScroll(update)
+{
+    const viewer    = $('#logViewer');
+    const follow    = viewer.scrollTop() + viewer.innerHeight() >= viewer[0].scrollHeight - 5;
+    const scrollTop = viewer.scrollTop();
+
+    update();
+
+    viewer.scrollTop(follow ? viewer[0].scrollHeight : scrollTop);
+}
+// ---------------------------------------------------------------------------------------------
+function subscribeLogs()
+{
+    if (!USE_SSE) {
+        console.log('SSE: Disabled');
+        return;
+    }
+    closeLogSubscription();
+
+    if (!logAutoRefresh) {
+        return;
+    }
+
+    const handlers = {
+        logList: function (html) {
+            $('#log-list').html(html);
+
+            if (currentLog) {
+                highlightLog(currentLog.log);
+            }
+        }
+    };
+
+    if (currentLog) {
+        handlers.log = function (result) {
+            if (result.error) {
+                return;
+            }
+
+            $('#logHeader').html(result.header);
+
+            keepLogScroll(function () {
+                $('#logViewer').html(result.log);
+            });
+        };
+    }
+
+    logSubscription = sseSubscribe(handlers, currentLog ? { log: currentLog.log } : {});
+}
+// ---------------------------------------------------------------------------------------------
+function closeLogSubscription()
+{
+    if (logSubscription) {
+        logSubscription.close();
+        logSubscription = null;
+    }
+}
+// ---------------------------------------------------------------------------------------------
+function toggleLogAutoRefresh()
+{
+    logAutoRefresh = !logAutoRefresh;
+
+    subscribeLogs();
+    setRefreshButton('#auto-refresh-toggle', logAutoRefresh);
+    $('#auto-refresh-status').text(logAutoRefresh ? '3s' : 'off');
+}
+// ---------------------------------------------------------------------------------------------
 function viewLog(name, hash)
 {
     pageLoadingStart();
 
-    $('[id^=logList-]').removeClass('*').addClass('text-secondary');
-    $('#logList-' + hash).removeClass('text-secondary').addClass('text-warning');
-    $('#logViewer').html('Fetching log...');
+    highlightLog(name);
+    currentLog = { log: name };
 
     $.ajax({
         type: 'POST',
@@ -17,12 +101,13 @@ function viewLog(name, hash)
             if (resultData.error) {
                 $('#logHeader').html('');
                 $('#logViewer').html(resultData.error);
-                $('#logViewer').scrollTop(999999);
             } else {
                 $('#logHeader').html(resultData.header);
                 $('#logViewer').html(resultData.log);
-                $('#logViewer').scrollTop(999999);
             }
+
+            $('#logViewer').scrollTop(999999);
+            subscribeLogs();
         }
     });
 }
@@ -31,8 +116,7 @@ function downloadLog(name, hash)
 {
     pageLoadingStart();
 
-    $('[id^=logList-]').removeClass('*').addClass('text-secondary');
-    $('#logList-' + hash).removeClass('text-secondary').addClass('text-warning');
+    highlightLog(name);
     $('#logViewer').html('Fetching log...');
 
     $.ajax({
@@ -92,6 +176,10 @@ function purgeLogs(group)
 function deleteLog(log)
 {
     pageLoadingStart();
+
+    if (currentLog && currentLog.log === log) {
+        currentLog = null;
+    }
 
     $.ajax({
         type: 'POST',

@@ -48,8 +48,6 @@ $(document).ready(function () {
         backdrop: 'static'
     });
 
-    initializeSSE();
-
     if (CURRENT_PAGE == 'overview') {
         setTimeout(function() {
             drawOverview();
@@ -138,6 +136,7 @@ function clearInitPage(page)
 // -------------------------------------------------------------------------------------------
 function initPage(page)
 {
+    closeLogSubscription();
     $('.conatiner-links').hide();
     $('#left-slider').html('');
 
@@ -191,6 +190,14 @@ function initPage(page)
                 drawOverview();
             }
 
+            if (page == 'logs') {
+                subscribeLogs();
+            }
+
+            if (page == 'containers') {
+                openContainersSubscription();
+            }
+
             if (page == 'security') {
                 $('#security-table').dataTable({
                     dom: 'lfBrtip',
@@ -198,9 +205,9 @@ function initPage(page)
                     paging: false,
                     ordering: true,
                     order: [[2, 'asc']],
-                    columnDefs: [{ 
-                        targets: [0, 1, 8], 
-                        orderable: false 
+                    columnDefs: [{
+                        targets: [0, 1, 8],
+                        orderable: false
                     }],
                     buttons: [],
                     initComplete: function () {
@@ -429,12 +436,13 @@ function toast(title, message, type)
 function updateActiveServer(serverId)
 {
     if (serverId != APP_SERVER_ID) {
-        sseSource.close();
+        closeContainersSubscription();
         USE_SSE = false;
         console.log('SSE: Disabled (Remote management)');
     } else {
         USE_SSE = SSE_SETTING ? true : false;
-        initializeSSE();
+        closeContainersSubscription();
+        openContainersSubscription();
     }
 
     $.ajax({

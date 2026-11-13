@@ -18,69 +18,69 @@ if ($_POST['m'] == 'init') {
     <div class="bg-secondary rounded p-4">
         <h5 class="text-info mb-2">Platforms</h5>
         <div class="rounded p-3 mb-4">
-        <div class="row">
-            <?php
-            foreach ($notificationPlatformTable as $notificationPlatform) {
-                $add = $notificationPlatform['parameters'] ? '<i class="fas fa-plus-circle text-light ms-3" style="cursor: pointer;" onclick="openNotificationTriggers(' . $notificationPlatform['id'] . ')"></i>' : '<span class="small-text fst-italic ms-3">Coming soon!</span>';
+            <div class="row">
+                <?php
+                foreach ($notificationPlatformTable as $notificationPlatform) {
+                    $add = $notificationPlatform['parameters'] ? '<i class="fas fa-plus-circle text-light ms-3" style="cursor: pointer;" onclick="openNotificationTriggers(' . $notificationPlatform['id'] . ')"></i>' : '<span class="small-text fst-italic ms-3">Coming soon!</span>';
 
-                ?>
-                <div class="col-sm-3 rounded me-3">
-                    <div class="container">
-                        <div class="bg-secondary rounded text-center p-1">
-                            <h4 class="mt-3"><?= $notificationPlatform['platform'] . $add ?></h4>
-                        </div>
-                    </div>
-                </div>
-                <?php
-            }
-            ?>
-        </div>
-        </div>
-        <h5 class="text-info mb-2">Configured senders</h5>
-        <div class="rounded p-3">
-        <div class="row">
-            <?php if (!$notificationLinkTable) { ?>
-                <div class="container">
-                    <div class="bg-secondary rounded p-4">
-                        Notifications have not been setup yet, click the plus icon above to set them up.
-                    </div>
-                </div>
-            <?php } else { ?>
-                <?php
-                foreach ($notificationLinkTable as $notificationLink) {
                     ?>
-                    <div class="col-sm-4 rounded me-3">
+                    <div class="col-sm-3 rounded me-3">
                         <div class="container">
-                            <div class="bg-secondary rounded text-center p-2">
-                                <h4 class="mt-3">
-                                    <?= $notificationLink['name'] ?>
-                                    <i class="fas fa-tools text-light ms-3" style="cursor: pointer;" title="Update this sender triggers" onclick="openNotificationTriggers(<?= $notificationLink['platform'] ?>, <?= $notificationLink['id'] ?>)"></i>
-                                    <i class="far fa-bell text-light ms-1" style="cursor: pointer;" title="Send test notification" onclick="testNotify(<?= $notificationLink['id'] ?>, 'test')"></i>
-                                </h4>
-                                <div class="row text-left">
-                                    <?php
-                                    if (!$notificationLink['trigger_ids']) {
-                                        ?>You have not configured any triggers for this notification<?php
-                                    } else {
-                                        $triggerIds      = $notificationLink['trigger_ids'] ? json_decode($notificationLink['trigger_ids'], true) : [];
-                                        $enabledTriggers = [];
-                                        foreach ($triggerIds as $triggerId) {
-                                            $trigger           = $notifications->getNotificationTriggerNameFromId($triggerId, $notificationTriggersTable);
-                                            $enabledTriggers[] = $trigger;
-                                        }
-
-                                        echo '<div><span class="text-success d-inline-block">Enabled:</span> ' . ($enabledTriggers ? implode(', ', $enabledTriggers) : 'No triggers enabled') . '</div>';
-                                    }
-                                    ?>
-                                </div>
+                            <div class="border border-secondary rounded bg-secondary text-center p-1">
+                                <h4 class="mt-3"><?= $notificationPlatform['platform'] . $add ?></h4>
                             </div>
                         </div>
                     </div>
                     <?php
                 }
                 ?>
-            <?php } ?>
+            </div>
         </div>
+        <h5 class="text-info mb-2">Configured senders</h5>
+        <div class="rounded p-3">
+            <div class="row">
+                <?php if (!$notificationLinkTable) { ?>
+                    <div class="container">
+                        <div class="border border-secondary bg-secondary rounded p-4">
+                            Notifications have not been setup yet, click the plus icon above to set them up.
+                        </div>
+                    </div>
+                <?php } else { ?>
+                    <?php
+                    foreach ($notificationLinkTable as $notificationLink) {
+                        ?>
+                        <div class="col-sm-4 rounded me-3">
+                            <div class="container">
+                                <div class="border border-secondary bg-secondary rounded text-center p-2">
+                                    <h4 class="mt-3">
+                                        <?= $notificationLink['name'] ?>
+                                        <i class="fas fa-tools text-light ms-3" style="cursor: pointer;" title="Update this sender triggers" onclick="openNotificationTriggers(<?= $notificationLink['platform'] ?>, <?= $notificationLink['id'] ?>)"></i>
+                                        <i class="far fa-bell text-light ms-1" style="cursor: pointer;" title="Send test notification" onclick="testNotify(<?= $notificationLink['id'] ?>, 'test')"></i>
+                                    </h4>
+                                    <div class="row text-left">
+                                        <?php
+                                        if (!$notificationLink['trigger_ids']) {
+                                            ?>You have not configured any triggers for this notification<?php
+                                        } else {
+                                            $triggerIds      = $notificationLink['trigger_ids'] ? json_decode($notificationLink['trigger_ids'], true) : [];
+                                            $enabledTriggers = [];
+                                            foreach ($triggerIds as $triggerId) {
+                                                $trigger           = $notifications->getNotificationTriggerNameFromId($triggerId, $notificationTriggersTable);
+                                                $enabledTriggers[] = $trigger;
+                                            }
+
+                                            echo '<div><span class="text-success d-inline-block">Enabled:</span> ' . ($enabledTriggers ? implode(', ', $enabledTriggers) : 'No triggers enabled') . '</div>';
+                                        }
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php
+                    }
+                    ?>
+                <?php } ?>
+            </div>
         </div>
     </div>
     <?php

@@ -24,19 +24,19 @@ class Database
     use Settings;
     use Users;
 
-    public $db;
-    public $settingsTable;
-    public $serversTable;
-    public $notificationPlatformTable;
-    public $notificationTriggersTable;
-    public $notificationLinkTable;
-    public $containersTable;
-    public $containerGroupsTable;
-    public $containerGroupLinksTable;
-    public $migrationStart            = '023';
-    public $mysql;
-    public $shell;
-    private $mysqliError = '';
+    public  $db;
+    public  $settingsTable;
+    public  $serversTable;
+    public  $notificationPlatformTable;
+    public  $notificationTriggersTable;
+    public  $notificationLinkTable;
+    public  $containersTable;
+    public  $containerGroupsTable;
+    public  $containerGroupLinksTable;
+    public  $migrationStart            = '023';
+    public  $mysql;
+    public  $shell;
+    private $mysqliError               = '';
     public function __construct()
     {
         global $shell;
@@ -52,7 +52,10 @@ class Database
 
     public function connect($dbFile)
     {
-        logger(SYSTEM_LOG, 'MYSQL: Connecting to \'' . DB_NAME . ' -> ' . DB_USER . '@' . DB_HOST . '\'...', 'shell');
+        //-- SKIP THE ROUTINE CONNECT LINE ON SSE POLLS, THE SSE LOG WATCHER WOULD SEE ITS OWN POLL AS A LOG CHANGE
+        if (!IS_SSE) {
+            logger(SYSTEM_LOG, 'MYSQL: Connecting to \'' . DB_NAME . ' -> ' . DB_USER . '@' . DB_HOST . '\'...', 'shell');
+        }
 
         $mysqlSetup = false;
 
@@ -401,8 +404,8 @@ class Database
 
             $currentMigration = $this->migrationStart;
         } else {
-            $sql = "SELECT value 
-                    FROM " . SETTINGS_TABLE . " 
+            $sql = "SELECT value
+                    FROM " . SETTINGS_TABLE . "
                     WHERE name = 'migration';";
             $res = $this->mysqli_query($sql);
             $row = $this->mysqli_fetchAssoc($res);

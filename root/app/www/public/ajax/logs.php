@@ -10,37 +10,7 @@
 require 'shared.php';
 
 if ($_POST['m'] == 'init') {
-    $logFiles = [];
-
-    //-- CHECK FOR LOGIN FAILURE FILES
-    $dir = opendir(APP_DATA_PATH);
-    while ($file = readdir($dir)) {
-        if (str_contains($file, 'login_failures') && !str_ends_with($file, '.gz')) {
-            $logFiles['login failures'][] = ['name' => $file, 'size' => filesize(APP_DATA_PATH . $file)];
-        }
-    }
-    closedir($dir);
-
-    $logDir = LOGS_PATH;
-    if (is_dir($logDir)) {
-        $dir = opendir($logDir);
-        while ($group = readdir($dir)) {
-            if ($group[0] != '.' && is_dir($logDir . $group)) {
-                $groupDir = opendir($logDir . $group . '/');
-                while ($log = readdir($groupDir)) {
-                    if ($log[0] != '.' && !is_dir($log) && !str_ends_with($log, '.gz') && !str_ends_with($log, '.lock')) {
-                        $logFiles[$group][] = ['name' => $log, 'size' => filesize($logDir . $group . '/' . $log)];
-                    }
-                }
-                closedir($groupDir);
-            }
-
-            if (is_array($logFiles[$group])) {
-                sort($logFiles[$group]);
-            }
-        }
-        closedir($dir);
-    }
+    $logFiles = getLogFiles();
 
     if (!$logFiles) {
         echo 'No log files have been generated yet.';
@@ -49,61 +19,17 @@ if ($_POST['m'] == 'init') {
         <div class="bg-secondary rounded p-4">
             <div class="row">
                 <div class="col-sm-3">
-                    <ul>
-                        <?php
-                        foreach ($logFiles as $group => $groupLogs) {
-                            ?>
-                            <h4 style="display: inline;" class="mt-3 mb-0"><?= $group ?></h4> <i class="far fa-trash-alt" style="display: inline; color: red; cursor: pointer;" title="Delete all <?= $group ?> log files" onclick="purgeLogs('<?= $group ?>')"></i><br>
-                            <?php if ($group == 'login failures') { ?>
-                                <span class="small-text text-muted"><?= APP_DATA_PATH ?></span>
-                            <?php } else { ?>
-                                <span class="small-text text-muted"><?= LOGS_PATH . $group ?>/</span>
-                            <?php } ?>
-                            <div class="mb-3" style="max-height: 300px; overflow: auto;">
-                                <?php
-
-                                if (!$groupLogs) {
-                                    continue;
-                                }
-                                $rotated = [];
-
-                                foreach ($groupLogs as $log) {
-                                    if (str_contains($log['name'], '-')) {
-                                        $rotated[] = $log;
-                                        continue;
-                                    }
-
-                                    $logHash = md5($log['name'] . mt_rand());
-                                    $group   = str_contains_any($group, ['login failures']) ? '' : $group . '/';
-                                    ?>
-                                    <li>
-                                        <span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group . $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>)
-                                        <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group . $log['name'] ?>')"></i>
-                                        <i class="fas fa-file-download text-primary" style="display: inline; cursor: pointer;" title="Download <?= $log['name'] ?>" onclick="downloadLog('<?= $group . $log['name'] ?>')"></i>
-                                    </li>
-                                    <?php
-                                }
-
-                                if ($rotated) {
-                                    ?>
-                                    <hr><?php
-                                    foreach ($rotated as $log) {
-                                        $logHash = md5($log['name']);
-                                        ?>
-                                        <li>
-                                            <span id="logList-<?= $logHash ?>" onclick="viewLog('<?= $group . '/' . $log['name'] ?>', '<?= $logHash ?>')" style="cursor: pointer;" class="text-secondary"><?= $log['name'] ?></span> (<?= byteConversion($log['size']) ?>)
-                                            <i class="far fa-trash-alt text-danger" style="display: inline; cursor: pointer;" title="Delete <?= $log['name'] ?>" onclick="deleteLog('<?= $group . '/' . $log['name'] ?>')"></i>
-                                            <i class="fas fa-file-download text-primary" style="display: inline; cursor: pointer;" title="Download <?= $log['name'] ?>" onclick="downloadLog('<?= $group . $log['name'] ?>')"></i>
-                                        </li>
-                                        <?php
-                                    }
-                                }
-                                ?>
-                            </div>
-                            <?php
-                        }
-                        ?>
-                    </ul>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <?php if ($settingsTable['sseEnabled']) { ?>
+                            <span class="text-muted small">Auto-refresh: <span id="auto-refresh-status">3s</span></span>
+                            <button id="auto-refresh-toggle" class="btn btn-sm btn-outline-success border-light" onclick="toggleLogAutoRefresh()" title="Toggle auto-refresh">
+                                <i class="fas fa-sync"></i>
+                            </button>
+                        <?php } ?>
+                    </div>
+                    <div id="log-list">
+                        <?= renderLogList() ?>
+                    </div>
                 </div>
                 <div class="col-sm-9">
                     <span id="logHeader"></span>
@@ -117,17 +43,7 @@ if ($_POST['m'] == 'init') {
 
 if ($_POST['m'] == 'viewLog') {
     logger(SYSTEM_LOG, 'View log: ' . $_POST['name']);
-
-    $apiRequest = apiRequest('server/log', ['name' => $_POST['name']]);
-
-    if ($apiRequest['code'] == 200) {
-        $result = json_decode($apiRequest['result'], true);
-    } else {
-        $error = 'Failed to get log from server ' . ACTIVE_SERVER_NAME;
-    }
-
-    $log = str_contains($_POST['name'], 'migrations') ? $result['log'] : htmlspecialchars($result['log']);
-    echo json_encode(['error' => $error, 'header' => $result['header'], 'log' => $log, 'server' => ACTIVE_SERVER_NAME]);
+    echo json_encode(getLogView($_POST['name']));
 }
 
 if ($_POST['m'] == 'purgeLogs') {

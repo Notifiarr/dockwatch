@@ -7,13 +7,13 @@ Dockwatch is a self-hosted, PHP-based web application for managing Docker contai
 - **Web Server:** Nginx + PHP-FPM (php ^8.4, built on `linuxserver/baseimage-alpine-nginx:3.23`) serves the UI from `root/app/www/public`.
 
 - **WebSocket daemon:** `websocket.php` boots a long-running Ratchet server (`classes/WebSocket.php` + traits in `classes/traits/WebSocket/`) on port 9910 (overridable in settings). Connections are fanned out into **channels** selected by `?type=` (currently `shell` and `compose`), each authorized with one-time memcached-backed tokens and the `dockwatch-ws` sub-protocol. Traits:
-  - `Server.php` — handshake, channel creation, message lifecycle
-  - `Auth.php` — memcached token issue/verify/revoke
-  - `Messages.php` — action routing (`resize`, `compose`)
-  - `Process.php` — streams external commands, retains full output via `buffer` + `onComplete` hook
-  - `Shell.php` — `docker exec` TTY streams (xterm.js UI)
-  - `Compose.php` — streams compose commands; generates compose with `docker-autocompose`
-  - `DockerSocket.php` — raw HTTP request/response to the Docker engine API (incl. exec)
+    - `Server.php` — handshake, channel creation, message lifecycle
+    - `Auth.php` — memcached token issue/verify/revoke
+    - `Messages.php` — action routing (`resize`, `compose`)
+    - `Process.php` — streams external commands, retains full output via `buffer` + `onComplete` hook
+    - `Shell.php` — `docker exec` TTY streams (xterm.js UI)
+    - `Compose.php` — streams compose commands; generates compose with `docker-autocompose`
+    - `DockerSocket.php` — raw HTTP request/response to the Docker engine API (incl. exec)
 
 - **Docker access:** HTTP against the engine API via `DOCKER_HOST` (defaults to the unix socket). The dev stack runs `tecnativa/docker-socket-proxy` and sets `DOCKER_HOST=tcp://socket-proxy:2375`. Streaming `docker exec` TTYs through the proxy requires the client to send `Upgrade: tcp` on `POST /exec/{id}/start` or stdin writes are dropped.
 
@@ -57,6 +57,7 @@ Dockwatch is a self-hosted, PHP-based web application for managing Docker contai
     */
     ```
 
-  (PHP files add the `<?php` line above the block.)
-- **Separators:** separate functions/sections with the same "spacer" divider already used in the codebase — `// ---------------------------------------------------------------------------------------------` (93 dashes) between functions in JS files, and the same style for section markers in PHP.
+    (PHP files add the `<?php` line above the block.)
+
+- **Separators:** separate functions/sections in JS files with `// ---------------------------------------------------------------------------------------------` (93 dashes).
 - **Comments:** inline comments begin with `//-- ` and are written in ALL CAPS — short but comprehensive (e.g. `//-- ROW VALUES`, `//-- WEBSOCKET STREAM SUPPORTED ACTIONS`). Use the same style in both PHP and JS.
