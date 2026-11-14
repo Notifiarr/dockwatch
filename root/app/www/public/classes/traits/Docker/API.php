@@ -250,8 +250,19 @@ trait DockersApi
             $payload['HostConfig']['Mounts'] = null;
         } else {
             foreach ($payload['HostConfig']['Mounts'] as $index => $mount) {
-                if (empty($payload['HostConfig']['Mounts'][$index]['VolumeOptions'])) {
-                    $payload['HostConfig']['Mounts'][$index]['VolumeOptions'] = null;
+                //-- COMPOSE SECRETS/CONFIG MOUNTS CONTAIN EMPTY OBJECT OPTIONS, WHICH GET RE-ENCODED AS [] AND FAIL THE API UNMARSHAL
+                foreach (['BindOptions', 'VolumeOptions', 'ImageOptions'] as $mountOption) {
+                    if (empty($payload['HostConfig']['Mounts'][$index][$mountOption])) {
+                        $payload['HostConfig']['Mounts'][$index][$mountOption] = null;
+                    }
+                }
+
+                if (!empty($payload['HostConfig']['Mounts'][$index]['VolumeOptions'])) {
+                    foreach (['Labels', 'DriverConfig'] as $volumeOption) {
+                        if (empty($payload['HostConfig']['Mounts'][$index]['VolumeOptions'][$volumeOption])) {
+                            $payload['HostConfig']['Mounts'][$index]['VolumeOptions'][$volumeOption] = null;
+                        }
+                    }
                 }
             }
         }
