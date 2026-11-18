@@ -33,8 +33,11 @@ logger(CRON_HEALTH_LOG, '$healthFile=' . json_encode($healthFile, JSON_UNESCAPED
 $unhealthy = $healthFile ?: [];
 logger(CRON_HEALTH_LOG, '$unhealthy=' . json_encode($unhealthy, JSON_UNESCAPED_SLASHES));
 
+$activeHashes = [];
+
 foreach ($containerList as $container) {
-    $nameHash = md5($container['name']);
+    $nameHash                = md5($container['name']);
+    $activeHashes[$nameHash] = true;
 
     if (!str_contains($container['status'], 'running')) {
         unset($unhealthy[$nameHash]);
@@ -46,7 +49,7 @@ foreach ($containerList as $container) {
         case 'unhealthy':
             logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' (' . $container['id'] . ') is unhealthy');
 
-            if (!$unhealthy[$nameHash]) {
+            if (empty($unhealthy[$nameHash])) {
                 logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' has not been restarted or notified for yet');
                 $unhealthy[$nameHash] = ['name' => $container['name'], 'image' => $container['image'], 'id' => $container['id']];
             }
@@ -59,6 +62,13 @@ foreach ($containerList as $container) {
             unset($unhealthy[$nameHash]);
             logger(CRON_HEALTH_LOG, 'container \'' . $container['name'] . '\' does not support health checks');
             break;
+    }
+}
+
+//-- REMOVE HEALTH ENTRIES FOR CONTAINERS THAT NO LONGER EXIST
+foreach (array_keys($unhealthy) as $nameHash) {
+    if (!isset($activeHashes[$nameHash])) {
+        unset($unhealthy[$nameHash]);
     }
 }
 
